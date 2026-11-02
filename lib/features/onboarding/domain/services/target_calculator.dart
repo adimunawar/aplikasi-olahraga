@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 import '../models/user_profile.dart';
-import '../../program/domain/models/program_day.dart';
+import '../../../program/domain/models/program_day.dart';
 
 class TargetCalculator {
   static const Map<int, double> _weekFactors = {

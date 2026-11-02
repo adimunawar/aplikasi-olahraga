@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import '../../exercises/domain/models/exercise.dart';
+import '../../../exercises/domain/models/exercise.dart';
 
 @immutable
 class FoodItem {

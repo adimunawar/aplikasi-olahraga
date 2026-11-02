@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../models/food_item.dart';
-import '../services/protein_recommendation_engine.dart';
+import '../../domain/models/food_item.dart';
+import '../../domain/services/protein_recommendation_engine.dart';
 
 class NutritionScreen extends StatefulWidget {
   const NutritionScreen({super.key});

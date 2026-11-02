@@ -36,15 +36,15 @@ class AppTheme {
         outlineVariant: AppColors.borderSubdued,
       ),
       textTheme: baseTextTheme.copyWith(
-        displayLarge: AppTypography.displayLarge(),
-        headlineLarge: AppTypography.headlineLarge(),
-        headlineMedium: AppTypography.headlineMedium(),
-        headlineSmall: AppTypography.headlineSmall(),
-        bodyLarge: AppTypography.bodyLarge(),
-        bodyMedium: AppTypography.bodyMedium(),
-        bodySmall: AppTypography.bodySmall(),
-        labelLarge: AppTypography.labelLarge(),
-        labelMedium: AppTypography.labelMedium(),
+        displayLarge: AppTypography.displayLarge,
+        headlineLarge: AppTypography.headlineLarge,
+        headlineMedium: AppTypography.headlineMedium,
+        headlineSmall: AppTypography.headlineSmall,
+        bodyLarge: AppTypography.bodyLarge,
+        bodyMedium: AppTypography.bodyMedium,
+        bodySmall: AppTypography.bodySmall,
+        labelLarge: AppTypography.labelLarge,
+        labelMedium: AppTypography.labelMedium,
       ),
       cardTheme: CardThemeData(
         color: AppColors.surfaceContainer,
@@ -59,7 +59,7 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.electricLime,
           foregroundColor: AppColors.canvasRoot,
-          textStyle: AppTypography.headlineSmall(color: AppColors.canvasRoot),
+          textStyle: AppTypography.headlineSmall.copyWith(color: AppColors.canvasRoot),
           minimumSize: const Size.fromHeight(54),
           elevation: 0,
           shape: RoundedRectangleBorder(

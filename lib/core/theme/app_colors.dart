@@ -92,5 +92,36 @@ class AppColors {
       offset: Offset(0, 4),
     ),
   ];
+
+  // --- Convenience Semantic Aliases for Clean Feature UI Presentation ---
+  static const Color canvas = canvasRoot;
+  static const Color surfaceRaised = surfaceElevated;
+  static const Color divider = borderSubdued;
+  static const Color textPrimary = onSurface;
+  static const Color textSecondary = onSurfaceVariant;
+  static const Color textDim = textMuted;
+  static const Color warmAmber = amberWarning;
+  static const Color coral = vibrantCoral;
+  static const Color pushWorkout = workoutPush;
+  static const Color legsWorkout = workoutLegs;
+  static const Color coreWorkout = workoutCore;
+  static const Color fullBodyWorkout = workoutFull;
+  static const Color restDay = workoutRest;
+
+  static Color forWorkoutCode(String code) {
+    switch (code.toUpperCase().trim()) {
+      case 'P':
+        return workoutPush;
+      case 'K':
+        return workoutLegs;
+      case 'C':
+        return workoutCore;
+      case 'F':
+        return workoutFull;
+      case 'R':
+      default:
+        return workoutRest;
+    }
+  }
 }
 

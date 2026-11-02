@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import '../../exercises/domain/models/exercise.dart';
+import '../../../exercises/domain/models/exercise.dart';
 
 enum WorkoutTypeCode {
   p,
@@ -123,9 +123,11 @@ class ProgramDay {
   });
 
   factory ProgramDay.fromJson(Map<String, dynamic> json) {
+    final dayNum = json['day'] as int;
+    final weekNum = json['week'] as int? ?? (((dayNum - 1) ~/ 7) + 1);
     return ProgramDay(
-      day: json['day'] as int,
-      week: json['week'] as int? ?? ((json['day'] as int - 1) ~/ 7 + 1),
+      day: dayNum,
+      week: weekNum,
       type: WorkoutTypeCode.fromString(json['type'] as String? ?? 'R'),
       focus: LocalizedString.fromJson(json['focus']),
       isRest: json['is_rest'] as bool? ?? false,
