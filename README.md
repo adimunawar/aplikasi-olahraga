@@ -1,0 +1,39 @@
+# Kinetic Fit - Aplikasi Olahraga Rumah (Program 30 Hari)
+
+Aplikasi mobile berbasis Flutter yang dirancang khusus untuk **membentuk otot (hipertrofi) dan meningkatkan kekuatan tubuh tanpa alat di rumah**. Berjalan sepenuhnya **offline-first**, tanpa akun/login, dan tanpa backend.
+
+---
+
+## 📚 Dokumentasi Proyek
+
+1. **[PRD-Aplikasi-Olahraga-Rumah.md](PRD-Aplikasi-Olahraga-Rumah.md)**: Product Requirement Document lengkap (ruang lingkup MVP, aturan program 30 hari, formula repetisi adaptif, dan fitur protein).
+2. **[ARCHITECTURE.md](ARCHITECTURE.md)**: **Pedoman arsitektur & design pattern wajib** (*Feature-First Layered Architecture* + Riverpod 2.x). Seluruh penulisan kode wajib mematuhi aturan di dokumen ini.
+
+---
+
+## 🎨 Desain Sistem: "Obsidian Kinetic"
+
+- **Latar Belakang**: `#0D0E11` (Obsidian Void) & `#121316` (Deep Surface)
+- **Aksen Utama**: `#CCFF00` (Electric Lime)
+- **Aksen Metrik**: `#38BDF8` (Ice Cyan)
+- **Aksen Istirahat**: `#F59E0B` (Warm Amber)
+- **Tipografi**:
+  - **Barlow Condensed**: Judul, angka metrik, dan countdown timer (*tabular figures*).
+  - **Plus Jakarta Sans**: Teks isi, panduan gerakan, dan label.
+
+---
+
+## 🚀 Memulai Proyek
+
+Pastikan Flutter SDK sudah terpasang di sistem Anda.
+
+```bash
+# Mengambil dependencies
+flutter pub get
+
+# Memeriksa kualitas kode (wajib 0 issues)
+flutter analyze
+
+# Menjalankan aplikasi
+flutter run
+```

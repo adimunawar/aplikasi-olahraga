@@ -1,0 +1,395 @@
+{
+  "program_id": "home_hypertrophy_30",
+  "name": {
+    "id": "Program Hipertrofi & Kekuatan 30 Hari",
+    "en": "30-Day Hypertrophy & Strength Program"
+  },
+  "description": {
+    "id": "Program latihan beban tubuh tanpa alat berdurasi 30 hari yang terstruktur dengan siklus P-K-C-R-P-F-R untuk merangsang pertumbuhan massa otot dan kekuatan.",
+    "en": "A structured 30-day bodyweight home workout program following the P-K-C-R-P-F-R split to stimulate hypertrophy and functional strength."
+  },
+  "total_days": 30,
+  "split_pattern": ["P", "K", "C", "R", "P", "F", "R"],
+  "days": [
+    {
+      "day": 1,
+      "week": 1,
+      "type": "P",
+      "focus": { "id": "Dorong (Dada & Triceps)", "en": "Push (Chest & Triceps)" },
+      "is_rest": false,
+      "is_retest_milestone": false,
+      "items": [
+        { "exercise_id": "push_up", "sets": 3, "reps": 8, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "diamond_push_up", "sets": 3, "reps": 8, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "incline_push_up", "sets": 3, "reps": 10, "rest_seconds": 60, "is_main": false },
+        { "exercise_id": "plank", "sets": 3, "duration_sec": 20, "rest_seconds": 60, "is_main": false }
+      ]
+    },
+    {
+      "day": 2,
+      "week": 1,
+      "type": "K",
+      "focus": { "id": "Kaki & Pinggul", "en": "Legs & Glutes" },
+      "is_rest": false,
+      "is_retest_milestone": false,
+      "items": [
+        { "exercise_id": "squat", "sets": 3, "reps": 8, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "lunges", "sets": 3, "reps": 10, "rest_seconds": 60, "is_main": false },
+        { "exercise_id": "glute_bridge", "sets": 3, "reps": 10, "rest_seconds": 60, "is_main": false },
+        { "exercise_id": "calf_raise", "sets": 3, "reps": 10, "rest_seconds": 60, "is_main": false }
+      ]
+    },
+    {
+      "day": 3,
+      "week": 1,
+      "type": "C",
+      "focus": { "id": "Core & Perut", "en": "Core & Abs" },
+      "is_rest": false,
+      "is_retest_milestone": false,
+      "items": [
+        { "exercise_id": "plank", "sets": 3, "duration_sec": 20, "rest_seconds": 60, "is_main": false },
+        { "exercise_id": "sit_up", "sets": 3, "reps": 8, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "leg_raise", "sets": 3, "reps": 10, "rest_seconds": 60, "is_main": false },
+        { "exercise_id": "mountain_climber", "sets": 3, "reps": 10, "rest_seconds": 60, "is_main": false }
+      ]
+    },
+    {
+      "day": 4,
+      "week": 1,
+      "type": "R",
+      "focus": { "id": "Pemulihan Aktif / Istirahat", "en": "Active Recovery / Rest" },
+      "is_rest": true,
+      "is_retest_milestone": false,
+      "items": []
+    },
+    {
+      "day": 5,
+      "week": 1,
+      "type": "P",
+      "focus": { "id": "Dorong (Hipertrofi Sesi 2)", "en": "Push (Hypertrophy Session 2)" },
+      "is_rest": false,
+      "is_retest_milestone": false,
+      "items": [
+        { "exercise_id": "push_up", "sets": 3, "reps": 8, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "diamond_push_up", "sets": 3, "reps": 8, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "incline_push_up", "sets": 3, "reps": 10, "rest_seconds": 60, "is_main": false },
+        { "exercise_id": "plank", "sets": 3, "duration_sec": 20, "rest_seconds": 60, "is_main": false }
+      ]
+    },
+    {
+      "day": 6,
+      "week": 1,
+      "type": "F",
+      "focus": { "id": "Kekuatan Seluruh Tubuh", "en": "Full Body Compound" },
+      "is_rest": false,
+      "is_retest_milestone": false,
+      "items": [
+        { "exercise_id": "burpee", "sets": 3, "reps": 8, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "jump_squat", "sets": 3, "reps": 8, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "push_up", "sets": 3, "reps": 8, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "mountain_climber", "sets": 3, "reps": 10, "rest_seconds": 60, "is_main": false }
+      ]
+    },
+    {
+      "day": 7,
+      "week": 1,
+      "type": "R",
+      "focus": { "id": "Istirahat Total", "en": "Full Rest" },
+      "is_rest": true,
+      "is_retest_milestone": false,
+      "items": []
+    },
+    {
+      "day": 8,
+      "week": 2,
+      "type": "P",
+      "focus": { "id": "Dorong (Dada & Triceps)", "en": "Push (Chest & Triceps)" },
+      "is_rest": false,
+      "is_retest_milestone": false,
+      "items": [
+        { "exercise_id": "push_up", "sets": 3, "reps": 10, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "diamond_push_up", "sets": 3, "reps": 10, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "incline_push_up", "sets": 3, "reps": 12, "rest_seconds": 60, "is_main": false },
+        { "exercise_id": "plank", "sets": 3, "duration_sec": 25, "rest_seconds": 60, "is_main": false }
+      ]
+    },
+    {
+      "day": 9,
+      "week": 2,
+      "type": "K",
+      "focus": { "id": "Kaki & Pinggul", "en": "Legs & Glutes" },
+      "is_rest": false,
+      "is_retest_milestone": false,
+      "items": [
+        { "exercise_id": "squat", "sets": 3, "reps": 10, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "lunges", "sets": 3, "reps": 12, "rest_seconds": 60, "is_main": false },
+        { "exercise_id": "glute_bridge", "sets": 3, "reps": 12, "rest_seconds": 60, "is_main": false },
+        { "exercise_id": "calf_raise", "sets": 3, "reps": 12, "rest_seconds": 60, "is_main": false }
+      ]
+    },
+    {
+      "day": 10,
+      "week": 2,
+      "type": "C",
+      "focus": { "id": "Core & Perut", "en": "Core & Abs" },
+      "is_rest": false,
+      "is_retest_milestone": false,
+      "items": [
+        { "exercise_id": "plank", "sets": 3, "duration_sec": 25, "rest_seconds": 60, "is_main": false },
+        { "exercise_id": "sit_up", "sets": 3, "reps": 10, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "leg_raise", "sets": 3, "reps": 12, "rest_seconds": 60, "is_main": false },
+        { "exercise_id": "mountain_climber", "sets": 3, "reps": 12, "rest_seconds": 60, "is_main": false }
+      ]
+    },
+    {
+      "day": 11,
+      "week": 2,
+      "type": "R",
+      "focus": { "id": "Pemulihan Aktif / Istirahat", "en": "Active Recovery / Rest" },
+      "is_rest": true,
+      "is_retest_milestone": false,
+      "items": []
+    },
+    {
+      "day": 12,
+      "week": 2,
+      "type": "P",
+      "focus": { "id": "Dorong (Hipertrofi Sesi 2)", "en": "Push (Hypertrophy Session 2)" },
+      "is_rest": false,
+      "is_retest_milestone": false,
+      "items": [
+        { "exercise_id": "push_up", "sets": 3, "reps": 10, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "diamond_push_up", "sets": 3, "reps": 10, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "incline_push_up", "sets": 3, "reps": 12, "rest_seconds": 60, "is_main": false },
+        { "exercise_id": "plank", "sets": 3, "duration_sec": 25, "rest_seconds": 60, "is_main": false }
+      ]
+    },
+    {
+      "day": 13,
+      "week": 2,
+      "type": "F",
+      "focus": { "id": "Kekuatan Seluruh Tubuh", "en": "Full Body Compound" },
+      "is_rest": false,
+      "is_retest_milestone": false,
+      "items": [
+        { "exercise_id": "burpee", "sets": 3, "reps": 10, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "jump_squat", "sets": 3, "reps": 10, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "push_up", "sets": 3, "reps": 10, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "mountain_climber", "sets": 3, "reps": 12, "rest_seconds": 60, "is_main": false }
+      ]
+    },
+    {
+      "day": 14,
+      "week": 2,
+      "type": "R",
+      "focus": { "id": "Istirahat Total", "en": "Full Rest" },
+      "is_rest": true,
+      "is_retest_milestone": false,
+      "items": []
+    },
+    {
+      "day": 15,
+      "week": 3,
+      "type": "P",
+      "focus": { "id": "Dorong & Evaluasi Tengah Program", "en": "Push & Mid-Program Re-test" },
+      "is_rest": false,
+      "is_retest_milestone": true,
+      "items": [
+        { "exercise_id": "push_up", "sets": 3, "reps": 12, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "diamond_push_up", "sets": 3, "reps": 12, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "incline_push_up", "sets": 3, "reps": 15, "rest_seconds": 60, "is_main": false },
+        { "exercise_id": "plank", "sets": 3, "duration_sec": 30, "rest_seconds": 60, "is_main": false }
+      ]
+    },
+    {
+      "day": 16,
+      "week": 3,
+      "type": "K",
+      "focus": { "id": "Kaki & Pinggul", "en": "Legs & Glutes" },
+      "is_rest": false,
+      "is_retest_milestone": false,
+      "items": [
+        { "exercise_id": "squat", "sets": 3, "reps": 12, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "lunges", "sets": 3, "reps": 15, "rest_seconds": 60, "is_main": false },
+        { "exercise_id": "glute_bridge", "sets": 3, "reps": 15, "rest_seconds": 60, "is_main": false },
+        { "exercise_id": "calf_raise", "sets": 3, "reps": 15, "rest_seconds": 60, "is_main": false }
+      ]
+    },
+    {
+      "day": 17,
+      "week": 3,
+      "type": "C",
+      "focus": { "id": "Core & Perut", "en": "Core & Abs" },
+      "is_rest": false,
+      "is_retest_milestone": false,
+      "items": [
+        { "exercise_id": "plank", "sets": 3, "duration_sec": 30, "rest_seconds": 60, "is_main": false },
+        { "exercise_id": "sit_up", "sets": 3, "reps": 12, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "leg_raise", "sets": 3, "reps": 15, "rest_seconds": 60, "is_main": false },
+        { "exercise_id": "mountain_climber", "sets": 3, "reps": 15, "rest_seconds": 60, "is_main": false }
+      ]
+    },
+    {
+      "day": 18,
+      "week": 3,
+      "type": "R",
+      "focus": { "id": "Pemulihan Aktif / Istirahat", "en": "Active Recovery / Rest" },
+      "is_rest": true,
+      "is_retest_milestone": false,
+      "items": []
+    },
+    {
+      "day": 19,
+      "week": 3,
+      "type": "P",
+      "focus": { "id": "Dorong (Hipertrofi Sesi 2)", "en": "Push (Hypertrophy Session 2)" },
+      "is_rest": false,
+      "is_retest_milestone": false,
+      "items": [
+        { "exercise_id": "push_up", "sets": 3, "reps": 12, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "diamond_push_up", "sets": 3, "reps": 12, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "incline_push_up", "sets": 3, "reps": 15, "rest_seconds": 60, "is_main": false },
+        { "exercise_id": "plank", "sets": 3, "duration_sec": 30, "rest_seconds": 60, "is_main": false }
+      ]
+    },
+    {
+      "day": 20,
+      "week": 3,
+      "type": "F",
+      "focus": { "id": "Kekuatan Seluruh Tubuh", "en": "Full Body Compound" },
+      "is_rest": false,
+      "is_retest_milestone": false,
+      "items": [
+        { "exercise_id": "burpee", "sets": 3, "reps": 12, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "jump_squat", "sets": 3, "reps": 12, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "push_up", "sets": 3, "reps": 12, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "mountain_climber", "sets": 3, "reps": 15, "rest_seconds": 60, "is_main": false }
+      ]
+    },
+    {
+      "day": 21,
+      "week": 3,
+      "type": "R",
+      "focus": { "id": "Istirahat Total", "en": "Full Rest" },
+      "is_rest": true,
+      "is_retest_milestone": false,
+      "items": []
+    },
+    {
+      "day": 22,
+      "week": 4,
+      "type": "P",
+      "focus": { "id": "Dorong Puncak Volume (4 Set)", "en": "Push Peak Volume (4 Sets)" },
+      "is_rest": false,
+      "is_retest_milestone": false,
+      "items": [
+        { "exercise_id": "push_up", "sets": 4, "reps": 12, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "diamond_push_up", "sets": 4, "reps": 12, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "incline_push_up", "sets": 4, "reps": 15, "rest_seconds": 60, "is_main": false },
+        { "exercise_id": "plank", "sets": 3, "duration_sec": 40, "rest_seconds": 60, "is_main": false }
+      ]
+    },
+    {
+      "day": 23,
+      "week": 4,
+      "type": "K",
+      "focus": { "id": "Kaki & Pinggul Puncak Volume", "en": "Legs & Glutes Peak Volume" },
+      "is_rest": false,
+      "is_retest_milestone": false,
+      "items": [
+        { "exercise_id": "squat", "sets": 4, "reps": 12, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "lunges", "sets": 4, "reps": 15, "rest_seconds": 60, "is_main": false },
+        { "exercise_id": "glute_bridge", "sets": 4, "reps": 15, "rest_seconds": 60, "is_main": false },
+        { "exercise_id": "calf_raise", "sets": 4, "reps": 15, "rest_seconds": 60, "is_main": false }
+      ]
+    },
+    {
+      "day": 24,
+      "week": 4,
+      "type": "C",
+      "focus": { "id": "Core Puncak Volume", "en": "Core Peak Volume" },
+      "is_rest": false,
+      "is_retest_milestone": false,
+      "items": [
+        { "exercise_id": "plank", "sets": 3, "duration_sec": 40, "rest_seconds": 60, "is_main": false },
+        { "exercise_id": "sit_up", "sets": 4, "reps": 12, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "leg_raise", "sets": 4, "reps": 15, "rest_seconds": 60, "is_main": false },
+        { "exercise_id": "mountain_climber", "sets": 4, "reps": 15, "rest_seconds": 60, "is_main": false }
+      ]
+    },
+    {
+      "day": 25,
+      "week": 4,
+      "type": "R",
+      "focus": { "id": "Pemulihan Aktif / Istirahat", "en": "Active Recovery / Rest" },
+      "is_rest": true,
+      "is_retest_milestone": false,
+      "items": []
+    },
+    {
+      "day": 26,
+      "week": 4,
+      "type": "P",
+      "focus": { "id": "Dorong Puncak Volume Sesi 2", "en": "Push Peak Volume Session 2" },
+      "is_rest": false,
+      "is_retest_milestone": false,
+      "items": [
+        { "exercise_id": "push_up", "sets": 4, "reps": 12, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "diamond_push_up", "sets": 4, "reps": 12, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "incline_push_up", "sets": 4, "reps": 15, "rest_seconds": 60, "is_main": false },
+        { "exercise_id": "plank", "sets": 3, "duration_sec": 40, "rest_seconds": 60, "is_main": false }
+      ]
+    },
+    {
+      "day": 27,
+      "week": 4,
+      "type": "F",
+      "focus": { "id": "Kekuatan Penuh Puncak Volume", "en": "Full Body Peak Volume" },
+      "is_rest": false,
+      "is_retest_milestone": false,
+      "items": [
+        { "exercise_id": "burpee", "sets": 4, "reps": 12, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "jump_squat", "sets": 4, "reps": 12, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "push_up", "sets": 4, "reps": 12, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "mountain_climber", "sets": 4, "reps": 15, "rest_seconds": 60, "is_main": false }
+      ]
+    },
+    {
+      "day": 28,
+      "week": 4,
+      "type": "R",
+      "focus": { "id": "Istirahat Total Pra-Finis", "en": "Pre-Finish Full Rest" },
+      "is_rest": true,
+      "is_retest_milestone": false,
+      "items": []
+    },
+    {
+      "day": 29,
+      "week": 5,
+      "type": "P",
+      "focus": { "id": "Dorong Puncak Akhir", "en": "Final Push Climax" },
+      "is_rest": false,
+      "is_retest_milestone": false,
+      "items": [
+        { "exercise_id": "push_up", "sets": 4, "reps": 12, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "diamond_push_up", "sets": 4, "reps": 12, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "incline_push_up", "sets": 4, "reps": 15, "rest_seconds": 60, "is_main": false },
+        { "exercise_id": "plank", "sets": 3, "duration_sec": 40, "rest_seconds": 60, "is_main": false }
+      ]
+    },
+    {
+      "day": 30,
+      "week": 5,
+      "type": "K",
+      "focus": { "id": "Kaki & Evaluasi Akhir 30 Hari", "en": "Legs & Final 30-Day Evaluation" },
+      "is_rest": false,
+      "is_retest_milestone": true,
+      "items": [
+        { "exercise_id": "squat", "sets": 4, "reps": 12, "rest_seconds": 60, "is_main": true },
+        { "exercise_id": "lunges", "sets": 4, "reps": 15, "rest_seconds": 60, "is_main": false },
+        { "exercise_id": "glute_bridge", "sets": 4, "reps": 15, "rest_seconds": 60, "is_main": false },
+        { "exercise_id": "calf_raise", "sets": 4, "reps": 15, "rest_seconds": 60, "is_main": false }
+      ]
+    }
+  ]
+}
