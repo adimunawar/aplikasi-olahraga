@@ -3,37 +3,39 @@ import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 import 'app_typography.dart';
 
-/// Tema aplikasi "Obsidian Kinetic" dengan dukungan Dark Mode (tema utama)
-/// dan Light Mode dengan rasio kontras tinggi sesuai PRD Bagian 8 & 9.
+/// Tema aplikasi "Home Bulking Coach v2" (PRD Bagian 12):
+/// - Light Theme sebagai tema utama aplikasi: Bersih, lapang, modern, aksen lime-green.
+/// - Card radius: 18 dp
+/// - Button radius: 14 dp
 class AppTheme {
   AppTheme._();
 
-  static ThemeData get darkTheme {
-    final baseTextTheme = GoogleFonts.plusJakartaSansTextTheme(ThemeData.dark().textTheme);
+  static ThemeData get lightTheme {
+    final baseTextTheme = GoogleFonts.interTextTheme(ThemeData.light().textTheme);
 
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.dark,
+      brightness: Brightness.light,
       scaffoldBackgroundColor: AppColors.background,
       colorScheme: const ColorScheme(
-        brightness: Brightness.dark,
-        primary: AppColors.electricLime,
-        onPrimary: AppColors.onPrimaryFixed,
-        primaryContainer: AppColors.primaryFixed,
-        onPrimaryContainer: AppColors.onPrimary,
+        brightness: Brightness.light,
+        primary: AppColors.primary,
+        onPrimary: AppColors.textPrimary,
+        primaryContainer: AppColors.successSurface,
+        onPrimaryContainer: AppColors.textPrimary,
         secondary: AppColors.secondary,
         onSecondary: AppColors.onSecondary,
         secondaryContainer: AppColors.surfaceInteractive,
-        onSecondaryContainer: AppColors.iceCyan,
-        tertiary: AppColors.tertiaryFixedDim,
-        onTertiary: AppColors.onTertiary,
-        error: AppColors.vibrantCoral,
+        onSecondaryContainer: AppColors.textPrimary,
+        tertiary: AppColors.amberWarning,
+        onTertiary: Colors.white,
+        error: AppColors.error,
         onError: AppColors.onError,
         surface: AppColors.surface,
-        onSurface: AppColors.onSurface,
-        onSurfaceVariant: AppColors.onSurfaceVariant,
-        outline: AppColors.outline,
-        outlineVariant: AppColors.borderSubdued,
+        onSurface: AppColors.textPrimary,
+        onSurfaceVariant: AppColors.textSecondary,
+        outline: AppColors.border,
+        outlineVariant: AppColors.outlineVariant,
       ),
       textTheme: baseTextTheme.copyWith(
         displayLarge: AppTypography.displayLarge,
@@ -45,91 +47,67 @@ class AppTheme {
         bodySmall: AppTypography.bodySmall,
         labelLarge: AppTypography.labelLarge,
         labelMedium: AppTypography.labelMedium,
+        labelSmall: AppTypography.labelSmall,
       ),
       cardTheme: CardThemeData(
-        color: AppColors.surfaceContainer,
+        color: AppColors.surfaceCard,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: AppColors.borderSubdued, width: 1),
+          borderRadius: BorderRadius.circular(18), // PRD 12.1: Card radius 18 dp
+          side: const BorderSide(color: AppColors.border, width: 1),
         ),
         margin: EdgeInsets.zero,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.electricLime,
-          foregroundColor: AppColors.canvasRoot,
-          textStyle: AppTypography.headlineSmall.copyWith(color: AppColors.canvasRoot),
-          minimumSize: const Size.fromHeight(54),
+          backgroundColor: AppColors.primary,
+          foregroundColor: AppColors.textPrimary,
+          textStyle: AppTypography.labelLarge.copyWith(fontWeight: FontWeight.w700),
+          minimumSize: const Size.fromHeight(52),
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(14), // PRD 12.1: Button radius 14 dp
           ),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.onSurface,
-          side: const BorderSide(color: AppColors.borderSubdued, width: 1),
+          foregroundColor: AppColors.textPrimary,
+          side: const BorderSide(color: AppColors.border, width: 1.5),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(14), // Button radius 14 dp
           ),
           minimumSize: const Size.fromHeight(48),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         ),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: AppColors.surfaceContainer,
-        selectedItemColor: AppColors.electricLime,
-        unselectedItemColor: AppColors.workoutRest,
+        backgroundColor: Colors.white,
+        selectedItemColor: AppColors.textPrimary,
+        unselectedItemColor: AppColors.textDim,
         type: BottomNavigationBarType.fixed,
-        elevation: 8,
+        elevation: 0,
       ),
       dividerTheme: const DividerThemeData(
-        color: AppColors.borderSubdued,
+        color: AppColors.border,
         thickness: 1,
         space: 1,
       ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.surface,
+        backgroundColor: AppColors.background,
         elevation: 0,
         scrolledUnderElevation: 0,
-        centerTitle: true,
+        centerTitle: false,
         titleTextStyle: TextStyle(
-          color: AppColors.onSurface,
-          fontSize: 18,
+          color: AppColors.textPrimary,
+          fontSize: 20,
           fontWeight: FontWeight.w700,
         ),
-        iconTheme: IconThemeData(color: AppColors.onSurface),
+        iconTheme: IconThemeData(color: AppColors.textPrimary),
       ),
     );
   }
 
-  static ThemeData get lightTheme {
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.light,
-      scaffoldBackgroundColor: const Color(0xFFF8F9FA),
-      colorScheme: const ColorScheme(
-        brightness: Brightness.light,
-        primary: Color(0xFF5E8B00), // Adjusted dark lime for contrast
-        onPrimary: Colors.white,
-        secondary: Color(0xFF007799),
-        onSecondary: Colors.white,
-        error: Color(0xFFBA1A1A),
-        onError: Colors.white,
-        surface: Colors.white,
-        onSurface: Color(0xFF191C1D),
-      ),
-      cardTheme: CardThemeData(
-        color: Colors.white,
-        elevation: 1,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: Color(0xFFE2E8F0)),
-        ),
-      ),
-    );
-  }
+  static ThemeData get darkTheme => lightTheme; // v2 fokus pada clean light theme sesuai PRD MVP
 }

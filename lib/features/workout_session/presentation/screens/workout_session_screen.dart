@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+import '../../../../core/database/app_database.dart';
+import '../../../../core/database/models/workout_session_entity.dart';
+import '../../../../core/database/models/workout_set_entity.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../exercises/domain/models/exercise.dart';
@@ -21,6 +24,10 @@ class WorkoutSessionScreen extends StatefulWidget {
 }
 
 class _WorkoutSessionScreenState extends State<WorkoutSessionScreen> {
+  final _db = AppDatabase.instance;
+  late final String _sessionId;
+  late final DateTime _startedAt;
+
   int _currentExerciseIndex = 0;
   int _currentSetIndex = 0; // 0-based
   int _actualReps = 8;
@@ -37,9 +44,26 @@ class _WorkoutSessionScreenState extends State<WorkoutSessionScreen> {
   @override
   void initState() {
     super.initState();
+    _startedAt = DateTime.now();
+    _sessionId = 'session_${_startedAt.millisecondsSinceEpoch}';
+
     // Enable wakelock so display does not sleep during active workout
     WakelockPlus.enable();
     _initCurrentSetTarget();
+    _initSessionInDb();
+  }
+
+  Future<void> _initSessionInDb() async {
+    final session = WorkoutSessionEntity(
+      id: _sessionId,
+      programId: 'program_30_days',
+      programDayId: widget.day.day,
+      programTitle: widget.day.focus.id,
+      scheduledDate: DateTime.now(),
+      startedAt: _startedAt,
+      status: WorkoutSessionStatus.inProgress,
+    );
+    await _db.saveWorkoutSession(session);
   }
 
   @override
@@ -80,6 +104,19 @@ class _WorkoutSessionScreenState extends State<WorkoutSessionScreen> {
 
     final logValue = item.isDurationBased ? _actualDurationSec : _actualReps;
     _completedSetLogs.putIfAbsent(item.exerciseId, () => []).add(logValue);
+
+    // Save set to SQLite incrementally (WKO-10)
+    final setEntity = WorkoutSetEntity(
+      id: 'set_${_sessionId}_${item.exerciseId}_${_currentSetIndex + 1}',
+      sessionId: _sessionId,
+      exerciseId: item.exerciseId,
+      setNumber: _currentSetIndex + 1,
+      targetReps: item.reps,
+      actualReps: item.isDurationBased ? null : _actualReps,
+      durationSeconds: item.isDurationBased ? _actualDurationSec : null,
+      status: WorkoutSetStatus.completed,
+    );
+    _db.saveWorkoutSet(setEntity);
 
     // Check if there are more sets for this exercise
     if (_currentSetIndex + 1 < item.sets) {
@@ -141,6 +178,21 @@ class _WorkoutSessionScreenState extends State<WorkoutSessionScreen> {
       totalSets += logs.length;
       totalReps += logs.fold(0, (sum, val) => sum + val);
     });
+
+    // Save finished session to DB (HIS-02)
+    final endedAt = DateTime.now();
+    final durationSeconds = endedAt.difference(_startedAt).inSeconds;
+    _db.saveWorkoutSession(WorkoutSessionEntity(
+      id: _sessionId,
+      programId: 'program_30_days',
+      programDayId: widget.day.day,
+      programTitle: widget.day.focus.id,
+      scheduledDate: _startedAt,
+      startedAt: _startedAt,
+      endedAt: endedAt,
+      durationSeconds: durationSeconds,
+      status: WorkoutSessionStatus.completed,
+    ));
 
     showDialog(
       context: context,
@@ -312,9 +364,24 @@ class _WorkoutSessionScreenState extends State<WorkoutSessionScreen> {
                 backgroundColor: AppColors.coral,
                 foregroundColor: Colors.white,
               ),
-              onPressed: () {
-                Navigator.pop(context); // Close dialog
-                Navigator.pop(context); // Exit session
+              onPressed: () async {
+                final endedAt = DateTime.now();
+                final durationSeconds = endedAt.difference(_startedAt).inSeconds;
+                await _db.saveWorkoutSession(WorkoutSessionEntity(
+                  id: _sessionId,
+                  programId: 'program_30_days',
+                  programDayId: widget.day.day,
+                  programTitle: widget.day.focus.id,
+                  scheduledDate: _startedAt,
+                  startedAt: _startedAt,
+                  endedAt: endedAt,
+                  durationSeconds: durationSeconds,
+                  status: WorkoutSessionStatus.incomplete,
+                ));
+                if (mounted) {
+                  Navigator.pop(context); // Close dialog
+                  Navigator.pop(context); // Exit session
+                }
               },
               child: const Text('Keluar'),
             ),

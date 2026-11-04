@@ -3,133 +3,129 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
-/// Sistem tipografi "Obsidian Kinetic":
-/// - Barlow Condensed: Untuk angka metrik, timer (tabular figures), headline, dan badge caps.
-/// - Plus Jakarta Sans: Untuk instruksi form gerakan, deskripsi anatomi, dan label antarmuka.
+/// Sistem tipografi "Home Bulking Coach v2" (PRD Bagian 12.1):
+/// - Inter: Tipografi utama yang bersih, modern, dan sangat terbaca pada layar mobile.
+/// - FontFeature.tabularFigures: Untuk angka timer, repetisi, dan metrik agar lebar angka stabil.
 class AppTypography {
   AppTypography._();
 
-  // --- Display & Timers (Barlow Condensed) ---
-  static TextStyle get displayTimer => GoogleFonts.barlowCondensed(
-        fontSize: 56,
+  // --- Display & Timers (Inter Bold / Tabular) ---
+  static TextStyle get displayTimer => GoogleFonts.inter(
+        fontSize: 52,
         fontWeight: FontWeight.w800,
         height: 1.0,
-        letterSpacing: 0.03,
-        color: AppColors.onSurface,
+        letterSpacing: -0.02,
+        color: AppColors.textPrimary,
         fontFeatures: const [FontFeature.tabularFigures()],
       );
 
   static TextStyle get timerDisplay => displayTimer;
 
-  static TextStyle get displayLarge => GoogleFonts.barlowCondensed(
-        fontSize: 44,
+  static TextStyle get displayLarge => GoogleFonts.inter(
+        fontSize: 36,
         fontWeight: FontWeight.w800,
-        height: 1.1,
-        letterSpacing: 0.02,
-        color: AppColors.onSurface,
+        height: 1.15,
+        letterSpacing: -0.02,
+        color: AppColors.textPrimary,
       );
 
-  static TextStyle get displayMedium => GoogleFonts.barlowCondensed(
-        fontSize: 32,
-        fontWeight: FontWeight.w800,
-        height: 1.1,
-        letterSpacing: 0.02,
-        color: AppColors.onSurface,
-      );
-
-  static TextStyle get dataMetric => GoogleFonts.barlowCondensed(
+  static TextStyle get displayMedium => GoogleFonts.inter(
         fontSize: 28,
         fontWeight: FontWeight.w700,
-        height: 1.0,
-        letterSpacing: 0.02,
-        color: AppColors.secondary,
-        fontFeatures: const [FontFeature.tabularFigures()],
-      );
-
-  static TextStyle get tabularMetricSmall => GoogleFonts.barlowCondensed(
-        fontSize: 18,
-        fontWeight: FontWeight.w700,
-        height: 1.0,
-        color: AppColors.secondary,
-        fontFeatures: const [FontFeature.tabularFigures()],
-      );
-
-  // --- Headlines (Barlow Condensed) ---
-  static TextStyle get headlineLarge => GoogleFonts.barlowCondensed(
-        fontSize: 32,
-        fontWeight: FontWeight.w700,
-        height: 1.12,
-        letterSpacing: 0.01,
-        color: AppColors.onSurface,
-      );
-
-  static TextStyle get headlineMedium => GoogleFonts.barlowCondensed(
-        fontSize: 24,
-        fontWeight: FontWeight.w700,
-        height: 1.16,
-        letterSpacing: 0.01,
-        color: AppColors.onSurface,
-      );
-
-  static TextStyle get headlineSmall => GoogleFonts.barlowCondensed(
-        fontSize: 20,
-        fontWeight: FontWeight.w600,
         height: 1.2,
-        letterSpacing: 0.005,
-        color: AppColors.onSurface,
+        letterSpacing: -0.01,
+        color: AppColors.textPrimary,
       );
 
-  static TextStyle get labelCaps => GoogleFonts.barlowCondensed(
-        fontSize: 13,
+  static TextStyle get dataMetric => GoogleFonts.inter(
+        fontSize: 26,
         fontWeight: FontWeight.w700,
         height: 1.1,
-        letterSpacing: 0.08,
-        color: AppColors.onSurfaceVariant,
+        letterSpacing: -0.01,
+        color: AppColors.textPrimary,
+        fontFeatures: const [FontFeature.tabularFigures()],
       );
 
-  // --- Body & Labels (Plus Jakarta Sans) ---
-  static TextStyle get bodyLarge => GoogleFonts.plusJakartaSans(
+  static TextStyle get tabularMetricSmall => GoogleFonts.inter(
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+        height: 1.1,
+        color: AppColors.textPrimary,
+        fontFeatures: const [FontFeature.tabularFigures()],
+      );
+
+  // --- Headlines ---
+  static TextStyle get headlineLarge => GoogleFonts.inter(
+        fontSize: 28,
+        fontWeight: FontWeight.w700,
+        height: 1.2,
+        letterSpacing: -0.01,
+        color: AppColors.textPrimary,
+      );
+
+  static TextStyle get headlineMedium => GoogleFonts.inter(
+        fontSize: 22,
+        fontWeight: FontWeight.w700,
+        height: 1.25,
+        letterSpacing: -0.01,
+        color: AppColors.textPrimary,
+      );
+
+  static TextStyle get headlineSmall => GoogleFonts.inter(
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        height: 1.3,
+        color: AppColors.textPrimary,
+      );
+
+  static TextStyle get labelCaps => GoogleFonts.inter(
+        fontSize: 12,
+        fontWeight: FontWeight.w700,
+        height: 1.2,
+        letterSpacing: 0.05,
+        color: AppColors.textSecondary,
+      );
+
+  // --- Body & Labels ---
+  static TextStyle get bodyLarge => GoogleFonts.inter(
         fontSize: 16,
         fontWeight: FontWeight.w500,
         height: 1.5,
-        color: AppColors.onSurface,
+        color: AppColors.textPrimary,
       );
 
-  static TextStyle get bodyMedium => GoogleFonts.plusJakartaSans(
+  static TextStyle get bodyMedium => GoogleFonts.inter(
         fontSize: 14,
         fontWeight: FontWeight.w400,
-        height: 1.42,
-        color: AppColors.onSurface,
+        height: 1.5,
+        color: AppColors.textPrimary,
       );
 
-  static TextStyle get bodySmall => GoogleFonts.plusJakartaSans(
+  static TextStyle get bodySmall => GoogleFonts.inter(
         fontSize: 12,
         fontWeight: FontWeight.w400,
-        height: 1.33,
-        color: AppColors.onSurfaceVariant,
+        height: 1.4,
+        color: AppColors.textSecondary,
       );
 
-  static TextStyle get labelLarge => GoogleFonts.plusJakartaSans(
-        fontSize: 14,
-        fontWeight: FontWeight.w700,
-        height: 1.28,
-        letterSpacing: 0.02,
-        color: AppColors.onSurface,
-      );
-
-  static TextStyle get labelMedium => GoogleFonts.plusJakartaSans(
-        fontSize: 12,
+  static TextStyle get labelLarge => GoogleFonts.inter(
+        fontSize: 15,
         fontWeight: FontWeight.w600,
-        height: 1.33,
-        letterSpacing: 0.03,
-        color: AppColors.onSurfaceVariant,
+        height: 1.2,
+        color: AppColors.textPrimary,
       );
 
-  static TextStyle get labelSmall => GoogleFonts.plusJakartaSans(
+  static TextStyle get labelMedium => GoogleFonts.inter(
+        fontSize: 13,
+        fontWeight: FontWeight.w500,
+        height: 1.2,
+        color: AppColors.textSecondary,
+      );
+
+  static TextStyle get labelSmall => GoogleFonts.inter(
         fontSize: 11,
         fontWeight: FontWeight.w500,
-        height: 1.3,
-        letterSpacing: 0.02,
-        color: AppColors.onSurfaceVariant,
+        height: 1.2,
+        color: AppColors.textMuted,
       );
 }
