@@ -13,6 +13,28 @@ class AppColors {
   static const Color successSurface = Color(0xFFE9F5DA);
   static const Color warningSurface = Color(0xFFFCE8E5);
 
+  // --- Mockup Standard Design Tokens ---
+  static const Color limeAccent = Color(0xFFC7F135); // Vibrant neon lime (Play buttons, active pills, highlights)
+  static const Color limeSurface = Color(0xFFEAF8D5); // Soft lime surface for circular icon backgrounds
+  static const Color limeCardSurface = Color(0xFFF4FBEB); // Soft lime card tint for Rest cards & current plan
+  static const Color limeCardBorder = Color(0xFFD4EBA8); // Soft lime border
+  static const Color darkCharcoal = Color(0xFF141718); // Pure charcoal headings, titles, active labels
+  static const Color cardBorder = Color(0xFFF1F3F5); // Card border standard (1.2px)
+  static const Color scaffoldBackground = Color(0xFFF9FAFB); // Screen background in modern mockup
+
+  // --- Extended Neutrals (Slate / Gray) ---
+  static const Color neutral50 = Color(0xFFF8FAFC);
+  static const Color neutral100 = Color(0xFFF1F5F9);
+  static const Color neutral200 = Color(0xFFE2E8F0);
+  static const Color neutral300 = Color(0xFFCBD5E1);
+  static const Color neutral400 = Color(0xFF94A3B8);
+  static const Color neutral500 = Color(0xFF64748B);
+  static const Color neutral600 = Color(0xFF475569);
+  static const Color neutral700 = Color(0xFF334155);
+  static const Color neutral800 = Color(0xFF1E293B);
+  static const Color greenDark = Color(0xFF4D7C0F);
+  static const Color greenBrand = Color(0xFF65A30D);
+
   // --- Surfaces & Containers (Light Theme) ---
   static const Color surface = Colors.white;
   static const Color surfaceCard = Colors.white;

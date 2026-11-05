@@ -167,33 +167,15 @@ class OnboardingWelcomeStep extends StatelessWidget {
                           children: [
                             Text(
                               'Better',
-                              style: GoogleFonts.caveat(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w700,
-                                fontStyle: FontStyle.italic,
-                                color: const Color(0xFF1E2522),
-                                height: 0.95,
-                              ),
+                              style: AppTypography.sloganText(fontSize: 17),
                             ),
                             Text(
                               'Stronger',
-                              style: GoogleFonts.caveat(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                                fontStyle: FontStyle.italic,
-                                color: const Color(0xFF1E2522),
-                                height: 0.95,
-                              ),
+                              style: AppTypography.sloganText(fontSize: 18),
                             ),
                             Text(
                               'You',
-                              style: GoogleFonts.caveat(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                                fontStyle: FontStyle.italic,
-                                color: const Color(0xFF1E2522),
-                                height: 0.95,
-                              ),
+                              style: AppTypography.sloganText(fontSize: 18),
                             ),
                             Container(
                               width: 32,
@@ -217,36 +199,17 @@ class OnboardingWelcomeStep extends StatelessWidget {
                       children: [
                         TextSpan(
                           text: 'Build\n',
-                          style: GoogleFonts.inter(
-                            fontSize: 34,
-                            fontWeight: FontWeight.w900,
-                            fontStyle: FontStyle.italic,
-                            color: const Color(0xFF141718),
-                            height: 1.05,
-                            letterSpacing: -0.8,
-                          ),
+                          style: AppTypography.onboardingTitleDisplay(),
                         ),
                         TextSpan(
                           text: 'Strength\n',
-                          style: GoogleFonts.inter(
-                            fontSize: 34,
-                            fontWeight: FontWeight.w900,
-                            fontStyle: FontStyle.italic,
+                          style: AppTypography.onboardingTitleDisplay(
                             color: const Color(0xFF7CB818),
-                            height: 1.05,
-                            letterSpacing: -0.8,
                           ),
                         ),
                         TextSpan(
                           text: 'at Home.',
-                          style: GoogleFonts.inter(
-                            fontSize: 34,
-                            fontWeight: FontWeight.w900,
-                            fontStyle: FontStyle.italic,
-                            color: const Color(0xFF141718),
-                            height: 1.05,
-                            letterSpacing: -0.8,
-                          ),
+                          style: AppTypography.onboardingTitleDisplay(),
                         ),
                       ],
                     ),
@@ -256,7 +219,7 @@ class OnboardingWelcomeStep extends StatelessWidget {
                   // 2. Subtitle 2 Baris
                   Text(
                     'Your journey to a stronger\nbody starts with a simple plan.',
-                    style: GoogleFonts.inter(
+                    style: AppTypography.bodyMedium.copyWith(
                       color: const Color(0xFF71767B),
                       fontSize: 13,
                       height: 1.35,

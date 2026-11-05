@@ -1,15 +1,28 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+
 import '../../../../core/database/app_database.dart';
-import '../../../../core/database/models/workout_session_entity.dart';
-import '../../../../core/database/models/workout_set_entity.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../exercises/domain/models/exercise.dart';
 import '../../../program/domain/models/program_day.dart';
+import '../controllers/workout_session_controller.dart';
+import '../widgets/active_workout_header.dart';
+import '../widgets/active_workout_video_card.dart';
+import '../widgets/active_exercise_info_header.dart';
+import '../widgets/active_workout_metrics_strip.dart';
+import '../widgets/active_circular_timer_controls.dart';
+import '../widgets/active_workout_up_next_card.dart';
 
-class WorkoutSessionScreen extends StatefulWidget {
+/// Layar Active Workout (Mockup 1:1 Resolusi Tinggi):
+/// - Presentation Layer murni (ConsumerStatefulWidget) dengan Riverpod 2.x
+/// - Terhubung ke WorkoutSessionController untuk sinkronisasi SQLite lokal & Supabase Cloud
+class WorkoutSessionScreen extends ConsumerStatefulWidget {
   final ProgramDay day;
   final List<Exercise> exercises;
 
@@ -20,726 +33,366 @@ class WorkoutSessionScreen extends StatefulWidget {
   });
 
   @override
-  State<WorkoutSessionScreen> createState() => _WorkoutSessionScreenState();
+  ConsumerState<WorkoutSessionScreen> createState() =>
+      _WorkoutSessionScreenState();
 }
 
-class _WorkoutSessionScreenState extends State<WorkoutSessionScreen> {
-  final _db = AppDatabase.instance;
-  late final String _sessionId;
-  late final DateTime _startedAt;
-
-  int _currentExerciseIndex = 0;
-  int _currentSetIndex = 0; // 0-based
-  int _actualReps = 8;
-  int _actualDurationSec = 20;
-
-  // Rest Timer State
-  bool _isResting = false;
-  int _restRemainingSeconds = 60;
-  Timer? _restTimer;
-
-  // Completed log: exerciseId -> list of actual reps or seconds
-  final Map<String, List<int>> _completedSetLogs = {};
+class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _startedAt = DateTime.now();
-    _sessionId = 'session_${_startedAt.millisecondsSinceEpoch}';
-
-    // Enable wakelock so display does not sleep during active workout
+    // Jaga layar tetap menyala saat latihan berlangsung
     WakelockPlus.enable();
-    _initCurrentSetTarget();
-    _initSessionInDb();
-  }
-
-  Future<void> _initSessionInDb() async {
-    final session = WorkoutSessionEntity(
-      id: _sessionId,
-      programId: 'program_30_days',
-      programDayId: widget.day.day,
-      programTitle: widget.day.focus.id,
-      scheduledDate: DateTime.now(),
-      startedAt: _startedAt,
-      status: WorkoutSessionStatus.inProgress,
-    );
-    await _db.saveWorkoutSession(session);
+    _startTimer();
   }
 
   @override
   void dispose() {
-    _restTimer?.cancel();
+    _timer?.cancel();
     WakelockPlus.disable();
     super.dispose();
   }
 
-  void _initCurrentSetTarget() {
-    final item = _currentWorkoutItem;
-    if (item != null) {
-      if (item.isDurationBased) {
-        _actualDurationSec = item.durationSec ?? 20;
-      } else {
-        _actualReps = item.reps ?? 8;
+  void _startTimer() {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) return;
+      final isFinished = ref
+          .read(workoutSessionControllerProvider.notifier)
+          .tickTimer(totalExercises: _totalExercises);
+
+      if (isFinished) {
+        _timer?.cancel();
+        _openSummaryScreen();
       }
+    });
+  }
+
+  void _onNextPressed() {
+    final isFinished = ref
+        .read(workoutSessionControllerProvider.notifier)
+        .nextPressed(totalExercises: _totalExercises);
+
+    if (isFinished) {
+      _timer?.cancel();
+      _openSummaryScreen();
     }
   }
 
-  WorkoutItem? get _currentWorkoutItem {
-    if (_currentExerciseIndex < widget.day.items.length) {
-      return widget.day.items[_currentExerciseIndex];
+  int get _totalExercises =>
+      widget.exercises.isNotEmpty ? widget.exercises.length : 5;
+
+  Exercise _getCurrentExercise(int currentIndex) {
+    if (widget.exercises.isNotEmpty && currentIndex < widget.exercises.length) {
+      return widget.exercises[currentIndex];
+    }
+    return _buildFallbackExercise('Push-up', 'Chest');
+  }
+
+  Exercise? _getNextExercise(int currentIndex) {
+    final nextIdx = currentIndex + 1;
+    if (widget.exercises.isNotEmpty && nextIdx < widget.exercises.length) {
+      return widget.exercises[nextIdx];
+    }
+    if (currentIndex < 4) {
+      return _buildFallbackExercise('Superman Pull', 'Back');
     }
     return null;
   }
 
-  Exercise? get _currentExercise {
-    if (_currentExerciseIndex < widget.exercises.length) {
-      return widget.exercises[_currentExerciseIndex];
-    }
-    return null;
-  }
+  Future<void> _openSummaryScreen() async {
+    _timer?.cancel();
 
-  void _completeCurrentSet() {
-    final item = _currentWorkoutItem;
-    if (item == null) return;
+    final profile = await AppDatabase.instance.getUserProfile();
+    final userName =
+        profile.displayName.isNotEmpty ? profile.displayName : 'Adi';
+    const programId = 'upper_body_strength';
 
-    final logValue = item.isDurationBased ? _actualDurationSec : _actualReps;
-    _completedSetLogs.putIfAbsent(item.exerciseId, () => []).add(logValue);
+    final programTitle = widget.day.focus.en.isNotEmpty
+        ? widget.day.focus.en
+        : (widget.day.focus.id.isNotEmpty
+              ? widget.day.focus.id
+              : 'Upper Body Strength');
 
-    // Save set to SQLite incrementally (WKO-10)
-    final setEntity = WorkoutSetEntity(
-      id: 'set_${_sessionId}_${item.exerciseId}_${_currentSetIndex + 1}',
-      sessionId: _sessionId,
-      exerciseId: item.exerciseId,
-      setNumber: _currentSetIndex + 1,
-      targetReps: item.reps,
-      actualReps: item.isDurationBased ? null : _actualReps,
-      durationSeconds: item.isDurationBased ? _actualDurationSec : null,
-      status: WorkoutSetStatus.completed,
+    // 1. Simpan sesi melalui Riverpod Controller (otomatis simpan SQLite & Supabase Sync)
+    final result = await ref
+        .read(workoutSessionControllerProvider.notifier)
+        .finishWorkoutSession(
+          programId: programId,
+          dayNumber: widget.day.day,
+          programTitle: programTitle,
+          totalExercises: _totalExercises,
+        );
+
+    if (!mounted) return;
+
+    final durationText = result != null
+        ? '${result.durationMinutes} min'
+        : '25 min';
+    final caloriesText = result != null
+        ? '≈ ${result.caloriesBurned} kcal'
+        : '≈ 185 kcal';
+    final completedSetsText = result != null
+        ? '${result.completedSets}'
+        : '${_totalExercises * 3}';
+
+    context.pushReplacement(
+      AppRoutes.workoutSummary,
+      extra: WorkoutSummaryArgs(
+        userName: userName,
+        workoutTitle: programTitle,
+        weekDayText: 'Week ${widget.day.week} • Day ${widget.day.day}',
+        durationText: durationText,
+        exercisesCountText: '$_totalExercises / $_totalExercises',
+        setsCountText: completedSetsText,
+        caloriesText: caloriesText,
+      ),
     );
-    _db.saveWorkoutSet(setEntity);
-
-    // Check if there are more sets for this exercise
-    if (_currentSetIndex + 1 < item.sets) {
-      _startRestTimer(item.restSeconds);
-    } else {
-      // Check if there are more exercises in this session
-      if (_currentExerciseIndex + 1 < widget.day.items.length) {
-        _startRestTimer(item.restSeconds);
-      } else {
-        // Workout Finished!
-        _showWorkoutSummaryDialog();
-      }
-    }
   }
 
-  void _startRestTimer(int durationSeconds) {
-    setState(() {
-      _isResting = true;
-      _restRemainingSeconds = durationSeconds;
-    });
-
-    _restTimer?.cancel();
-    _restTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_restRemainingSeconds > 1) {
-        setState(() {
-          _restRemainingSeconds--;
-        });
-      } else {
-        _skipRest();
-      }
-    });
-  }
-
-  void _skipRest() {
-    _restTimer?.cancel();
-    setState(() {
-      _isResting = false;
-      final item = _currentWorkoutItem;
-      if (item != null && _currentSetIndex + 1 < item.sets) {
-        _currentSetIndex++;
-      } else {
-        _currentExerciseIndex++;
-        _currentSetIndex = 0;
-      }
-      _initCurrentSetTarget();
-    });
-  }
-
-  void _addRestTime(int extraSeconds) {
-    setState(() {
-      _restRemainingSeconds += extraSeconds;
-    });
-  }
-
-  void _showWorkoutSummaryDialog() {
-    int totalSets = 0;
-    int totalReps = 0;
-    _completedSetLogs.forEach((_, logs) {
-      totalSets += logs.length;
-      totalReps += logs.fold(0, (sum, val) => sum + val);
-    });
-
-    // Save finished session to DB (HIS-02)
-    final endedAt = DateTime.now();
-    final durationSeconds = endedAt.difference(_startedAt).inSeconds;
-    _db.saveWorkoutSession(WorkoutSessionEntity(
-      id: _sessionId,
-      programId: 'program_30_days',
-      programDayId: widget.day.day,
-      programTitle: widget.day.focus.id,
-      scheduledDate: _startedAt,
-      startedAt: _startedAt,
-      endedAt: endedAt,
-      durationSeconds: durationSeconds,
-      status: WorkoutSessionStatus.completed,
-    ));
-
-    showDialog(
+  void _showOptionsSheet() {
+    showModalBottomSheet(
       context: context,
-      barrierDismissible: false,
-      builder: (_) {
-        return AlertDialog(
-          backgroundColor: AppColors.surface,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Row(
-            children: [
-              const Icon(Icons.emoji_events_rounded, color: AppColors.electricLime, size: 28),
-              const SizedBox(width: 10),
-              Text(
-                'SESI SELESAI!',
-                style: AppTypography.headlineSmall.copyWith(color: AppColors.textPrimary),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.refresh_rounded),
+              title: const Text('Reset Set Ini'),
+              onTap: () {
+                ref
+                    .read(workoutSessionControllerProvider.notifier)
+                    .resetCurrentSetTimer();
+                Navigator.pop(ctx);
+              },
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.check_circle_outline_rounded,
+                color: Color(0xFF65A30D),
               ),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Luar biasa! Anda telah menyelesaikan seluruh sesi latihan hari ini.',
-                style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceRaised,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildSummaryMetric('TOTAL SET', '$totalSets'),
-                    Container(width: 1, height: 30, color: AppColors.divider),
-                    _buildSummaryMetric('TOTAL REP/DETIK', '$totalReps'),
-                  ],
+              title: const Text(
+                'Selesaikan Sesi Sekarang',
+                style: TextStyle(
+                  color: Color(0xFF65A30D),
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 12),
-              Text(
-                '💡 Jangan lupa penuhi target protein harian Anda untuk mendukung sintesis protein otot.',
-                style: AppTypography.bodySmall.copyWith(color: AppColors.iceCyan),
+              onTap: () {
+                Navigator.pop(ctx);
+                _openSummaryScreen();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.exit_to_app_rounded, color: Colors.red),
+              title: const Text(
+                'Keluar Tanpa Menyimpan',
+                style: TextStyle(color: Colors.red),
               ),
-            ],
-          ),
-          actions: [
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.electricLime,
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                onPressed: () {
-                  Navigator.pop(context); // Close dialog
-                  Navigator.pop(context); // Return to Today Screen
-                },
-                child: Text(
-                  'KEMBALI KE BERANDA',
-                  style: AppTypography.labelLarge.copyWith(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+              onTap: () {
+                Navigator.pop(ctx);
+                context.pop();
+              },
             ),
           ],
-        );
-      },
+        ),
+      ),
     );
   }
 
-  Widget _buildSummaryMetric(String label, String value) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: AppTypography.labelSmall.copyWith(color: AppColors.textDim, fontSize: 10),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: AppTypography.tabularMetricSmall.copyWith(
-            color: AppColors.electricLime,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
+  Exercise _buildFallbackExercise(String name, String muscle) {
+    return Exercise(
+      id: name.toLowerCase().replaceAll(' ', '_'),
+      name: LocalizedString(id: name, en: name),
+      category: muscle.toLowerCase().contains('chest') ||
+              muscle.toLowerCase().contains('push')
+          ? ExerciseCategory.push
+          : muscle.toLowerCase().contains('leg')
+              ? ExerciseCategory.legs
+              : muscle.toLowerCase().contains('core')
+                  ? ExerciseCategory.core
+                  : ExerciseCategory.fullBody,
+      difficulty: ExerciseDifficulty.intermediate,
+      trackingType: TrackingType.reps,
+      primaryMuscles: [LocalizedString(id: muscle, en: muscle)],
+      stabilizerMuscles: const [LocalizedString(id: 'Core', en: 'Core')],
+      steps: const LocalizedList(
+        id: [
+          'Posisikan tubuh dengan stabil dan rentang gerak penuh.',
+          'Lakukan gerakan secara terkontrol dengan ritme teratur.',
+        ],
+        en: [
+          'Maintain a stable posture and full range of motion.',
+          'Execute the movement with controlled tempo.',
+        ],
+      ),
+      commonMistakes: const LocalizedList(
+        id: ['Menggunakan momentum alih-alih kekuatan otot.'],
+        en: ['Using momentum instead of muscular control.'],
+      ),
+      breathing: const LocalizedString(
+        id: 'Tarik napas saat menurunkan, hembuskan saat mendorong/menarik.',
+        en: 'Inhale during lowering phase, exhale during exertion.',
+      ),
+      variations: const ExerciseVariationGroup(),
+      media: const ExerciseMedia(
+        startPose: 'assets/images/Detail Gerakan.png',
+        endPose: 'assets/images/Detail Gerakan.png',
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final item = _currentWorkoutItem;
-    final exercise = _currentExercise;
+    final sessionState = ref.watch(workoutSessionControllerProvider);
 
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) {
-          _confirmExitSession();
-        }
-      },
-      child: Scaffold(
-        backgroundColor: AppColors.canvas,
-        appBar: AppBar(
-          backgroundColor: AppColors.canvas,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.close_rounded, color: AppColors.textPrimary),
-            onPressed: _confirmExitSession,
+    final exercise = _getCurrentExercise(sessionState.currentExerciseIndex);
+    final next = _getNextExercise(sessionState.currentExerciseIndex);
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_rounded,
+            color: Color(0xFF141718),
+            size: 24,
           ),
-          title: Text(
-            'HARI ${widget.day.day} • ${widget.day.type.code}',
-            style: AppTypography.headlineSmall.copyWith(color: AppColors.textPrimary),
-          ),
-          actions: [
-            Container(
-              margin: const EdgeInsets.only(right: 16),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceRaised,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Center(
-                child: Text(
-                  '${_currentExerciseIndex + 1} / ${widget.day.items.length}',
-                  style: AppTypography.tabularMetricSmall.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ),
-            ),
-          ],
+          onPressed: () => context.pop(),
         ),
-        body: _isResting ? _buildRestTimerView() : _buildActiveSetView(item, exercise),
-      ),
-    );
-  }
-
-  void _confirmExitSession() {
-    showDialog(
-      context: context,
-      builder: (_) {
-        return AlertDialog(
-          backgroundColor: AppColors.surface,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text(
-            'Akhiri Sesi Latihan?',
-            style: AppTypography.headlineSmall.copyWith(color: AppColors.textPrimary),
+        title: Text(
+          'Workout',
+          style: AppTypography.headlineSmall.copyWith(
+            fontWeight: FontWeight.w800,
+            fontSize: 18,
+            color: const Color(0xFF141718),
           ),
-          content: Text(
-            'Progres sesi ini belum selesai. Anda yakin ingin keluar sekarang?',
-            style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Lanjutkan', style: TextStyle(color: AppColors.textDim)),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.coral,
-                foregroundColor: Colors.white,
-              ),
-              onPressed: () async {
-                final endedAt = DateTime.now();
-                final durationSeconds = endedAt.difference(_startedAt).inSeconds;
-                await _db.saveWorkoutSession(WorkoutSessionEntity(
-                  id: _sessionId,
-                  programId: 'program_30_days',
-                  programDayId: widget.day.day,
-                  programTitle: widget.day.focus.id,
-                  scheduledDate: _startedAt,
-                  startedAt: _startedAt,
-                  endedAt: endedAt,
-                  durationSeconds: durationSeconds,
-                  status: WorkoutSessionStatus.incomplete,
-                ));
-                if (mounted) {
-                  Navigator.pop(context); // Close dialog
-                  Navigator.pop(context); // Exit session
-                }
-              },
-              child: const Text('Keluar'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildActiveSetView(WorkoutItem? item, Exercise? exercise) {
-    if (item == null || exercise == null) {
-      return const SizedBox.shrink();
-    }
-
-    final isDuration = item.isDurationBased;
-
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        child: Column(
-          children: [
-            // Exercise Title & Category
-            Text(
-              exercise.category.localizedName('id').toUpperCase(),
-              style: AppTypography.labelCaps.copyWith(
-                color: AppColors.electricLime,
-                letterSpacing: 2.0,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              exercise.name.id,
-              style: AppTypography.displayMedium.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-            ),
-
-            const SizedBox(height: 18),
-
-            // Set Indicators: 1, 2, 3
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(item.sets, (index) {
-                final isDone = index < _currentSetIndex;
-                final isCurrent = index == _currentSetIndex;
-
-                return Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 6),
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: isDone
-                        ? AppColors.electricLime
-                        : isCurrent
-                            ? AppColors.electricLime.withValues(alpha: 0.2)
-                            : AppColors.surfaceRaised,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: isCurrent
-                          ? AppColors.electricLime
-                          : isDone
-                              ? AppColors.electricLime
-                              : AppColors.divider,
-                      width: 2,
-                    ),
-                  ),
-                  child: Center(
-                    child: isDone
-                        ? const Icon(Icons.check, size: 20, color: Colors.black)
-                        : Text(
-                            '${index + 1}',
-                            style: AppTypography.labelLarge.copyWith(
-                              color: isCurrent ? AppColors.electricLime : AppColors.textDim,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                  ),
-                );
-              }),
-            ),
-
-            const Spacer(),
-
-            // Target vs Actual Reps Stepper Box
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: AppColors.divider),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    isDuration
-                        ? 'TARGET: ${item.durationSec} DETIK'
-                        : 'TARGET: ${item.reps} REPS',
-                    style: AppTypography.labelCaps.copyWith(
-                      color: AppColors.textSecondary,
-                      letterSpacing: 1.5,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Minus Button
-                      IconButton(
-                        iconSize: 48,
-                        color: AppColors.textSecondary,
-                        icon: const Icon(Icons.remove_circle_outline_rounded),
-                        onPressed: () {
-                          setState(() {
-                            if (isDuration) {
-                              if (_actualDurationSec > 5) _actualDurationSec -= 5;
-                            } else {
-                              if (_actualReps > 1) _actualReps--;
-                            }
-                          });
-                        },
-                      ),
-                      const SizedBox(width: 24),
-                      // Value Display
-                      Text(
-                        isDuration ? '$_actualDurationSec' : '$_actualReps',
-                        style: AppTypography.timerDisplay.copyWith(
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(width: 24),
-                      // Plus Button
-                      IconButton(
-                        iconSize: 48,
-                        color: AppColors.electricLime,
-                        icon: const Icon(Icons.add_circle_outline_rounded),
-                        onPressed: () {
-                          setState(() {
-                            if (isDuration) {
-                              _actualDurationSec += 5;
-                            } else {
-                              _actualReps++;
-                            }
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Catat rep/durasi sebenarnya yang berhasil Anda lakukan',
-                    style: AppTypography.bodySmall.copyWith(color: AppColors.textDim),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Hypertrophy form tip
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: AppColors.warmAmber.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.warmAmber.withValues(alpha: 0.3)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.tips_and_updates_outlined, color: AppColors.warmAmber, size: 20),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      'Otot tumbuh maksimal saat set dikerjakan hingga 1-2 rep mendekati gagal.',
-                      style: AppTypography.bodySmall.copyWith(color: AppColors.warmAmber),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const Spacer(),
-
-            // Big CTA: Complete Set
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.electricLime,
-                  foregroundColor: Colors.black,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                ),
-                onPressed: _completeCurrentSet,
-                child: Text(
-                  'SELESAIKAN SET ${_currentSetIndex + 1}',
-                  style: AppTypography.labelLarge.copyWith(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.0,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-          ],
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.more_horiz_rounded,
+              color: Color(0xFF141718),
+              size: 26,
+            ),
+            onPressed: _showOptionsSheet,
+          ),
+        ],
       ),
-    );
-  }
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 1. Header: Nama Program & Segmented Progress Bar
+                ActiveWorkoutHeader(
+                  workoutTitle: exercise.name.en,
+                  currentExerciseIndex: sessionState.currentExerciseIndex,
+                  totalExercises: _totalExercises,
+                ),
+                const SizedBox(height: 16),
 
-  Widget _buildRestTimerView() {
-    final nextItem = _currentWorkoutItem;
-    final nextExercise = _currentExercise;
+                // 2. Video Preview Card Gerakan
+                ActiveWorkoutVideoCard(
+                  imageAsset: exercise.media.startPose.isNotEmpty
+                      ? exercise.media.startPose
+                      : 'assets/images/Detail Gerakan.png',
+                  onFullscreen: () {
+                    context.push(AppRoutes.exerciseDetail, extra: exercise);
+                  },
+                ),
+                const SizedBox(height: 16),
 
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-        child: Column(
-          children: [
-            Text(
-              'WAKTU ISTIRAHAT OTOT',
-              style: AppTypography.labelCaps.copyWith(
-                color: AppColors.iceCyan,
-                letterSpacing: 2.0,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Tarik napas dalam, minum air, dan rilekskan otot',
-              style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
-              textAlign: TextAlign.center,
-            ),
+                // 3. Info Gerakan: Judul, Tag Kategori, & How to do it
+                ActiveExerciseInfoHeader(
+                  exerciseName: exercise.name.en.isNotEmpty
+                      ? exercise.name.en
+                      : exercise.name.id,
+                  categoryTag: exercise.primaryMuscles.isNotEmpty
+                      ? exercise.primaryMuscles.first.en
+                      : 'Chest',
+                  onHowToDoIt: () {
+                    context.push(AppRoutes.exerciseDetail, extra: exercise);
+                  },
+                ),
+                const SizedBox(height: 16),
 
-            const Spacer(),
+                // 4. Strip Metrik: Sets (1/3), Reps (8-12), Rest (60 sec)
+                ActiveWorkoutMetricsStrip(
+                  setsText:
+                      '${sessionState.currentSet} / ${sessionState.totalSetsPerExercise}',
+                  repsText: '8 – 12',
+                  restText: '${sessionState.defaultRestSeconds} sec',
+                ),
+                const SizedBox(height: 24),
 
-            // Big Rest Timer Countdown
-            Container(
-              width: 220,
-              height: 220,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.surface,
-                border: Border.all(color: AppColors.iceCyan, width: 4),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.iceCyan.withValues(alpha: 0.15),
-                    blurRadius: 30,
-                    spreadRadius: 5,
+                // 5. Timer Lingkaran Hijau Lime & Kontrol Pause / Next
+                ActiveCircularTimerControls(
+                  totalSeconds: sessionState.defaultRestSeconds,
+                  remainingSeconds: sessionState.remainingRestSeconds,
+                  isPaused: sessionState.isTimerPaused,
+                  onPauseToggle: () => ref
+                      .read(workoutSessionControllerProvider.notifier)
+                      .togglePauseTimer(),
+                  onNext: _onNextPressed,
+                ),
+                const SizedBox(height: 24),
+
+                // 6. Up Next Card di Bawah
+                if (next != null)
+                  ActiveWorkoutUpNextCard(
+                    nextExerciseName: next.name.en.isNotEmpty
+                        ? next.name.en
+                        : next.name.id,
+                    nextCategoryTag: next.primaryMuscles.isNotEmpty
+                        ? next.primaryMuscles.first.en
+                        : 'Back',
+                    nextThumbnailAsset: next.media.startPose.isNotEmpty
+                        ? next.media.startPose
+                        : 'assets/images/Detail Gerakan.png',
+                    onTap: _onNextPressed,
                   ),
-                ],
-              ),
-              child: Center(
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+
+          // Loading Overlay saat menyimpan sesi ke SQLite & Supabase
+          if (sessionState.isSaving)
+            Container(
+              color: Colors.black.withValues(alpha: 0.4),
+              child: const Center(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
+                    CircularProgressIndicator(color: AppColors.limeAccent),
+                    SizedBox(height: 14),
                     Text(
-                      '${(_restRemainingSeconds ~/ 60).toString().padLeft(2, '0')}:${(_restRemainingSeconds % 60).toString().padLeft(2, '0')}',
-                      style: AppTypography.timerDisplay.copyWith(
-                        color: AppColors.textPrimary,
-                        fontSize: 54,
-                      ),
-                    ),
-                    Text(
-                      'DETIK',
-                      style: AppTypography.labelSmall.copyWith(
-                        color: AppColors.iceCyan,
-                        letterSpacing: 1.5,
+                      'Menyimpan sesi latihan...',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
                       ),
                     ),
                   ],
                 ),
               ),
             ),
-
-            const SizedBox(height: 20),
-
-            // +15s Rest Button
-            OutlinedButton.icon(
-              onPressed: () => _addRestTime(15),
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(color: AppColors.iceCyan.withValues(alpha: 0.5)),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              icon: const Icon(Icons.add, color: AppColors.iceCyan),
-              label: Text(
-                '+15 Detik Istirahat',
-                style: AppTypography.labelLarge.copyWith(color: AppColors.iceCyan),
-              ),
-            ),
-
-            const Spacer(),
-
-            // Next Up Preview Card
-            if (nextExercise != null && nextItem != null)
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceRaised,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.skip_next_rounded, color: AppColors.electricLime, size: 28),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'BERIKUTNYA:',
-                            style: AppTypography.labelSmall.copyWith(
-                              color: AppColors.textDim,
-                              fontSize: 10,
-                            ),
-                          ),
-                          Text(
-                            '${nextExercise.name.id} (Set ${_currentSetIndex + 1})',
-                            style: AppTypography.labelLarge.copyWith(
-                              color: AppColors.textPrimary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-            const SizedBox(height: 20),
-
-            // Skip Rest CTA
-            SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.electricLime,
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                ),
-                onPressed: _skipRest,
-                child: Text(
-                  'LEWATI ISTIRAHAT & MULAI',
-                  style: AppTypography.labelLarge.copyWith(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }
 }
-

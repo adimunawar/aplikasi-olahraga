@@ -43,6 +43,7 @@ class WorkoutSessionEntity {
   final DateTime startedAt;
   final DateTime? endedAt;
   final int durationSeconds;
+  final int caloriesBurned;
   final WorkoutSessionStatus status;
   final String? notes;
 
@@ -55,6 +56,7 @@ class WorkoutSessionEntity {
     required this.startedAt,
     this.endedAt,
     this.durationSeconds = 0,
+    this.caloriesBurned = 0,
     required this.status,
     this.notes,
   });
@@ -69,6 +71,7 @@ class WorkoutSessionEntity {
       'started_at': startedAt.toIso8601String(),
       'ended_at': endedAt?.toIso8601String(),
       'duration_seconds': durationSeconds,
+      'calories_burned': caloriesBurned,
       'status': status.toDbString(),
       'notes': notes,
     };
@@ -90,6 +93,7 @@ class WorkoutSessionEntity {
           ? DateTime.tryParse(map['ended_at'].toString())
           : null,
       durationSeconds: (map['duration_seconds'] as num?)?.toInt() ?? 0,
+      caloriesBurned: (map['calories_burned'] as num?)?.toInt() ?? 0,
       status: WorkoutSessionStatus.fromDbString(map['status']?.toString()),
       notes: map['notes']?.toString(),
     );
@@ -98,6 +102,7 @@ class WorkoutSessionEntity {
   WorkoutSessionEntity copyWith({
     DateTime? endedAt,
     int? durationSeconds,
+    int? caloriesBurned,
     WorkoutSessionStatus? status,
     String? notes,
   }) {
@@ -110,6 +115,7 @@ class WorkoutSessionEntity {
       startedAt: startedAt,
       endedAt: endedAt ?? this.endedAt,
       durationSeconds: durationSeconds ?? this.durationSeconds,
+      caloriesBurned: caloriesBurned ?? this.caloriesBurned,
       status: status ?? this.status,
       notes: notes ?? this.notes,
     );

@@ -6,6 +6,8 @@ class DatabaseTables {
   static const String workoutSessions = 'workout_sessions';
   static const String workoutSets = 'workout_sets';
   static const String bodyMeasurements = 'body_measurements';
+  static const String userPrograms = 'user_programs';
+  static const String userSettings = 'user_settings';
 
   static const String createUserProfilesTable = '''
     CREATE TABLE IF NOT EXISTS $userProfiles (
@@ -20,6 +22,7 @@ class DatabaseTables {
       preferred_days_per_week INTEGER NOT NULL DEFAULT 4,
       unit_preference TEXT NOT NULL DEFAULT 'metric',
       equipments TEXT NOT NULL,
+      active_program_id TEXT NOT NULL DEFAULT 'upper_body_strength',
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
     );
@@ -35,6 +38,7 @@ class DatabaseTables {
       started_at TEXT NOT NULL,
       ended_at TEXT,
       duration_seconds INTEGER NOT NULL DEFAULT 0,
+      calories_burned INTEGER NOT NULL DEFAULT 0,
       status TEXT NOT NULL, -- 'in_progress', 'completed', 'incomplete', 'abandoned'
       notes TEXT
     );
@@ -63,6 +67,41 @@ class DatabaseTables {
       value REAL NOT NULL,
       unit TEXT NOT NULL DEFAULT 'kg',
       recorded_at TEXT NOT NULL
+    );
+  ''';
+
+  static const String createUserProgramsTable = '''
+    CREATE TABLE IF NOT EXISTS $userPrograms (
+      id TEXT PRIMARY KEY,
+      program_id TEXT NOT NULL,
+      program_name TEXT NOT NULL,
+      status TEXT NOT NULL, -- 'active', 'completed', 'paused'
+      total_weeks INTEGER NOT NULL DEFAULT 8,
+      days_per_week INTEGER NOT NULL DEFAULT 4,
+      current_week INTEGER NOT NULL DEFAULT 3,
+      current_day INTEGER NOT NULL DEFAULT 1,
+      started_at TEXT NOT NULL,
+      completed_at TEXT
+    );
+  ''';
+
+  static const String createUserSettingsTable = '''
+    CREATE TABLE IF NOT EXISTS $userSettings (
+      id TEXT PRIMARY KEY,
+      gender TEXT NOT NULL DEFAULT 'Male',
+      target_weight_kg REAL NOT NULL DEFAULT 65.0,
+      training_intensity TEXT NOT NULL DEFAULT 'Moderate',
+      workout_reminder INTEGER NOT NULL DEFAULT 1,
+      reminder_time TEXT NOT NULL DEFAULT '08:00 PM',
+      rest_day_reminder INTEGER NOT NULL DEFAULT 1,
+      progress_checkin INTEGER NOT NULL DEFAULT 1,
+      streak_reminder INTEGER NOT NULL DEFAULT 1,
+      language TEXT NOT NULL DEFAULT 'English',
+      theme TEXT NOT NULL DEFAULT 'Light',
+      haptic_feedback INTEGER NOT NULL DEFAULT 1,
+      sound_effects INTEGER NOT NULL DEFAULT 1,
+      data_sync INTEGER NOT NULL DEFAULT 1,
+      updated_at TEXT NOT NULL
     );
   ''';
 }

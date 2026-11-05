@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../core/database/app_database.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../domain/models/food_item.dart';
@@ -17,9 +19,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
   List<FoodItem> _foods = [];
   bool _isLoading = true;
 
-  double _dailyTargetG = 95.0;
-  double _loggedTodayG = 58.0;
-  final List<String> _loggedFoodIds = ['egg', 'tempeh'];
+  double _dailyTargetG = 100.0;
+  double _loggedTodayG = 0.0;
+  List<String> _loggedFoodIds = [];
 
   @override
   void initState() {
@@ -31,10 +33,29 @@ class _NutritionScreenState extends State<NutritionScreen> {
     try {
       final jsonString = await rootBundle.loadString('assets/data/foods.json');
       final list = jsonDecode(jsonString) as List<dynamic>;
-      final parsed = list.map((e) => FoodItem.fromJson(e as Map<String, dynamic>)).toList();
+      final parsed =
+          list.map((e) => FoodItem.fromJson(e as Map<String, dynamic>)).toList();
+
+      // Hitung target protein harian dari profil pengguna di SQLite
+      final profile = await AppDatabase.instance.getUserProfile();
+      final weight =
+          profile.currentWeightKg > 0 ? profile.currentWeightKg : 65.0;
+      final multiplier = profile.goal == 'muscle_gain' ? 1.8 : 1.6;
+      final targetProtein = (weight * multiplier).roundToDouble();
+
+      // Muat log hari ini dari SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final todayKey = DateTime.now().toIso8601String().substring(0, 10);
+      final savedLogged = prefs.getDouble('nutrition_protein_$todayKey') ?? 0.0;
+      final savedFoodIds =
+          prefs.getStringList('nutrition_foods_$todayKey') ?? [];
+
       if (mounted) {
         setState(() {
           _foods = parsed;
+          _dailyTargetG = targetProtein;
+          _loggedTodayG = savedLogged;
+          _loggedFoodIds = savedFoodIds;
           _isLoading = false;
         });
       }
@@ -45,12 +66,21 @@ class _NutritionScreenState extends State<NutritionScreen> {
     }
   }
 
-  void _logFood(FoodItem food) {
+  Future<void> _logFood(FoodItem food) async {
+    final newLogged = _loggedTodayG + food.proteinG;
+    final updatedList = List<String>.from(_loggedFoodIds)..add(food.id);
+
     setState(() {
-      _loggedTodayG += food.proteinG;
-      _loggedFoodIds.add(food.id);
+      _loggedTodayG = newLogged;
+      _loggedFoodIds = updatedList;
     });
 
+    final prefs = await SharedPreferences.getInstance();
+    final todayKey = DateTime.now().toIso8601String().substring(0, 10);
+    await prefs.setDouble('nutrition_protein_$todayKey', newLogged);
+    await prefs.setStringList('nutrition_foods_$todayKey', updatedList);
+
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         backgroundColor: AppColors.surfaceRaised,
@@ -103,12 +133,17 @@ class _NutritionScreenState extends State<NutritionScreen> {
                 backgroundColor: AppColors.electricLime,
                 foregroundColor: Colors.black,
               ),
-              onPressed: () {
+              onPressed: () async {
                 final val = double.tryParse(controller.text);
                 if (val != null && val > 0) {
-                  setState(() => _loggedTodayG += val);
+                  final newLogged = _loggedTodayG + val;
+                  setState(() => _loggedTodayG = newLogged);
+                  final prefs = await SharedPreferences.getInstance();
+                  final todayKey =
+                      DateTime.now().toIso8601String().substring(0, 10);
+                  await prefs.setDouble('nutrition_protein_$todayKey', newLogged);
                 }
-                Navigator.pop(context);
+                if (context.mounted) Navigator.pop(context);
               },
               child: const Text('Catat'),
             ),

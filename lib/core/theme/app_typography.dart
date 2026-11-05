@@ -54,6 +54,8 @@ class AppTypography {
         fontFeatures: const [FontFeature.tabularFigures()],
       );
 
+  static TextStyle get tabularMetricLarge => dataMetric;
+
   // --- Headlines ---
   static TextStyle get headlineLarge => GoogleFonts.inter(
         fontSize: 28,
@@ -73,6 +75,29 @@ class AppTypography {
 
   static TextStyle get headlineSmall => GoogleFonts.inter(
         fontSize: 18,
+        fontWeight: FontWeight.w600,
+        height: 1.3,
+        color: AppColors.textPrimary,
+      );
+
+  // --- Titles ---
+  static TextStyle get titleLarge => GoogleFonts.inter(
+        fontSize: 20,
+        fontWeight: FontWeight.w700,
+        height: 1.25,
+        letterSpacing: -0.01,
+        color: AppColors.textPrimary,
+      );
+
+  static TextStyle get titleMedium => GoogleFonts.inter(
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+        height: 1.3,
+        color: AppColors.textPrimary,
+      );
+
+  static TextStyle get titleSmall => GoogleFonts.inter(
+        fontSize: 14,
         fontWeight: FontWeight.w600,
         height: 1.3,
         color: AppColors.textPrimary,
@@ -127,5 +152,30 @@ class AppTypography {
         fontWeight: FontWeight.w500,
         height: 1.2,
         color: AppColors.textMuted,
+      );
+
+  // --- Onboarding & Handwritten Special Styles ---
+  static TextStyle sloganText({
+    double fontSize = 18,
+    Color color = const Color(0xFF1E2522),
+  }) =>
+      GoogleFonts.caveat(
+        fontSize: fontSize,
+        fontWeight: FontWeight.w700,
+        fontStyle: FontStyle.italic,
+        color: color,
+        height: 0.95,
+      );
+
+  static TextStyle onboardingTitleDisplay({
+    Color color = const Color(0xFF141718),
+  }) =>
+      GoogleFonts.inter(
+        fontSize: 34,
+        fontWeight: FontWeight.w900,
+        fontStyle: FontStyle.italic,
+        color: color,
+        height: 1.05,
+        letterSpacing: -0.8,
       );
 }

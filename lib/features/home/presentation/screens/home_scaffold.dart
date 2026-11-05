@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_typography.dart';
 import 'home_screen.dart';
 import '../../../plans/presentation/screens/plans_screen.dart';
@@ -6,9 +7,14 @@ import '../../../progress/presentation/screens/progress_screen.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
 
 /// HomeScaffold - Bottom Navigation Bar 1:1 sesuai Desain Mockup:
-/// 4 Tab: Home, Plans, Progress, Profile.
+/// Mendukung GoRouter StatefulNavigationShell dan fallback IndexedStack.
 class HomeScaffold extends StatefulWidget {
-  const HomeScaffold({super.key});
+  final StatefulNavigationShell? navigationShell;
+
+  const HomeScaffold({
+    super.key,
+    this.navigationShell,
+  });
 
   @override
   State<HomeScaffold> createState() => _HomeScaffoldState();
@@ -17,8 +23,18 @@ class HomeScaffold extends StatefulWidget {
 class _HomeScaffoldState extends State<HomeScaffold> {
   int _currentIndex = 0;
 
+  int get _activeTab =>
+      widget.navigationShell?.currentIndex ?? _currentIndex;
+
   void _onTabTapped(int index) {
-    setState(() => _currentIndex = index);
+    if (widget.navigationShell != null) {
+      widget.navigationShell!.goBranch(
+        index,
+        initialLocation: index == widget.navigationShell!.currentIndex,
+      );
+    } else {
+      setState(() => _currentIndex = index);
+    }
   }
 
   @override
@@ -37,10 +53,11 @@ class _HomeScaffoldState extends State<HomeScaffold> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      body: IndexedStack(
-        index: _currentIndex,
-        children: screens,
-      ),
+      body: widget.navigationShell ??
+          IndexedStack(
+            index: _activeTab,
+            children: screens,
+          ),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           color: Colors.white,
@@ -86,7 +103,7 @@ class _HomeScaffoldState extends State<HomeScaffold> {
     required IconData icon,
     required String label,
   }) {
-    final isSelected = _currentIndex == index;
+    final isSelected = _activeTab == index;
 
     return InkWell(
       onTap: () => _onTabTapped(index),

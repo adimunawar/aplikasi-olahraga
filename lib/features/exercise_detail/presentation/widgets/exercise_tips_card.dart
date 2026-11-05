@@ -3,81 +3,79 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../exercises/domain/models/exercise.dart';
 
-/// Card "Tips" Latihan:
-/// Menampilkan checklist tips eksekusi gerakan yang aman dan efektif.
+/// Box 5: Tips for Beginners (Mockup 1:1)
+/// - Kartu bernuansa hijau lembut dengan icon lampu bohlam
+/// - Menampilkan tips pernapasan & panduan pemula dari `exercise.breathing`
 class ExerciseTipsCard extends StatelessWidget {
   final Exercise exercise;
 
-  const ExerciseTipsCard({
-    super.key,
-    required this.exercise,
-  });
+  const ExerciseTipsCard({super.key, required this.exercise});
 
   @override
   Widget build(BuildContext context) {
-    final tips = exercise.commonMistakes.id.isNotEmpty
-        ? exercise.commonMistakes.id
-        : [
-            'Jaga tubuh tetap lurus dari kepala hingga kaki.',
-            'Turunkan tubuh dengan kontrol, jangan terlalu cepat.',
-            'Jika masih berat, mulailah dengan Knee Push Up (dengan lutut).',
-          ];
+    final tipText = exercise.breathing.en.isNotEmpty
+        ? exercise.breathing.en
+        : (exercise.breathing.id.isNotEmpty
+            ? exercise.breathing.id
+            : 'Start with knee push-ups, keep your core tight, and focus on controlled, steady movement.');
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: AppColors.successSurface, // #E9F5DA
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFC7E5A5)),
+        color: const Color(0xFFF3F9EA), // Soft lime surface
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2EED0), width: 1.2),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Lampu Bohlam Icon Badge
           Container(
-            padding: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(
-              color: Color(0xFFB8E66B),
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: AppColors.limeAccent,
               shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.limeAccent.withValues(alpha: 0.35),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-            child: const Icon(Icons.lightbulb_outline_rounded, color: Color(0xFF13361A), size: 20),
+            child: const Center(
+              child: Icon(
+                Icons.lightbulb_outline_rounded,
+                color: Color(0xFF141718),
+                size: 20,
+              ),
+            ),
           ),
           const SizedBox(width: 14),
+
+          // Teks Tips
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Tips',
+                  'Tips for Beginners',
                   style: AppTypography.labelLarge.copyWith(
                     fontWeight: FontWeight.w800,
-                    color: const Color(0xFF13361A),
+                    fontSize: 14,
+                    color: const Color(0xFF141718),
                   ),
                 ),
-                const SizedBox(height: 8),
-                ...tips.map(
-                  (tip) => Padding(
-                    padding: const EdgeInsets.only(bottom: 6),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Icon(
-                          Icons.check_circle_rounded,
-                          color: Color(0xFF65A30D),
-                          size: 16,
-                        ),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            tip,
-                            style: AppTypography.bodySmall.copyWith(
-                              color: const Color(0xFF202820),
-                              height: 1.35,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                const SizedBox(height: 4),
+                Text(
+                  tipText,
+                  style: AppTypography.bodySmall.copyWith(
+                    fontSize: 12.5,
+                    color: const Color(0xFF475569),
+                    height: 1.45,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -88,4 +86,3 @@ class ExerciseTipsCard extends StatelessWidget {
     );
   }
 }
-

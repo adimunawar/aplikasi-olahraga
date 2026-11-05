@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/models/user_profile_entity.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../exercises/domain/models/exercise.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
 import '../../../exercises/data/repositories/exercise_repository_impl.dart';
 import '../../../program/domain/models/program_day.dart';
 import '../../../program/data/datasources/program_local_datasource.dart';
 import '../../../program/data/repositories/program_repository_impl.dart';
-import '../../../workout_session/presentation/screens/workout_session_screen.dart';
 import '../widgets/home_header.dart';
 import '../widgets/home_hero_banner.dart';
 import '../widgets/your_progress_section.dart';
@@ -41,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
   ProgramDay? _todayProgram;
   List<Exercise> _todayExercises = [];
   UserProfileEntity? _userProfile;
-  int _completedWorkouts = 6;
+  int _completedWorkouts = 0;
   bool _isLoading = true;
 
   @override
@@ -58,7 +60,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final completedCount = await _db.getCompletedSessionsCount();
 
     final exercisesMap = {for (final e in allExercises) e.id: e};
-    final resolvedExercises = programDay?.items
+    final resolvedExercises =
+        programDay?.items
             .map((item) => exercisesMap[item.exerciseId])
             .whereType<Exercise>()
             .toList() ??
@@ -69,9 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _todayProgram = programDay;
         _todayExercises = resolvedExercises;
         _userProfile = profile;
-        if (completedCount > 0) {
-          _completedWorkouts = completedCount;
-        }
+        _completedWorkouts = completedCount;
         _isLoading = false;
       });
     }
@@ -80,14 +81,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void _startWorkoutSession() {
     final day = _todayProgram;
     if (day != null && !day.isRest) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => WorkoutSessionScreen(
-            day: day,
-            exercises: _todayExercises,
-          ),
-        ),
+      context.push(
+        AppRoutes.workoutSession,
+        extra: WorkoutSessionArgs(day: day, exercises: _todayExercises),
       );
     } else {
       widget.onNavigateToCalendar();
@@ -118,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               // 1. Header: Sapaan "Hi, Adi 👋" & Notifikasi
               HomeHeader(
-                userName: _userProfile?.displayName ?? 'Adi',
+                userName: _userProfile?.displayName ?? '',
                 onNotificationTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Belum ada notifikasi baru.')),
@@ -129,9 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 28),
 
               // 2. Hero Banner: Bulking Program dengan Karakter Coach
-              HomeHeroBanner(
-                onStartToday: _startWorkoutSession,
-              ),
+              HomeHeroBanner(onStartToday: _startWorkoutSession),
 
               const SizedBox(height: 24),
 
@@ -168,4 +162,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-

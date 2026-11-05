@@ -123,17 +123,38 @@ class ProgramDay {
   });
 
   factory ProgramDay.fromJson(Map<String, dynamic> json) {
-    final dayNum = json['day'] as int;
-    final weekNum = json['week'] as int? ?? (((dayNum - 1) ~/ 7) + 1);
+    final dayNum = (json['day_number'] as num?)?.toInt() ??
+        (json['day'] as num?)?.toInt() ??
+        1;
+    final weekNum = (json['week_number'] as num?)?.toInt() ??
+        (json['week'] as num?)?.toInt() ??
+        (((dayNum - 1) ~/ 7) + 1);
+
+    final rawType = json['type_code'] as String? ?? json['type'] as String? ?? 'R';
+
+    LocalizedString parsedFocus;
+    if (json['focus'] != null) {
+      parsedFocus = LocalizedString.fromJson(json['focus']);
+    } else {
+      final enFocus = json['focus_en']?.toString();
+      final idFocus = json['focus_id']?.toString();
+      parsedFocus = LocalizedString(
+        id: idFocus ?? enFocus ?? 'Latihan',
+        en: enFocus ?? idFocus ?? 'Workout',
+      );
+    }
+
+    final rawItems = json['program_day_exercises'] ?? json['items'];
+
     return ProgramDay(
       day: dayNum,
       week: weekNum,
-      type: WorkoutTypeCode.fromString(json['type'] as String? ?? 'R'),
-      focus: LocalizedString.fromJson(json['focus']),
+      type: WorkoutTypeCode.fromString(rawType),
+      focus: parsedFocus,
       isRest: json['is_rest'] as bool? ?? false,
       isRetestMilestone: json['is_retest_milestone'] as bool? ?? false,
-      items: (json['items'] as List?)
-              ?.map((e) => WorkoutItem.fromJson(e as Map<String, dynamic>))
+      items: (rawItems as List?)
+              ?.map((e) => WorkoutItem.fromJson(Map<String, dynamic>.from(e as Map)))
               .toList() ??
           [],
     );

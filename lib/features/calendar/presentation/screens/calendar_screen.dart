@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/database/app_database.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../program/domain/models/program_day.dart';
@@ -7,7 +10,6 @@ import '../../../program/data/repositories/program_repository_impl.dart';
 import '../../../exercises/domain/models/exercise.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
 import '../../../exercises/data/repositories/exercise_repository_impl.dart';
-import '../../../workout_session/presentation/screens/workout_session_screen.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
@@ -22,6 +24,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   List<ProgramDay> _allDays = [];
   Map<String, Exercise> _exercisesMap = {};
+  Set<int> _completedDayNumbers = {};
   int _currentDay = 1;
   bool _isLoading = true;
 
@@ -35,11 +38,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final days = await _programRepo.get30DaysProgram();
     final exercises = await _exerciseRepo.getExercises();
     final curDay = await _programRepo.getCurrentProgramDay();
+    final completedDays = await AppDatabase.instance.getCompletedDayNumbers();
 
     if (mounted) {
       setState(() {
         _allDays = days;
         _exercisesMap = {for (final e in exercises) e.id: e};
+        _completedDayNumbers = completedDays;
         _currentDay = curDay;
         _isLoading = false;
       });
@@ -175,13 +180,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           .whereType<Exercise>()
                           .toList();
 
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => WorkoutSessionScreen(
-                            day: day,
-                            exercises: resolvedExercises,
-                          ),
+                      context.push(
+                        AppRoutes.workoutSession,
+                        extra: WorkoutSessionArgs(
+                          day: day,
+                          exercises: resolvedExercises,
                         ),
                       );
                     },
@@ -271,7 +274,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               itemBuilder: (context, index) {
                 final day = _allDays[index];
                 final isToday = day.day == _currentDay;
-                final isPassed = day.day < _currentDay;
+                final isCompleted = _completedDayNumbers.contains(day.day);
                 final color = AppColors.forWorkoutCode(day.type.code);
 
                 return GestureDetector(
@@ -305,12 +308,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           width: 26,
                           height: 26,
                           decoration: BoxDecoration(
-                            color: color.withValues(alpha: 0.2),
+                            color: isCompleted
+                                ? AppColors.electricLime.withValues(alpha: 0.25)
+                                : color.withValues(alpha: 0.2),
                             shape: BoxShape.circle,
                           ),
                           child: Center(
-                            child: isPassed
-                                ? Icon(Icons.check, size: 14, color: AppColors.electricLime)
+                            child: isCompleted
+                                ? const Icon(Icons.check, size: 14, color: AppColors.electricLime)
                                 : Text(
                                     day.type.code,
                                     style: AppTypography.labelSmall.copyWith(

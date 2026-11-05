@@ -1,17 +1,23 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../exercises/domain/models/exercise.dart';
-import '../widgets/exercise_hero_banner.dart';
-import '../widgets/video_preview_card.dart';
-import '../widgets/target_muscles_card.dart';
-import '../widgets/exercise_metrics_strip.dart';
-import '../widgets/exercise_steps_section.dart';
+import '../widgets/exercise_demo_card.dart';
+import '../widgets/exercise_focus_area_card.dart';
+import '../widgets/exercise_how_to_perform_card.dart';
+import '../widgets/exercise_common_mistakes_card.dart';
 import '../widgets/exercise_tips_card.dart';
 
 /// ExerciseDetailScreen:
-/// Halaman detail gerakan yang modular, bersih, dan sesuai dengan desain referensi.
+/// Halaman detail gerakan sesuai desain mockup referensi 1:1:
+/// - AppBar menampilkan nama latihan langsung (bukan teks 'Exercise Detail')
+/// - Tanpa header teks tambahan di atas video (langsung mulai dari demo player)
+/// - Box 1: Demo Gerakan (Pose Awal >>> Pose Akhir & tombol Watch Demo)
+/// - Box 2: Focus Area (Otot target list di kiri & Anatomi Front/Back di kanan)
+/// - Box 3: How to Perform (Step 1, 2, 3 berurutan dinamis dari data steps)
+/// - Box 4: Common Mistakes (List kesalahan umum tanpa gambar dengan icon silang merah)
+/// - Box 5: Tips for Beginners (Kartu tips hijau lembut dengan icon lampu bohlam)
 class ExerciseDetailScreen extends StatefulWidget {
   final Exercise exercise;
 
@@ -22,129 +28,105 @@ class ExerciseDetailScreen extends StatefulWidget {
 }
 
 class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
-  bool _isFavorite = false;
-  bool _isPlayingVideo = false;
-  bool _isShowingEndPose = false;
-  Timer? _poseTimer;
+  bool _isBookmarked = false;
 
-  @override
-  void initState() {
-    super.initState();
-    // Animasi preview posisi awal & akhir
-    _poseTimer = Timer.periodic(const Duration(milliseconds: 1600), (_) {
-      if (mounted) {
-        setState(() => _isShowingEndPose = !_isShowingEndPose);
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _poseTimer?.cancel();
-    super.dispose();
+  String get _exerciseTitle {
+    final e = widget.exercise;
+    if (e.name.en.isNotEmpty) return e.name.en;
+    if (e.name.id.isNotEmpty) return e.name.id;
+    return 'Exercise';
   }
 
   @override
   Widget build(BuildContext context) {
     final e = widget.exercise;
-    final primaryMuscleStr = e.primaryMuscles.map((m) => m.id).join(', ');
-    final secondaryMuscleStr = e.stabilizerMuscles.isNotEmpty
-        ? e.stabilizerMuscles.map((m) => m.id).join(', ')
-        : 'Triceps, Bahu';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F8F5),
+      backgroundColor: const Color(0xFFF8FAF7),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary, size: 24),
-          onPressed: () => Navigator.pop(context),
+          icon: const Icon(
+            Icons.arrow_back_rounded,
+            color: AppColors.darkCharcoal,
+            size: 24,
+          ),
+          onPressed: () => context.pop(),
         ),
         centerTitle: true,
+        // 1. Header sekarang ganti informasinya pakai nama exercisenya
         title: Text(
-          'Exercise Detail',
+          _exerciseTitle,
           style: AppTypography.headlineSmall.copyWith(
-            fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w800,
+            fontSize: 18,
+            color: const Color(0xFF141718),
           ),
         ),
         actions: [
           IconButton(
             icon: Icon(
-              _isFavorite ? Icons.favorite : Icons.favorite_border_rounded,
-              color: _isFavorite ? AppColors.vibrantCoral : AppColors.textPrimary,
+              _isBookmarked
+                  ? Icons.bookmark_rounded
+                  : Icons.bookmark_outline_rounded,
+              color: const Color(0xFF141718),
               size: 24,
             ),
             onPressed: () {
-              setState(() => _isFavorite = !_isFavorite);
+              setState(() => _isBookmarked = !_isBookmarked);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(_isFavorite ? 'Disimpan ke favorit' : 'Dihapus dari favorit'),
+                  content: Text(
+                    _isBookmarked
+                        ? 'Disimpan ke bookmark'
+                        : 'Dihapus dari bookmark',
+                  ),
                   duration: const Duration(seconds: 1),
+                  behavior: SnackBarBehavior.floating,
                 ),
               );
             },
           ),
-          const SizedBox(width: 8),
+          IconButton(
+            icon: const Icon(
+              Icons.more_vert_rounded,
+              color: Color(0xFF141718),
+              size: 24,
+            ),
+            onPressed: () {
+              // Menu opsional (share, report, info)
+            },
+          ),
+          const SizedBox(width: 4),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
         physics: const BouncingScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. HERO BANNER WITH COACH CHARACTER
-            ExerciseHeroBanner(
-              exercise: e,
-              primaryMuscles: primaryMuscleStr,
-            ),
+            // 2. Tanpa header teks di atas video -> Langsung Box 1: Demo Gerakan
+            ExerciseDemoCard(exercise: e),
+            const SizedBox(height: 16),
 
-            const SizedBox(height: 18),
+            // Box 2: Focus Area (Chips Otot di Kiri & Anatomi Tubuh di Kanan)
+            ExerciseFocusAreaCard(exercise: e),
+            const SizedBox(height: 16),
 
-            // 2. VIDEO PREVIEW & TARGET MUSCLES CARDS
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 6,
-                  child: VideoPreviewCard(
-                    isPlaying: _isPlayingVideo,
-                    isShowingEndPose: _isShowingEndPose,
-                    onTogglePlay: () {
-                      setState(() => _isPlayingVideo = !_isPlayingVideo);
-                    },
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  flex: 5,
-                  child: TargetMusclesCard(
-                    primaryMuscles: primaryMuscleStr,
-                    secondaryMuscles: secondaryMuscleStr,
-                  ),
-                ),
-              ],
-            ),
+            // Box 3: How to Perform (Step 1, 2, 3...)
+            ExerciseHowToPerformCard(exercise: e),
+            const SizedBox(height: 16),
 
-            const SizedBox(height: 18),
+            // Box 4: Common Mistakes (List tanpa gambar dengan icon silang merah)
+            ExerciseCommonMistakesCard(exercise: e),
+            const SizedBox(height: 16),
 
-            // 3. METRICS STRIP (Sets, Reps, Rest, Level)
-            ExerciseMetricsStrip(exercise: e),
-
-            const SizedBox(height: 24),
-
-            // 4. CARA MELAKUKAN (Step-by-step & Visual Poses)
-            ExerciseStepsSection(exercise: e),
-
-            const SizedBox(height: 20),
-
-            // 5. TIPS CARD
+            // Box 5: Tips for Beginners (Kartu hijau lembut dengan icon lampu bohlam)
             ExerciseTipsCard(exercise: e),
-
-            const SizedBox(height: 32),
+            const SizedBox(height: 28),
           ],
         ),
       ),

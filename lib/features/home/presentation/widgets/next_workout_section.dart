@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../exercises/domain/models/exercise.dart';
 import '../../../program/domain/models/program_day.dart';
-import '../../../exercise_detail/presentation/screens/exercise_detail_screen.dart';
 
 /// Section "Next Workout" di Home Screen:
 /// Kartu preview sesi latihan berikutnya dengan thumbnail dan tombol Play.
@@ -64,11 +65,9 @@ class NextWorkoutSection extends StatelessWidget {
         InkWell(
           onTap: () {
             if (exercises.isNotEmpty) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ExerciseDetailScreen(exercise: exercises.first),
-                ),
+              context.push(
+                AppRoutes.exerciseDetail,
+                extra: exercises.first,
               );
             }
           },

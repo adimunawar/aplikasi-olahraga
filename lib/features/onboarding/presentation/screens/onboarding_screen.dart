@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/models/user_profile_entity.dart';
-import '../../../home/presentation/screens/home_scaffold.dart';
+import '../../../../core/router/app_router.dart';
 import '../widgets/onboarding_welcome_step.dart';
 import '../widgets/onboarding_goal_step.dart';
 import '../widgets/onboarding_level_step.dart';
@@ -63,10 +64,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
     // 3. Pindah ke Home Dashboard
     if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomeScaffold()),
-      );
+      context.go(AppRoutes.home);
     }
   }
 

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../domain/models/exercise.dart';
 import '../../data/datasources/exercise_local_datasource.dart';
 import '../../data/repositories/exercise_repository_impl.dart';
-import '../../../exercise_detail/presentation/screens/exercise_detail_screen.dart';
 
 class ExerciseListScreen extends StatefulWidget {
   const ExerciseListScreen({super.key});
@@ -134,12 +135,7 @@ class _ExerciseListScreenState extends State<ExerciseListScreen> {
 
     return InkWell(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ExerciseDetailScreen(exercise: ex),
-          ),
-        );
+        context.push(AppRoutes.exerciseDetail, extra: ex);
       },
       borderRadius: BorderRadius.circular(16),
       child: Container(
