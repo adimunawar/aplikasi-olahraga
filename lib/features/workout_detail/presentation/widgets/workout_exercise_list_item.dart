@@ -7,10 +7,11 @@ import '../../../../core/widgets/app_smart_image.dart';
 import '../../../exercises/domain/models/exercise.dart';
 
 /// Item Baris Gerakan Latihan pada Workout Detail (Mockup 1:1):
-/// - Thumbnail foto dengan overlay tombol play bulat mini di sudut kanan bawah
-/// - Nama gerakan & Tag kategori otot hijau lime
-/// - 3 Kolom Metrik: Sets (3), Reps (8-12), Rest (60-90s)
-/// - Ikon reorder handle di ujung kanan (:::)
+/// - Thumbnail foto pose dengan overlay tombol play bulat di sisi kanan thumbnail
+/// - Nama gerakan bold (14px)
+/// - Tag pill hijau muda untuk otot target (Chest • Triceps • Shoulders)
+/// - Info set & reps di kanan ("3 sets", "8 – 12 reps")
+/// - Chevron icon (>) untuk membuka detail gerakan
 class WorkoutExerciseListItem extends StatelessWidget {
   final int? index;
   final String title;
@@ -33,6 +34,20 @@ class WorkoutExerciseListItem extends StatelessWidget {
     required this.exercise,
   });
 
+  String get _muscleText {
+    final list = <String>[];
+    for (final m in exercise.primaryMuscles) {
+      if (!list.contains(m.en)) list.add(m.en);
+    }
+    for (final m in exercise.stabilizerMuscles) {
+      if (!list.contains(m.en)) list.add(m.en);
+    }
+    if (list.isNotEmpty) {
+      return list.take(3).join(' • ');
+    }
+    return categoryTag;
+  }
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -45,7 +60,7 @@ class WorkoutExerciseListItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE9ECEF), width: 1.2),
+          border: Border.all(color: const Color(0xFFF1F3F5), width: 1.2),
           boxShadow: const [
             BoxShadow(
               color: Color(0x06000000),
@@ -56,18 +71,22 @@ class WorkoutExerciseListItem extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Thumbnail dengan overlay Play Button
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    width: 58,
-                    height: 58,
-                    color: const Color(0xFF1E293B),
+            // Thumbnail pose dengan background terang & tombol play
+            Container(
+              width: 76,
+              height: 52,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAF7),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
                     child: AppSmartImage(
                       imagePathOrUrl: thumbnailAsset,
-                      fit: BoxFit.cover,
+                      fit: BoxFit.contain,
                       errorWidget: const Center(
                         child: Icon(
                           Icons.fitness_center_rounded,
@@ -77,39 +96,45 @@ class WorkoutExerciseListItem extends StatelessWidget {
                       ),
                     ),
                   ),
-                ),
-                // Play overlay bulat di sudut kanan bawah
-                Positioned(
-                  right: 4,
-                  bottom: 4,
-                  child: Container(
-                    width: 18,
-                    height: 18,
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.65),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.play_arrow_rounded,
-                      color: Colors.white,
-                      size: 13,
+                  Positioned(
+                    right: 4,
+                    child: Container(
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.92),
+                        shape: BoxShape.circle,
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x1A000000),
+                            blurRadius: 4,
+                            offset: Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.play_arrow_rounded,
+                        color: Color(0xFF141718),
+                        size: 14,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             const SizedBox(width: 12),
 
-            // Nama Gerakan & Tag Kategori
+            // Nama Gerakan & Tag Otot
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     title,
                     style: AppTypography.labelLarge.copyWith(
                       fontWeight: FontWeight.w800,
-                      fontSize: 13.5,
+                      fontSize: 14,
                       color: const Color(0xFF141718),
                     ),
                     maxLines: 1,
@@ -119,19 +144,21 @@ class WorkoutExerciseListItem extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
-                      vertical: 2,
+                      vertical: 2.5,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEDF8D6), // Soft lime pill
-                      borderRadius: BorderRadius.circular(10),
+                      color: const Color(0xFFEDF8D6),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      categoryTag,
+                      _muscleText,
                       style: AppTypography.labelSmall.copyWith(
-                        color: const Color(0xFF4D7C0F),
+                        color: const Color(0xFF365314),
                         fontWeight: FontWeight.w700,
                         fontSize: 11,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
@@ -139,69 +166,43 @@ class WorkoutExerciseListItem extends StatelessWidget {
             ),
             const SizedBox(width: 8),
 
-            // Kolom 1: Sets
-            _buildMetricColumn('Sets', '$sets'),
-            const SizedBox(width: 12),
-
-            // Kolom 2: Reps
-            _buildMetricColumn('Reps', reps),
-            const SizedBox(width: 12),
-
-            // Kolom 3: Rest
-            _buildMetricColumn('Rest', rest),
-            const SizedBox(width: 10),
-
-            // Reorder Drag Handle (6 titik - Sentuh & seret untuk tukar posisi)
-            if (index != null)
-              ReorderableDragStartListener(
-                index: index!,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 4,
-                    vertical: 8,
-                  ),
-                  color: Colors.transparent,
-                  child: const Icon(
-                    Icons.drag_indicator_rounded,
-                    color: Color(0xFF94A3B8),
-                    size: 22,
+            // Sets & Reps
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '$sets sets',
+                  style: AppTypography.labelLarge.copyWith(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 12.5,
+                    color: const Color(0xFF141718),
                   ),
                 ),
-              )
-            else
-              const Icon(
-                Icons.drag_indicator_rounded,
-                color: Color(0xFF94A3B8),
-                size: 22,
-              ),
+                const SizedBox(height: 2),
+                Text(
+                  reps.toLowerCase().contains('rep')
+                      ? reps.toLowerCase()
+                      : '$reps reps',
+                  style: AppTypography.labelSmall.copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 11,
+                    color: const Color(0xFF64748B),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(width: 8),
+
+            // Chevron Arrow
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: Color(0xFF141718),
+              size: 20,
+            ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildMetricColumn(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(
-          label,
-          style: AppTypography.labelSmall.copyWith(
-            color: const Color(0xFF94A3B8),
-            fontSize: 10,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 3),
-        Text(
-          value,
-          style: AppTypography.labelLarge.copyWith(
-            fontWeight: FontWeight.w800,
-            fontSize: 12.5,
-            color: const Color(0xFF141718),
-          ),
-        ),
-      ],
     );
   }
 }

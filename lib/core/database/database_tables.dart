@@ -8,6 +8,36 @@ class DatabaseTables {
   static const String bodyMeasurements = 'body_measurements';
   static const String userPrograms = 'user_programs';
   static const String userSettings = 'user_settings';
+  static const String exercises = 'exercises';
+
+  static const String createExercisesTable = '''
+    CREATE TABLE IF NOT EXISTS $exercises (
+      id TEXT PRIMARY KEY,
+      name_id TEXT NOT NULL,
+      name_en TEXT NOT NULL,
+      category TEXT NOT NULL,
+      stage TEXT NOT NULL DEFAULT 'main', -- 'warmup', 'main', 'cooldown'
+      difficulty TEXT NOT NULL DEFAULT 'intermediate',
+      tracking_type TEXT NOT NULL DEFAULT 'reps',
+      primary_muscles TEXT NOT NULL,
+      stabilizer_muscles TEXT NOT NULL,
+      steps_id TEXT NOT NULL,
+      steps_en TEXT NOT NULL,
+      common_mistakes_id TEXT,
+      common_mistakes_en TEXT,
+      breathing_tips_id TEXT,
+      breathing_tips_en TEXT,
+      start_pose_asset TEXT,
+      end_pose_asset TEXT,
+      animation_asset TEXT,
+      video_url TEXT,
+      is_custom INTEGER NOT NULL DEFAULT 0,
+      is_favorite INTEGER NOT NULL DEFAULT 0,
+      created_by_user_id TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+  ''';
 
   static const String createUserProfilesTable = '''
     CREATE TABLE IF NOT EXISTS $userProfiles (

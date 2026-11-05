@@ -50,6 +50,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
   List<WorkoutDetailExerciseData> _exercises = [];
   ProgramDay? _loadedProgramDay;
   bool _isLoading = true;
+  bool _isBookmarked = false;
 
   @override
   void initState() {
@@ -67,7 +68,8 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
 
       if (programDay != null && programDay.items.isNotEmpty) {
         for (final item in programDay.items) {
-          final exercise = exercisesMap[item.exerciseId] ??
+          final exercise =
+              exercisesMap[item.exerciseId] ??
               _buildFallbackExercise(item.exerciseId);
 
           final repsStr = item.durationSec != null && item.durationSec! > 0
@@ -75,6 +77,18 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
               : (item.reps != null ? '${item.reps} Reps' : '8 – 12 Reps');
 
           final restStr = '${item.restSeconds} sec';
+
+          // Deteksi stage dinamis: jika program mendefinisikan warm-up atau cool-down
+          String stage = item.stage ?? 'main';
+          if (item.stage == null) {
+            if (exercise.category == ExerciseCategory.warmup ||
+                exercise.id.toLowerCase().contains('warmup')) {
+              stage = 'warmup';
+            } else if (exercise.category == ExerciseCategory.cooldown ||
+                exercise.id.toLowerCase().contains('cooldown')) {
+              stage = 'cooldown';
+            }
+          }
 
           list.add(
             WorkoutDetailExerciseData(
@@ -91,6 +105,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
               reps: repsStr,
               rest: restStr,
               exercise: exercise,
+              stage: stage,
             ),
           );
         }
@@ -136,7 +151,9 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
     final title = id
         .replaceAll('_', ' ')
         .split(' ')
-        .map((w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '')
+        .map(
+          (w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '',
+        )
         .join(' ');
 
     return Exercise(
@@ -162,27 +179,6 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
       variations: const ExerciseVariationGroup(),
       media: const ExerciseMedia(startPose: '', endPose: ''),
     );
-  }
-
-  List<String> get _targetMuscles {
-    // 1. Ekstrak dari widget.targetMusclesText jika diformat "A • B • C"
-    final parsed = widget.targetMusclesText
-        .split('•')
-        .map((s) => s.trim())
-        .where((s) => s.isNotEmpty)
-        .toList();
-
-    if (parsed.isNotEmpty) return parsed.take(4).toList();
-
-    // 2. Jika tidak ada, ambil dari primaryMuscles dari latihan yang dimuat
-    final dynamicMuscles = _exercises
-        .expand((e) => e.exercise.primaryMuscles.map((m) => m.en))
-        .toSet()
-        .toList();
-
-    return dynamicMuscles.isNotEmpty
-        ? dynamicMuscles.take(4).toList()
-        : const ['Chest', 'Shoulders', 'Triceps'];
   }
 
   @override
@@ -220,6 +216,28 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
         ),
         actions: [
           IconButton(
+            icon: Icon(
+              _isBookmarked
+                  ? Icons.bookmark_rounded
+                  : Icons.bookmark_border_rounded,
+              color: const Color(0xFF141718),
+              size: 24,
+            ),
+            onPressed: () {
+              setState(() => _isBookmarked = !_isBookmarked);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    _isBookmarked
+                        ? 'Workout disimpan ke bookmark.'
+                        : 'Bookmark dihapus.',
+                  ),
+                  duration: const Duration(seconds: 1),
+                ),
+              );
+            },
+          ),
+          IconButton(
             icon: const Icon(
               Icons.more_horiz_rounded,
               color: Color(0xFF141718),
@@ -252,30 +270,30 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
             ),
             const SizedBox(height: 18),
 
-            // 2. Target Muscles & Overview Dinamis
+            // 2. Workout Overview 4 Kolom (Mockup 1:1)
             TargetMusclesOverviewSection(
-              targetMuscles: _targetMuscles,
               totalExercises: _exercises.length,
-              setsText: '${_exercises.isNotEmpty ? _exercises.first.sets : 3} Sets (each)',
-              repsText: _exercises.isNotEmpty ? _exercises.first.reps : '8 – 12 Reps',
-              restText: 'Rest ${_exercises.isNotEmpty ? _exercises.first.rest : "60 sec"}',
+              setsText: '${_exercises.isNotEmpty ? _exercises.first.sets : 3}',
+              repsText: _exercises.isNotEmpty
+                  ? _exercises.first.reps
+                  : '8 – 12',
+              restText: _exercises.isNotEmpty
+                  ? _exercises.first.rest
+                  : '60 – 90s',
             ),
             const SizedBox(height: 22),
 
-            // 3. Exercises List (Dapat Digeser & Ditukar Posisinya)
+            // 3. Exercises List
             WorkoutExerciseListSection(
               exercises: _exercises,
               onReorder: _onReorder,
-              onEditWorkout: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Tekan dan seret ikon ⠿ di kanan untuk menukar posisi gerakan.',
-                    ),
-                    backgroundColor: Color(0xFF1E293B),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
+              onPreviewAll: () {
+                if (_exercises.isNotEmpty) {
+                  context.push(
+                    AppRoutes.exerciseDetail,
+                    extra: _exercises.first.exercise,
+                  );
+                }
               },
             ),
             const SizedBox(height: 16),
@@ -300,7 +318,8 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
 
   void _startActiveWorkout() {
     final calculatedWeek = (widget.dayNumber - 1) ~/ 7 + 1;
-    final programDay = _loadedProgramDay ??
+    final programDay =
+        _loadedProgramDay ??
         ProgramDay(
           day: widget.dayNumber,
           week: calculatedWeek,
@@ -317,7 +336,8 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
               sets: e.sets,
               reps: 10,
               restSeconds: 60,
-              isMain: true,
+              isMain: e.stage == 'main',
+              stage: e.stage,
             );
           }).toList(),
         );

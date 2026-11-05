@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../exercises/domain/models/exercise.dart';
@@ -16,7 +17,7 @@ class ExerciseDemoCard extends StatefulWidget {
 }
 
 class _ExerciseDemoCardState extends State<ExerciseDemoCard> {
-  bool _isPlaying = false;
+  bool _isPlaying = true;
 
   void _onWatchDemo() {
     setState(() => _isPlaying = !_isPlaying);
@@ -25,7 +26,7 @@ class _ExerciseDemoCardState extends State<ExerciseDemoCard> {
         content: Text(
           _isPlaying
               ? 'Memutar demonstrasi gerakan ${widget.exercise.name.get("id")}...'
-              : 'Video demonstrasi dijeda.',
+              : 'Demonstrasi gerakan dijeda.',
         ),
         backgroundColor: AppColors.darkCharcoal,
         duration: const Duration(seconds: 2),
@@ -53,16 +54,40 @@ class _ExerciseDemoCardState extends State<ExerciseDemoCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Tombol Watch Demo di Kanan Atas
+          // Header Bar: Section Title + Tombol Kontrol
           Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Row(
+                children: [
+                  Container(
+                    width: 4,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: AppColors.limeAccent,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Exercise Demo',
+                    style: AppTypography.headlineSmall.copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF141718),
+                    ),
+                  ),
+                ],
+              ),
               GestureDetector(
                 onTap: _onWatchDemo,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
-                    color: AppColors.limeCardSurface,
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: AppColors.limeAccent.withValues(alpha: 0.6),
@@ -73,7 +98,9 @@ class _ExerciseDemoCardState extends State<ExerciseDemoCard> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        _isPlaying ? Icons.pause_circle_filled_rounded : Icons.play_circle_fill_rounded,
+                        _isPlaying
+                            ? Icons.pause_circle_filled_rounded
+                            : Icons.play_circle_fill_rounded,
                         size: 16,
                         color: AppColors.darkCharcoal,
                       ),
@@ -92,50 +119,54 @@ class _ExerciseDemoCardState extends State<ExerciseDemoCard> {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 14),
 
-          // Tampilan Visual Pose Awal >>> Pose Akhir
+          // Tampilan Visual Animasi Gerakan Penuh (Full-Width Animated WebP)
           Container(
-            height: 150,
+            height: 200,
             width: double.infinity,
             decoration: BoxDecoration(
-              color: const Color(0xFFFBFDF9),
-              borderRadius: BorderRadius.circular(16),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: const Color(0xFFF1F5EB), width: 1.2),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.center,
+            clipBehavior: Clip.antiAlias,
+            child: Stack(
+              fit: StackFit.expand,
               children: [
-                // Pose Awal
-                Expanded(
-                  child: _buildPoseIllustration(
-                    label: 'Start Position',
-                    imagePath: widget.exercise.media.startPose,
-                    isStart: true,
-                  ),
-                ),
-
-                // Panah Transisi Hijau >>>
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.chevron_right_rounded, color: AppColors.limeAccent.withValues(alpha: 0.8), size: 22),
-                      Icon(Icons.chevron_right_rounded, color: AppColors.limeAccent, size: 22),
-                      Icon(Icons.chevron_right_rounded, color: AppColors.greenDark, size: 22),
-                    ],
-                  ),
-                ),
-
-                // Pose Akhir
-                Expanded(
-                  child: _buildPoseIllustration(
-                    label: 'End Position',
-                    imagePath: widget.exercise.media.endPose,
-                    isStart: false,
-                  ),
+                Image.asset(
+                  'assets/images/exercises/${widget.exercise.id}.webp',
+                  fit: BoxFit.contain,
+                  gaplessPlayback: true,
+                  errorBuilder: (_, __, ___) {
+                    return Image.asset(
+                      widget.exercise.media.startPose,
+                      fit: BoxFit.contain,
+                      gaplessPlayback: true,
+                      errorBuilder: (_, __, ___) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.fitness_center_rounded,
+                                size: 48,
+                                color: AppColors.neutral400,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                widget.exercise.name.get('id'),
+                                style: AppTypography.bodySmall.copyWith(
+                                  color: AppColors.neutral500,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
                 ),
               ],
             ),
@@ -144,46 +175,4 @@ class _ExerciseDemoCardState extends State<ExerciseDemoCard> {
       ),
     );
   }
-
-  Widget _buildPoseIllustration({
-    required String label,
-    required String imagePath,
-    required bool isStart,
-  }) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Expanded(
-          child: Image.asset(
-            imagePath,
-            fit: BoxFit.contain,
-            errorBuilder: (_, __, ___) {
-              // Fallback gambar jika path webp spesifik belum ada
-              return Image.asset(
-                'assets/images/Detail Gerakan.png',
-                fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) {
-                  return Icon(
-                    isStart ? Icons.accessibility_new_rounded : Icons.sports_gymnastics_rounded,
-                    size: 56,
-                    color: AppColors.neutral400,
-                  );
-                },
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: AppTypography.bodySmall.copyWith(
-            fontSize: 10,
-            fontWeight: FontWeight.w600,
-            color: AppColors.neutral500,
-          ),
-        ),
-      ],
-    );
-  }
 }
-

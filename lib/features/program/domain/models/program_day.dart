@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import '../../../exercises/domain/models/exercise.dart';
 
 enum WorkoutTypeCode {
@@ -51,6 +52,7 @@ class WorkoutItem {
   final int? durationSec;
   final int restSeconds;
   final bool isMain;
+  final String? stage; // 'warmup', 'main', 'cooldown'
 
   const WorkoutItem({
     required this.exerciseId,
@@ -59,9 +61,11 @@ class WorkoutItem {
     this.durationSec,
     this.restSeconds = 60,
     this.isMain = false,
+    this.stage,
   });
 
-  bool get isDurationBased => durationSec != null && (reps == null || reps == 0);
+  bool get isDurationBased =>
+      durationSec != null && (reps == null || reps == 0);
 
   factory WorkoutItem.fromJson(Map<String, dynamic> json) {
     return WorkoutItem(
@@ -71,17 +75,19 @@ class WorkoutItem {
       durationSec: json['duration_sec'] as int?,
       restSeconds: json['rest_seconds'] as int? ?? 60,
       isMain: json['is_main'] as bool? ?? false,
+      stage: json['stage'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'exercise_id': exerciseId,
-        'sets': sets,
-        if (reps != null) 'reps': reps,
-        if (durationSec != null) 'duration_sec': durationSec,
-        'rest_seconds': restSeconds,
-        'is_main': isMain,
-      };
+    'exercise_id': exerciseId,
+    'sets': sets,
+    if (reps != null) 'reps': reps,
+    if (durationSec != null) 'duration_sec': durationSec,
+    'rest_seconds': restSeconds,
+    'is_main': isMain,
+    if (stage != null) 'stage': stage,
+  };
 
   WorkoutItem copyWith({
     String? exerciseId,
@@ -90,6 +96,7 @@ class WorkoutItem {
     int? durationSec,
     int? restSeconds,
     bool? isMain,
+    String? stage,
   }) {
     return WorkoutItem(
       exerciseId: exerciseId ?? this.exerciseId,
@@ -98,6 +105,7 @@ class WorkoutItem {
       durationSec: durationSec ?? this.durationSec,
       restSeconds: restSeconds ?? this.restSeconds,
       isMain: isMain ?? this.isMain,
+      stage: stage ?? this.stage,
     );
   }
 }
@@ -123,14 +131,17 @@ class ProgramDay {
   });
 
   factory ProgramDay.fromJson(Map<String, dynamic> json) {
-    final dayNum = (json['day_number'] as num?)?.toInt() ??
+    final dayNum =
+        (json['day_number'] as num?)?.toInt() ??
         (json['day'] as num?)?.toInt() ??
         1;
-    final weekNum = (json['week_number'] as num?)?.toInt() ??
+    final weekNum =
+        (json['week_number'] as num?)?.toInt() ??
         (json['week'] as num?)?.toInt() ??
         (((dayNum - 1) ~/ 7) + 1);
 
-    final rawType = json['type_code'] as String? ?? json['type'] as String? ?? 'R';
+    final rawType =
+        json['type_code'] as String? ?? json['type'] as String? ?? 'R';
 
     LocalizedString parsedFocus;
     if (json['focus'] != null) {
@@ -153,21 +164,24 @@ class ProgramDay {
       focus: parsedFocus,
       isRest: json['is_rest'] as bool? ?? false,
       isRetestMilestone: json['is_retest_milestone'] as bool? ?? false,
-      items: (rawItems as List?)
-              ?.map((e) => WorkoutItem.fromJson(Map<String, dynamic>.from(e as Map)))
+      items:
+          (rawItems as List?)
+              ?.map(
+                (e) =>
+                    WorkoutItem.fromJson(Map<String, dynamic>.from(e as Map)),
+              )
               .toList() ??
           [],
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'day': day,
-        'week': week,
-        'type': type.code,
-        'focus': {'id': focus.id, 'en': focus.en},
-        'is_rest': isRest,
-        'is_retest_milestone': isRetestMilestone,
-        'items': items.map((e) => e.toJson()).toList(),
-      };
+    'day': day,
+    'week': week,
+    'type': type.code,
+    'focus': {'id': focus.id, 'en': focus.en},
+    'is_rest': isRest,
+    'is_retest_milestone': isRetestMilestone,
+    'items': items.map((e) => e.toJson()).toList(),
+  };
 }
-

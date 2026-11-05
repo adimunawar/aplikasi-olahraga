@@ -4,7 +4,9 @@ enum ExerciseCategory {
   push,
   legs,
   core,
-  fullBody;
+  fullBody,
+  warmup,
+  cooldown;
 
   static ExerciseCategory fromString(String val) {
     switch (val.toLowerCase()) {
@@ -16,6 +18,14 @@ enum ExerciseCategory {
         return ExerciseCategory.legs;
       case 'core':
         return ExerciseCategory.core;
+      case 'warmup':
+      case 'warm_up':
+      case 'pemanasan':
+        return ExerciseCategory.warmup;
+      case 'cooldown':
+      case 'cool_down':
+      case 'pendinginan':
+        return ExerciseCategory.cooldown;
       case 'full_body':
       default:
         return ExerciseCategory.fullBody;
@@ -31,6 +41,10 @@ enum ExerciseCategory {
         return isEn ? 'Legs' : 'Kaki';
       case ExerciseCategory.core:
         return isEn ? 'Core' : 'Core';
+      case ExerciseCategory.warmup:
+        return isEn ? 'Warm-up' : 'Pemanasan';
+      case ExerciseCategory.cooldown:
+        return isEn ? 'Cool-down' : 'Pendinginan';
       case ExerciseCategory.fullBody:
         return isEn ? 'Full Body' : 'Seluruh Tubuh';
     }
@@ -99,6 +113,8 @@ class LocalizedString {
   }
 
   String get(String langCode) => langCode.toLowerCase().startsWith('en') ? en : id;
+
+  Map<String, dynamic> toJson() => {'id': id, 'en': en};
 }
 
 @immutable
@@ -123,6 +139,8 @@ class LocalizedList {
 
   List<String> get(String langCode) =>
       langCode.toLowerCase().startsWith('en') ? en : id;
+
+  Map<String, dynamic> toJson() => {'id': id, 'en': en};
 }
 
 @immutable

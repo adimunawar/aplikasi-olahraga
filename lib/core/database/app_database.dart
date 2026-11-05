@@ -8,6 +8,7 @@ import 'models/workout_session_entity.dart';
 import 'models/workout_set_entity.dart';
 import 'models/body_measurement_entity.dart';
 import 'models/user_settings_entity.dart';
+import 'models/exercise_entity.dart';
 
 /// AppDatabase: Single Source of Truth untuk Local Persistence (PRD Bagian 7 & 14).
 /// - Native (Android / iOS): Menggunakan database SQLite riil via `sqflite`.
@@ -24,6 +25,7 @@ class AppDatabase {
   final List<WorkoutSessionEntity> _webSessions = [];
   final List<WorkoutSetEntity> _webSets = [];
   final List<BodyMeasurementEntity> _webMeasurements = [];
+  final List<ExerciseEntity> _webExercises = [];
 
   Future<Database?> get database async {
     if (kIsWeb) return null; // Web tidak menggunakan native SQLite driver
@@ -42,8 +44,9 @@ class AppDatabase {
       onCreate: _onCreate,
     );
 
-    // Pastikan tabel user_settings dibuat jika database versi 1 sudah ada sebelumnya
+    // Pastikan tabel user_settings & exercises dibuat jika database versi 1 sudah ada sebelumnya
     await db.execute(DatabaseTables.createUserSettingsTable);
+    await db.execute(DatabaseTables.createExercisesTable);
 
     return db;
   }
@@ -55,6 +58,7 @@ class AppDatabase {
     await db.execute(DatabaseTables.createBodyMeasurementsTable);
     await db.execute(DatabaseTables.createUserProgramsTable);
     await db.execute(DatabaseTables.createUserSettingsTable);
+    await db.execute(DatabaseTables.createExercisesTable);
 
     // Initial Seeder Profil Default (Adi, 67.5 kg, Beginner)
     final now = DateTime.now();
@@ -578,6 +582,116 @@ class AppDatabase {
     } catch (_) {}
 
     return weekMap;
+  }
+
+  // ==========================================
+  // EXERCISES OPERATIONS (OFFLINE-FIRST)
+  // ==========================================
+
+  Future<List<ExerciseEntity>> getAllExercises() async {
+    if (kIsWeb) return _webExercises;
+    final db = await database;
+    if (db == null) return _webExercises;
+
+    final maps = await db.query(DatabaseTables.exercises);
+    return maps.map((m) => ExerciseEntity.fromMap(m)).toList();
+  }
+
+  Future<ExerciseEntity?> getExerciseById(String id) async {
+    if (kIsWeb) {
+      try {
+        return _webExercises.firstWhere((e) => e.id == id);
+      } catch (_) {
+        return null;
+      }
+    }
+    final db = await database;
+    if (db == null) return null;
+
+    final maps = await db.query(
+      DatabaseTables.exercises,
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+    if (maps.isEmpty) return null;
+    return ExerciseEntity.fromMap(maps.first);
+  }
+
+  Future<int> getExerciseCount() async {
+    if (kIsWeb) return _webExercises.length;
+    final db = await database;
+    if (db == null) return _webExercises.length;
+
+    final result = await db.rawQuery('SELECT COUNT(*) as count FROM ${DatabaseTables.exercises}');
+    return Sqflite.firstIntValue(result) ?? 0;
+  }
+
+  Future<void> insertExercises(List<ExerciseEntity> exercises) async {
+    if (kIsWeb) {
+      for (final ex in exercises) {
+        _webExercises.removeWhere((e) => e.id == ex.id);
+        _webExercises.add(ex);
+      }
+      return;
+    }
+    final db = await database;
+    if (db == null) return;
+
+    final batch = db.batch();
+    for (final ex in exercises) {
+      batch.insert(
+        DatabaseTables.exercises,
+        ex.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+    await batch.commit(noResult: true);
+  }
+
+  Future<void> toggleExerciseFavorite(String id, bool isFavorite) async {
+    if (kIsWeb) {
+      final idx = _webExercises.indexWhere((e) => e.id == id);
+      if (idx != -1) {
+        final existing = _webExercises[idx];
+        _webExercises[idx] = ExerciseEntity(
+          id: existing.id,
+          nameId: existing.nameId,
+          nameEn: existing.nameEn,
+          category: existing.category,
+          stage: existing.stage,
+          difficulty: existing.difficulty,
+          trackingType: existing.trackingType,
+          primaryMusclesJson: existing.primaryMusclesJson,
+          stabilizerMusclesJson: existing.stabilizerMusclesJson,
+          stepsIdJson: existing.stepsIdJson,
+          stepsEnJson: existing.stepsEnJson,
+          commonMistakesIdJson: existing.commonMistakesIdJson,
+          commonMistakesEnJson: existing.commonMistakesEnJson,
+          breathingTipsId: existing.breathingTipsId,
+          breathingTipsEn: existing.breathingTipsEn,
+          startPoseAsset: existing.startPoseAsset,
+          endPoseAsset: existing.endPoseAsset,
+          animationAsset: existing.animationAsset,
+          videoUrl: existing.videoUrl,
+          isCustom: existing.isCustom,
+          isFavorite: isFavorite,
+          createdByUserId: existing.createdByUserId,
+          createdAt: existing.createdAt,
+          updatedAt: DateTime.now(),
+        );
+      }
+      return;
+    }
+    final db = await database;
+    if (db == null) return;
+
+    await db.update(
+      DatabaseTables.exercises,
+      {'is_favorite': isFavorite ? 1 : 0, 'updated_at': DateTime.now().toIso8601String()},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
   // ==========================================

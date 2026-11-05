@@ -55,11 +55,11 @@ class WorkoutDetailHeroBanner extends StatelessWidget {
               top: 10,
               width: 145,
               child: Image.asset(
-                'assets/images/coach_hero.png',
+                'assets/images/coach_crossed_arms.png',
                 fit: BoxFit.contain,
                 alignment: Alignment.bottomRight,
                 errorBuilder: (_, __, ___) => Image.asset(
-                  'assets/images/coach_character.png',
+                  'assets/images/coach_hero.png',
                   fit: BoxFit.contain,
                   alignment: Alignment.bottomRight,
                 ),

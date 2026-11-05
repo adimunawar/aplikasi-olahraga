@@ -41,6 +41,7 @@ flutter:
   assets:
     - assets/data/
     - assets/images/
+    - assets/images/exercises/
     - assets/muscle/front/
     - assets/muscle/back/
     - assets/muscle/previews/

@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_typography.dart';
-import '../../../plans/presentation/widgets/mini_anatomy_icon.dart';
 
-/// Bagian Target Muscles (4 kartu anatomi) dan Overview (ringkasan sesi) side-by-side
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
+
+/// Section Workout Overview (Mockup 1:1):
+/// - Bar aksen hijau + judul 'Workout Overview'
+/// - Kartu 4 kolom metrik:
+///   1. Exercises (misal: 5)
+///   2. Sets (each) (misal: 3)
+///   3. Reps (misal: 8 – 12)
+///   4. Rest (misal: 60 – 90s)
 class TargetMusclesOverviewSection extends StatelessWidget {
   final List<String> targetMuscles;
   final int totalExercises;
@@ -12,154 +19,152 @@ class TargetMusclesOverviewSection extends StatelessWidget {
 
   const TargetMusclesOverviewSection({
     super.key,
-    this.targetMuscles = const ['Chest', 'Back', 'Shoulder', 'Arms'],
+    this.targetMuscles = const [],
     this.totalExercises = 5,
-    this.setsText = '3 Sets (each)',
-    this.repsText = '8 – 12 Reps',
-    this.restText = 'Rest 60 – 90 sec',
+    this.setsText = '3',
+    this.repsText = '8 – 12',
+    this.restText = '60 – 90s',
   });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Kolom Kiri: Target Muscles (Judul + 4 Kotak Anatomi)
-        Expanded(
-          flex: 11,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        // Section Title: | Workout Overview
+        Row(
+          children: [
+            Container(
+              width: 4,
+              height: 16,
+              decoration: BoxDecoration(
+                color: AppColors.limeAccent,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Workout Overview',
+              style: AppTypography.headlineSmall.copyWith(
+                fontWeight: FontWeight.w800,
+                fontSize: 16,
+                color: const Color(0xFF141718),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+
+        // 4 Columns Overview Card
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAF7),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFFE9EFE2), width: 1.2),
+          ),
+          child: Row(
             children: [
-              Text(
-                'Target Muscles',
-                style: AppTypography.headlineSmall.copyWith(
-                  fontWeight: FontWeight.w800,
-                  fontSize: 16,
-                  color: const Color(0xFF141718),
+              // Kolom 1: Exercises
+              Expanded(
+                child: _buildMetricItem(
+                  icon: Icons.fitness_center_rounded,
+                  value: '$totalExercises',
+                  label: 'Exercises',
                 ),
               ),
-              const SizedBox(height: 10),
-              Row(
-                children: targetMuscles.map((muscle) {
-                  return Expanded(
-                    child: Container(
-                      margin: const EdgeInsets.only(right: 6),
-                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: const Color(0xFFE9ECEF), width: 1.2),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0x06000000),
-                            blurRadius: 4,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          MiniAnatomyIcon(muscleGroup: muscle),
-                          const SizedBox(height: 6),
-                          Text(
-                            muscle,
-                            style: AppTypography.labelSmall.copyWith(
-                              fontSize: 10.5,
-                              fontWeight: FontWeight.w700,
-                              color: const Color(0xFF334155),
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }).toList(),
+              _buildDivider(),
+
+              // Kolom 2: Sets
+              Expanded(
+                child: _buildMetricItem(
+                  icon: Icons.layers_rounded,
+                  value: setsText.replaceAll(RegExp(r'[^0-9]'), '').isNotEmpty
+                      ? setsText.replaceAll(RegExp(r'[^0-9]'), '')
+                      : '3',
+                  label: 'Sets (each)',
+                ),
+              ),
+              _buildDivider(),
+
+              // Kolom 3: Reps
+              Expanded(
+                child: _buildMetricItem(
+                  icon: Icons.autorenew_rounded,
+                  value: repsText.replaceAll(RegExp(r'Reps|reps', caseSensitive: false), '').trim().isNotEmpty
+                      ? repsText.replaceAll(RegExp(r'Reps|reps', caseSensitive: false), '').trim()
+                      : '8 – 12',
+                  label: 'Reps',
+                ),
+              ),
+              _buildDivider(),
+
+              // Kolom 4: Rest
+              Expanded(
+                child: _buildMetricItem(
+                  icon: Icons.access_time_rounded,
+                  value: _formatRestText(restText),
+                  label: 'Rest',
+                ),
               ),
             ],
-          ),
-        ),
-        const SizedBox(width: 8),
-
-        // Kolom Kanan: Overview Card
-        Expanded(
-          flex: 8,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF3F9EA),
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: const Color(0xFFE2EED0), width: 1.2),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Header Overview
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFD9F4A4),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: const Icon(
-                        Icons.calendar_today_rounded,
-                        size: 13,
-                        color: Color(0xFF365314),
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Overview',
-                      style: AppTypography.labelLarge.copyWith(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 13,
-                        color: const Color(0xFF141718),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-
-                // 4 Item Info
-                _buildOverviewRow(Icons.layers_rounded, '$totalExercises Exercises'),
-                const SizedBox(height: 5),
-                _buildOverviewRow(Icons.autorenew_rounded, setsText),
-                const SizedBox(height: 5),
-                _buildOverviewRow(Icons.cached_rounded, repsText),
-                const SizedBox(height: 5),
-                _buildOverviewRow(Icons.access_time_rounded, restText),
-              ],
-            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildOverviewRow(IconData icon, String text) {
-    return Row(
+  String _formatRestText(String raw) {
+    final cleaned = raw.replaceAll(RegExp(r'Rest|sec|seconds', caseSensitive: false), '').trim();
+    if (cleaned.isEmpty) return '60 – 90s';
+    if (cleaned.endsWith('s')) return cleaned;
+    return '${cleaned}s';
+  }
+
+  Widget _buildDivider() {
+    return Container(
+      width: 1,
+      height: 36,
+      color: const Color(0xFFE2E8F0),
+      margin: const EdgeInsets.symmetric(horizontal: 2),
+    );
+  }
+
+  Widget _buildMetricItem({
+    required IconData icon,
+    required String value,
+    required String label,
+  }) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Icon(icon, size: 13, color: const Color(0xFF475569)),
-        const SizedBox(width: 6),
-        Expanded(
-          child: Text(
-            text,
-            style: AppTypography.labelSmall.copyWith(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFF1E293B),
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+        Icon(icon, size: 18, color: const Color(0xFF141718)),
+        const SizedBox(height: 6),
+        Text(
+          value,
+          style: AppTypography.headlineSmall.copyWith(
+            fontWeight: FontWeight.w900,
+            fontSize: 15,
+            color: const Color(0xFF141718),
+            letterSpacing: -0.3,
           ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        const SizedBox(height: 3),
+        Text(
+          label,
+          style: AppTypography.labelSmall.copyWith(
+            fontWeight: FontWeight.w600,
+            fontSize: 10.5,
+            color: const Color(0xFF64748B),
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );
   }
 }
-
