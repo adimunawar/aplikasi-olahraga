@@ -1,4 +1,5 @@
 import '../../../../core/database/models/workout_session_entity.dart';
+import '../../../../core/database/models/workout_set_entity.dart';
 import '../models/workout_session_result.dart';
 
 /// Kontrak Repositori Sesi Latihan (Domain Layer)
@@ -12,6 +13,7 @@ abstract class WorkoutSessionRepository {
     required int completedSets,
     required int totalExercises,
     required DateTime startedAt,
+    List<WorkoutSetEntity> setLogs = const [],
   });
 
   /// Mengambil status crash recovery jika ada sesi yang belum selesai (WKO-10)

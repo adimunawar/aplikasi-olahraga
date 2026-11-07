@@ -95,6 +95,8 @@ class ProgressController extends StateNotifier<ProgressState> {
       // 5. Ambil riwayat sesi latihan & aktivitas mingguan
       final recents = await _repository.getRecentWorkouts();
       final weekly = await _repository.getWeeklyActivity();
+      final movementVol = await _repository.getMovementVolume();
+      final milestones = await _repository.getProgressionMilestones();
 
       // 6. Ambil status program aktif
       final activeProgram = await _programsRepo.getActiveProgram();
@@ -121,6 +123,8 @@ class ProgressController extends StateNotifier<ProgressState> {
         bmiStatus: bmiStatus,
         recentWorkouts: recents,
         weeklyActivity: weekly,
+        movementVolume: movementVol,
+        milestones: milestones,
         activeProgramTitle: programTitle,
         activeProgramWeek: 3,
         activeProgramTotalWeeks: activeProgram.totalWeeks,

@@ -11,6 +11,10 @@ class UserProfileEntity {
   final String experienceLevel;
   final int preferredDurationMin;
   final int preferredDaysPerWeek;
+  final int weeklyFrequency;
+  final List<String> availableDays;
+  final List<String> trainingLimitations;
+  final String? timezone;
   final String unitPreference;
   final List<String> equipments;
   final DateTime createdAt;
@@ -25,7 +29,11 @@ class UserProfileEntity {
     this.goal = 'muscle_gain',
     this.experienceLevel = 'beginner',
     this.preferredDurationMin = 45,
-    this.preferredDaysPerWeek = 4,
+    this.preferredDaysPerWeek = 3,
+    this.weeklyFrequency = 3,
+    this.availableDays = const ['monday', 'wednesday', 'friday'],
+    this.trainingLimitations = const [],
+    this.timezone,
     this.unitPreference = 'metric',
     required this.equipments,
     required this.createdAt,
@@ -43,6 +51,10 @@ class UserProfileEntity {
       'experience_level': experienceLevel,
       'preferred_duration_min': preferredDurationMin,
       'preferred_days_per_week': preferredDaysPerWeek,
+      'weekly_frequency': weeklyFrequency,
+      'available_days': jsonEncode(availableDays),
+      'training_limitations': jsonEncode(trainingLimitations),
+      'timezone': timezone,
       'unit_preference': unitPreference,
       'equipments': jsonEncode(equipments),
       'created_at': createdAt.toIso8601String(),
@@ -64,6 +76,32 @@ class UserProfileEntity {
       }
     }
 
+    List<String> parsedAvailableDays = ['monday', 'wednesday', 'friday'];
+    final rawDays = map['available_days'];
+    if (rawDays is String) {
+      try {
+        final decoded = jsonDecode(rawDays);
+        if (decoded is List) {
+          parsedAvailableDays = decoded.map((e) => e.toString()).toList();
+        }
+      } catch (_) {}
+    }
+
+    List<String> parsedLimitations = [];
+    final rawLimit = map['training_limitations'];
+    if (rawLimit is String) {
+      try {
+        final decoded = jsonDecode(rawLimit);
+        if (decoded is List) {
+          parsedLimitations = decoded.map((e) => e.toString()).toList();
+        }
+      } catch (_) {}
+    }
+
+    final freq = (map['weekly_frequency'] as num?)?.toInt() ??
+        (map['preferred_days_per_week'] as num?)?.toInt() ??
+        3;
+
     return UserProfileEntity(
       id: map['id']?.toString() ?? 'default_user',
       displayName: map['display_name']?.toString() ?? 'Adi',
@@ -73,7 +111,11 @@ class UserProfileEntity {
       goal: map['goal']?.toString() ?? 'muscle_gain',
       experienceLevel: map['experience_level']?.toString() ?? 'beginner',
       preferredDurationMin: (map['preferred_duration_min'] as num?)?.toInt() ?? 45,
-      preferredDaysPerWeek: (map['preferred_days_per_week'] as num?)?.toInt() ?? 4,
+      preferredDaysPerWeek: freq,
+      weeklyFrequency: freq,
+      availableDays: parsedAvailableDays,
+      trainingLimitations: parsedLimitations,
+      timezone: map['timezone']?.toString(),
       unitPreference: map['unit_preference']?.toString() ?? 'metric',
       equipments: parsedEquipments.isNotEmpty
           ? parsedEquipments
@@ -97,6 +139,10 @@ class UserProfileEntity {
     String? experienceLevel,
     int? preferredDurationMin,
     int? preferredDaysPerWeek,
+    int? weeklyFrequency,
+    List<String>? availableDays,
+    List<String>? trainingLimitations,
+    String? timezone,
     String? unitPreference,
     List<String>? equipments,
     DateTime? updatedAt,
@@ -111,6 +157,10 @@ class UserProfileEntity {
       experienceLevel: experienceLevel ?? this.experienceLevel,
       preferredDurationMin: preferredDurationMin ?? this.preferredDurationMin,
       preferredDaysPerWeek: preferredDaysPerWeek ?? this.preferredDaysPerWeek,
+      weeklyFrequency: weeklyFrequency ?? this.weeklyFrequency,
+      availableDays: availableDays ?? this.availableDays,
+      trainingLimitations: trainingLimitations ?? this.trainingLimitations,
+      timezone: timezone ?? this.timezone,
       unitPreference: unitPreference ?? this.unitPreference,
       equipments: equipments ?? this.equipments,
       createdAt: createdAt,

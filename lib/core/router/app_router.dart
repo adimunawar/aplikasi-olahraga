@@ -24,6 +24,7 @@ import '../../features/progress/presentation/screens/progress_screen.dart';
 import '../../features/workout_detail/presentation/screens/workout_detail_screen.dart';
 import '../../features/workout_session/presentation/screens/workout_session_screen.dart';
 import '../../features/workout_summary/presentation/screens/workout_summary_screen.dart';
+import '../../features/progression/domain/models/progression_models.dart';
 
 /// Definisi nama dan path route seluruh aplikasi
 class AppRoutes {
@@ -92,6 +93,7 @@ class WorkoutSummaryArgs {
   final String setsCountText;
   final String caloriesText;
   final String? quoteText;
+  final List<ProgressionDecision> progressionDecisions;
 
   const WorkoutSummaryArgs({
     this.userName = 'Adi',
@@ -102,6 +104,7 @@ class WorkoutSummaryArgs {
     this.setsCountText = '15',
     this.caloriesText = '≈ 185 kcal',
     this.quoteText,
+    this.progressionDecisions = const [],
   });
 }
 
@@ -216,6 +219,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             exercisesCountText: args.exercisesCountText,
             setsCountText: args.setsCountText,
             caloriesText: args.caloriesText,
+            progressionDecisions: args.progressionDecisions,
             quoteText: args.quoteText ??
                 'Latihan yang konsisten seperti ini akan membantu kamu membangun massa otot dan tubuh yang lebih kuat. Pertahankan!',
           );

@@ -78,8 +78,8 @@ class _HomeScaffoldState extends State<HomeScaffold> {
               ),
               _buildNavItem(
                 index: 1,
-                icon: Icons.calendar_today_outlined,
-                label: 'Plans',
+                icon: Icons.fitness_center_rounded,
+                label: 'Workouts',
               ),
               _buildNavItem(
                 index: 2,

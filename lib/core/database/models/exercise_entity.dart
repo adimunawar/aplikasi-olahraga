@@ -12,6 +12,8 @@ class ExerciseEntity {
   final String stage; // 'warmup', 'main', 'cooldown'
   final String difficulty;
   final String trackingType; // 'reps' atau 'duration'
+  final String movementPattern; // 'horizontal_push', 'squat', etc.
+  final String equipmentsJson; // JSON array, misal '["none"]' atau '["doorframe"]'
   final String primaryMusclesJson;
   final String stabilizerMusclesJson;
   final String stepsIdJson;
@@ -38,6 +40,8 @@ class ExerciseEntity {
     this.stage = 'main',
     this.difficulty = 'intermediate',
     this.trackingType = 'reps',
+    this.movementPattern = 'other',
+    this.equipmentsJson = '["none"]',
     required this.primaryMusclesJson,
     required this.stabilizerMusclesJson,
     required this.stepsIdJson,
@@ -66,6 +70,8 @@ class ExerciseEntity {
       'stage': stage,
       'difficulty': difficulty,
       'tracking_type': trackingType,
+      'movement_pattern': movementPattern,
+      'equipments': equipmentsJson,
       'primary_muscles': primaryMusclesJson,
       'stabilizer_muscles': stabilizerMusclesJson,
       'steps_id': stepsIdJson,
@@ -95,6 +101,8 @@ class ExerciseEntity {
       stage: map['stage'] as String? ?? 'main',
       difficulty: map['difficulty'] as String? ?? 'intermediate',
       trackingType: map['tracking_type'] as String? ?? 'reps',
+      movementPattern: map['movement_pattern'] as String? ?? 'other',
+      equipmentsJson: map['equipments'] as String? ?? '["none"]',
       primaryMusclesJson: map['primary_muscles'] as String? ?? '[]',
       stabilizerMusclesJson: map['stabilizer_muscles'] as String? ?? '[]',
       stepsIdJson: map['steps_id'] as String? ?? '[]',
@@ -133,6 +141,8 @@ class ExerciseEntity {
       stage: detectedStage,
       difficulty: exercise.difficulty.name,
       trackingType: exercise.trackingType.name,
+      movementPattern: exercise.movementPattern,
+      equipmentsJson: jsonEncode(exercise.equipments),
       primaryMusclesJson: jsonEncode(exercise.primaryMuscles.map((m) => m.toJson()).toList()),
       stabilizerMusclesJson: jsonEncode(exercise.stabilizerMuscles.map((m) => m.toJson()).toList()),
       stepsIdJson: jsonEncode(exercise.steps.id),
@@ -153,6 +163,14 @@ class ExerciseEntity {
 
   /// Konversi ke Domain Exercise Model yang dikonsumsi oleh UI
   Exercise toDomain() {
+    List<String> parsedEquipments = ['none'];
+    try {
+      final decoded = jsonDecode(equipmentsJson);
+      if (decoded is List) {
+        parsedEquipments = decoded.map((e) => e.toString()).toList();
+      }
+    } catch (_) {}
+
     List<LocalizedString> parsedPrimary = [];
     try {
       final decoded = jsonDecode(primaryMusclesJson);
@@ -203,6 +221,8 @@ class ExerciseEntity {
       category: ExerciseCategory.fromString(category),
       difficulty: ExerciseDifficulty.fromString(difficulty),
       trackingType: TrackingType.fromString(trackingType),
+      movementPattern: movementPattern,
+      equipments: parsedEquipments,
       primaryMuscles: parsedPrimary,
       stabilizerMuscles: parsedStabilizer,
       steps: LocalizedList(id: parsedStepsId, en: parsedStepsEn),

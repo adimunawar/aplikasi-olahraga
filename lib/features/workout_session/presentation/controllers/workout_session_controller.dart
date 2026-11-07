@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/database/app_database.dart';
+import '../../../../core/database/models/workout_set_entity.dart';
 import '../../../plans/presentation/controllers/plans_controller.dart';
 import '../../../progress/presentation/controllers/progress_controller.dart';
 import '../../data/repositories/workout_session_repository_impl.dart';
@@ -26,11 +27,34 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
   final WorkoutSessionRepository _repository;
   final Ref _ref;
   final DateTime _startedAt = DateTime.now();
+  final List<WorkoutSetEntity> _recordedSets = [];
 
   WorkoutSessionController({
     required this._repository,
     required this._ref,
   })  : super(const WorkoutSessionState());
+
+  /// Mencatat hasil set aktual & RIR (Fase 3: Set-by-Set Tracking)
+  void recordSetPerformance({
+    required String exerciseId,
+    required int setNumber,
+    required int actualReps,
+    int? targetReps,
+    required int rir,
+    double formScore = 1.0,
+  }) {
+    _recordedSets.add(WorkoutSetEntity(
+      id: '',
+      sessionId: '',
+      exerciseId: exerciseId,
+      setNumber: setNumber,
+      targetReps: targetReps,
+      actualReps: actualReps,
+      rir: rir,
+      formScore: formScore,
+      status: WorkoutSetStatus.completed,
+    ));
+  }
 
   /// Jeda atau lanjutkan timer
   void togglePauseTimer() {
@@ -96,20 +120,42 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
     required int dayNumber,
     required String programTitle,
     required int totalExercises,
+    String? currentExerciseId,
   }) async {
     state = state.copyWith(isSaving: true);
     try {
       final totalCompletedSets = (state.currentExerciseIndex * state.totalSetsPerExercise) + state.currentSet;
       final duration = state.elapsedWorkoutSeconds > 60 ? state.elapsedWorkoutSeconds : 25 * 60;
 
+      // Jika user memilih "Selesaikan Sesi Sekarang" sebelum sempat mencatat set individual,
+      // sediakan set baseline default agar Coach Adi tetap memberikan evaluasi adaptif
+      final logsToSave = List<WorkoutSetEntity>.from(_recordedSets);
+      if (logsToSave.isEmpty) {
+        final exId = (currentExerciseId != null && currentExerciseId.isNotEmpty)
+            ? currentExerciseId
+            : 'incline_push_up';
+        logsToSave.add(WorkoutSetEntity(
+          id: '',
+          sessionId: '',
+          exerciseId: exId,
+          setNumber: 1,
+          targetReps: 10,
+          actualReps: 10,
+          rir: 2,
+          formScore: 1.0,
+          status: WorkoutSetStatus.completed,
+        ));
+      }
+
       final result = await _repository.completeWorkoutSession(
         programId: programId,
         dayNumber: dayNumber,
         programTitle: programTitle,
         durationSeconds: duration,
-        completedSets: totalCompletedSets,
+        completedSets: totalCompletedSets > 0 ? totalCompletedSets : logsToSave.length,
         totalExercises: totalExercises,
         startedAt: _startedAt,
+        setLogs: logsToSave,
       );
 
       state = state.copyWith(

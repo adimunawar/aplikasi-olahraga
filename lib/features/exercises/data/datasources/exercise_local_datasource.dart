@@ -24,14 +24,14 @@ class ExerciseLocalDatasource {
       // 1. Cek jumlah data di SQLite
       final count = await _db.getExerciseCount();
 
-      if (count > 0) {
+      if (count >= 18) {
         // Ambil data langsung dari SQLite
         final entities = await _db.getAllExercises();
         _cachedExercises = entities.map((e) => e.toDomain()).toList();
         return _cachedExercises!;
       }
 
-      // 2. Jika tabel masih kosong (first install): Lakukan Seeding dari exercises.json
+      // 2. Jika tabel masih kosong atau perlu pembaruan: Lakukan Seeding dari exercises.json
       final initialExercises = await _loadFromJsonAsset();
       final entities = initialExercises.map((e) => ExerciseEntity.fromDomain(e)).toList();
 

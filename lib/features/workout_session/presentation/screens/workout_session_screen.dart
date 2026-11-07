@@ -18,6 +18,7 @@ import '../widgets/active_exercise_info_header.dart';
 import '../widgets/active_workout_metrics_strip.dart';
 import '../widgets/active_circular_timer_controls.dart';
 import '../widgets/active_workout_up_next_card.dart';
+import '../widgets/set_completion_rir_sheet.dart';
 
 /// Layar Active Workout (Mockup 1:1 Resolusi Tinggi):
 /// - Presentation Layer murni (ConsumerStatefulWidget) dengan Riverpod 2.x
@@ -71,14 +72,41 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
   }
 
   void _onNextPressed() {
-    final isFinished = ref
-        .read(workoutSessionControllerProvider.notifier)
-        .nextPressed(totalExercises: _totalExercises);
+    final state = ref.read(workoutSessionControllerProvider);
+    final currentExercise = _getCurrentExercise(state.currentExerciseIndex);
 
-    if (isFinished) {
-      _timer?.cancel();
-      _openSummaryScreen();
-    }
+    // Buka Bottom Sheet pencatatan set & RIR (Fase 3: RIR & Performa Nyata)
+    SetCompletionRirSheet.show(
+      context: context,
+      setNumber: state.currentSet,
+      totalSets: state.totalSetsPerExercise,
+      exerciseName: currentExercise.name.en.isNotEmpty
+          ? currentExercise.name.en
+          : currentExercise.name.id,
+      targetReps: 10,
+      restSeconds: state.defaultRestSeconds,
+      onConfirm: ({required actualReps, required rir, required formScore}) {
+        // 1. Catat performa set ke controller
+        ref.read(workoutSessionControllerProvider.notifier).recordSetPerformance(
+              exerciseId: currentExercise.id,
+              setNumber: state.currentSet,
+              actualReps: actualReps,
+              targetReps: 10,
+              rir: rir,
+              formScore: formScore,
+            );
+
+        // 2. Maju ke set berikutnya / rest
+        final isFinished = ref
+            .read(workoutSessionControllerProvider.notifier)
+            .nextPressed(totalExercises: _totalExercises);
+
+        if (isFinished) {
+          _timer?.cancel();
+          _openSummaryScreen();
+        }
+      },
+    );
   }
 
   int get _totalExercises =>
@@ -117,6 +145,9 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
               : 'Upper Body Strength');
 
     // 1. Simpan sesi melalui Riverpod Controller (otomatis simpan SQLite & Supabase Sync)
+    final currentState = ref.read(workoutSessionControllerProvider);
+    final curEx = _getCurrentExercise(currentState.currentExerciseIndex);
+
     final result = await ref
         .read(workoutSessionControllerProvider.notifier)
         .finishWorkoutSession(
@@ -124,6 +155,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
           dayNumber: widget.day.day,
           programTitle: programTitle,
           totalExercises: _totalExercises,
+          currentExerciseId: curEx.id,
         );
 
     if (!mounted) return;
@@ -148,6 +180,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
         exercisesCountText: '$_totalExercises / $_totalExercises',
         setsCountText: completedSetsText,
         caloriesText: caloriesText,
+        progressionDecisions: result?.progressionDecisions ?? const [],
       ),
     );
   }

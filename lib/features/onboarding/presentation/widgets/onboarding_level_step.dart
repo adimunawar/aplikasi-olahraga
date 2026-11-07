@@ -88,8 +88,8 @@ class OnboardingLevelStep extends StatelessWidget {
 
               const Spacer(),
 
-              // Dots Indicator (Step 3: Index 2)
-              const OnboardingDotsIndicator(activeIndex: 2),
+              // Dots Indicator (Step 3: Index 1 dari 5)
+              const OnboardingDotsIndicator(activeIndex: 1, totalDots: 5),
               const SizedBox(height: 16),
 
               // CTA Button: Next → (Reusable)

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 enum ExerciseCategory {
   push,
+  pull,
   legs,
   core,
   fullBody,
@@ -13,6 +14,9 @@ enum ExerciseCategory {
       case 'push':
       case 'upper_body':
         return ExerciseCategory.push;
+      case 'pull':
+      case 'tarik':
+        return ExerciseCategory.pull;
       case 'legs':
       case 'lower_body':
         return ExerciseCategory.legs;
@@ -37,6 +41,8 @@ enum ExerciseCategory {
     switch (this) {
       case ExerciseCategory.push:
         return isEn ? 'Push' : 'Dorong';
+      case ExerciseCategory.pull:
+        return isEn ? 'Pull' : 'Tarik';
       case ExerciseCategory.legs:
         return isEn ? 'Legs' : 'Kaki';
       case ExerciseCategory.core:
@@ -194,6 +200,8 @@ class Exercise {
   final ExerciseCategory category;
   final ExerciseDifficulty difficulty;
   final TrackingType trackingType;
+  final String movementPattern;
+  final List<String> equipments;
   final List<LocalizedString> primaryMuscles;
   final List<LocalizedString> stabilizerMuscles;
   final LocalizedList steps;
@@ -208,6 +216,8 @@ class Exercise {
     required this.category,
     required this.difficulty,
     required this.trackingType,
+    this.movementPattern = 'other',
+    this.equipments = const ['none'],
     required this.primaryMuscles,
     required this.stabilizerMuscles,
     required this.steps,
@@ -218,12 +228,20 @@ class Exercise {
   });
 
   factory Exercise.fromJson(Map<String, dynamic> json) {
+    final rawEquipments = json['equipments'];
+    List<String> parsedEquipments = ['none'];
+    if (rawEquipments is List) {
+      parsedEquipments = rawEquipments.map((e) => e.toString()).toList();
+    }
+
     return Exercise(
       id: json['id'] as String,
       name: LocalizedString.fromJson(json['name']),
       category: ExerciseCategory.fromString(json['category'] as String? ?? ''),
       difficulty: ExerciseDifficulty.fromString(json['difficulty'] as String? ?? ''),
       trackingType: TrackingType.fromString(json['tracking_type'] as String? ?? 'reps'),
+      movementPattern: json['movement_pattern']?.toString() ?? 'other',
+      equipments: parsedEquipments,
       primaryMuscles: (json['primary_muscles'] as List?)
               ?.map((e) => LocalizedString.fromJson(e))
               .toList() ??

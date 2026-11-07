@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/database/app_database.dart';
+import '../../../../core/database/models/dynamic_program_entity.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
 import '../../../exercises/data/repositories/exercise_repository_impl.dart';
 import '../../../exercises/domain/models/exercise.dart';
@@ -60,82 +62,117 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
 
   Future<void> _loadWorkoutData() async {
     try {
-      final programDay = await _programRepo.getDay(widget.dayNumber);
-      final allExercises = await _exerciseRepo.getExercises();
-      final exercisesMap = {for (final e in allExercises) e.id: e};
-
       final List<WorkoutDetailExerciseData> list = [];
+      final db = AppDatabase.instance;
+      final activeProgram = await db.getActiveTrainingProgram('default_user');
 
-      if (programDay != null && programDay.items.isNotEmpty) {
-        for (final item in programDay.items) {
-          final exercise =
-              exercisesMap[item.exerciseId] ??
-              _buildFallbackExercise(item.exerciseId);
+      // 1. Coba baca dari Dynamic Training Program (Fase 2)
+      if (activeProgram != null) {
+        final sessions = await db.getProgramSessions(activeProgram.id);
+        if (sessions.isNotEmpty) {
+          final targetIndex = (widget.dayNumber - 1) % sessions.length;
+          final session = sessions[targetIndex];
+          final detail = await db.getProgramSessionDetail(session.id);
 
-          final repsStr = item.durationSec != null && item.durationSec! > 0
-              ? '${item.durationSec}s'
-              : (item.reps != null ? '${item.reps} Reps' : '8 – 12 Reps');
+          if (detail != null && detail.exercises.isNotEmpty) {
+            for (final item in detail.exercises) {
+              final ex = item.exercise;
+              final prescription = item.prescription;
+              final repsStr = '${prescription.minReps} – ${prescription.maxReps} Reps';
+              final restStr = '${prescription.restSeconds} sec';
 
-          final restStr = '${item.restSeconds} sec';
-
-          // Deteksi stage dinamis: jika program mendefinisikan warm-up atau cool-down
-          String stage = item.stage ?? 'main';
-          if (item.stage == null) {
-            if (exercise.category == ExerciseCategory.warmup ||
-                exercise.id.toLowerCase().contains('warmup')) {
-              stage = 'warmup';
-            } else if (exercise.category == ExerciseCategory.cooldown ||
-                exercise.id.toLowerCase().contains('cooldown')) {
-              stage = 'cooldown';
+              list.add(
+                WorkoutDetailExerciseData(
+                  title: ex.name.en.isNotEmpty ? ex.name.en : ex.name.id,
+                  categoryTag: ex.primaryMuscles.isNotEmpty ? ex.primaryMuscles.first.en : 'Bodyweight',
+                  thumbnailAsset: ex.media.startPose.isNotEmpty ? ex.media.startPose : 'assets/images/Detail Gerakan.png',
+                  sets: prescription.targetSets,
+                  reps: repsStr,
+                  rest: restStr,
+                  exercise: ex,
+                  stage: prescription.stage,
+                ),
+              );
             }
           }
-
-          list.add(
-            WorkoutDetailExerciseData(
-              title: exercise.name.en.isNotEmpty
-                  ? exercise.name.en
-                  : exercise.name.id,
-              categoryTag: exercise.primaryMuscles.isNotEmpty
-                  ? exercise.primaryMuscles.first.en
-                  : 'Bodyweight',
-              thumbnailAsset: exercise.media.startPose.isNotEmpty
-                  ? exercise.media.startPose
-                  : 'assets/images/Detail Gerakan.png',
-              sets: item.sets,
-              reps: repsStr,
-              rest: restStr,
-              exercise: exercise,
-              stage: stage,
-            ),
-          );
         }
-      } else {
-        // Fallback jika hari rest atau ad-hoc: ambil 4 gerakan pertama dari repository
-        final fallbackList = allExercises.take(4).toList();
-        for (final exercise in fallbackList) {
-          list.add(
-            WorkoutDetailExerciseData(
-              title: exercise.name.en.isNotEmpty
-                  ? exercise.name.en
-                  : exercise.name.id,
-              categoryTag: exercise.primaryMuscles.isNotEmpty
-                  ? exercise.primaryMuscles.first.en
-                  : 'Bodyweight',
-              thumbnailAsset: exercise.media.startPose.isNotEmpty
-                  ? exercise.media.startPose
-                  : 'assets/images/Detail Gerakan.png',
-              sets: 3,
-              reps: '8 – 12 Reps',
-              rest: '60 sec',
-              exercise: exercise,
-            ),
-          );
+      }
+
+      // 2. Fallback ke program statis jika belum ada program dinamis
+      if (list.isEmpty) {
+        final programDay = await _programRepo.getDay(widget.dayNumber);
+        final allExercises = await _exerciseRepo.getExercises();
+        final exercisesMap = {for (final e in allExercises) e.id: e};
+
+        if (programDay != null && programDay.items.isNotEmpty) {
+          for (final item in programDay.items) {
+            final exercise =
+                exercisesMap[item.exerciseId] ??
+                _buildFallbackExercise(item.exerciseId);
+
+            final repsStr = item.durationSec != null && item.durationSec! > 0
+                ? '${item.durationSec}s'
+                : (item.reps != null ? '${item.reps} Reps' : '8 – 12 Reps');
+
+            final restStr = '${item.restSeconds} sec';
+
+            String stage = item.stage ?? 'main';
+            if (item.stage == null) {
+              if (exercise.category == ExerciseCategory.warmup ||
+                  exercise.id.toLowerCase().contains('warmup')) {
+                stage = 'warmup';
+              } else if (exercise.category == ExerciseCategory.cooldown ||
+                  exercise.id.toLowerCase().contains('cooldown')) {
+                stage = 'cooldown';
+              }
+            }
+
+            list.add(
+              WorkoutDetailExerciseData(
+                title: exercise.name.en.isNotEmpty
+                    ? exercise.name.en
+                    : exercise.name.id,
+                categoryTag: exercise.primaryMuscles.isNotEmpty
+                    ? exercise.primaryMuscles.first.en
+                    : 'Bodyweight',
+                thumbnailAsset: exercise.media.startPose.isNotEmpty
+                    ? exercise.media.startPose
+                    : 'assets/images/Detail Gerakan.png',
+                sets: item.sets,
+                reps: repsStr,
+                rest: restStr,
+                exercise: exercise,
+                stage: stage,
+              ),
+            );
+          }
+          _loadedProgramDay = programDay;
+        } else {
+          final fallbackList = allExercises.take(4).toList();
+          for (final exercise in fallbackList) {
+            list.add(
+              WorkoutDetailExerciseData(
+                title: exercise.name.en.isNotEmpty
+                    ? exercise.name.en
+                    : exercise.name.id,
+                categoryTag: exercise.primaryMuscles.isNotEmpty
+                    ? exercise.primaryMuscles.first.en
+                    : 'Bodyweight',
+                thumbnailAsset: exercise.media.startPose.isNotEmpty
+                    ? exercise.media.startPose
+                    : 'assets/images/Detail Gerakan.png',
+                sets: 3,
+                reps: '8 – 12 Reps',
+                rest: '60 sec',
+                exercise: exercise,
+              ),
+            );
+          }
         }
       }
 
       if (mounted) {
         setState(() {
-          _loadedProgramDay = programDay;
           _exercises = list;
           _isLoading = false;
         });

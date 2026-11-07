@@ -12,6 +12,8 @@ import '../widgets/weekly_goal_card.dart';
 import '../widgets/streak_card.dart';
 import '../widgets/recent_workouts_section.dart';
 import '../widgets/program_progress_bottom_card.dart';
+import '../widgets/weekly_movement_volume_card.dart';
+import '../widgets/progression_milestones_card.dart';
 
 /// Halaman Progress & Riwayat Latihan (Arsitektur Layered + Riverpod 2.x):
 /// - Presentation Layer murni (ConsumerWidget)
@@ -176,6 +178,12 @@ class ProgressScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 14),
 
+                // 4b. Distribusi Volume Otot Biomekanikal (Push/Pull/Squat/Hinge/Core - Fase 5)
+                WeeklyMovementVolumeCard(
+                  volumeData: state.movementVolume,
+                ),
+                const SizedBox(height: 14),
+
                 // 5. Dual Cards: Weekly Goal (3 of 4) & Streak
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -201,6 +209,12 @@ class ProgressScreen extends ConsumerWidget {
                 // 6. Recent Workouts (Daftar sesi latihan dari Provider)
                 RecentWorkoutsSection(
                   workouts: state.recentWorkouts,
+                ),
+                const SizedBox(height: 14),
+
+                // 6b. Pencapaian Tangga Gerakan & Riwayat Adaptasi Coach Adi (Fase 5)
+                ProgressionMilestonesCard(
+                  milestones: state.milestones,
                 ),
                 const SizedBox(height: 14),
 

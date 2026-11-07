@@ -33,6 +33,10 @@ class ExerciseRemoteDatasource {
           stage: map['stage']?.toString() ?? 'main',
           difficulty: map['difficulty']?.toString() ?? 'intermediate',
           trackingType: map['tracking_type']?.toString() ?? 'reps',
+          movementPattern: map['movement_pattern']?.toString() ?? 'other',
+          equipmentsJson: map['equipments'] is String
+              ? map['equipments'] as String
+              : jsonEncode(map['equipments'] ?? ['none']),
           primaryMusclesJson: map['primary_muscles'] is String
               ? map['primary_muscles'] as String
               : jsonEncode(map['primary_muscles'] ?? []),

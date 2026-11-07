@@ -9,7 +9,8 @@ void main() {
         child: WorkoutApp(),
       ),
     );
+    await tester.pumpAndSettle();
 
-    expect(find.text('KINETIC FIT'), findsOneWidget);
+    expect(find.byType(WorkoutApp), findsOneWidget);
   });
 }

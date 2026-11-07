@@ -1,165 +1,195 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_typography.dart';
-import '../../../../core/widgets/core_widgets.dart';
-import '../../../program/domain/models/workout_program.dart';
-import '../controllers/plans_controller.dart';
-import '../widgets/plans_header.dart';
-import '../widgets/current_plan_hero_card.dart';
-import '../widgets/weekly_schedule_days_section.dart';
-import '../widgets/workouts_in_this_plan_section.dart';
-import '../widgets/other_programs_section.dart';
-import 'plans_3tabs_screen_backup.dart';
+import 'package:go_router/go_router.dart';
 
-/// Halaman Plans (Desain 1:1 Mockup dengan Riverpod 2.x & Clean Layered Architecture)
-class PlansScreen extends ConsumerWidget {
+import '../../../../core/database/app_database.dart';
+import '../../../../core/database/models/dynamic_program_entity.dart';
+import '../../../../core/database/models/user_profile_entity.dart';
+import '../../../../core/router/app_router.dart';
+import '../../../../core/theme/app_typography.dart';
+import '../../../exercises/data/datasources/exercise_local_datasource.dart';
+import '../../../exercises/domain/models/exercise.dart';
+import '../../../program/domain/models/program_day.dart';
+import '../../../program/domain/services/dynamic_program_generator.dart';
+import '../widgets/roadmap_header_card.dart';
+import '../widgets/your_schedule_card.dart';
+import '../widgets/workouts_plan_section.dart';
+import '../widgets/exercise_library_banner.dart';
+
+class SessionWithDetail {
+  final ProgramSessionEntity session;
+  final ProgramSessionDetail detail;
+
+  const SessionWithDetail({required this.session, required this.detail});
+}
+
+/// Halaman Plan (Roadmap & Kurikulum Program)
+/// 100% Sesuai Gambar Referensi Desain Baru & Terintegrasi Penuh ke Database
+class PlansScreen extends StatefulWidget {
   final int initialTabIndex;
 
   const PlansScreen({super.key, this.initialTabIndex = 0});
 
-  // Toggle cadangan untuk desain lama 3-tab jika dibutuhkan
-  static const bool _showOld3TabsDesign = false;
+  @override
+  State<PlansScreen> createState() => _PlansScreenState();
+}
 
-  void _showProgramDetailModal(
-    BuildContext context,
-    WidgetRef ref,
-    WorkoutProgram program,
-  ) {
-    String title = program.title.en.isNotEmpty ? program.title.en : program.title.id;
-    if (title.trim().isEmpty) {
-      title = program.id
-          .replaceAll('_', ' ')
-          .split(' ')
-          .map((w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '')
-          .join(' ');
+class _PlansScreenState extends State<PlansScreen> {
+  final _db = AppDatabase.instance;
+
+  UserProfileEntity? _profile;
+  TrainingProgramEntity? _program;
+  List<SessionWithDetail> _sessions = [];
+  int _completedThisWeekCount = 0;
+
+  int _currentActiveWeek = 1;
+  int _selectedWeek = 1;
+  int _totalWeeks = 4;
+  int _progressPercent = 25;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRoadmapData();
+  }
+
+  Future<void> _loadRoadmapData() async {
+    final profile = await _db.getUserProfile();
+    final userId = profile.id.isNotEmpty ? profile.id : 'default_user';
+
+    var program = await _db.getActiveTrainingProgram(userId);
+    program ??= await _db.getActiveTrainingProgram('default_user');
+
+    // Auto-generate jika belum ada program
+    if (program == null) {
+      try {
+        final exerciseDatasource = ExerciseLocalDatasource(db: _db);
+        final catalog = await exerciseDatasource.loadExercises();
+        final startingPushId = profile.experienceLevel == 'advanced'
+            ? 'diamond_push_up'
+            : profile.experienceLevel == 'intermediate'
+            ? 'push_up'
+            : 'knee_push_up';
+
+        final generated = const DynamicProgramGenerator().generate(
+          userProfile: profile,
+          catalogExercises: catalog,
+          startingPushExerciseId: startingPushId,
+        );
+
+        await _db.saveDynamicProgram(
+          program: generated.program,
+          sessions: generated.sessions,
+        );
+        program = generated.program;
+      } catch (e) {
+        debugPrint('[PlansScreen] Error generating dynamic program: $e');
+      }
     }
 
-    String desc = program.description.en.isNotEmpty ? program.description.en : program.description.id;
-    if (desc.trim().isEmpty) {
-      desc = 'Program latihan terstruktur untuk membangun massa otot di rumah.';
+    final List<SessionWithDetail> sessionList = [];
+    if (program != null) {
+      final rawSessions = await _db.getProgramSessions(program.id);
+      for (final s in rawSessions) {
+        final detail = await _db.getProgramSessionDetail(s.id);
+        if (detail != null) {
+          sessionList.add(SessionWithDetail(session: s, detail: detail));
+        }
+      }
     }
 
+    final thisWeekCount = await _db.getThisWeekCompletedCount();
+    final totalWeeks = program?.durationWeeks ?? 4;
+    final activeWeek =
+        ((thisWeekCount ~/
+                    (profile.weeklyFrequency > 0
+                        ? profile.weeklyFrequency
+                        : 3)) +
+                1)
+            .clamp(1, totalWeeks);
+    final percent = ((activeWeek / totalWeeks) * 100).round().clamp(10, 100);
+
+    if (mounted) {
+      setState(() {
+        _profile = profile;
+        _program = program;
+        _sessions = sessionList;
+        _completedThisWeekCount = thisWeekCount;
+        _currentActiveWeek = activeWeek;
+        _selectedWeek = activeWeek;
+        _totalWeeks = totalWeeks;
+        _progressPercent = percent;
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _showSwitchProgramModal() {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (ctx) {
         return Container(
           decoration: const BoxDecoration(
-            color: AppColors.surface,
+            color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
           ),
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Drag handle
+              // Drag Handle
               Center(
                 child: Container(
-                  width: 44,
+                  width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.neutral200,
+                    color: const Color(0xFFE5E7EB),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 18),
 
-              // Badges (DRY via AppBadge)
-              Row(
-                children: [
-                  AppBadge.category(label: program.category.name),
-                  const SizedBox(width: 8),
-                  AppBadge.difficulty(label: program.difficulty.name),
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              // Title
               Text(
-                title,
-                style: AppTypography.headlineMedium.copyWith(
+                'Opsi Program Latihan',
+                style: AppTypography.headlineSmall.copyWith(
                   fontWeight: FontWeight.w900,
-                  fontSize: 22,
-                  color: AppColors.darkCharcoal,
+                  fontSize: 18,
+                  color: const Color(0xFF141718),
                 ),
               ),
-              const SizedBox(height: 8),
-
-              // Description
+              const SizedBox(height: 4),
               Text(
-                desc,
-                style: AppTypography.bodyMedium.copyWith(
-                  color: AppColors.neutral500,
-                  fontSize: 14,
-                  height: 1.4,
+                'Ganti fokus kurikulum adaptif atau generate ulang jadwal program.',
+                style: AppTypography.bodySmall.copyWith(
+                  color: const Color(0xFF6B7280),
+                  fontSize: 12,
                 ),
               ),
               const SizedBox(height: 16),
 
-              // Duration stats
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: AppColors.neutral50,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.neutral100),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildModalStat(Icons.calendar_today_rounded, '${program.totalWeeks} Weeks', 'Duration'),
-                    Container(width: 1, height: 32, color: AppColors.neutral200),
-                    _buildModalStat(Icons.fitness_center_rounded, '${program.daysPerWeek} Days/Week', 'Frequency'),
-                    Container(width: 1, height: 32, color: AppColors.neutral200),
-                    _buildModalStat(Icons.speed_rounded, program.difficulty.name, 'Difficulty'),
-                  ],
-                ),
+              _buildProgramOption(
+                title: 'Full Body Adaptive (Beginner)',
+                desc: 'Fokus adaptif seluruh tubuh pemula • 4 Minggu',
+                goalKey: 'muscle_gain',
+                icon: Icons.fitness_center_rounded,
               ),
-              const SizedBox(height: 24),
-
-              // Tombol Mulai Program Ini (DRY via AppButton)
-              AppButton.primary(
-                text: 'Mulai Program Ini',
-                onPressed: () async {
-                  Navigator.pop(ctx);
-                  try {
-                    await ref
-                        .read(plansControllerProvider.notifier)
-                        .switchActiveProgram(program);
-
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Row(
-                            children: [
-                              const Icon(Icons.check_circle_rounded, color: AppColors.limeAccent),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  'Program aktif berhasil diubah ke $title!',
-                                  style: const TextStyle(fontWeight: FontWeight.w600),
-                                ),
-                              ),
-                            ],
-                          ),
-                          backgroundColor: AppColors.darkCharcoal,
-                          behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                      );
-                    }
-                  } catch (e) {
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Gagal mengganti program: $e')),
-                      );
-                    }
-                  }
-                },
+              const SizedBox(height: 10),
+              _buildProgramOption(
+                title: 'Build Pure Strength',
+                desc: 'Peningkatan kekuatan calisthenics murni • 4 Minggu',
+                goalKey: 'strength',
+                icon: Icons.flash_on_rounded,
+              ),
+              const SizedBox(height: 10),
+              _buildProgramOption(
+                title: 'Fat Loss & Conditioning',
+                desc: 'Definisi otot padat & pembakaran kalori • 4 Minggu',
+                goalKey: 'fat_loss',
+                icon: Icons.local_fire_department_rounded,
               ),
             ],
           ),
@@ -168,119 +198,446 @@ class PlansScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildModalStat(IconData icon, String val, String label) {
-    return Column(
-      children: [
-        Icon(icon, size: 18, color: AppColors.darkCharcoal),
-        const SizedBox(height: 4),
-        Text(
-          val,
-          style: AppTypography.labelMedium.copyWith(
-            fontWeight: FontWeight.w800,
-            fontSize: 12.5,
-            color: AppColors.darkCharcoal,
+  Widget _buildProgramOption({
+    required String title,
+    required String desc,
+    required String goalKey,
+    required IconData icon,
+  }) {
+    final isSelected = _profile?.goal.toLowerCase().contains(goalKey) == true;
+
+    return Material(
+      color: isSelected ? const Color(0xFFF4F9ED) : const Color(0xFFF9FAFB),
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: () async {
+          Navigator.pop(context);
+          if (_profile != null) {
+            setState(() => _isLoading = true);
+            final updatedProfile = _profile!.copyWith(goal: goalKey);
+            await _db.saveUserProfile(updatedProfile);
+
+            // Re-generate program dinamis
+            final exerciseDatasource = ExerciseLocalDatasource(db: _db);
+            final catalog = await exerciseDatasource.loadExercises();
+            final startingPushId = updatedProfile.experienceLevel == 'advanced'
+                ? 'diamond_push_up'
+                : updatedProfile.experienceLevel == 'intermediate'
+                ? 'push_up'
+                : 'knee_push_up';
+
+            final generated = const DynamicProgramGenerator().generate(
+              userProfile: updatedProfile,
+              catalogExercises: catalog,
+              startingPushExerciseId: startingPushId,
+            );
+
+            await _db.saveDynamicProgram(
+              program: generated.program,
+              sessions: generated.sessions,
+            );
+
+            await _loadRoadmapData();
+
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Program berhasil diubah ke $title!'),
+                  backgroundColor: const Color(0xFF141718),
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              );
+            }
+          }
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isSelected
+                  ? const Color(0xFF84CC16)
+                  : const Color(0xFFE5E7EB),
+              width: isSelected ? 1.8 : 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? const Color(0xFF84CC16)
+                      : const Color(0xFFE5E7EB),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  icon,
+                  color: isSelected
+                      ? const Color(0xFF141718)
+                      : const Color(0xFF4B5563),
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: AppTypography.labelLarge.copyWith(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 13,
+                        color: const Color(0xFF141718),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      desc,
+                      style: AppTypography.bodySmall.copyWith(
+                        color: const Color(0xFF6B7280),
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (isSelected)
+                const Icon(
+                  Icons.check_circle_rounded,
+                  color: Color(0xFF84CC16),
+                  size: 20,
+                ),
+            ],
           ),
         ),
-        Text(
-          label,
-          style: AppTypography.bodySmall.copyWith(
-            fontSize: 10.5,
-            color: AppColors.neutral400,
-          ),
-        ),
-      ],
+      ),
+    );
+  }
+
+  void _showEditScheduleModal() {
+    if (_profile == null) return;
+    final currentDays = List<String>.from(_profile!.availableDays);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+              ),
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE5E7EB),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Text(
+                    'Edit Schedule',
+                    style: AppTypography.headlineSmall.copyWith(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 18,
+                      color: const Color(0xFF141718),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Pilih hari latihan mingguan Anda (${currentDays.length} hari latihan terpilih)',
+                    style: AppTypography.bodySmall.copyWith(
+                      color: const Color(0xFF6B7280),
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 10,
+                    children: kWeekDays.map((day) {
+                      final isSelected = currentDays.any(
+                        (d) => d.toLowerCase() == day.key.toLowerCase(),
+                      );
+                      return FilterChip(
+                        label: Text(day.label),
+                        selected: isSelected,
+                        selectedColor: const Color(0xFFD4F836),
+                        checkmarkColor: const Color(0xFF141718),
+                        labelStyle: TextStyle(
+                          color: const Color(0xFF141718),
+                          fontWeight: isSelected
+                              ? FontWeight.w800
+                              : FontWeight.w600,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          side: BorderSide(
+                            color: isSelected
+                                ? Colors.transparent
+                                : const Color(0xFFE2E8F0),
+                          ),
+                        ),
+                        onSelected: (selected) {
+                          setModalState(() {
+                            if (selected) {
+                              if (!currentDays.contains(day.key)) {
+                                currentDays.add(day.key);
+                              }
+                            } else {
+                              if (currentDays.length > 1) {
+                                currentDays.removeWhere(
+                                  (d) =>
+                                      d.toLowerCase() == day.key.toLowerCase(),
+                                );
+                              }
+                            }
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        Navigator.pop(ctx);
+                        setState(() => _isLoading = true);
+                        final updatedProfile = _profile!.copyWith(
+                          availableDays: currentDays,
+                          weeklyFrequency: currentDays.length,
+                          preferredDaysPerWeek: currentDays.length,
+                        );
+                        await _db.saveUserProfile(updatedProfile);
+                        await _loadRoadmapData();
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Jadwal diperbarui: ${currentDays.length} hari latihan / minggu!',
+                              ),
+                              backgroundColor: const Color(0xFF141718),
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF84CC16),
+                        foregroundColor: const Color(0xFF141718),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: const Text(
+                        'Simpan Jadwal',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _startWorkoutSession(SessionWithDetail s) {
+    final exercises = s.detail.exercises.map((e) => e.exercise).toList();
+    final workoutItems = s.detail.exercises.map((e) {
+      return WorkoutItem(
+        exerciseId: e.exercise.id,
+        sets: e.prescription.targetSets,
+        reps: e.prescription.minReps,
+        restSeconds: e.prescription.restSeconds,
+        isMain: e.prescription.stage == 'main',
+        stage: e.prescription.stage,
+      );
+    }).toList();
+
+    final programDay = ProgramDay(
+      day: s.session.dayNumber,
+      week: _selectedWeek,
+      type: WorkoutTypeCode.f,
+      focus: LocalizedString(
+        id: s.session.focusLabel,
+        en: s.session.focusLabel,
+      ),
+      isRest: false,
+      isRetestMilestone: false,
+      items: workoutItems,
+    );
+
+    context.push(
+      AppRoutes.workoutSession,
+      extra: WorkoutSessionArgs(day: programDay, exercises: exercises),
+    );
+  }
+
+  void _previewSession(SessionWithDetail s) {
+    context.push(
+      AppRoutes.workoutDetail,
+      extra: WorkoutDetailArgs(
+        dayNumber: s.session.dayNumber,
+        weekDayText: 'Week $_selectedWeek • Day ${s.session.dayNumber}',
+        workoutTitle: s.session.focusLabel,
+        targetMusclesText: _program?.name ?? 'Full Body Adaptive',
+        durationText: '${s.session.targetDurationMinutes} min',
+        levelText: _profile?.experienceLevel ?? 'Beginner',
+      ),
     );
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    if (_showOld3TabsDesign) {
-      return Plans3TabsScreenBackup(initialTabIndex: initialTabIndex);
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: CircularProgressIndicator(color: Color(0xFF84CC16)),
+        ),
+      );
     }
 
-    final state = ref.watch(plansControllerProvider);
-    final active = state.activeProgram;
-
-    String title = active?.title.en.isNotEmpty == true
-        ? active!.title.en
-        : (active?.title.id.isNotEmpty == true ? active!.title.id : '');
-    if (title.trim().isEmpty) {
-      final id = active?.id ?? '';
-      title = id.isNotEmpty
-          ? id.replaceAll('_', ' ').split(' ').map((w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '').join(' ')
-          : 'Upper Body Strength';
-    }
-
-    String desc = active?.description.en.isNotEmpty == true
-        ? active!.description.en
-        : (active?.description.id.isNotEmpty == true ? active!.description.id : '');
-    if (desc.trim().isEmpty) {
-      desc = 'Build a stronger chest, back, arms, and shoulders at home.';
-    }
-    final totalWeeks = active?.totalWeeks ?? 8;
+    final programTitle = _program?.name.isNotEmpty == true
+        ? _program!.name
+        : 'Full Body Adaptive (Beginner)';
+    final weeklySessions = _sessions.isNotEmpty ? _sessions.length : 3;
 
     return Scaffold(
-      backgroundColor: AppColors.scaffoldBackground,
+      backgroundColor: Colors.white,
       body: SafeArea(
-        bottom: false,
-        child: RefreshIndicator(
-          color: AppColors.darkCharcoal,
-          backgroundColor: AppColors.limeAccent,
-          onRefresh: () => ref.read(plansControllerProvider.notifier).loadPrograms(),
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(
-              parent: BouncingScrollPhysics(),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 1. Header Plans
-                const PlansHeader(),
-                const SizedBox(height: 16),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 8),
 
-                // 2. Current Plan Hero Card (Reaktif dari Riverpod State)
-                CurrentPlanHeroCard(
-                  title: title,
-                  description: desc,
-                  currentWeek: state.currentWeek,
-                  totalWeeks: totalWeeks,
-                  progressPercent: state.progressPercent,
-                ),
-                const SizedBox(height: 22),
+              // 1. Top Bar: Back Arrow ← | Plan Title | ••• Action
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          if (context.canPop()) {
+                            context.pop();
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(20),
+                        child: const Padding(
+                          padding: EdgeInsets.all(4),
+                          child: Icon(
+                            Icons.arrow_back_rounded,
+                            color: Color(0xFF141718),
+                            size: 24,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Plan',
+                        style: AppTypography.headlineLarge.copyWith(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 20,
+                          color: const Color(0xFF141718),
+                        ),
+                      ),
+                    ],
+                  ),
+                  InkWell(
+                    onTap: _showSwitchProgramModal,
+                    borderRadius: BorderRadius.circular(20),
+                    child: const Padding(
+                      padding: EdgeInsets.all(4),
+                      child: Icon(
+                        Icons.more_horiz_rounded,
+                        color: Color(0xFF141718),
+                        size: 24,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
 
-                // 3. Weekly Schedule (Mon - Sun dinamis sesuai minggu yang dipilih)
-                WeeklyScheduleDaysSection(
-                  selectedWeek: state.selectedWeekNumber,
-                  currentWeek: state.currentWeek,
-                  totalWeeks: totalWeeks,
-                  days: state.currentWeekDays,
-                  completedDayNumbers: state.completedDaysForSelectedWeek,
-                  onSelectWeek: (weekNum) {
-                    ref.read(plansControllerProvider.notifier).selectWeek(weekNum);
-                  },
-                ),
-                const SizedBox(height: 22),
+              const SizedBox(height: 12),
 
-                // 4. Workouts in This Plan (Daftar sesi dinamis sesuai minggu terpilih)
-                WorkoutsInThisPlanSection(
-                  totalWeeks: totalWeeks,
-                  daysPerWeek: active?.daysPerWeek ?? 4,
-                  selectedWeek: state.selectedWeekNumber,
-                  days: state.currentWeekDays,
-                  completedDayNumbers: state.completedDaysForSelectedWeek,
-                ),
-                const SizedBox(height: 22),
+              // 2. Hero Card Kurikulum & Roadmap Program (Coach Adi, Full Body Adaptive, Meta)
+              RoadmapHeaderCard(
+                programTitle: programTitle,
+                currentWeek: _currentActiveWeek,
+                totalWeeks: _totalWeeks,
+                progressPercent: _progressPercent,
+                weeklySessions: weeklySessions,
+                onSwitchProgram: _showSwitchProgramModal,
+              ),
 
-                // 5. Other Programs (Carousel Program Lain)
-                OtherProgramsSection(
-                  programs: state.otherPrograms,
-                  onSelectProgram: (p) => _showProgramDetailModal(context, ref, p),
-                  onSeeAll: () {},
-                ),
-                const SizedBox(height: 32),
-              ],
-            ),
+              const SizedBox(height: 18),
+
+              // 3. Your Schedule Card (Jadwal Hari Latihan & Istirahat)
+              YourScheduleCard(
+                availableDays:
+                    _profile?.availableDays ??
+                    const ['monday', 'wednesday', 'friday', 'sunday'],
+                weeklyWorkouts: _profile?.weeklyFrequency ?? 4,
+                onEditSchedule: _showEditScheduleModal,
+              ),
+
+              const SizedBox(height: 18),
+
+              // 4. Workouts Plan (Week Selector Dinamis + Workout Sessions List)
+              WorkoutsPlanSection(
+                selectedWeek: _selectedWeek,
+                currentActiveWeek: _currentActiveWeek,
+                completedThisWeekCount: _completedThisWeekCount,
+                totalWeeks: _totalWeeks,
+                onSelectWeek: (w) => setState(() => _selectedWeek = w),
+                sessions: _sessions,
+                onSessionTap: (item) => _previewSession(item),
+                onStartSession: (item) => _startWorkoutSession(item),
+              ),
+
+              const SizedBox(height: 20),
+
+              // 6. Quick Access: Perpustakaan 18 Gerakan Biomekanika
+              ExerciseLibraryBanner(
+                onOpenLibrary: () => context.push(AppRoutes.exercises),
+              ),
+
+              const SizedBox(height: 32),
+            ],
           ),
         ),
       ),

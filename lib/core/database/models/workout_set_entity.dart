@@ -39,6 +39,10 @@ class WorkoutSetEntity {
   final double? targetLoadKg;
   final double? actualLoadKg;
   final int? durationSeconds;
+  final int? rir; // Reps In Reserve: 0, 1, 2, 3, 4+
+  final bool isWarmup;
+  final double formScore; // Skor kerapian form gerakan (0.0 - 1.0)
+  final String dataSource; // 'manual', 'camera_pose', 'wearable'
   final WorkoutSetStatus status;
 
   const WorkoutSetEntity({
@@ -51,6 +55,10 @@ class WorkoutSetEntity {
     this.targetLoadKg,
     this.actualLoadKg,
     this.durationSeconds,
+    this.rir = 2,
+    this.isWarmup = false,
+    this.formScore = 1.0,
+    this.dataSource = 'manual',
     this.status = WorkoutSetStatus.completed,
   });
 
@@ -65,6 +73,10 @@ class WorkoutSetEntity {
       'target_load_kg': targetLoadKg,
       'actual_load_kg': actualLoadKg,
       'duration_seconds': durationSeconds,
+      'rir': rir,
+      'is_warmup': isWarmup ? 1 : 0,
+      'form_score': formScore,
+      'data_source': dataSource,
       'status': status.toDbString(),
     };
   }
@@ -80,6 +92,10 @@ class WorkoutSetEntity {
       targetLoadKg: (map['target_load_kg'] as num?)?.toDouble(),
       actualLoadKg: (map['actual_load_kg'] as num?)?.toDouble(),
       durationSeconds: (map['duration_seconds'] as num?)?.toInt(),
+      rir: (map['rir'] as num?)?.toInt(),
+      isWarmup: (map['is_warmup'] as int? ?? 0) == 1,
+      formScore: (map['form_score'] as num?)?.toDouble() ?? 1.0,
+      dataSource: map['data_source']?.toString() ?? 'manual',
       status: WorkoutSetStatus.fromDbString(map['status']?.toString()),
     );
   }

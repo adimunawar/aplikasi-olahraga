@@ -111,8 +111,8 @@ class OnboardingScheduleStep extends StatelessWidget {
 
               const SizedBox(height: 28),
 
-              // Dots Indicator (Reusable)
-              const OnboardingDotsIndicator(activeIndex: 2),
+              // Dots Indicator (Step 4: Index 2 dari 5)
+              const OnboardingDotsIndicator(activeIndex: 2, totalDots: 5),
               const SizedBox(height: 16),
 
               // CTA Button: Next → (Reusable)

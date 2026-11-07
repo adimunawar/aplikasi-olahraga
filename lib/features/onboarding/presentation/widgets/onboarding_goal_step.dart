@@ -88,8 +88,8 @@ class OnboardingGoalStep extends StatelessWidget {
 
               const Spacer(),
 
-              // Dots Indicator (Step 2: Index 1)
-              const OnboardingDotsIndicator(activeIndex: 1),
+              // Dots Indicator (Step 2: Index 0 dari 5)
+              const OnboardingDotsIndicator(activeIndex: 0, totalDots: 5),
               const SizedBox(height: 16),
 
               // CTA Button: Next → (Reusable)

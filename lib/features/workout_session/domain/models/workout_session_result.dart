@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../../progression/domain/models/progression_models.dart';
 
 /// Model hasil akhir sesi latihan (Domain Layer murni & immutable)
 @immutable
@@ -13,6 +14,7 @@ class WorkoutSessionResult {
   final int totalExercises;
   final DateTime startedAt;
   final DateTime endedAt;
+  final List<ProgressionDecision> progressionDecisions;
 
   const WorkoutSessionResult({
     required this.sessionId,
@@ -25,6 +27,7 @@ class WorkoutSessionResult {
     required this.totalExercises,
     required this.startedAt,
     required this.endedAt,
+    this.progressionDecisions = const [],
   });
 
   int get durationMinutes => (durationSeconds / 60).round();
