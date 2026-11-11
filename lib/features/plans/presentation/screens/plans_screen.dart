@@ -5,6 +5,7 @@ import '../../../../core/database/app_database.dart';
 import '../../../../core/database/models/dynamic_program_entity.dart';
 import '../../../../core/database/models/user_profile_entity.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/services/app_data_sync.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
 import '../../../exercises/domain/models/exercise.dart';
@@ -46,81 +47,116 @@ class _PlansScreenState extends State<PlansScreen> {
   int _totalWeeks = 4;
   int _progressPercent = 25;
   bool _isLoading = true;
+  bool _isFetching = false;
 
   @override
   void initState() {
     super.initState();
     _loadRoadmapData();
+    AppDataSync.instance.dataRevision.addListener(_onDataSync);
+  }
+
+  @override
+  void dispose() {
+    AppDataSync.instance.dataRevision.removeListener(_onDataSync);
+    super.dispose();
+  }
+
+  void _onDataSync() {
+    if (mounted) {
+      _loadRoadmapData();
+    }
   }
 
   Future<void> _loadRoadmapData() async {
-    final profile = await _db.getUserProfile();
-    final userId = profile.id.isNotEmpty ? profile.id : 'default_user';
+    if (_isFetching) return;
+    _isFetching = true;
 
-    var program = await _db.getActiveTrainingProgram(userId);
-    program ??= await _db.getActiveTrainingProgram('default_user');
+    try {
+      final profile = await _db.getUserProfile();
+      final userId = profile.id.isNotEmpty ? profile.id : 'default_user';
 
-    // Auto-generate jika belum ada program
-    if (program == null) {
-      try {
-        final exerciseDatasource = ExerciseLocalDatasource(db: _db);
-        final catalog = await exerciseDatasource.loadExercises();
-        final startingPushId = profile.experienceLevel == 'advanced'
-            ? 'diamond_push_up'
-            : profile.experienceLevel == 'intermediate'
-            ? 'push_up'
-            : 'knee_push_up';
+      var program = await _db.getActiveTrainingProgram(userId);
+      program ??= await _db.getActiveTrainingProgram('default_user');
 
-        final generated = const DynamicProgramGenerator().generate(
-          userProfile: profile,
-          catalogExercises: catalog,
-          startingPushExerciseId: startingPushId,
-        );
-
-        await _db.saveDynamicProgram(
-          program: generated.program,
-          sessions: generated.sessions,
-        );
-        program = generated.program;
-      } catch (e) {
-        debugPrint('[PlansScreen] Error generating dynamic program: $e');
-      }
-    }
-
-    final List<SessionWithDetail> sessionList = [];
-    if (program != null) {
-      final rawSessions = await _db.getProgramSessions(program.id);
-      for (final s in rawSessions) {
-        final detail = await _db.getProgramSessionDetail(s.id);
-        if (detail != null) {
-          sessionList.add(SessionWithDetail(session: s, detail: detail));
+      final List<SessionWithDetail> sessionList = [];
+      if (program != null) {
+        final rawSessions = await _db.getProgramSessions(program.id);
+        for (final s in rawSessions) {
+          final detail = await _db.getProgramSessionDetail(s.id);
+          if (detail != null) {
+            sessionList.add(SessionWithDetail(session: s, detail: detail));
+          }
         }
       }
-    }
 
-    final thisWeekCount = await _db.getThisWeekCompletedCount();
-    final totalWeeks = program?.durationWeeks ?? 4;
-    final activeWeek =
-        ((thisWeekCount ~/
-                    (profile.weeklyFrequency > 0
-                        ? profile.weeklyFrequency
-                        : 3)) +
-                1)
-            .clamp(1, totalWeeks);
-    final percent = ((activeWeek / totalWeeks) * 100).round().clamp(10, 100);
+      // Auto-generate / Auto-heal jika:
+      // 1. Program belum ada di database
+      // 2. ATAU sesi latihan kosong
+      // 3. ATAU jumlah sesi tidak sesuai dengan frekuensi profil user (misal user ubah dari 3 ke 4 hari)
+      final targetWeekly = profile.weeklyFrequency > 0
+          ? profile.weeklyFrequency
+          : 3;
+      if (program == null ||
+          sessionList.isEmpty ||
+          sessionList.length != targetWeekly) {
+        try {
+          final exerciseDatasource = ExerciseLocalDatasource(db: _db);
+          final catalog = await exerciseDatasource.loadExercises();
+          final startingPushId = profile.experienceLevel == 'advanced'
+              ? 'diamond_push_up'
+              : profile.experienceLevel == 'intermediate'
+              ? 'push_up'
+              : 'knee_push_up';
 
-    if (mounted) {
-      setState(() {
-        _profile = profile;
-        _program = program;
-        _sessions = sessionList;
-        _completedThisWeekCount = thisWeekCount;
-        _currentActiveWeek = activeWeek;
-        _selectedWeek = activeWeek;
-        _totalWeeks = totalWeeks;
-        _progressPercent = percent;
-        _isLoading = false;
-      });
+          final generated = const DynamicProgramGenerator().generate(
+            userProfile: profile,
+            catalogExercises: catalog,
+            startingPushExerciseId: startingPushId,
+          );
+
+          await _db.saveDynamicProgram(
+            program: generated.program,
+            sessions: generated.sessions,
+          );
+          program = generated.program;
+
+          sessionList.clear();
+          final newRawSessions = await _db.getProgramSessions(program.id);
+          for (final s in newRawSessions) {
+            final detail = await _db.getProgramSessionDetail(s.id);
+            if (detail != null) {
+              sessionList.add(SessionWithDetail(session: s, detail: detail));
+            }
+          }
+        } catch (e) {
+          debugPrint('[PlansScreen] Error generating dynamic program: $e');
+        }
+      }
+
+      final thisWeekCount = await _db.getThisWeekCompletedCount();
+      final totalWeeks = program?.durationWeeks ?? 4;
+      final activeWeek = ((thisWeekCount ~/ targetWeekly) + 1).clamp(
+        1,
+        totalWeeks,
+      );
+      final percent = ((activeWeek / totalWeeks) * 100).round().clamp(10, 100);
+
+      if (mounted) {
+        setState(() {
+          _profile = profile;
+          _program = program;
+          _sessions = sessionList;
+          _completedThisWeekCount = thisWeekCount;
+          _currentActiveWeek = activeWeek;
+          _selectedWeek = activeWeek;
+          _totalWeeks = totalWeeks;
+          _progressPercent = percent;
+          _isLoading = false;
+        });
+      }
+    } finally {
+      _isFetching = false;
     }
   }
 
@@ -471,7 +507,7 @@ class _PlansScreenState extends State<PlansScreen> {
     );
   }
 
-  void _startWorkoutSession(SessionWithDetail s) {
+  Future<void> _startWorkoutSession(SessionWithDetail s) async {
     final exercises = s.detail.exercises.map((e) => e.exercise).toList();
     final workoutItems = s.detail.exercises.map((e) {
       return WorkoutItem(
@@ -497,14 +533,17 @@ class _PlansScreenState extends State<PlansScreen> {
       items: workoutItems,
     );
 
-    context.push(
+    await context.push(
       AppRoutes.workoutSession,
       extra: WorkoutSessionArgs(day: programDay, exercises: exercises),
     );
+    if (mounted) {
+      _loadRoadmapData();
+    }
   }
 
-  void _previewSession(SessionWithDetail s) {
-    context.push(
+  Future<void> _previewSession(SessionWithDetail s) async {
+    await context.push(
       AppRoutes.workoutDetail,
       extra: WorkoutDetailArgs(
         dayNumber: s.session.dayNumber,
@@ -515,6 +554,9 @@ class _PlansScreenState extends State<PlansScreen> {
         levelText: _profile?.experienceLevel ?? 'Beginner',
       ),
     );
+    if (mounted) {
+      _loadRoadmapData();
+    }
   }
 
   @override
@@ -548,34 +590,13 @@ class _PlansScreenState extends State<PlansScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          if (context.canPop()) {
-                            context.pop();
-                          }
-                        },
-                        borderRadius: BorderRadius.circular(20),
-                        child: const Padding(
-                          padding: EdgeInsets.all(4),
-                          child: Icon(
-                            Icons.arrow_back_rounded,
-                            color: Color(0xFF141718),
-                            size: 24,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Plan',
-                        style: AppTypography.headlineLarge.copyWith(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 20,
-                          color: const Color(0xFF141718),
-                        ),
-                      ),
-                    ],
+                  Text(
+                    'Plan',
+                    style: AppTypography.headlineLarge.copyWith(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 20,
+                      color: const Color(0xFF141718),
+                    ),
                   ),
                   InkWell(
                     onTap: _showSwitchProgramModal,

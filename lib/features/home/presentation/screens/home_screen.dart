@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:workout_app/core/database/models/workout_session_entity.dart';
-
 import '../../../../core/database/app_database.dart';
-import '../../../../core/database/database_tables.dart';
+import '../../../../core/database/models/dynamic_program_entity.dart';
 import '../../../../core/database/models/user_profile_entity.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/services/app_data_sync.dart';
 import '../../../exercises/domain/models/exercise.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
 import '../../../exercises/data/repositories/exercise_repository_impl.dart';
@@ -53,6 +53,8 @@ class _HomeScreenState extends State<HomeScreen> {
   int _weeklyTarget = 3;
   int _progressPercent = 0;
   int _totalDurationMinutes = 0;
+  bool _isCompletedToday = false;
+  int _todayCompletedMinutes = 0;
 
   String _programTitle = 'Muscle Gain (Bulking)';
   String _nextSessionFocus = 'Upper Body Strength';
@@ -64,6 +66,19 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadTodayData();
+    AppDataSync.instance.dataRevision.addListener(_onDataSync);
+  }
+
+  @override
+  void dispose() {
+    AppDataSync.instance.dataRevision.removeListener(_onDataSync);
+    super.dispose();
+  }
+
+  void _onDataSync() {
+    if (mounted) {
+      _loadTodayData();
+    }
   }
 
   String _formatDayShortEn(int weekday) {
@@ -112,7 +127,13 @@ class _HomeScreenState extends State<HomeScreen> {
     var activeProgram = await _db.getActiveTrainingProgram(userId);
     activeProgram ??= await _db.getActiveTrainingProgram('default_user');
 
-    if (activeProgram == null) {
+    List<ProgramSessionEntity> sessions = [];
+    if (activeProgram != null) {
+      sessions = await _db.getProgramSessions(activeProgram.id);
+    }
+
+    // Auto-heal jika program belum ada, atau sesi kosong, atau frekuensi berubah
+    if (activeProgram == null || sessions.isEmpty || sessions.length != targetWeekly) {
       try {
         final exerciseDatasource = ExerciseLocalDatasource(db: _db);
         final catalog = await exerciseDatasource.loadExercises();
@@ -133,6 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
           sessions: generated.sessions,
         );
         activeProgram = generated.program;
+        sessions = await _db.getProgramSessions(activeProgram.id);
       } catch (e) {
         debugPrint('[HomeScreen] Auto-generate dynamic program: $e');
       }
@@ -143,58 +165,55 @@ class _HomeScreenState extends State<HomeScreen> {
     int sessionDuration = 25;
     ProgramDay? programDay;
 
-    if (activeProgram != null) {
-      final sessions = await _db.getProgramSessions(activeProgram.id);
-      if (sessions.isNotEmpty) {
-        final nextIndex = thisWeekCount % sessions.length;
-        final nextSession = sessions[nextIndex];
-        sessionFocus = nextSession.focusLabel.isNotEmpty
-            ? nextSession.focusLabel
-            : 'Upper Body Strength';
-        sessionDuration = nextSession.targetDurationMinutes > 0
-            ? nextSession.targetDurationMinutes
-            : 25;
+    if (activeProgram != null && sessions.isNotEmpty) {
+      final nextIndex = thisWeekCount % sessions.length;
+      final nextSession = sessions[nextIndex];
+      sessionFocus = nextSession.focusLabel.isNotEmpty
+          ? nextSession.focusLabel
+          : 'Upper Body Strength';
+      sessionDuration = nextSession.targetDurationMinutes > 0
+          ? nextSession.targetDurationMinutes
+          : 25;
 
-        final detail = await _db.getProgramSessionDetail(nextSession.id);
-        List<WorkoutItem> workoutItems = [];
+      final detail = await _db.getProgramSessionDetail(nextSession.id);
+      List<WorkoutItem> workoutItems = [];
 
-        if (detail != null && detail.exercises.isNotEmpty) {
-          todayExercises = detail.exercises.map((e) => e.exercise).toList();
-          workoutItems = detail.exercises.map((e) {
-            return WorkoutItem(
-              exerciseId: e.exercise.id,
-              sets: e.prescription.targetSets,
-              reps: e.prescription.minReps,
-              restSeconds: e.prescription.restSeconds,
-              isMain: e.prescription.stage == 'main',
-              stage: e.prescription.stage,
-            );
-          }).toList();
-        } else {
-          workoutItems = todayExercises
-              .map(
-                (e) => WorkoutItem(
-                  exerciseId: e.id,
-                  sets: 3,
-                  reps: 10,
-                  restSeconds: 60,
-                  isMain: true,
-                  stage: 'main',
-                ),
-              )
-              .toList();
-        }
-
-        programDay = ProgramDay(
-          day: nextSession.dayNumber,
-          week: (thisWeekCount ~/ targetWeekly) + 1,
-          type: WorkoutTypeCode.f,
-          focus: LocalizedString(id: sessionFocus, en: sessionFocus),
-          isRest: false,
-          isRetestMilestone: false,
-          items: workoutItems,
-        );
+      if (detail != null && detail.exercises.isNotEmpty) {
+        todayExercises = detail.exercises.map((e) => e.exercise).toList();
+        workoutItems = detail.exercises.map((e) {
+          return WorkoutItem(
+            exerciseId: e.exercise.id,
+            sets: e.prescription.targetSets,
+            reps: e.prescription.minReps,
+            restSeconds: e.prescription.restSeconds,
+            isMain: e.prescription.stage == 'main',
+            stage: e.prescription.stage,
+          );
+        }).toList();
+      } else {
+        workoutItems = todayExercises
+            .map(
+              (e) => WorkoutItem(
+                exerciseId: e.id,
+                sets: 3,
+                reps: 10,
+                restSeconds: 60,
+                isMain: true,
+                stage: 'main',
+              ),
+            )
+            .toList();
       }
+
+      programDay = ProgramDay(
+        day: nextSession.dayNumber,
+        week: (thisWeekCount ~/ targetWeekly) + 1,
+        type: WorkoutTypeCode.f,
+        focus: LocalizedString(id: sessionFocus, en: sessionFocus),
+        isRest: false,
+        isRetestMilestone: false,
+        items: workoutItems,
+      );
     }
 
     // Fallback jika database belum ada latihan
@@ -242,6 +261,19 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
+    bool isCompletedToday = false;
+    int todayCompletedMinutes = 0;
+    for (final s in recentSessions) {
+      if (s.status == WorkoutSessionStatus.completed &&
+          s.startedAt.year == now.year &&
+          s.startedAt.month == now.month &&
+          s.startedAt.day == now.day) {
+        isCompletedToday = true;
+        todayCompletedMinutes = (s.durationSeconds / 60).round();
+        break;
+      }
+    }
+
     if (mounted) {
       setState(() {
         _userProfile = profile;
@@ -250,7 +282,11 @@ class _HomeScreenState extends State<HomeScreen> {
         _weeklyTarget = targetWeekly;
         _progressPercent = percent;
         _totalDurationMinutes = totalMinutes;
-        _programTitle = goalStr;
+        _isCompletedToday = isCompletedToday;
+        _todayCompletedMinutes = todayCompletedMinutes;
+        _programTitle = activeProgram?.name.isNotEmpty == true
+            ? activeProgram!.name
+            : goalStr;
         _nextSessionFocus = sessionFocus;
         _nextSessionDurationMinutes = sessionDuration;
         _todayProgram = programDay;
@@ -261,22 +297,25 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _startWorkoutSession() {
+  Future<void> _startWorkoutSession() async {
     final day = _todayProgram;
     if (day != null && !day.isRest) {
-      context.push(
+      await context.push(
         AppRoutes.workoutSession,
         extra: WorkoutSessionArgs(day: day, exercises: _todayExercises),
       );
+      if (mounted) {
+        _loadTodayData();
+      }
     } else {
       widget.onNavigateToCalendar();
     }
   }
 
-  void _viewWorkoutDetail() {
+  Future<void> _viewWorkoutDetail() async {
     final day = _todayProgram;
     if (day != null) {
-      context.push(
+      await context.push(
         AppRoutes.workoutDetail,
         extra: WorkoutDetailArgs(
           dayNumber: day.day,
@@ -287,6 +326,9 @@ class _HomeScreenState extends State<HomeScreen> {
           levelText: _userProfile?.experienceLevel ?? 'Beginner',
         ),
       );
+      if (mounted) {
+        _loadTodayData();
+      }
     } else {
       widget.onNavigateToCalendar();
     }
@@ -305,6 +347,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final explorePrograms = const [
       ExploreProgramItem(
+        id: 'upper_body_strength',
+        title: 'Upper Body Strength',
+        durationText: '8 Minggu',
+        levelText: 'Beginner',
+        imageAsset: 'assets/images/coach_crossed_arms.png',
+      ),
+      ExploreProgramItem(
         id: 'build_muscle',
         title: 'Build Muscle',
         durationText: '4 Minggu',
@@ -316,7 +365,7 @@ class _HomeScreenState extends State<HomeScreen> {
         title: 'Build Strength',
         durationText: '4 Minggu',
         levelText: 'Beginner',
-        imageAsset: 'assets/images/coach_crossed_arms.png',
+        imageAsset: 'assets/images/coach_hero.png',
       ),
       ExploreProgramItem(
         id: 'fat_loss',
@@ -373,6 +422,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     exerciseCount: _todayExercises.isNotEmpty
                         ? _todayExercises.length
                         : 5,
+                    isCompletedToday: _isCompletedToday,
+                    todayCompletedMinutes: _todayCompletedMinutes,
                     onStartWorkout: _startWorkoutSession,
                     exerciseImageAsset: 'assets/images/exercises/push_up.webp',
                   ),
@@ -396,7 +447,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     programs: explorePrograms,
                     onSeeAll: widget.onNavigateToExercises,
                     onProgramTap: (item) {
-                      widget.onNavigateToCalendar();
+                      context.push(AppRoutes.programDetail, extra: item.id);
                     },
                   ),
 

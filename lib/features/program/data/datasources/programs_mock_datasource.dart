@@ -17,10 +17,20 @@ class ProgramsMockDatasource {
   }
 
   WorkoutProgram? getProgramById(String id) {
+    final programs = getAllPrograms();
     try {
-      return getAllPrograms().firstWhere((p) => p.id == id);
+      return programs.firstWhere((p) => p.id == id);
     } catch (_) {
-      return getAllPrograms().first;
+      if (id.contains('strength')) {
+        return _buildUpperBodyStrengthProgram();
+      }
+      if (id.contains('muscle') || id.contains('bulking')) {
+        return _buildFullBodyBulkingProgram();
+      }
+      if (id.contains('fat_loss')) {
+        return _buildCoreStabilityProgram();
+      }
+      return programs.first;
     }
   }
 
@@ -35,11 +45,11 @@ class ProgramsMockDatasource {
         en: 'Upper Body Strength',
       ),
       description: const LocalizedString(
-        id: 'Bangun otot dada, punggung, bahu, dan lengan lebih kuat di rumah.',
-        en: 'Build a stronger chest, back, arms, and shoulders at home.',
+        id: 'Bangun otot dada, punggung, bahu, dan lengan lebih kuat di rumah dengan latihan bodyweight terstruktur.',
+        en: 'Build stronger chest, back and arms with progressive bodyweight training.',
       ),
       category: ProgramCategory.bulking,
-      difficulty: ProgramDifficulty.intermediate,
+      difficulty: ProgramDifficulty.beginner,
       totalWeeks: 8,
       daysPerWeek: 4,
       bannerAsset: 'assets/images/Home Workout Push-Up Guide.png',
@@ -55,14 +65,17 @@ class ProgramsMockDatasource {
               day: (w - 1) * 4 + 1,
               week: w,
               type: WorkoutTypeCode.p,
+              title: 'Day 1 – Upper Body Push',
               focus: const LocalizedString(
-                id: 'Dada • Bahu • Triceps',
+                id: 'Chest • Shoulders • Triceps',
                 en: 'Chest • Shoulders • Triceps',
               ),
+              thumbnailAsset: 'assets/images/exercises/push_up.webp',
+              estimatedDurationMinutes: 30,
               isRest: false,
               isRetestMilestone: false,
               items: const [
-                WorkoutItem(exerciseId: 'standard_push_up', sets: 3, reps: 12),
+                WorkoutItem(exerciseId: 'push_up', sets: 3, reps: 12),
                 WorkoutItem(exerciseId: 'incline_push_up', sets: 3, reps: 10),
                 WorkoutItem(exerciseId: 'diamond_push_up', sets: 3, reps: 8),
               ],
@@ -72,15 +85,18 @@ class ProgramsMockDatasource {
               day: (w - 1) * 4 + 2,
               week: w,
               type: WorkoutTypeCode.p,
+              title: 'Day 2 – Upper Body Pull',
               focus: const LocalizedString(
-                id: 'Punggung • Biceps',
+                id: 'Back • Biceps',
                 en: 'Back • Biceps',
               ),
+              thumbnailAsset: 'assets/images/exercises/incline_push_up.webp',
+              estimatedDurationMinutes: 30,
               isRest: false,
               isRetestMilestone: false,
               items: const [
-                WorkoutItem(exerciseId: 'doorframe_row', sets: 3, reps: 12),
-                WorkoutItem(exerciseId: 'superman_pull', sets: 3, reps: 15),
+                WorkoutItem(exerciseId: 'incline_push_up', sets: 3, reps: 12),
+                WorkoutItem(exerciseId: 'push_up_start', sets: 3, reps: 15),
               ],
             ),
             // Rabu: Day 3 - Rest / Recovery
@@ -88,10 +104,13 @@ class ProgramsMockDatasource {
               day: (w - 1) * 4 + 3,
               week: w,
               type: WorkoutTypeCode.r,
+              title: 'Day 3 – Rest & Recovery',
               focus: const LocalizedString(
-                id: 'Istirahat atau aktivitas ringan seperti stretching.',
-                en: 'Rest, or light activity like stretching.',
+                id: 'Mobility • Stretching • Light Activity',
+                en: 'Mobility • Stretching • Light Activity',
               ),
+              thumbnailAsset: 'assets/images/onboarding_bg.jpg',
+              estimatedDurationMinutes: 0,
               isRest: true,
               isRetestMilestone: false,
               items: const [],
@@ -101,41 +120,57 @@ class ProgramsMockDatasource {
               day: (w - 1) * 4 + 4,
               week: w,
               type: WorkoutTypeCode.f,
+              title: 'Day 4 – Upper Body Mix',
               focus: const LocalizedString(
-                id: 'Dada • Punggung • Bahu • Lengan',
-                en: 'Chest • Back • Shoulders • Arms',
+                id: 'Chest • Back • Arms',
+                en: 'Chest • Back • Arms',
               ),
+              thumbnailAsset: 'assets/images/exercises/diamond_push_up.webp',
+              estimatedDurationMinutes: 30,
               isRest: false,
               isRetestMilestone: false,
               items: const [
-                WorkoutItem(exerciseId: 'standard_push_up', sets: 3, reps: 10),
+                WorkoutItem(exerciseId: 'push_up', sets: 3, reps: 10),
                 WorkoutItem(exerciseId: 'pike_push_up', sets: 3, reps: 8),
-                WorkoutItem(exerciseId: 'superman_pull', sets: 3, reps: 12),
+                WorkoutItem(exerciseId: 'diamond_push_up', sets: 3, reps: 12),
               ],
             ),
-            // Jumat - Minggu: Rest Days
+            // Jumat: Rest Day
             ProgramDay(
               day: 0,
               week: w,
               type: WorkoutTypeCode.r,
+              title: 'Day 5 – Rest & Recovery',
               focus: const LocalizedString(id: 'Rest', en: 'Rest'),
               isRest: true,
               isRetestMilestone: false,
               items: const [],
             ),
+            // Sabtu: Power Session
             ProgramDay(
-              day: 0,
+              day: (w - 1) * 4 + 5,
               week: w,
-              type: WorkoutTypeCode.r,
-              focus: const LocalizedString(id: 'Rest', en: 'Rest'),
-              isRest: true,
+              type: WorkoutTypeCode.f,
+              title: 'Day 6 – Full Body Power',
+              focus: const LocalizedString(
+                id: 'Chest • Core • Arms',
+                en: 'Chest • Core • Arms',
+              ),
+              thumbnailAsset: 'assets/images/exercises/pike_push_up.webp',
+              estimatedDurationMinutes: 30,
+              isRest: false,
               isRetestMilestone: false,
-              items: const [],
+              items: const [
+                WorkoutItem(exerciseId: 'pike_push_up', sets: 3, reps: 10),
+                WorkoutItem(exerciseId: 'push_up', sets: 3, reps: 12),
+              ],
             ),
+            // Minggu: Rest Day
             ProgramDay(
               day: 0,
               week: w,
               type: WorkoutTypeCode.r,
+              title: 'Day 7 – Rest & Sleep',
               focus: const LocalizedString(id: 'Rest', en: 'Rest'),
               isRest: true,
               isRetestMilestone: false,

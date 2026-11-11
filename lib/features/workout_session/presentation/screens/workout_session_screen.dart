@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import '../../../../core/widgets/app_button.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -60,14 +61,10 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) return;
-      final isFinished = ref
+      // Hanya menghitung detik berjalan latihan (TIDAK auto-finish sesi)
+      ref
           .read(workoutSessionControllerProvider.notifier)
           .tickTimer(totalExercises: _totalExercises);
-
-      if (isFinished) {
-        _timer?.cancel();
-        _openSummaryScreen();
-      }
     });
   }
 
@@ -96,16 +93,208 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
               formScore: formScore,
             );
 
-        // 2. Maju ke set berikutnya / rest
+        // 2. Maju ke set berikutnya / gerakan berikutnya
         final isFinished = ref
             .read(workoutSessionControllerProvider.notifier)
             .nextPressed(totalExercises: _totalExercises);
 
         if (isFinished) {
           _timer?.cancel();
-          _openSummaryScreen();
+          // Tampilkan modal perayaan tuntas (TIDAK langsung melempar user secara mendadak)
+          _showWorkoutCompleteCelebrationModal();
+        } else {
+          // Beri feedback transisi jika berpindah ke gerakan berikutnya
+          final newState = ref.read(workoutSessionControllerProvider);
+          if (newState.currentExerciseIndex != state.currentExerciseIndex) {
+            final nextEx = _getCurrentExercise(newState.currentExerciseIndex);
+            final nextName = nextEx.name.en.isNotEmpty
+                ? nextEx.name.en
+                : nextEx.name.id;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    const Icon(
+                      Icons.fitness_center_rounded,
+                      color: AppColors.limeAccent,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Gerakan Selesai! Waktunya istirahat sebelum $nextName',
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+                backgroundColor: AppColors.darkCharcoal,
+                duration: const Duration(seconds: 2),
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            );
+          }
         }
       },
+    );
+  }
+
+  /// Modal Selebrasi saat semua latihan hari itu tuntas
+  void _showWorkoutCompleteCelebrationModal() {
+    _timer?.cancel();
+    final sessionState = ref.read(workoutSessionControllerProvider);
+    final durationMin = (sessionState.elapsedWorkoutSeconds / 60).ceil();
+    final totalSetsDone = _totalExercises * sessionState.totalSetsPerExercise;
+
+    showModalBottomSheet(
+      context: context,
+      isDismissible: false,
+      enableDrag: false,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 24),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
+            boxShadow: [
+              BoxShadow(
+                color: Color(0x1F000000),
+                blurRadius: 20,
+                offset: Offset(0, -4),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Icon Trophy / Medali
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF4F9ED),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.emoji_events_rounded,
+                      size: 34,
+                      color: Color(0xFF84CC16),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Judul Selebrasi
+                Text(
+                  'Latihan Hari Ini Tuntas! 🎉',
+                  style: AppTypography.headlineMedium.copyWith(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 20,
+                    color: AppColors.darkCharcoal,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+
+                // Deskripsi apresiasi
+                Text(
+                  'Semua set dan gerakan telah berhasil kamu selesaikan. Istirahatlah dengan baik untuk pemulihan otot.',
+                  style: AppTypography.bodySmall.copyWith(
+                    color: AppColors.neutral600,
+                    fontSize: 13,
+                    height: 1.4,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 18),
+
+                // Ringkasan Cepat Mini
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: AppColors.neutral100,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildMiniStat(
+                        icon: Icons.access_time_rounded,
+                        label: 'Durasi',
+                        value: '$durationMin min',
+                      ),
+                      Container(width: 1, height: 24, color: AppColors.neutral200),
+                      _buildMiniStat(
+                        icon: Icons.fitness_center_rounded,
+                        label: 'Gerakan',
+                        value: '$_totalExercises Gerakan',
+                      ),
+                      Container(width: 1, height: 24, color: AppColors.neutral200),
+                      _buildMiniStat(
+                        icon: Icons.check_circle_rounded,
+                        label: 'Total Set',
+                        value: '$totalSetsDone Sets',
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 22),
+
+                // Tombol Lihat Ringkasan (AppButton.primary)
+                AppButton.primary(
+                  text: 'Lihat Ringkasan & Evaluasi ➔',
+                  size: AppButtonSize.large,
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    _openSummaryScreen();
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildMiniStat({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 14, color: AppColors.greenDark),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: AppTypography.labelSmall.copyWith(
+                color: AppColors.neutral500,
+                fontSize: 11,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: AppTypography.labelLarge.copyWith(
+            fontWeight: FontWeight.w800,
+            fontSize: 13,
+            color: AppColors.darkCharcoal,
+          ),
+        ),
+      ],
     );
   }
 
@@ -381,7 +570,19 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
                       .togglePauseTimer(),
                   onNext: _onNextPressed,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 18),
+
+                // Tombol CTA Utama yang Jelas (AppButton.primary sesuai architecture.md)
+                AppButton.primary(
+                  text: sessionState.currentSet >= sessionState.totalSetsPerExercise
+                      ? (next != null
+                          ? 'Selesai Set ${sessionState.currentSet} & Lanjut ${next.name.en.isNotEmpty ? next.name.en : next.name.id} ➔'
+                          : 'Selesaikan Latihan Hari Ini 🎉')
+                      : 'Selesaikan Set ${sessionState.currentSet} (Catat Reps) ➔',
+                  size: AppButtonSize.large,
+                  onPressed: _onNextPressed,
+                ),
+                const SizedBox(height: 20),
 
                 // 6. Up Next Card di Bawah
                 if (next != null)

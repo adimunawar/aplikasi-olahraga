@@ -20,6 +20,7 @@ import '../../features/profile/presentation/screens/reminders_screen.dart';
 import '../../features/profile/presentation/screens/app_settings_screen.dart';
 import '../../features/profile/presentation/screens/help_about_screen.dart';
 import '../../features/program/domain/models/program_day.dart';
+import '../../features/program/presentation/screens/program_detail_screen.dart';
 import '../../features/progress/presentation/screens/progress_screen.dart';
 import '../../features/workout_detail/presentation/screens/workout_detail_screen.dart';
 import '../../features/workout_session/presentation/screens/workout_session_screen.dart';
@@ -40,6 +41,7 @@ class AppRoutes {
   static const String calendar = '/calendar';
   static const String exercises = '/exercises';
   static const String nutrition = '/nutrition';
+  static const String programDetail = '/program-detail';
 
   // Sub-halaman Edit Profile (Mockup Resolusi Tinggi)
   static const String personalInfo = '/profile/personal-info';
@@ -247,6 +249,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.nutrition,
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const NutritionScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.programDetail,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) {
+          final programId = (state.extra as String?) ?? 'upper_body_strength';
+          return ProgramDetailScreen(programId: programId);
+        },
       ),
 
       // Sub-halaman Edit Profile

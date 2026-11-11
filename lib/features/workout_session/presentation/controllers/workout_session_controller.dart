@@ -96,7 +96,8 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
     }
   }
 
-  /// Menghitung detik berjalan untuk timer dan durasi latihan
+  /// Menghitung detik berjalan untuk durasi latihan dan countdown timer istirahat
+  /// (TIDAK BOLEH auto-advance atau auto-finish sendiri agar user punya kontrol penuh)
   bool tickTimer({required int totalExercises}) {
     if (state.isTimerPaused) return false;
 
@@ -107,11 +108,14 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
         remainingRestSeconds: state.remainingRestSeconds - 1,
         elapsedWorkoutSeconds: newElapsed,
       );
-      return false;
     } else {
-      // Timer rest habis -> otomatis next
-      return nextPressed(totalExercises: totalExercises);
+      // Countdown istirahat habis: durasi total latihan tetap bertambah,
+      // namun TIDAK melompat otomatis ke set/gerakan berikutnya.
+      state = state.copyWith(
+        elapsedWorkoutSeconds: newElapsed,
+      );
     }
+    return false;
   }
 
   /// Menyelesaikan sesi latihan, menyimpan ke SQLite lokal & sync ke Supabase Cloud

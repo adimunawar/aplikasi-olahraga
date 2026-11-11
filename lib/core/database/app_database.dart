@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
+import '../services/app_data_sync.dart';
 import 'database_tables.dart';
 import 'models/user_profile_entity.dart';
 import 'models/workout_session_entity.dart';
@@ -29,6 +30,8 @@ class AppDatabase {
   final List<BodyMeasurementEntity> _webMeasurements = [];
   final List<ExerciseEntity> _webExercises = [];
   final List<ProgressionDecisionEntity> _webProgressionDecisions = [];
+  TrainingProgramEntity? _webActiveProgram;
+  final List<ProgramSessionDetail> _webProgramSessionDetails = [];
 
   Future<Database?> get database async {
     if (kIsWeb) return null; // Web tidak menggunakan native SQLite driver
@@ -236,6 +239,7 @@ class AppDatabase {
       profile.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+    AppDataSync.instance.notifyDataChanged();
   }
 
   /// Memperbarui nama tampilan profil pengguna
@@ -338,6 +342,7 @@ class AppDatabase {
       session.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+    AppDataSync.instance.notifyDataChanged();
   }
 
   /// Menyimpan set yang baru diselesaikan
@@ -905,6 +910,14 @@ class AppDatabase {
     required TrainingProgramEntity program,
     required List<ProgramSessionDetail> sessions,
   }) async {
+    if (kIsWeb) {
+      _webActiveProgram = program;
+      _webProgramSessionDetails.clear();
+      _webProgramSessionDetails.addAll(sessions);
+      AppDataSync.instance.notifyDataChanged();
+      return;
+    }
+
     final db = await database;
     if (db == null) return;
 
@@ -943,10 +956,15 @@ class AppDatabase {
     }
 
     await batch.commit(noResult: true);
+    AppDataSync.instance.notifyDataChanged();
   }
 
   /// Mengambil program yang sedang aktif untuk user
   Future<TrainingProgramEntity?> getActiveTrainingProgram(String userId) async {
+    if (kIsWeb) {
+      return _webActiveProgram;
+    }
+
     final db = await database;
     if (db == null) return null;
 
@@ -963,6 +981,17 @@ class AppDatabase {
 
   /// Mengambil seluruh sesi dari suatu program
   Future<List<ProgramSessionEntity>> getProgramSessions(String programId) async {
+    if (kIsWeb) {
+      final matches = _webProgramSessionDetails
+          .where((d) => d.session.programId == programId)
+          .map((d) => d.session)
+          .toList();
+      matches.sort((a, b) => a.dayNumber.compareTo(b.dayNumber));
+      return matches.isNotEmpty
+          ? matches
+          : _webProgramSessionDetails.map((d) => d.session).toList();
+    }
+
     final db = await database;
     if (db == null) return [];
 
@@ -978,6 +1007,18 @@ class AppDatabase {
 
   /// Mengambil detail sesi lengkap dengan resep & informasi gerakan
   Future<ProgramSessionDetail?> getProgramSessionDetail(String programSessionId) async {
+    if (kIsWeb) {
+      try {
+        return _webProgramSessionDetails.firstWhere(
+          (d) => d.session.id == programSessionId,
+        );
+      } catch (_) {
+        return _webProgramSessionDetails.isNotEmpty
+            ? _webProgramSessionDetails.first
+            : null;
+      }
+    }
+
     final db = await database;
     if (db == null) return null;
 

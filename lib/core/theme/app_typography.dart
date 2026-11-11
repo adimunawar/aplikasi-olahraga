@@ -37,6 +37,14 @@ class AppTypography {
         color: AppColors.textPrimary,
       );
 
+  static TextStyle get displaySmall => GoogleFonts.inter(
+        fontSize: 24,
+        fontWeight: FontWeight.w700,
+        height: 1.2,
+        letterSpacing: -0.01,
+        color: AppColors.textPrimary,
+      );
+
   static TextStyle get dataMetric => GoogleFonts.inter(
         fontSize: 26,
         fontWeight: FontWeight.w700,

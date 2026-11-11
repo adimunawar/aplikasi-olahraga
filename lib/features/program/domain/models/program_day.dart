@@ -119,6 +119,9 @@ class ProgramDay {
   final bool isRest;
   final bool isRetestMilestone;
   final List<WorkoutItem> items;
+  final String? title;
+  final String? thumbnailAsset;
+  final int estimatedDurationMinutes;
 
   const ProgramDay({
     required this.day,
@@ -128,6 +131,9 @@ class ProgramDay {
     required this.isRest,
     required this.isRetestMilestone,
     required this.items,
+    this.title,
+    this.thumbnailAsset,
+    this.estimatedDurationMinutes = 30,
   });
 
   factory ProgramDay.fromJson(Map<String, dynamic> json) {
@@ -164,6 +170,9 @@ class ProgramDay {
       focus: parsedFocus,
       isRest: json['is_rest'] as bool? ?? false,
       isRetestMilestone: json['is_retest_milestone'] as bool? ?? false,
+      title: json['title'] as String?,
+      thumbnailAsset: json['thumbnail_asset'] as String? ?? json['thumbnail'] as String?,
+      estimatedDurationMinutes: (json['estimated_duration_minutes'] as num?)?.toInt() ?? 30,
       items:
           (rawItems as List?)
               ?.map(
@@ -182,6 +191,35 @@ class ProgramDay {
     'focus': {'id': focus.id, 'en': focus.en},
     'is_rest': isRest,
     'is_retest_milestone': isRetestMilestone,
+    if (title != null) 'title': title,
+    if (thumbnailAsset != null) 'thumbnail_asset': thumbnailAsset,
+    'estimated_duration_minutes': estimatedDurationMinutes,
     'items': items.map((e) => e.toJson()).toList(),
   };
+
+  ProgramDay copyWith({
+    int? day,
+    int? week,
+    WorkoutTypeCode? type,
+    LocalizedString? focus,
+    bool? isRest,
+    bool? isRetestMilestone,
+    List<WorkoutItem>? items,
+    String? title,
+    String? thumbnailAsset,
+    int? estimatedDurationMinutes,
+  }) {
+    return ProgramDay(
+      day: day ?? this.day,
+      week: week ?? this.week,
+      type: type ?? this.type,
+      focus: focus ?? this.focus,
+      isRest: isRest ?? this.isRest,
+      isRetestMilestone: isRetestMilestone ?? this.isRetestMilestone,
+      items: items ?? this.items,
+      title: title ?? this.title,
+      thumbnailAsset: thumbnailAsset ?? this.thumbnailAsset,
+      estimatedDurationMinutes: estimatedDurationMinutes ?? this.estimatedDurationMinutes,
+    );
+  }
 }

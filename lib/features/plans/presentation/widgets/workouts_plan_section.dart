@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:workout_app/core/theme/app_colors.dart';
 
 import '../../../exercises/domain/models/exercise.dart';
 import '../screens/plans_screen.dart';
@@ -203,7 +204,7 @@ class WorkoutsPlanSection extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? const Color(0xFFD4F836)
+                            ? AppColors.primary
                             : isPastWeek
                             ? const Color(0xFFF1F5F9)
                             : const Color(0xFFF8FAFC),
@@ -388,7 +389,7 @@ class WorkoutsPlanSection extends StatelessWidget {
                                           width: 20,
                                           height: 20,
                                           decoration: BoxDecoration(
-                                            color: const Color(0xFFD4F836),
+                                            color: AppColors.primary,
                                             shape: BoxShape.circle,
                                             border: Border.all(
                                               color: Colors.white,

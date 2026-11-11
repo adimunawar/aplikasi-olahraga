@@ -28,5 +28,5 @@ Setiap perubahan atau pembuatan kode di proyek ini **WAJIB** mengikuti panduan y
    - Dilarang keras menggunakan `Navigator.push(MaterialPageRoute(...))` secara ad-hoc.
    - Gunakan `context.push(AppRoutes.<name>, extra: ...)` atau `context.go(AppRoutes.<name>)` dan `context.pop()`.
    - Bottom navigation dikelola melalui `StatefulShellRoute.indexedStack` di dalam `HomeScaffold`.
-7. **Kualitas Kode**: Sebelum menyelesaikan tugas, pastikan `flutter analyze` menghasilkan **0 issues (No issues found)**.
+7. **Kualitas Kode**: Pastikan penulisan kode bersih, tipe data sesuai, dan impor valid melalui inspeksi kode yang teliti. DILARANG menjalankan perintah berat seperti `flutter analyze` atau `dart analyze` secara otomatis setiap kali selesai mengedit file (karena prosesnya berat dan memakan waktu). Jalankan perintah analisis HANYA jika diminta secara eksplisit oleh pengguna.
 
