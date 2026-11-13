@@ -14,7 +14,7 @@ class UserSupabaseDatasource {
   /// Mengambil data profil pengguna terbaru dari Supabase (jika Cloud Sync aktif)
   Future<UserProfileEntity?> fetchProfileFromSupabase({String? userId}) async {
     final client = SupabaseConfig.client;
-    final uid = userId ?? SupabaseConfig.currentAuthUserId;
+    final uid = _authorizedUserId(userId);
     if (client == null || uid == null || !SupabaseConfig.canSyncToCloud) {
       return null;
     }
@@ -47,7 +47,11 @@ class UserSupabaseDatasource {
     try {
       final payload = profile.toMap()
         ..['id'] = uid
-        ..['user_id'] = uid;
+        ..['user_id'] = uid
+        // PostgREST jsonb columns must receive JSON arrays, not encoded strings.
+        ..['available_days'] = profile.availableDays
+        ..['training_limitations'] = profile.trainingLimitations
+        ..['equipments'] = profile.equipments;
       await client.from('user_profiles').upsert(payload);
       debugPrint('[Supabase] Berhasil sync profil pengguna ke Supabase untuk user $uid!');
     } catch (e) {
@@ -58,7 +62,7 @@ class UserSupabaseDatasource {
   /// Mengambil setelan pengguna (settings) dari Supabase
   Future<UserSettingsEntity?> fetchSettingsFromSupabase({String? settingsId}) async {
     final client = SupabaseConfig.client;
-    final uid = settingsId ?? SupabaseConfig.currentAuthUserId;
+    final uid = _authorizedUserId(settingsId);
     if (client == null || uid == null || !SupabaseConfig.canSyncToCloud) {
       return null;
     }
@@ -107,7 +111,7 @@ class UserSupabaseDatasource {
   /// Memperbarui nama lengkap di Supabase
   Future<void> updateDisplayName(String name, {String? userId}) async {
     final client = SupabaseConfig.client;
-    final uid = userId ?? SupabaseConfig.currentAuthUserId;
+    final uid = _authorizedUserId(userId);
     if (client == null || uid == null || !SupabaseConfig.canSyncToCloud) {
       return;
     }
@@ -130,7 +134,7 @@ class UserSupabaseDatasource {
     String? userId,
   }) async {
     final client = SupabaseConfig.client;
-    final uid = userId ?? SupabaseConfig.currentAuthUserId;
+    final uid = _authorizedUserId(userId);
     if (client == null || uid == null || !SupabaseConfig.canSyncToCloud) {
       return;
     }
@@ -150,7 +154,7 @@ class UserSupabaseDatasource {
   /// Memperbarui program aktif pengguna di Supabase
   Future<void> updateActiveProgram(String programId, {String? userId}) async {
     final client = SupabaseConfig.client;
-    final uid = userId ?? SupabaseConfig.currentAuthUserId;
+    final uid = _authorizedUserId(userId);
     if (client == null || uid == null || !SupabaseConfig.canSyncToCloud) {
       return;
     }
@@ -165,4 +169,19 @@ class UserSupabaseDatasource {
       debugPrint('[Supabase] Error update active_program_id: $e');
     }
   }
+}
+
+
+String? _authorizedUserId(String? requestedUserId) {
+  if (!SupabaseConfig.canSyncToCloud) return null;
+
+  final authenticatedUserId = SupabaseConfig.currentAuthUserId;
+  if (authenticatedUserId == null) return null;
+
+  // Never allow a caller-supplied ID to read or mutate another user's row.
+  if (requestedUserId != null && requestedUserId != authenticatedUserId) {
+    return null;
+  }
+
+  return authenticatedUserId;
 }
