@@ -119,7 +119,8 @@ adb logcat | Select-String "Firebase|Crashlytics"
 Analytics otomatis mengumpulkan event dasar (`first_open`, `session_start`,
 `screen_view` bila dipanggil manual). Untuk melihat event real-time:
 
-1. Aktifkan DebugView di device:
+1. Jalankan app dengan `FIREBASE_ANALYTICS_ENABLED=true`, lalu aktifkan
+   DebugView di device:
    ```bash
    adb shell setprop debug.firebase.analytics.app com.homefitness.workout_app
    ```
