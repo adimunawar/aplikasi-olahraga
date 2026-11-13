@@ -4,9 +4,12 @@ import 'dart:convert';
 class UserProfileEntity {
   final String id;
   final String displayName;
+  final String gender;
   final int age;
   final double heightCm;
   final double currentWeightKg;
+  final double targetWeightKg;
+  final int targetTimeframeWeeks;
   final String goal;
   final String experienceLevel;
   final int preferredDurationMin;
@@ -23,16 +26,19 @@ class UserProfileEntity {
   const UserProfileEntity({
     required this.id,
     required this.displayName,
+    this.gender = 'male',
     required this.age,
     required this.heightCm,
     required this.currentWeightKg,
+    this.targetWeightKg = 82.0,
+    this.targetTimeframeWeeks = 12,
     this.goal = 'muscle_gain',
     this.experienceLevel = 'beginner',
     this.preferredDurationMin = 45,
-    this.preferredDaysPerWeek = 3,
-    this.weeklyFrequency = 3,
-    this.availableDays = const ['monday', 'wednesday', 'friday'],
-    this.trainingLimitations = const [],
+    this.preferredDaysPerWeek = 4,
+    this.weeklyFrequency = 4,
+    this.availableDays = const ['monday', 'wednesday', 'friday', 'sunday'],
+    this.trainingLimitations = const ['none'],
     this.timezone,
     this.unitPreference = 'metric',
     required this.equipments,
@@ -44,9 +50,12 @@ class UserProfileEntity {
     return {
       'id': id,
       'display_name': displayName,
+      'gender': gender,
       'age': age,
       'height_cm': heightCm,
       'current_weight_kg': currentWeightKg,
+      'target_weight_kg': targetWeightKg,
+      'target_timeframe_weeks': targetTimeframeWeeks,
       'goal': goal,
       'experience_level': experienceLevel,
       'preferred_duration_min': preferredDurationMin,
@@ -105,9 +114,12 @@ class UserProfileEntity {
     return UserProfileEntity(
       id: map['id']?.toString() ?? 'default_user',
       displayName: map['display_name']?.toString() ?? 'Adi',
-      age: (map['age'] as num?)?.toInt() ?? 24,
-      heightCm: (map['height_cm'] as num?)?.toDouble() ?? 172.0,
-      currentWeightKg: (map['current_weight_kg'] as num?)?.toDouble() ?? 67.5,
+      gender: map['gender']?.toString() ?? 'male',
+      age: (map['age'] as num?)?.toInt() ?? 28,
+      heightCm: (map['height_cm'] as num?)?.toDouble() ?? 170.0,
+      currentWeightKg: (map['current_weight_kg'] as num?)?.toDouble() ?? 75.0,
+      targetWeightKg: (map['target_weight_kg'] as num?)?.toDouble() ?? 82.0,
+      targetTimeframeWeeks: (map['target_timeframe_weeks'] as num?)?.toInt() ?? 12,
       goal: map['goal']?.toString() ?? 'muscle_gain',
       experienceLevel: map['experience_level']?.toString() ?? 'beginner',
       preferredDurationMin: (map['preferred_duration_min'] as num?)?.toInt() ?? 45,
@@ -119,7 +131,7 @@ class UserProfileEntity {
       unitPreference: map['unit_preference']?.toString() ?? 'metric',
       equipments: parsedEquipments.isNotEmpty
           ? parsedEquipments
-          : ['bodyweight', 'dumbbells', 'mat'],
+          : ['bodyweight', 'dumbbell'],
       createdAt: map['created_at'] != null
           ? DateTime.tryParse(map['created_at'].toString()) ?? DateTime.now()
           : DateTime.now(),
@@ -132,9 +144,12 @@ class UserProfileEntity {
   UserProfileEntity copyWith({
     String? id,
     String? displayName,
+    String? gender,
     int? age,
     double? heightCm,
     double? currentWeightKg,
+    double? targetWeightKg,
+    int? targetTimeframeWeeks,
     String? goal,
     String? experienceLevel,
     int? preferredDurationMin,
@@ -150,9 +165,12 @@ class UserProfileEntity {
     return UserProfileEntity(
       id: id ?? this.id,
       displayName: displayName ?? this.displayName,
+      gender: gender ?? this.gender,
       age: age ?? this.age,
       heightCm: heightCm ?? this.heightCm,
       currentWeightKg: currentWeightKg ?? this.currentWeightKg,
+      targetWeightKg: targetWeightKg ?? this.targetWeightKg,
+      targetTimeframeWeeks: targetTimeframeWeeks ?? this.targetTimeframeWeeks,
       goal: goal ?? this.goal,
       experienceLevel: experienceLevel ?? this.experienceLevel,
       preferredDurationMin: preferredDurationMin ?? this.preferredDurationMin,
@@ -167,5 +185,9 @@ class UserProfileEntity {
       updatedAt: updatedAt ?? DateTime.now(),
     );
   }
+
+  /// Convenience aliases
+  int get durationPreferenceMinutes => preferredDurationMin;
+  List<String> get availableEquipment => equipments;
 }
 

@@ -72,9 +72,12 @@ class DatabaseTables {
     CREATE TABLE IF NOT EXISTS $userProfiles (
       id TEXT PRIMARY KEY,
       display_name TEXT NOT NULL,
+      gender TEXT NOT NULL DEFAULT 'male',
       age INTEGER NOT NULL,
       height_cm REAL NOT NULL,
       current_weight_kg REAL NOT NULL,
+      target_weight_kg REAL NOT NULL DEFAULT 82.0,
+      target_timeframe_weeks INTEGER NOT NULL DEFAULT 12,
       goal TEXT NOT NULL DEFAULT 'muscle_gain',
       experience_level TEXT NOT NULL DEFAULT 'beginner',
       preferred_duration_min INTEGER NOT NULL DEFAULT 45,

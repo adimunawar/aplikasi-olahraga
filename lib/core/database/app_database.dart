@@ -75,6 +75,15 @@ class AppDatabase {
 
     // Migrasi aman untuk kolom baru pada tabel user_profiles
     try {
+      await db.execute("ALTER TABLE ${DatabaseTables.userProfiles} ADD COLUMN gender TEXT NOT NULL DEFAULT 'male'");
+    } catch (_) {}
+    try {
+      await db.execute("ALTER TABLE ${DatabaseTables.userProfiles} ADD COLUMN target_weight_kg REAL NOT NULL DEFAULT 82.0");
+    } catch (_) {}
+    try {
+      await db.execute("ALTER TABLE ${DatabaseTables.userProfiles} ADD COLUMN target_timeframe_weeks INTEGER NOT NULL DEFAULT 12");
+    } catch (_) {}
+    try {
       await db.execute("ALTER TABLE ${DatabaseTables.userProfiles} ADD COLUMN weekly_frequency INTEGER NOT NULL DEFAULT 3");
     } catch (_) {}
     try {
@@ -570,6 +579,26 @@ class AppDatabase {
       return (maps.first['value'] as num?)?.toDouble() ?? 67.5;
     }
     return 67.5;
+  }
+
+  Future<List<BodyMeasurementEntity>> getWeightHistory() async {
+    if (kIsWeb) {
+      final list = _webMeasurements.where((m) => m.measurementType == 'weight').toList();
+      list.sort((a, b) => a.recordedAt.compareTo(b.recordedAt));
+      return list;
+    }
+
+    final db = await database;
+    if (db == null) return [];
+
+    final maps = await db.query(
+      DatabaseTables.bodyMeasurements,
+      where: 'measurement_type = ?',
+      whereArgs: ['weight'],
+      orderBy: 'recorded_at ASC',
+    );
+
+    return maps.map(BodyMeasurementEntity.fromMap).toList();
   }
 
   // ==========================================

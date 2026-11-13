@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../theme/app_colors.dart';
 import '../theme/app_typography.dart';
 
@@ -48,6 +49,7 @@ class AppButton extends StatelessWidget {
     IconData? icon,
     bool isLoading = false,
     bool isFullWidth = true,
+    double? width,
     AppButtonSize size = AppButtonSize.large,
   }) {
     return AppButton(
@@ -58,7 +60,8 @@ class AppButton extends StatelessWidget {
       size: size,
       icon: icon,
       isLoading: isLoading,
-      isFullWidth: isFullWidth,
+      isFullWidth: width != null ? false : isFullWidth,
+      width: width,
     );
   }
 
@@ -69,6 +72,7 @@ class AppButton extends StatelessWidget {
     required VoidCallback? onPressed,
     IconData? icon,
     bool isFullWidth = false,
+    double? width,
     AppButtonSize size = AppButtonSize.medium,
   }) {
     return AppButton(
@@ -78,7 +82,8 @@ class AppButton extends StatelessWidget {
       variant: AppButtonVariant.secondary,
       size: size,
       icon: icon,
-      isFullWidth: isFullWidth,
+      isFullWidth: width != null ? false : isFullWidth,
+      width: width,
     );
   }
 
@@ -89,6 +94,7 @@ class AppButton extends StatelessWidget {
     required VoidCallback? onPressed,
     IconData? icon,
     bool isFullWidth = false,
+    double? width,
     AppButtonSize size = AppButtonSize.medium,
   }) {
     return AppButton(
@@ -98,7 +104,32 @@ class AppButton extends StatelessWidget {
       variant: AppButtonVariant.outline,
       size: size,
       icon: icon,
-      isFullWidth: isFullWidth,
+      isFullWidth: width != null ? false : isFullWidth,
+      width: width,
+    );
+  }
+
+  /// Factory untuk Tombol Danger / Batal
+  factory AppButton.danger({
+    Key? key,
+    required String text,
+    required VoidCallback? onPressed,
+    IconData? icon,
+    bool isLoading = false,
+    bool isFullWidth = true,
+    double? width,
+    AppButtonSize size = AppButtonSize.large,
+  }) {
+    return AppButton(
+      key: key,
+      text: text,
+      onPressed: onPressed,
+      variant: AppButtonVariant.danger,
+      size: size,
+      icon: icon,
+      isLoading: isLoading,
+      isFullWidth: width != null ? false : isFullWidth,
+      width: width,
     );
   }
 
@@ -207,7 +238,7 @@ class AppButton extends StatelessWidget {
 
     final button = SizedBox(
       height: _height,
-      width: isFullWidth ? double.infinity : width,
+      width: width ?? (isFullWidth ? double.infinity : null),
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
@@ -225,4 +256,3 @@ class AppButton extends StatelessWidget {
     return button;
   }
 }
-

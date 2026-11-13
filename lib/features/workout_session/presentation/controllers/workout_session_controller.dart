@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/models/workout_set_entity.dart';
 import '../../../plans/presentation/controllers/plans_controller.dart';
@@ -8,19 +9,22 @@ import '../../domain/models/workout_session_result.dart';
 import '../../domain/repositories/workout_session_repository.dart';
 import 'workout_session_state.dart';
 
-final workoutSessionRepositoryProvider = Provider<WorkoutSessionRepository>((ref) {
-  return WorkoutSessionRepositoryImpl(
-    localDatabase: AppDatabase.instance,
-  );
+final workoutSessionRepositoryProvider = Provider<WorkoutSessionRepository>((
+  ref,
+) {
+  return WorkoutSessionRepositoryImpl(localDatabase: AppDatabase.instance);
 });
 
 final workoutSessionControllerProvider =
-    StateNotifierProvider.autoDispose<WorkoutSessionController, WorkoutSessionState>((ref) {
-  return WorkoutSessionController(
-    repository: ref.watch(workoutSessionRepositoryProvider),
-    ref: ref,
-  );
-});
+    StateNotifierProvider.autoDispose<
+      WorkoutSessionController,
+      WorkoutSessionState
+    >((ref) {
+      return WorkoutSessionController(
+        repository: ref.watch(workoutSessionRepositoryProvider),
+        ref: ref,
+      );
+    });
 
 /// Controller Orkestrasi Sesi Latihan Aktif (Riverpod StateNotifier)
 class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
@@ -29,10 +33,8 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
   final DateTime _startedAt = DateTime.now();
   final List<WorkoutSetEntity> _recordedSets = [];
 
-  WorkoutSessionController({
-    required this._repository,
-    required this._ref,
-  })  : super(const WorkoutSessionState());
+  WorkoutSessionController({required this._repository, required this._ref})
+    : super(const WorkoutSessionState());
 
   /// Mencatat hasil set aktual & RIR (Fase 3: Set-by-Set Tracking)
   void recordSetPerformance({
@@ -43,17 +45,19 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
     required int rir,
     double formScore = 1.0,
   }) {
-    _recordedSets.add(WorkoutSetEntity(
-      id: '',
-      sessionId: '',
-      exerciseId: exerciseId,
-      setNumber: setNumber,
-      targetReps: targetReps,
-      actualReps: actualReps,
-      rir: rir,
-      formScore: formScore,
-      status: WorkoutSetStatus.completed,
-    ));
+    _recordedSets.add(
+      WorkoutSetEntity(
+        id: '',
+        sessionId: '',
+        exerciseId: exerciseId,
+        setNumber: setNumber,
+        targetReps: targetReps,
+        actualReps: actualReps,
+        rir: rir,
+        formScore: formScore,
+        status: WorkoutSetStatus.completed,
+      ),
+    );
   }
 
   /// Jeda atau lanjutkan timer
@@ -111,9 +115,7 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
     } else {
       // Countdown istirahat habis: durasi total latihan tetap bertambah,
       // namun TIDAK melompat otomatis ke set/gerakan berikutnya.
-      state = state.copyWith(
-        elapsedWorkoutSeconds: newElapsed,
-      );
+      state = state.copyWith(elapsedWorkoutSeconds: newElapsed);
     }
     return false;
   }
@@ -128,8 +130,12 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
   }) async {
     state = state.copyWith(isSaving: true);
     try {
-      final totalCompletedSets = (state.currentExerciseIndex * state.totalSetsPerExercise) + state.currentSet;
-      final duration = state.elapsedWorkoutSeconds > 60 ? state.elapsedWorkoutSeconds : 25 * 60;
+      final totalCompletedSets =
+          (state.currentExerciseIndex * state.totalSetsPerExercise) +
+          state.currentSet;
+      final duration = state.elapsedWorkoutSeconds > 60
+          ? state.elapsedWorkoutSeconds
+          : 25 * 60;
 
       // Jika user memilih "Selesaikan Sesi Sekarang" sebelum sempat mencatat set individual,
       // sediakan set baseline default agar Coach Adi tetap memberikan evaluasi adaptif
@@ -138,17 +144,19 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
         final exId = (currentExerciseId != null && currentExerciseId.isNotEmpty)
             ? currentExerciseId
             : 'incline_push_up';
-        logsToSave.add(WorkoutSetEntity(
-          id: '',
-          sessionId: '',
-          exerciseId: exId,
-          setNumber: 1,
-          targetReps: 10,
-          actualReps: 10,
-          rir: 2,
-          formScore: 1.0,
-          status: WorkoutSetStatus.completed,
-        ));
+        logsToSave.add(
+          WorkoutSetEntity(
+            id: '',
+            sessionId: '',
+            exerciseId: exId,
+            setNumber: 1,
+            targetReps: 10,
+            actualReps: 10,
+            rir: 2,
+            formScore: 1.0,
+            status: WorkoutSetStatus.completed,
+          ),
+        );
       }
 
       final result = await _repository.completeWorkoutSession(
@@ -156,16 +164,15 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
         dayNumber: dayNumber,
         programTitle: programTitle,
         durationSeconds: duration,
-        completedSets: totalCompletedSets > 0 ? totalCompletedSets : logsToSave.length,
+        completedSets: totalCompletedSets > 0
+            ? totalCompletedSets
+            : logsToSave.length,
         totalExercises: totalExercises,
         startedAt: _startedAt,
         setLogs: logsToSave,
       );
 
-      state = state.copyWith(
-        isSaving: false,
-        completedResult: result,
-      );
+      state = state.copyWith(isSaving: false, completedResult: result);
 
       // Otomatis refresh state Plans & Progress agar centang hijau ✓ langsung muncul
       _ref.read(plansControllerProvider.notifier).loadPrograms();

@@ -10,6 +10,8 @@ import '../../features/home/presentation/screens/home_scaffold.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/nutrition/presentation/screens/nutrition_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
+import '../../features/onboarding/presentation/screens/creating_plan_screen.dart';
+import '../../features/onboarding/presentation/screens/plan_ready_screen.dart';
 import '../../features/plans/presentation/screens/plans_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/profile/presentation/screens/personal_information_screen.dart';
@@ -34,6 +36,9 @@ class AppRoutes {
   static const String progress = '/progress';
   static const String profile = '/profile';
   static const String onboarding = '/onboarding';
+  static const String creatingPlan = '/creating-plan';
+  static const String planReady = '/plan-ready';
+  static const String onboardingPlan = '/onboarding-plan';
   static const String workoutDetail = '/workout-detail';
   static const String workoutSession = '/workout-session';
   static const String workoutSummary = '/workout-summary';
@@ -150,7 +155,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: AppRoutes.plans,
-                builder: (context, state) => const PlansScreen(),
+                builder: (context, state) => const PlansScreen(isOnboarding: false),
               ),
             ],
           ),
@@ -257,6 +262,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final programId = (state.extra as String?) ?? 'upper_body_strength';
           return ProgramDetailScreen(programId: programId);
         },
+      ),
+      GoRoute(
+        path: AppRoutes.creatingPlan,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const CreatingPlanScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.planReady,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const PlanReadyScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.onboardingPlan,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const PlansScreen(isOnboarding: true),
       ),
 
       // Sub-halaman Edit Profile

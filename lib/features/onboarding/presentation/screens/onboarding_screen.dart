@@ -4,25 +4,26 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/models/user_profile_entity.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
 import '../../../program/domain/services/dynamic_program_generator.dart';
-import '../widgets/onboarding_welcome_step.dart';
-import '../widgets/onboarding_goal_step.dart';
-import '../widgets/onboarding_level_step.dart';
-import '../widgets/onboarding_schedule_step.dart';
-import '../widgets/onboarding_equipment_limitations_step.dart';
-import '../widgets/onboarding_assessment_step.dart';
-import '../widgets/onboarding_plan_ready_step.dart';
+import '../widgets/onboarding_dots_indicator.dart';
+import '../widgets/step_about.dart';
+import '../widgets/step_body_target.dart';
+import '../widgets/step_equipment.dart';
+import '../widgets/step_experience.dart';
+import '../widgets/step_goal.dart';
+import '../widgets/step_limitations.dart';
+import '../widgets/step_schedule.dart';
+import '../widgets/step_welcome.dart';
 
-/// OnboardingScreen:
-/// Mengelola alur onboarding terarah & adaptif (Sesuai PRD Baru P0):
-/// 1. Welcome / Build Strength at Home
-/// 2. What's Your Goal?
-/// 3. What's Your Experience Level?
-/// 4. Your Schedule (Days & Duration)
-/// 5. Equipment & Limitations
-/// 6. Initial Baseline Assessment (Push Up Test)
-/// 7. Your Plan Is Ready!
+/// Onboarding Master Wrapper (Mockup 1:1 Resolusi Tinggi):
+/// Mengelola alur 7 langkah secara terpusat:
+/// - Single Header (Back Arrow + "X of 7" + Linear Progress Bar)
+/// - Single Sticky Bottom Bar ("Continue" / "Create My Plan") tanpa duplikasi di tiap step
+/// - Mengumpulkan semua data profil pengguna secara akurat (Audit Finding P0)
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -32,89 +33,125 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
+  int _currentStep = 0; // 0: Welcome, 1..7: Steps 1..7
+  bool _isCreatingPlan = false;
 
+  // --- STATE DATA ONBOARDING LENGKAP ---
   String _goal = 'muscle_gain';
+  String _gender = 'male';
+  int _age = 28;
+  double _heightCm = 170.0;
+  double _currentWeightKg = 75.0;
+  double _targetWeightKg = 82.0;
   String _level = 'beginner';
-  int _daysPerWeek = 3;
-  int _durationMin = 20;
-  List<String> _equipments = ['bodyweight', 'mat', 'stable_surface', 'doorframe'];
+  int _daysPerWeek = 4;
+  int _durationMin = 45;
+  List<String> _equipments = ['bodyweight', 'dumbbell'];
   List<String> _limitations = ['none'];
-  String _baselineCapability = 'zero'; // 'zero' (0 reps), 'few' (1-5 reps), 'solid' (6-12+ reps)
 
-  void _nextPage() {
-    _pageController.nextPage(
-      duration: const Duration(milliseconds: 280),
-      curve: Curves.easeInOut,
-    );
-  }
-
-  void _previousPage() {
-    _pageController.previousPage(
-      duration: const Duration(milliseconds: 280),
-      curve: Curves.easeInOut,
-    );
-  }
-
-  String _getStartingExerciseName() {
-    switch (_baselineCapability) {
-      case 'few':
-        return 'Knee Push Up';
-      case 'solid':
-        return 'Standard Push Up';
-      case 'zero':
-      default:
-        return 'Incline Push Up';
+  void _nextStep() {
+    if (_currentStep < 7) {
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 280),
+        curve: Curves.easeInOut,
+      );
+      setState(() => _currentStep++);
     }
   }
 
-  Future<void> _completeOnboarding() async {
-    // 1. Simpan preferensi ke SharedPreferences
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('has_completed_onboarding', true);
-
-    // 2. Tentukan hari yang tersedia sesuai pilihan frekuensi
-    List<String> availableDays;
-    switch (_daysPerWeek) {
-      case 2:
-        availableDays = ['tuesday', 'thursday'];
-        break;
-      case 4:
-        availableDays = ['monday', 'tuesday', 'thursday', 'friday'];
-        break;
-      case 5:
-        availableDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
-        break;
-      case 3:
-      default:
-        availableDays = ['monday', 'wednesday', 'friday'];
-        break;
+  void _prevStep() {
+    if (_currentStep > 0) {
+      _pageController.previousPage(
+        duration: const Duration(milliseconds: 280),
+        curve: Curves.easeInOut,
+      );
+      setState(() => _currentStep--);
     }
+  }
 
-    // 3. Simpan profil ke Local SQLite Database
-    final db = AppDatabase.instance;
-    final currentProfile = await db.getUserProfile();
-    final updatedProfile = currentProfile.copyWith(
-      goal: _goal,
-      experienceLevel: _level,
-      preferredDaysPerWeek: _daysPerWeek,
-      weeklyFrequency: _daysPerWeek,
-      preferredDurationMin: _durationMin,
-      availableDays: availableDays,
-      equipments: _equipments,
-      trainingLimitations: _limitations,
-    );
-    await db.saveUserProfile(updatedProfile);
+  void _toggleEquipment(String id) {
+    setState(() {
+      if (_equipments.contains(id)) {
+        if (_equipments.length > 1) _equipments.remove(id);
+      } else {
+        _equipments.add(id);
+      }
+    });
+  }
 
-    // 4. Generate Program Latihan Dinamis via DynamicProgramGenerator
+  void _toggleLimitation(String id) {
+    setState(() {
+      if (id == 'none') {
+        _limitations = ['none'];
+      } else {
+        _limitations.remove('none');
+        if (_limitations.contains(id)) {
+          _limitations.remove(id);
+          if (_limitations.isEmpty) _limitations.add('none');
+        } else {
+          _limitations.add(id);
+        }
+      }
+    });
+  }
+
+  Future<void> _createMyPlan() async {
+    setState(() => _isCreatingPlan = true);
+
     try {
+      // 1. Simpan tanda telah menyelesaikan onboarding
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('has_completed_onboarding', true);
+
+      // 2. Petakan hari latihan sesuai pilihan frekuensi
+      List<String> availableDays;
+      switch (_daysPerWeek) {
+        case 2:
+          availableDays = ['tuesday', 'thursday'];
+          break;
+        case 4:
+          availableDays = ['monday', 'tuesday', 'thursday', 'friday'];
+          break;
+        case 5:
+          availableDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+          break;
+        case 6:
+          availableDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+          break;
+        case 3:
+        default:
+          availableDays = ['monday', 'wednesday', 'friday'];
+          break;
+      }
+
+      // 3. Simpan Profil Pengguna Lengkap ke SQLite Database
+      final db = AppDatabase.instance;
+      final currentProfile = await db.getUserProfile();
+      final updatedProfile = currentProfile.copyWith(
+        gender: _gender,
+        age: _age,
+        heightCm: _heightCm,
+        currentWeightKg: _currentWeightKg,
+        targetWeightKg: _targetWeightKg,
+        targetTimeframeWeeks: 12,
+        goal: _goal,
+        experienceLevel: _level,
+        preferredDaysPerWeek: _daysPerWeek,
+        weeklyFrequency: _daysPerWeek,
+        preferredDurationMin: _durationMin,
+        availableDays: availableDays,
+        equipments: _equipments,
+        trainingLimitations: _limitations,
+      );
+      await db.saveUserProfile(updatedProfile);
+
+      // 4. Generate Program Latihan Dinamis sesuai Profil Aktual
       final exerciseDatasource = ExerciseLocalDatasource(db: db);
       final catalog = await exerciseDatasource.loadExercises();
 
-      final startingPushId = _baselineCapability == 'solid'
-          ? 'push_up'
-          : _baselineCapability == 'few'
-              ? 'knee_push_up'
-              : 'incline_push_up';
+      final startingPushId = _level == 'advanced'
+          ? 'diamond_push_up'
+          : (_level == 'intermediate' ? 'push_up' : 'knee_push_up');
 
       final generated = const DynamicProgramGenerator().generate(
         userProfile: updatedProfile,
@@ -126,13 +163,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         program: generated.program,
         sessions: generated.sessions,
       );
-    } catch (e) {
-      debugPrint('[Onboarding] Error generating initial program: $e');
-    }
 
-    // 5. Pindah ke Home Dashboard
-    if (mounted) {
-      context.go(AppRoutes.home);
+      // 5. Navigasi ke Layar Loading Animasi "Creating your personal plan..."
+      if (mounted) {
+        context.pushReplacement(AppRoutes.creatingPlan);
+      }
+    } catch (e) {
+      debugPrint('[Onboarding] Error creating plan: $e');
+      if (mounted) {
+        setState(() => _isCreatingPlan = false);
+        context.pushReplacement(AppRoutes.creatingPlan);
+      }
     }
   }
 
@@ -145,73 +186,181 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: PageView(
-        controller: _pageController,
-        physics: const NeverScrollableScrollPhysics(), // Terarah lewat tombol
-        children: [
-          // Step 1: Welcome
-          OnboardingWelcomeStep(
-            onGetStarted: _nextPage,
-            onSkip: _completeOnboarding,
-          ),
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // -------------------------------------------------------------
+            // 1. TOP HEADER (Progress "X of 7" & Back Button Terpusat)
+            // -------------------------------------------------------------
+            _buildTopHeader(),
 
-          // Step 2: Goal
-          OnboardingGoalStep(
-            selectedGoal: _goal,
-            onGoalSelected: (val) => setState(() => _goal = val),
-            onNext: _nextPage,
-            onBack: _previousPage,
-          ),
+            // -------------------------------------------------------------
+            // 2. PAGE VIEW CONTENT (Hanya Isi Formulir Tiap Step)
+            // -------------------------------------------------------------
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  // Step 0: Welcome
+                  const StepWelcome(),
 
-          // Step 3: Level
-          OnboardingLevelStep(
-            selectedLevel: _level,
-            onLevelSelected: (val) => setState(() => _level = val),
-            onNext: _nextPage,
-            onBack: _previousPage,
-          ),
+                  // Step 1: Goal
+                  StepGoal(
+                    selectedGoal: _goal,
+                    onGoalSelected: (val) => setState(() => _goal = val),
+                  ),
 
-          // Step 4: Schedule (Days & Duration)
-          OnboardingScheduleStep(
-            selectedDays: _daysPerWeek,
-            selectedDurationMin: _durationMin,
-            onDaysSelected: (val) => setState(() => _daysPerWeek = val),
-            onDurationSelected: (val) => setState(() => _durationMin = val),
-            onNext: _nextPage,
-            onBack: _previousPage,
-          ),
+                  // Step 2: About (Gender, Age, Height)
+                  StepAbout(
+                    gender: _gender,
+                    age: _age,
+                    heightCm: _heightCm,
+                    onGenderChanged: (val) => setState(() => _gender = val),
+                    onAgeChanged: (val) => setState(() => _age = val),
+                    onHeightChanged: (val) => setState(() => _heightCm = val),
+                  ),
 
-          // Step 5: Equipment & Limitations (PRD Baru)
-          OnboardingEquipmentLimitationsStep(
-            selectedEquipments: _equipments,
-            selectedLimitations: _limitations,
-            onEquipmentsChanged: (val) => setState(() => _equipments = val),
-            onLimitationsChanged: (val) => setState(() => _limitations = val),
-            onNext: _nextPage,
-            onBack: _previousPage,
-          ),
+                  // Step 3: Body & Target Weight
+                  StepBodyTarget(
+                    currentWeightKg: _currentWeightKg,
+                    targetWeightKg: _targetWeightKg,
+                    onCurrentWeightChanged: (val) =>
+                        setState(() => _currentWeightKg = val),
+                    onTargetWeightChanged: (val) =>
+                        setState(() => _targetWeightKg = val),
+                  ),
 
-          // Step 6: Initial Baseline Assessment (PRD Baru)
-          OnboardingAssessmentStep(
-            selectedCapability: _baselineCapability,
-            onCapabilitySelected: (val) => setState(() => _baselineCapability = val),
-            onNext: _nextPage,
-            onBack: _previousPage,
-          ),
+                  // Step 4: Experience Level
+                  StepExperience(
+                    selectedLevel: _level,
+                    onLevelSelected: (val) => setState(() => _level = val),
+                  ),
 
-          // Step 7: Plan Ready
-          OnboardingPlanReadyStep(
-            daysPerWeek: _daysPerWeek,
-            durationMin: _durationMin,
-            level: _level,
-            goal: _goal,
-            startingExercise: _getStartingExerciseName(),
-            onStartMyPlan: _completeOnboarding,
-            onBack: _previousPage,
+                  // Step 5: Schedule (Frequency & Duration)
+                  StepSchedule(
+                    daysPerWeek: _daysPerWeek,
+                    durationMin: _durationMin,
+                    onDaysPerWeekChanged: (val) =>
+                        setState(() => _daysPerWeek = val),
+                    onDurationMinChanged: (val) =>
+                        setState(() => _durationMin = val),
+                  ),
+
+                  // Step 6: Equipment
+                  StepEquipment(
+                    selectedEquipments: _equipments,
+                    onToggleEquipment: _toggleEquipment,
+                  ),
+
+                  // Step 7: Limitations
+                  StepLimitations(
+                    selectedLimitations: _limitations,
+                    onToggleLimitation: _toggleLimitation,
+                  ),
+                ],
+              ),
+            ),
+
+            // -------------------------------------------------------------
+            // 3. STICKY BOTTOM BAR (Satu Pembungkus Bersama - Anti Copas)
+            // -------------------------------------------------------------
+            _buildStickyBottomBar(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTopHeader() {
+    if (_currentStep == 0) {
+      return const SizedBox(height: 12);
+    }
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                icon: const Icon(
+                  Icons.arrow_back,
+                  color: AppColors.darkCharcoal,
+                  size: 24,
+                ),
+                onPressed: _prevStep,
+              ),
+              Text(
+                '$_currentStep of 7',
+                style: AppTypography.labelMedium.copyWith(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
+                  color: AppColors.neutral500,
+                ),
+              ),
+            ],
+          ),
+        ),
+        // Progress Bar Horizontal Halus
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 22),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: (_currentStep / 7.0).clamp(0.0, 1.0),
+              minHeight: 4,
+              backgroundColor: const Color(0xFFE2E8F0),
+              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF84CC16)),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+      ],
+    );
+  }
+
+  Widget _buildStickyBottomBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: const Border(
+          top: BorderSide(color: Color(0xFFE2E8F0), width: 1),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, -4),
           ),
         ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: _currentStep == 0
+            ? Row(
+                children: [
+                  const OnboardingDotsIndicator(activeIndex: 0),
+                  const Spacer(),
+                  AppButton.primary(
+                    text: 'Get Started ➔',
+                    size: AppButtonSize.large,
+                    isFullWidth: false,
+                    width: 200,
+                    onPressed: _nextStep,
+                  ),
+                ],
+              )
+            : AppButton.primary(
+                text: _currentStep == 7 ? 'Create My Plan' : 'Continue',
+                size: AppButtonSize.large,
+                isLoading: _isCreatingPlan,
+                onPressed: _currentStep == 7 ? _createMyPlan : _nextStep,
+              ),
       ),
     );
   }
 }
-

@@ -36,6 +36,9 @@ class TrainingProgramEntity {
     return 4;
   }
 
+  /// Convenience alias
+  int get frequencyDaysPerWeek => weeklyFrequency;
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,

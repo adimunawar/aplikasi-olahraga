@@ -32,13 +32,20 @@ class DynamicProgramGenerator {
     // 1. Tentukan latihan dorong awal (Primary Horizontal Push) sesuai hasil Onboarding
     final primaryPushId = startingPushExerciseId ?? _resolveStartingPush(userProfile);
 
-    // 2. Buat entitas Program Utama
+    // 2. Tentukan nama program berdasarkan Goal pengguna
+    String programName;
+    if (userProfile.goal.contains('fat_loss') || userProfile.goal.contains('cut')) {
+      programName = 'Fat Loss & Conditioning';
+    } else if (userProfile.goal.contains('maintain')) {
+      programName = 'Maintain & Stay Fit';
+    } else {
+      programName = 'Bulking Program';
+    }
+
     final program = TrainingProgramEntity(
       id: programId,
       userId: userProfile.id,
-      name: userProfile.experienceLevel == 'beginner'
-          ? 'Full Body Adaptive (Beginner)'
-          : 'Full Body Progression Coach',
+      name: programName,
       status: 'active',
       startDate: now,
       weeklyFrequency: userProfile.weeklyFrequency,
@@ -47,7 +54,7 @@ class DynamicProgramGenerator {
       updatedAt: now,
     );
 
-    // 3. Tentukan jumlah sesi berdasarkan weeklyFrequency
+    // 3. Tentukan jumlah sesi berdasarkan weeklyFrequency secara presisi (2, 3, 4, 5, 6 hari)
     final List<ProgramSessionDetail> sessions = [];
     final freq = userProfile.weeklyFrequency;
 
@@ -75,7 +82,7 @@ class DynamicProgramGenerator {
         now: now,
       ));
     } else if (freq == 3) {
-      // Program 3 Hari / Minggu (Full Body A / B / C) - Standar Emas Pemula
+      // Program 3 Hari / Minggu (Full Body A / B / C)
       sessions.add(_buildSession(
         programId: programId,
         dayNumber: 1,
@@ -108,13 +115,13 @@ class DynamicProgramGenerator {
         catalogExercises: catalogExercises,
         now: now,
       ));
-    } else {
-      // Program 4 - 5 Hari / Minggu
+    } else if (freq == 4) {
+      // Program 4 Hari / Minggu (Upper / Lower / Upper / Full)
       sessions.add(_buildSession(
         programId: programId,
         dayNumber: 1,
-        sessionName: 'Upper & Core A',
-        focusLabel: 'Chest, Arms & Core',
+        sessionName: 'Upper Body (Push)',
+        focusLabel: 'Chest, Shoulders & Triceps',
         targetDurationMin: userProfile.preferredDurationMin,
         exerciseBlueprints: _get3DaySessionABlueprint(primaryPushId, userProfile),
         catalogExercises: catalogExercises,
@@ -124,7 +131,7 @@ class DynamicProgramGenerator {
       sessions.add(_buildSession(
         programId: programId,
         dayNumber: 2,
-        sessionName: 'Lower & Posterior',
+        sessionName: 'Lower Body',
         focusLabel: 'Quads, Glutes & Calves',
         targetDurationMin: userProfile.preferredDurationMin,
         exerciseBlueprints: _get3DaySessionBBlueprint(userProfile),
@@ -135,8 +142,8 @@ class DynamicProgramGenerator {
       sessions.add(_buildSession(
         programId: programId,
         dayNumber: 3,
-        sessionName: 'Upper & Pull B',
-        focusLabel: 'Back, Triceps & Posture',
+        sessionName: 'Upper Body (Pull)',
+        focusLabel: 'Back, Biceps & Posture',
         targetDurationMin: userProfile.preferredDurationMin,
         exerciseBlueprints: _get3DaySessionCBlueprint(primaryPushId, userProfile),
         catalogExercises: catalogExercises,
@@ -147,9 +154,132 @@ class DynamicProgramGenerator {
         programId: programId,
         dayNumber: 4,
         sessionName: 'Full Body Conditioning',
-        focusLabel: 'Endurance & Core Dynamic',
+        focusLabel: 'Full Body & Core Dynamics',
         targetDurationMin: userProfile.preferredDurationMin,
         exerciseBlueprints: _get2DaySession1Blueprint(primaryPushId, userProfile),
+        catalogExercises: catalogExercises,
+        now: now,
+      ));
+    } else if (freq == 5) {
+      // Program 5 Hari / Minggu
+      sessions.add(_buildSession(
+        programId: programId,
+        dayNumber: 1,
+        sessionName: 'Upper Body (Push)',
+        focusLabel: 'Chest, Shoulders & Triceps',
+        targetDurationMin: userProfile.preferredDurationMin,
+        exerciseBlueprints: _get3DaySessionABlueprint(primaryPushId, userProfile),
+        catalogExercises: catalogExercises,
+        now: now,
+      ));
+
+      sessions.add(_buildSession(
+        programId: programId,
+        dayNumber: 2,
+        sessionName: 'Lower Body A',
+        focusLabel: 'Quads, Calves & Core',
+        targetDurationMin: userProfile.preferredDurationMin,
+        exerciseBlueprints: _get3DaySessionBBlueprint(userProfile),
+        catalogExercises: catalogExercises,
+        now: now,
+      ));
+
+      sessions.add(_buildSession(
+        programId: programId,
+        dayNumber: 3,
+        sessionName: 'Upper Body (Pull)',
+        focusLabel: 'Back, Biceps & Posture',
+        targetDurationMin: userProfile.preferredDurationMin,
+        exerciseBlueprints: _get3DaySessionCBlueprint(primaryPushId, userProfile),
+        catalogExercises: catalogExercises,
+        now: now,
+      ));
+
+      sessions.add(_buildSession(
+        programId: programId,
+        dayNumber: 4,
+        sessionName: 'Lower Body B',
+        focusLabel: 'Glutes, Hamstrings & Stability',
+        targetDurationMin: userProfile.preferredDurationMin,
+        exerciseBlueprints: _get2DaySession2Blueprint(userProfile),
+        catalogExercises: catalogExercises,
+        now: now,
+      ));
+
+      sessions.add(_buildSession(
+        programId: programId,
+        dayNumber: 5,
+        sessionName: 'Full Body & Core',
+        focusLabel: 'Core, Endurance & Agility',
+        targetDurationMin: userProfile.preferredDurationMin,
+        exerciseBlueprints: _get2DaySession1Blueprint(primaryPushId, userProfile),
+        catalogExercises: catalogExercises,
+        now: now,
+      ));
+    } else {
+      // Program 6 Hari / Minggu (PPL x 2)
+      sessions.add(_buildSession(
+        programId: programId,
+        dayNumber: 1,
+        sessionName: 'Push A',
+        focusLabel: 'Chest & Triceps Focus',
+        targetDurationMin: userProfile.preferredDurationMin,
+        exerciseBlueprints: _get3DaySessionABlueprint(primaryPushId, userProfile),
+        catalogExercises: catalogExercises,
+        now: now,
+      ));
+
+      sessions.add(_buildSession(
+        programId: programId,
+        dayNumber: 2,
+        sessionName: 'Pull A',
+        focusLabel: 'Upper Back & Biceps',
+        targetDurationMin: userProfile.preferredDurationMin,
+        exerciseBlueprints: _get3DaySessionCBlueprint(primaryPushId, userProfile),
+        catalogExercises: catalogExercises,
+        now: now,
+      ));
+
+      sessions.add(_buildSession(
+        programId: programId,
+        dayNumber: 3,
+        sessionName: 'Legs A',
+        focusLabel: 'Quads & Calves Heavy',
+        targetDurationMin: userProfile.preferredDurationMin,
+        exerciseBlueprints: _get3DaySessionBBlueprint(userProfile),
+        catalogExercises: catalogExercises,
+        now: now,
+      ));
+
+      sessions.add(_buildSession(
+        programId: programId,
+        dayNumber: 4,
+        sessionName: 'Push B',
+        focusLabel: 'Shoulders & Chest Volume',
+        targetDurationMin: userProfile.preferredDurationMin,
+        exerciseBlueprints: _get3DaySessionABlueprint(primaryPushId, userProfile),
+        catalogExercises: catalogExercises,
+        now: now,
+      ));
+
+      sessions.add(_buildSession(
+        programId: programId,
+        dayNumber: 5,
+        sessionName: 'Pull B',
+        focusLabel: 'Lats & Core Dynamics',
+        targetDurationMin: userProfile.preferredDurationMin,
+        exerciseBlueprints: _get3DaySessionCBlueprint(primaryPushId, userProfile),
+        catalogExercises: catalogExercises,
+        now: now,
+      ));
+
+      sessions.add(_buildSession(
+        programId: programId,
+        dayNumber: 6,
+        sessionName: 'Legs B',
+        focusLabel: 'Hamstrings, Glutes & Mobility',
+        targetDurationMin: userProfile.preferredDurationMin,
+        exerciseBlueprints: _get2DaySession2Blueprint(userProfile),
         catalogExercises: catalogExercises,
         now: now,
       ));
