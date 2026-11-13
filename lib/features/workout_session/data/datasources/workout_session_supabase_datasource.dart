@@ -50,7 +50,12 @@ class WorkoutSessionSupabaseDatasource {
     }
 
     try {
-      final payload = sets.map((s) => s.toMap()).toList();
+      final payload = sets.map((set) {
+        final row = set.toMap();
+        // SQLite stores bools as 0/1; PostgreSQL columns are BOOLEAN.
+        row['is_warmup'] = set.isWarmup;
+        return row;
+      }).toList();
       await client.from('workout_sets').upsert(payload);
       debugPrint('[Supabase] Berhasil sinkronisasi ${sets.length} sets ke cloud');
     } catch (e) {
