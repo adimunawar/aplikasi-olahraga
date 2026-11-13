@@ -189,7 +189,9 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  item.exercise.name as String,
+                                  item.exercise.name.en.isNotEmpty
+                                      ? item.exercise.name.en
+                                      : item.exercise.name.id,
                                   style: AppTypography.labelMedium.copyWith(
                                     fontWeight: FontWeight.w800,
                                     fontSize: 13.5,
