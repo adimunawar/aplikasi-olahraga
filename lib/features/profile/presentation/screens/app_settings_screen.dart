@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/localization/app_locale.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../controllers/profile_controller.dart';
@@ -32,7 +33,8 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
   void initState() {
     super.initState();
     final profile = ref.read(profileControllerProvider);
-    _language = profile.language;
+    // Tampilkan bahasa yang benar-benar aktif (bukan default kolom DB).
+    _language = profileLanguageFromAppLocale(ref.read(appLocaleProvider));
     _theme = profile.theme;
     _units = profile.unitPreference;
     _hapticFeedback = profile.hapticFeedback;
@@ -97,6 +99,9 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
                   onTap: () {
                     setState(() => _language = lang);
                     _updateSettings();
+                    ref
+                        .read(appLocaleProvider.notifier)
+                        .setLocale(appLocaleFromProfileLanguage(lang));
                     Navigator.pop(ctx);
                   },
                 );
