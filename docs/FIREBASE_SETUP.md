@@ -82,20 +82,37 @@ repository secret sebelum build release:
 Tanpa secret tersebut, job **Build Android release APK** akan gagal dengan
 pesan `Missing GitHub secret GOOGLE_SERVICES_JSON`.
 
-## Verifikasi Crashlytics
+## Collection behavior (Debug vs Release)
 
-Collection Crashlytics aktif secara default, termasuk di debug, supaya test
-langsung terlihat. Matikan bila tidak diperlukan:
+Crashlytics and Analytics collection default to **enabled in Release** and
+**disabled in Debug/Profile**. This prevents routine development crashes and
+test events from being uploaded from a developer's device.
+
+To temporarily enable Crashlytics during a local test:
 
 ```bash
-flutter run --dart-define=FIREBASE_CRASHLYTICS_ENABLED=false
+flutter run --dart-define=FIREBASE_CRASHLYTICS_ENABLED=true
 ```
 
-Untuk menguji pelaporan crash:
+To enable Analytics for Firebase DebugView:
+
+```bash
+flutter run --dart-define=FIREBASE_ANALYTICS_ENABLED=true
+```
+
+Before production, provide an appropriate privacy notice and obtain any
+consent required by the product privacy policy and applicable law. Do not send
+email addresses, names, body measurements, workout notes, or other directly
+identifying or sensitive values as Analytics event parameters.
+
+## Verifikasi Crashlytics
+
+Untuk menguji pelaporan crash, jalankan app dalam mode Debug dengan flag
+collection diaktifkan:
 
 1. Jalankan app di device/emulator Android:
    ```bash
-   flutter run
+   flutter run --dart-define=FIREBASE_CRASHLYTICS_ENABLED=true
    ```
 2. Picu crash dari kode (sementara), misalnya di sebuah tombol:
    ```dart
