@@ -52,7 +52,6 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
   TrainingProgramEntity? _program;
   List<SessionWithDetail> _sessions = [];
   List<BodyMeasurementEntity> _weightHistory = [];
-  int _completedThisWeekCount = 0;
   int _completedTotalWorkouts = 0;
 
   int _currentActiveWeek = 1;
@@ -167,7 +166,6 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
           _program = program;
           _sessions = sessionList;
           _weightHistory = weightLogs;
-          _completedThisWeekCount = thisWeekCount;
           _completedTotalWorkouts = totalCompleted;
           _currentActiveWeek = activeWeek;
           _totalWeeks = totalWeeks;
