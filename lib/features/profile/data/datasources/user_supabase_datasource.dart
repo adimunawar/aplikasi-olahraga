@@ -89,7 +89,14 @@ class UserSupabaseDatasource {
     try {
       final payload = settings.toMap()
         ..['id'] = uid
-        ..['user_id'] = uid;
+        ..['user_id'] = uid
+        ..['workout_reminder'] = settings.workoutReminder
+        ..['rest_day_reminder'] = settings.restDayReminder
+        ..['progress_checkin'] = settings.progressCheckin
+        ..['streak_reminder'] = settings.streakReminder
+        ..['haptic_feedback'] = settings.hapticFeedback
+        ..['sound_effects'] = settings.soundEffects
+        ..['data_sync'] = settings.dataSync;
       await client.from('user_settings').upsert(payload);
       debugPrint('[Supabase] Berhasil sync user settings ke Supabase!');
     } catch (e) {
