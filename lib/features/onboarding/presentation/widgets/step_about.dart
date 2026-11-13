@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../i18n/strings.g.dart';
 
 /// Step 2 of 7: Tell us about you (Gender, Age, Height) (Mockup 1:1)
 class StepAbout extends StatelessWidget {
@@ -23,13 +24,15 @@ class StepAbout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context).onboarding.about;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Tell us about you',
+            t.title,
             style: AppTypography.displayMedium.copyWith(
               fontWeight: FontWeight.w900,
               fontSize: 24,
@@ -38,7 +41,7 @@ class StepAbout extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'We need some basic info to personalize your program.',
+            t.subtitle,
             style: AppTypography.bodySmall.copyWith(
               color: AppColors.neutral500,
               fontSize: 13,
@@ -48,7 +51,7 @@ class StepAbout extends StatelessWidget {
 
           // 1. Gender Selector
           Text(
-            'Gender',
+            t.gender,
             style: AppTypography.labelLarge.copyWith(
               fontWeight: FontWeight.w700,
               color: AppColors.darkCharcoal,
@@ -61,7 +64,7 @@ class StepAbout extends StatelessWidget {
               Expanded(
                 child: _buildGenderOption(
                   id: 'male',
-                  label: 'Male',
+                  label: t.male,
                   icon: Icons.male_rounded,
                 ),
               ),
@@ -69,7 +72,7 @@ class StepAbout extends StatelessWidget {
               Expanded(
                 child: _buildGenderOption(
                   id: 'female',
-                  label: 'Female',
+                  label: t.female,
                   icon: Icons.female_rounded,
                 ),
               ),
@@ -79,9 +82,9 @@ class StepAbout extends StatelessWidget {
 
           // 2. Age Stepper
           _buildStepperCard(
-            label: 'Age',
+            label: t.age,
             valueText: '$age',
-            unit: 'years',
+            unit: t.ageUnit,
             onMinus: () {
               if (age > 14) onAgeChanged(age - 1);
             },
@@ -93,9 +96,9 @@ class StepAbout extends StatelessWidget {
 
           // 3. Height Stepper
           _buildStepperCard(
-            label: 'Height',
+            label: t.height,
             valueText: heightCm.round().toString(),
-            unit: 'cm',
+            unit: t.heightUnit,
             onMinus: () {
               if (heightCm > 120) onHeightChanged(heightCm - 1);
             },

@@ -1,0 +1,34 @@
+{
+  "appName": "Home Bulking Coach",
+  "actions": {
+    "save": "Simpan",
+    "cancel": "Batal",
+    "back": "Kembali",
+    "next": "Lanjut",
+    "skip": "Lewati",
+    "done": "Selesai",
+    "retry": "Coba Lagi",
+    "close": "Tutup",
+    "edit": "Ubah",
+    "delete": "Hapus"
+  },
+  "state": {
+    "loading": "Memuat...",
+    "empty": "Belum ada data",
+    "error": "Terjadi kesalahan"
+  },
+  "badge": {
+    "currentPlan": "Program Aktif"
+  },
+  "language": {
+    "label": "Bahasa",
+    "id": "Bahasa Indonesia",
+    "en": "English"
+  },
+  "units": {
+    "reps": "repetisi",
+    "sets": "set",
+    "seconds": "detik",
+    "kg": "kg"
+  }
+}

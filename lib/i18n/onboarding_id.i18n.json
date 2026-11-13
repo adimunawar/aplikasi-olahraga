@@ -1,0 +1,165 @@
+{
+  "nav": {
+    "progress": "$current dari $total",
+    "getStarted": "Mulai Sekarang ➔",
+    "continueCta": "Lanjut",
+    "createMyPlan": "Buat Program Saya"
+  },
+  "welcome": {
+    "brand": "Workout\nCoach",
+    "title": "Coach Latihan\nPribadi Kamu",
+    "subtitle": "Dapatkan program latihan sesuai\ntujuan, kondisi tubuh,\ndan gaya hidup kamu."
+  },
+  "goal": {
+    "title": "Apa tujuan utama kamu?",
+    "subtitle": "Pilih tujuan yang paling sesuai dengan fokus kamu saat ini.",
+    "options(interface=GoalOption)": [
+      {
+        "id": "muscle_gain",
+        "title": "Naikkan Berat & Bangun Otot",
+        "description": "Tambah berat badan sambil membangun massa otot (bulking)."
+      },
+      {
+        "id": "fat_loss",
+        "title": "Turunkan Berat & Kurangi Lemak",
+        "description": "Kurangi lemak tubuh tanpa kehilangan otot (cutting)."
+      },
+      {
+        "id": "maintenance",
+        "title": "Jaga Berat & Tetap Bugar",
+        "description": "Pertahankan berat badan dan kebugaran kamu saat ini."
+      }
+    ]
+  },
+  "about": {
+    "title": "Kenalan dulu, yuk",
+    "subtitle": "Kami butuh info dasar untuk mempersonalisasi program kamu.",
+    "gender": "Jenis Kelamin",
+    "male": "Pria",
+    "female": "Wanita",
+    "age": "Usia",
+    "ageUnit": "tahun",
+    "height": "Tinggi",
+    "heightUnit": "cm"
+  },
+  "bodyTarget": {
+    "title": "Tubuh & target kamu",
+    "subtitle": "Atur berat badan saat ini dan target kamu.",
+    "currentWeight": "Berat saat ini",
+    "targetWeight": "Berat target",
+    "unit": "kg",
+    "insight": {
+      "gainTitle": "Target naik: +$diff kg",
+      "lossTitle": "Target turun: $diff kg",
+      "maintainTitle": "Target: Menjaga",
+      "gainHint": "Kenaikan yang sehat sekitar 0,25 - 0,5 kg per minggu ($minWeeks - $maxWeeks minggu).",
+      "lossHint": "Penurunan yang sehat sekitar 0,5 - 1,0 kg per minggu ($minWeeks - $maxWeeks minggu).",
+      "maintainHint": "Pertahankan berat badan kamu dan fokus pada kepadatan otot serta kekuatan."
+    }
+  },
+  "experience": {
+    "title": "Bagaimana level latihan kamu?",
+    "subtitle": "Pilih yang paling menggambarkan kondisi kamu.",
+    "options(interface=ExperienceOption)": [
+      {
+        "id": "beginner",
+        "title": "Pemula",
+        "description": "Baru mulai latihan atau masih belum konsisten."
+      },
+      {
+        "id": "intermediate",
+        "title": "Menengah",
+        "description": "Sudah punya pengalaman dan rutin latihan."
+      },
+      {
+        "id": "advanced",
+        "title": "Lanjutan",
+        "description": "Latihan konsisten, form sudah bagus, dan ingin tantangan lebih besar."
+      }
+    ]
+  },
+  "schedule": {
+    "title": "Seberapa sering kamu bisa latihan?",
+    "subtitle": "Pilih jadwal latihan mingguan yang cocok dengan gaya hidup kamu.",
+    "daysPerWeek": {
+      "other": "$n hari / minggu"
+    },
+    "sessionDuration": "Durasi sesi",
+    "minutes": "$n menit"
+  },
+  "equipment": {
+    "title": "Peralatan apa yang kamu punya?",
+    "subtitle": "Pilih semua yang sesuai.",
+    "options(interface=EquipmentOption)": [
+      { "id": "bodyweight", "label": "Berat Tubuh\n(tanpa alat)" },
+      { "id": "dumbbell", "label": "Dumbbell" },
+      { "id": "resistance_band", "label": "Resistance\nBand" },
+      { "id": "kettlebell", "label": "Kettlebell" },
+      { "id": "pull_up_bar", "label": "Pull-up Bar" },
+      { "id": "barbell", "label": "Barbell" }
+    ]
+  },
+  "limitations": {
+    "title": "Ada batasan atau hal yang perlu diperhatikan?",
+    "subtitle": "Beri tahu kami jika kamu punya kondisi kesehatan atau area yang perlu dihindari.",
+    "options(interface=LimitationOption)": [
+      { "id": "none", "label": "Tanpa batasan" },
+      { "id": "knee", "label": "Lutut (mis. nyeri, cedera)" },
+      { "id": "back", "label": "Punggung (mis. nyeri punggung bawah)" },
+      { "id": "shoulder", "label": "Bahu" },
+      { "id": "wrist", "label": "Pergelangan tangan" },
+      { "id": "other", "label": "Lainnya" }
+    ]
+  },
+  "creating": {
+    "title": "Membuat\nprogram personal kamu...",
+    "subtitle": "Menganalisis tujuan, data tubuh,\npreferensi, dan ketersediaan kamu.",
+    "steps": [
+      "Menganalisis profil kamu",
+      "Menghitung volume latihan",
+      "Memilih latihan terbaik",
+      "Menyusun rencana mingguan kamu"
+    ]
+  },
+  "ready": {
+    "title": "Program kamu siap! 🎉",
+    "subtitle": "Program personal berdasarkan\ntujuan, profil, dan preferensi kamu.",
+    "weeksBadge": "⭐ $weeks Minggu",
+    "daysPerWeek": "Hari / Minggu",
+    "minutesPerSession": "Menit / Sesi",
+    "level": "Level",
+    "features": [
+      "Membangun otot dan menambah berat badan",
+      "Progressive overload (beban naik bertahap)",
+      "Dirancang untuk latihan di rumah",
+      "Disesuaikan dengan jadwal dan alat kamu"
+    ],
+    "viewMyPlan": "Lihat Program Saya",
+    "program": {
+      "bulking": {
+        "title": "Program Bulking",
+        "subtitle": "Massa Otot & Kekuatan"
+      },
+      "cutting": {
+        "title": "Program Turun Lemak",
+        "subtitle": "Turun Lemak & Tonus"
+      },
+      "maintain": {
+        "title": "Program Jaga Bugar",
+        "subtitle": "Kekuatan & Kebugaran Umum"
+      }
+    }
+  },
+  "preview": {
+    "title": "Program Latihan Kamu",
+    "tabOverview": "Ringkasan",
+    "tabWorkoutSplit": "Pembagian Latihan",
+    "loading": "Memuat pratinjau program kamu...",
+    "activateStart": "Aktifkan & Mulai Latihan ➔",
+    "activateDashboard": "Aktifkan & Buka Dashboard",
+    "sessionFallbackName": "Sesi $n",
+    "sessionDuration": "$n menit",
+    "exercisesInSession": "LATIHAN DI SESI INI ($count)",
+    "prescription": "$sets set • $reps repetisi • istirahat $rests dtk"
+  }
+}

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../i18n/strings.g.dart';
 
 /// Step 3 of 7: Your body & target (Current & Target Weight) (Mockup 1:1)
 class StepBodyTarget extends StatelessWidget {
@@ -19,9 +20,30 @@ class StepBodyTarget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context).onboarding.bodyTarget;
+
     final diff = targetWeightKg - currentWeightKg;
+    final absDiff = diff.abs();
     final isGain = diff > 0.05;
     final isLoss = diff < -0.05;
+
+    final insightTitle = isGain
+        ? t.insight.gainTitle(diff: diff.toStringAsFixed(1))
+        : (isLoss
+            ? t.insight.lossTitle(diff: diff.toStringAsFixed(1))
+            : t.insight.maintainTitle);
+
+    final insightHint = isGain
+        ? t.insight.gainHint(
+            minWeeks: (absDiff / 0.5).round(),
+            maxWeeks: (absDiff / 0.25).round(),
+          )
+        : (isLoss
+            ? t.insight.lossHint(
+                minWeeks: (absDiff / 1.0).round(),
+                maxWeeks: (absDiff / 0.5).round(),
+              )
+            : t.insight.maintainHint);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
@@ -29,7 +51,7 @@ class StepBodyTarget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Your body & target',
+            t.title,
             style: AppTypography.displayMedium.copyWith(
               fontWeight: FontWeight.w900,
               fontSize: 24,
@@ -38,7 +60,7 @@ class StepBodyTarget extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Set your current and target weight.',
+            t.subtitle,
             style: AppTypography.bodySmall.copyWith(
               color: AppColors.neutral500,
               fontSize: 13,
@@ -49,7 +71,8 @@ class StepBodyTarget extends StatelessWidget {
           // 1. Current Weight Stepper Card
           _buildWeightStepperCard(
             icon: Icons.scale_rounded,
-            label: 'Current weight',
+            label: t.currentWeight,
+            unit: t.unit,
             value: currentWeightKg,
             onMinus: () {
               if (currentWeightKg > 35) {
@@ -71,7 +94,8 @@ class StepBodyTarget extends StatelessWidget {
           // 2. Target Weight Stepper Card
           _buildWeightStepperCard(
             icon: Icons.track_changes_rounded,
-            label: 'Target weight',
+            label: t.targetWeight,
+            unit: t.unit,
             value: targetWeightKg,
             onMinus: () {
               if (targetWeightKg > 35) {
@@ -119,11 +143,7 @@ class StepBodyTarget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        isGain
-                            ? 'Target gain: +${diff.toStringAsFixed(1)} kg'
-                            : (isLoss
-                                ? 'Target loss: ${diff.toStringAsFixed(1)} kg'
-                                : 'Target: Maintenance'),
+                        insightTitle,
                         style: AppTypography.titleSmall.copyWith(
                           fontWeight: FontWeight.w800,
                           fontSize: 14,
@@ -132,11 +152,7 @@ class StepBodyTarget extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        isGain
-                            ? 'A healthy gain is around 0.25 - 0.5 kg per week (${(diff.abs() / 0.5).round()} - ${(diff.abs() / 0.25).round()} weeks).'
-                            : (isLoss
-                                ? 'A healthy loss is around 0.5 - 1.0 kg per week (${(diff.abs() / 1.0).round()} - ${(diff.abs() / 0.5).round()} weeks).'
-                                : 'Keep your current body weight and focus on building muscle density and strength.'),
+                        insightHint,
                         style: AppTypography.bodySmall.copyWith(
                           color: AppColors.neutral600,
                           fontSize: 12,
@@ -157,6 +173,7 @@ class StepBodyTarget extends StatelessWidget {
   Widget _buildWeightStepperCard({
     required IconData icon,
     required String label,
+    required String unit,
     required double value,
     required VoidCallback onMinus,
     required VoidCallback onPlus,
@@ -209,7 +226,7 @@ class StepBodyTarget extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Text(
-            'kg',
+            unit,
             style: AppTypography.bodySmall.copyWith(
               fontWeight: FontWeight.w600,
               color: AppColors.neutral500,

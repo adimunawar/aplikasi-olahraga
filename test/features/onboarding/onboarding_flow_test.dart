@@ -9,14 +9,17 @@ import 'package:workout_app/features/onboarding/presentation/widgets/step_schedu
 import 'package:workout_app/features/onboarding/presentation/widgets/step_welcome.dart';
 import 'package:workout_app/features/program/domain/services/dynamic_program_generator.dart';
 import 'package:workout_app/features/program/presentation/controllers/draft_program_provider.dart';
+import 'package:workout_app/i18n/strings.g.dart';
 import 'mock_exercise_factory.dart';
 
 void main() {
   Widget createTestWidget(Widget child, {List<Override> overrides = const []}) {
-    return ProviderScope(
-      overrides: overrides,
-      child: MaterialApp(
-        home: Scaffold(body: child),
+    return TranslationProvider(
+      child: ProviderScope(
+        overrides: overrides,
+        child: MaterialApp(
+          home: Scaffold(body: child),
+        ),
       ),
     );
   }
@@ -26,9 +29,9 @@ void main() {
       await tester.pumpWidget(createTestWidget(const StepWelcome()));
       await tester.pumpAndSettle();
 
-      expect(find.text('Your Personal\nWorkout Coach'), findsOneWidget);
+      expect(find.text('Coach Latihan\nPribadi Kamu'), findsOneWidget);
       expect(
-        find.textContaining('Get a workout program based'),
+        find.textContaining('Dapatkan program latihan sesuai'),
         findsOneWidget,
       );
     });
@@ -50,12 +53,12 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Gain Weight & Build Muscle'), findsOneWidget);
-      expect(find.text('Lose Weight & Reduce Fat'), findsOneWidget);
-      expect(find.text('Maintain & Stay Fit'), findsOneWidget);
+      expect(find.text('Naikkan Berat & Bangun Otot'), findsOneWidget);
+      expect(find.text('Turunkan Berat & Kurangi Lemak'), findsOneWidget);
+      expect(find.text('Jaga Berat & Tetap Bugar'), findsOneWidget);
 
       // Tap second goal
-      await tester.tap(find.text('Lose Weight & Reduce Fat'));
+      await tester.tap(find.text('Turunkan Berat & Kurangi Lemak'));
       await tester.pumpAndSettle();
 
       expect(selected, equals('fat_loss'));
@@ -81,23 +84,23 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('2 days / week'), findsOneWidget);
-      expect(find.text('3 days / week'), findsOneWidget);
-      expect(find.text('4 days / week'), findsOneWidget);
-      expect(find.text('5 days / week'), findsOneWidget);
-      expect(find.text('6 days / week'), findsOneWidget);
+      expect(find.text('2 hari / minggu'), findsOneWidget);
+      expect(find.text('3 hari / minggu'), findsOneWidget);
+      expect(find.text('4 hari / minggu'), findsOneWidget);
+      expect(find.text('5 hari / minggu'), findsOneWidget);
+      expect(find.text('6 hari / minggu'), findsOneWidget);
 
-      expect(find.text('30 min'), findsOneWidget);
-      expect(find.text('45 min'), findsOneWidget);
-      expect(find.text('60 min'), findsOneWidget);
+      expect(find.text('30 menit'), findsOneWidget);
+      expect(find.text('45 menit'), findsOneWidget);
+      expect(find.text('60 menit'), findsOneWidget);
 
       // Select 5 days / week
-      await tester.tap(find.text('5 days / week'));
+      await tester.tap(find.text('5 hari / minggu'));
       await tester.pumpAndSettle();
       expect(days, equals(5));
 
       // Select 60 min
-      await tester.tap(find.text('60 min'));
+      await tester.tap(find.text('60 menit'));
       await tester.pumpAndSettle();
       expect(duration, equals(60));
     });
@@ -134,12 +137,12 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Your plan is ready! 🎉'), findsOneWidget);
-      expect(find.text('View My Plan'), findsOneWidget);
-      expect(find.text('Bulking Program'), findsOneWidget);
-      expect(find.textContaining('Days / Week'), findsOneWidget);
-      expect(find.textContaining('Minutes / Session'), findsOneWidget);
-      expect(find.textContaining('12 Weeks'), findsOneWidget);
+      expect(find.text('Program kamu siap! 🎉'), findsOneWidget);
+      expect(find.text('Lihat Program Saya'), findsOneWidget);
+      expect(find.text('Program Bulking'), findsOneWidget);
+      expect(find.textContaining('Hari / Minggu'), findsOneWidget);
+      expect(find.textContaining('Menit / Sesi'), findsOneWidget);
+      expect(find.textContaining('12 Minggu'), findsOneWidget);
     });
 
     testWidgets('PlanPreviewScreen has strictly 2 tabs (Overview & Workout Split, NO Progress tab)', (tester) async {
@@ -180,15 +183,15 @@ void main() {
       await tester.pumpAndSettle();
 
       // Prioritas P1: Harus ada Tab Overview & Workout Split
-      expect(find.text('Overview'), findsOneWidget);
-      expect(find.text('Workout Split'), findsOneWidget);
+      expect(find.text('Ringkasan'), findsOneWidget);
+      expect(find.text('Pembagian Latihan'), findsOneWidget);
 
       // Prioritas P1: Tab 'Progress' TIDAK BOLEH ADA di Plan Preview!
       expect(find.text('Progress'), findsNothing);
 
       // Prioritas P0: Ada tombol aktivasi
-      expect(find.text('Activate & Start Workout ➔'), findsOneWidget);
-      expect(find.text('Activate & Go to Dashboard'), findsOneWidget);
+      expect(find.text('Aktifkan & Mulai Latihan ➔'), findsOneWidget);
+      expect(find.text('Aktifkan & Buka Dashboard'), findsOneWidget);
 
       // Verifikasi Program Overview data
       expect(find.text('Program Overview'), findsOneWidget);

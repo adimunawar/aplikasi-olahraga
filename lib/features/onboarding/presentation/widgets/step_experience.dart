@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../i18n/strings.g.dart';
 
 /// Step 4 of 7: What's your experience level? (Mockup 1:1)
 class StepExperience extends StatelessWidget {
@@ -13,15 +14,23 @@ class StepExperience extends StatelessWidget {
     required this.onLevelSelected,
   });
 
+  static const Map<String, IconData> _icons = {
+    'beginner': Icons.spa_rounded,
+    'intermediate': Icons.fitness_center_rounded,
+    'advanced': Icons.military_tech_rounded,
+  };
+
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context).onboarding.experience;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "What's your experience level?",
+            t.title,
             style: AppTypography.displayMedium.copyWith(
               fontWeight: FontWeight.w900,
               fontSize: 24,
@@ -30,7 +39,7 @@ class StepExperience extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Choose an option that best describes you.',
+            t.subtitle,
             style: AppTypography.bodySmall.copyWith(
               color: AppColors.neutral500,
               fontSize: 13,
@@ -38,44 +47,26 @@ class StepExperience extends StatelessWidget {
           ),
           const SizedBox(height: 24),
 
-          _buildLevelCard(
-            id: 'beginner',
-            title: 'Beginner',
-            description: 'New to training or exercising inconsistently.',
-            icon: Icons.spa_rounded,
-          ),
-          const SizedBox(height: 14),
-
-          _buildLevelCard(
-            id: 'intermediate',
-            title: 'Intermediate',
-            description: 'Have some experience and train regularly.',
-            icon: Icons.fitness_center_rounded,
-          ),
-          const SizedBox(height: 14),
-
-          _buildLevelCard(
-            id: 'advanced',
-            title: 'Advanced',
-            description:
-                'Train consistently, have good form, and want a bigger challenge.',
-            icon: Icons.military_tech_rounded,
-          ),
+          for (final option in t.options) ...[
+            _buildLevelCard(
+              option: option,
+              icon: _icons[option.id] ?? Icons.fitness_center_rounded,
+            ),
+            const SizedBox(height: 14),
+          ],
         ],
       ),
     );
   }
 
   Widget _buildLevelCard({
-    required String id,
-    required String title,
-    required String description,
+    required ExperienceOption option,
     required IconData icon,
   }) {
-    final isSelected = selectedLevel == id;
+    final isSelected = selectedLevel == option.id;
 
     return InkWell(
-      onTap: () => onLevelSelected(id),
+      onTap: () => onLevelSelected(option.id),
       borderRadius: BorderRadius.circular(18),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -119,7 +110,7 @@ class StepExperience extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    title,
+                    option.title,
                     style: AppTypography.titleSmall.copyWith(
                       fontWeight: FontWeight.w800,
                       fontSize: 15,
@@ -128,7 +119,7 @@ class StepExperience extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    description,
+                    option.description,
                     style: AppTypography.bodySmall.copyWith(
                       color: AppColors.neutral500,
                       fontSize: 12,

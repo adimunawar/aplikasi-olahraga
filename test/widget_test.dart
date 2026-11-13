@@ -1,12 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:workout_app/i18n/strings.g.dart';
 import 'package:workout_app/main.dart';
 
 void main() {
   testWidgets('App smoke test', (WidgetTester tester) async {
     await tester.pumpWidget(
-      const ProviderScope(
-        child: WorkoutApp(),
+      TranslationProvider(
+        child: const ProviderScope(
+          child: WorkoutApp(),
+        ),
       ),
     );
     await tester.pumpAndSettle();

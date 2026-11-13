@@ -9,6 +9,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_smart_image.dart';
+import '../../../../i18n/strings.g.dart';
 import '../../../program/presentation/controllers/draft_program_provider.dart';
 
 /// Screen "Your plan is ready! 🎉" (Mockup Baris 2, Layar 2)
@@ -41,6 +42,9 @@ class _PlanReadyScreenState extends ConsumerState<PlanReadyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final onboarding = Translations.of(context).onboarding;
+    final t = onboarding.ready;
+
     final draft = ref.watch(draftProgramProvider);
     final p = _profile;
 
@@ -49,17 +53,26 @@ class _PlanReadyScreenState extends ConsumerState<PlanReadyScreen> {
 
     final programTitle = draft?.program.name ??
         (isBulking
-            ? 'Bulking Program'
-            : (isCutting ? 'Fat Loss & Conditioning' : 'Maintain & Stay Fit'));
+            ? t.program.bulking.title
+            : (isCutting ? t.program.cutting.title : t.program.maintain.title));
 
     final programSubtitle = isBulking
-        ? 'Muscle Gain & Strength'
-        : (isCutting ? 'Fat Loss & Tone' : 'Strength & General Fitness');
+        ? t.program.bulking.subtitle
+        : (isCutting
+            ? t.program.cutting.subtitle
+            : t.program.maintain.subtitle);
 
     final freq = draft?.program.weeklyFrequency ?? (p?.weeklyFrequency ?? 4);
     final dur = draft?.program.targetDurationMinutes ?? (p?.preferredDurationMin ?? 45);
-    final level = p?.experienceLevel.toUpperCase() ?? 'BEGINNER';
+    final levelId = p?.experienceLevel ?? 'beginner';
     final weeks = p?.targetTimeframeWeeks ?? 12;
+
+    String levelLabel() {
+      for (final option in onboarding.experience.options) {
+        if (option.id == levelId) return option.title;
+      }
+      return levelId.toUpperCase();
+    }
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -89,7 +102,7 @@ class _PlanReadyScreenState extends ConsumerState<PlanReadyScreen> {
               const SizedBox(height: 16),
 
               Text(
-                'Your plan is ready! 🎉',
+                t.title,
                 style: AppTypography.displayMedium.copyWith(
                   fontWeight: FontWeight.w900,
                   fontSize: 24,
@@ -99,7 +112,7 @@ class _PlanReadyScreenState extends ConsumerState<PlanReadyScreen> {
               ),
               const SizedBox(height: 6),
               Text(
-                'A personalized program based on\nyour goal, profile, and preferences.',
+                t.subtitle,
                 style: AppTypography.bodySmall.copyWith(
                   color: AppColors.neutral500,
                   fontSize: 13,
@@ -163,7 +176,7 @@ class _PlanReadyScreenState extends ConsumerState<PlanReadyScreen> {
                               ),
                               const SizedBox(height: 8),
                               AppBadge(
-                                label: '⭐ $weeks Weeks',
+                                label: t.weeksBadge(weeks: weeks),
                                 variant: AppBadgeVariant.limeAccent,
                                 fontSize: 11,
                               ),
@@ -183,19 +196,19 @@ class _PlanReadyScreenState extends ConsumerState<PlanReadyScreen> {
                         _buildMetaItem(
                           icon: Icons.calendar_today_rounded,
                           topText: '$freq',
-                          bottomText: 'Days / Week',
+                          bottomText: t.daysPerWeek,
                         ),
                         Container(width: 1, height: 28, color: AppColors.neutral200),
                         _buildMetaItem(
                           icon: Icons.access_time_rounded,
                           topText: '$dur',
-                          bottomText: 'Minutes / Session',
+                          bottomText: t.minutesPerSession,
                         ),
                         Container(width: 1, height: 28, color: AppColors.neutral200),
                         _buildMetaItem(
                           icon: Icons.fitness_center_rounded,
-                          topText: level,
-                          bottomText: 'Level',
+                          topText: levelLabel(),
+                          bottomText: t.level,
                         ),
                       ],
                     ),
@@ -213,14 +226,11 @@ class _PlanReadyScreenState extends ConsumerState<PlanReadyScreen> {
                   border: Border.all(color: const Color(0xFFE2E8F0)),
                 ),
                 child: Column(
-                  children: const [
-                    _FeatureItem(text: 'Build muscle and increase body weight'),
-                    SizedBox(height: 8),
-                    _FeatureItem(text: 'Progressive overload (gradual increase)'),
-                    SizedBox(height: 8),
-                    _FeatureItem(text: 'Designed for home training'),
-                    SizedBox(height: 8),
-                    _FeatureItem(text: 'Adapted to your schedule and equipment'),
+                  children: [
+                    for (final feature in t.features) ...[
+                      _FeatureItem(text: feature),
+                      const SizedBox(height: 8),
+                    ],
                   ],
                 ),
               ),
@@ -229,7 +239,7 @@ class _PlanReadyScreenState extends ConsumerState<PlanReadyScreen> {
 
               // Tombol View My Plan (Tetap di dalam flow Onboarding)
               AppButton.primary(
-                text: 'View My Plan',
+                text: t.viewMyPlan,
                 size: AppButtonSize.large,
                 onPressed: () {
                   context.push(AppRoutes.onboardingPlan);
