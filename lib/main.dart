@@ -13,6 +13,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FirebaseConfig.initialize();
   await SupabaseConfig.initialize();
+  await SupabaseConfig.initializeCloudSyncConsent();
   final prefs = await SharedPreferences.getInstance();
   final hasCompletedOnboarding =
       prefs.getBool('has_completed_onboarding') ?? false;
