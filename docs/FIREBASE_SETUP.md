@@ -141,7 +141,11 @@ Analytics otomatis mengumpulkan event dasar (`first_open`, `session_start`,
    ```bash
    adb shell setprop debug.firebase.analytics.app com.homefitness.workout_app
    ```
-2. Jalankan app dengan `flutter run`.
+2. Jalankan aplikasi:
+   ```bash
+   flutter run --dart-define=FIREBASE_ANALYTICS_ENABLED=true
+   ```
+
 3. Buka Firebase Console → **Analytics** → **DebugView**.
 4. Matikan kembali setelah selesai:
    ```bash
