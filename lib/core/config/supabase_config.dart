@@ -87,9 +87,12 @@ class SupabaseConfig {
   /// Login alone never enables personal-data sync. Local SQLite remains the
   /// default source of truth until the user explicitly enables Cloud Sync.
   static bool get canSyncToCloud {
-    if (!_isInitialized || !CloudSyncConsent.isEnabled) return false;
+    if (!_isInitialized) return false;
     final user = currentUser;
-    return user != null && !user.isAnonymous && user.id.isNotEmpty;
+    return user != null &&
+        !user.isAnonymous &&
+        user.id.isNotEmpty &&
+        CloudSyncConsent.isEnabledFor(user.id);
   }
 
   /// The identity of a non-anonymous authenticated user.
@@ -112,12 +115,11 @@ class SupabaseConfig {
       throw StateError('Sign in with a non-anonymous account before enabling Cloud Sync.');
     }
 
-    await CloudSyncConsent.setEnabled(true);
+    await CloudSyncConsent.enableForUser(user.id);
   }
 
   /// Disable future cloud reads/writes while keeping local SQLite data intact.
-  static Future<void> disableCloudSync() =>
-      CloudSyncConsent.setEnabled(false);
+  static Future<void> disableCloudSync() => CloudSyncConsent.disable();
 }
 
 
