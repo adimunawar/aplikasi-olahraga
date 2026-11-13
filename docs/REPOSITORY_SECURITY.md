@@ -92,6 +92,13 @@ It:
   recreates owner-scoped policies.
 - Revokes inherited/public table privileges and grants only the required
   roles.
+- Denies direct catalog writes from both `anon` and `authenticated`
+  client roles. If the separate Next.js CMS currently writes through a normal
+  browser Supabase session, those writes will stop after this migration.
+  Move catalog mutations behind a trusted server-side route using a
+  service-role credential stored only on the server (never in browser code),
+  or design a narrowly scoped admin-claim policy after reviewing the CMS auth
+  model.
 - Creates the `user_settings` and `body_measurements` tables used by the
   current Flutter remote datasources.
 
