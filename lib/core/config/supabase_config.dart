@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../services/cloud_sync_consent.dart';
+
 /// Konfigurasi Supabase untuk CMS & Cloud Sync (Local-First Architecture):
 /// - Mendukung multi-environment via `--dart-define` (Development, Staging, Production).
 /// - Fallback default mengamankan flow testing & local build tanpa argumen CLI tambahan.
@@ -57,6 +59,11 @@ class SupabaseConfig {
     }
   }
 
+  /// Restore explicit Cloud Sync consent after Supabase session restoration.
+  /// Call once during application bootstrap, before repositories are used.
+  static Future<void> initializeCloudSyncConsent() =>
+      CloudSyncConsent.initialize();
+
   /// Supabase Client instance (null jika offline/belum diinisialisasi)
   static SupabaseClient? get client {
     if (!_isInitialized) return null;
@@ -73,22 +80,46 @@ class SupabaseConfig {
     }
   }
 
-  /// Memeriksa apakah Cloud Sync aktif dan diizinkan:
-  /// Sesuai filosofi Local-first (Prioritas P0 Audit Keamanan):
-  /// Aplikasi berjalan Local-Only (100% SQLite lokal) secara default tanpa login.
-  /// Remote write/sync hanya diizinkan jika pengguna secara sadar telah login
-  /// dengan akun Supabase Auth resmi (bukan default_user atau anonim).
+  /// Cloud Sync requires BOTH:
+  /// 1. A persisted, explicit user consent decision.
+  /// 2. A real Supabase Auth session (anonymous sessions are rejected).
+  ///
+  /// Login alone never enables personal-data sync. Local SQLite remains the
+  /// default source of truth until the user explicitly enables Cloud Sync.
   static bool get canSyncToCloud {
     if (!_isInitialized) return false;
     final user = currentUser;
-    return user != null && user.id.isNotEmpty;
+    return user != null &&
+        !user.isAnonymous &&
+        user.id.isNotEmpty &&
+        CloudSyncConsent.isEnabledFor(user.id);
   }
 
-  /// Mendapatkan User ID terautentikasi (atau null jika dalam mode Local-Only)
+  /// The identity of a non-anonymous authenticated user.
+  /// This is deliberately independent of Cloud Sync consent.
   static String? get currentAuthUserId {
-    if (!canSyncToCloud) return null;
-    return currentUser?.id;
+    final user = currentUser;
+    if (user == null || user.isAnonymous || user.id.isEmpty) return null;
+    return user.id;
   }
+
+  /// Enable Cloud Sync only after a non-anonymous account has signed in and
+  /// the user has explicitly accepted the Cloud Sync terms in the UI.
+  static Future<void> enableCloudSync() async {
+    if (!_isInitialized) {
+      throw StateError('Supabase is not initialized.');
+    }
+
+    final user = currentUser;
+    if (user == null || user.isAnonymous || user.id.isEmpty) {
+      throw StateError('Sign in with a non-anonymous account before enabling Cloud Sync.');
+    }
+
+    await CloudSyncConsent.enableForUser(user.id);
+  }
+
+  /// Disable future cloud reads/writes while keeping local SQLite data intact.
+  static Future<void> disableCloudSync() => CloudSyncConsent.disable();
 }
 
 

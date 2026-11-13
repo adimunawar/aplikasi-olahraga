@@ -3,108 +3,107 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 
-/// Bootstrap Firebase untuk Crashlytics & Analytics.
+/// Bootstrap Firebase for Crashlytics and Analytics.
 ///
-/// Konfigurasi native yang dipakai:
-/// - Android: `android/app/google-services.json`
-/// - iOS: `ios/Runner/GoogleService-Info.plist`
+/// Native configuration:
+/// - Android: android/app/google-services.json
+/// - iOS: ios/Runner/GoogleService-Info.plist
 ///
-/// Sengaja tanpa `firebase_options.dart`: kedua file native di atas sudah
-/// menjadi sumber konfigurasi resmi FlutterFire, sehingga tidak perlu
-/// menjalankan ulang `flutterfire configure`.
-///
-/// Inisialisasi hanya dilakukan di Android/iOS. Di web & desktop
-/// `Firebase.initializeApp()` tanpa options akan melempar error, sedangkan
-/// aplikasi ini memang menargetkan mobile.
+/// Firebase monitoring is optional at startup. Missing native configuration
+/// must never prevent the local-first application from starting.
 class FirebaseConfig {
   FirebaseConfig._();
 
   static bool _isInitialized = false;
 
-  /// True jika Firebase sudah berhasil diinisialisasi pada sesi ini.
   static bool get isInitialized => _isInitialized;
 
-  /// Hanya platform yang punya file konfigurasi native.
   static bool get _isSupportedPlatform =>
       !kIsWeb &&
       (defaultTargetPlatform == TargetPlatform.android ||
           defaultTargetPlatform == TargetPlatform.iOS);
 
-  /// Collection Crashlytics aktif secara default (termasuk debug) supaya
-  /// crash test langsung terlihat di console. Matikan saat development dengan:
-  ///
-  /// `flutter run --dart-define=FIREBASE_CRASHLYTICS_ENABLED=false`
+  /// Release builds collect crashes by default. Debug/Profile builds stay
+  /// local unless a developer explicitly enables collection for testing.
   static const bool _crashlyticsCollectionEnabled = bool.fromEnvironment(
     'FIREBASE_CRASHLYTICS_ENABLED',
-    defaultValue: true,
+    defaultValue: kReleaseMode,
   );
 
-  /// Inisialisasi Firebase + pasang handler error global.
-  ///
-  /// Idempotent dan tidak pernah memblokir startup: jika konfigurasi belum
-  /// lengkap, aplikasi tetap berjalan dalam mode tanpa monitoring.
-  static Future<void> initialize() async {
-    if (_isInitialized) return;
+  /// Analytics follows the same release-first default.
+  /// Enable locally for DebugView with:
+  /// --dart-define=FIREBASE_ANALYTICS_ENABLED=true
+  static const bool _analyticsCollectionEnabled = bool.fromEnvironment(
+    'FIREBASE_ANALYTICS_ENABLED',
+    defaultValue: kReleaseMode,
+  );
 
-    if (!_isSupportedPlatform) {
-      debugPrint(
-        '[Firebase] Dilewati: platform ini tidak memakai konfigurasi Firebase native.',
-      );
-      return;
-    }
+  static Future<void> initialize() async {
+    if (_isInitialized || !_isSupportedPlatform) return;
 
     try {
       await Firebase.initializeApp();
       _isInitialized = true;
-      await _configureCrashlytics();
+
+      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(
+        _crashlyticsCollectionEnabled,
+      );
+      await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(
+        _analyticsCollectionEnabled,
+      );
+
+      if (_crashlyticsCollectionEnabled) {
+        _installCrashlyticsErrorHandlers();
+      }
 
       if (kDebugMode) {
-        debugPrint('[Firebase] Siap (Crashlytics + Analytics).');
+        debugPrint(
+          '[Firebase] Initialized. '
+          'Crashlytics: $_crashlyticsCollectionEnabled, '
+          'Analytics: $_analyticsCollectionEnabled.',
+        );
       }
-    } catch (error) {
-      // Local-first: monitoring tidak boleh menggagalkan app.
-      debugPrint('[Firebase] Gagal inisialisasi: $error');
+    } catch (error, stackTrace) {
+      // Firebase monitoring must never prevent offline/local app startup.
+      _isInitialized = false;
+      debugPrint('[Firebase] Initialization failed: $error');
+      if (kDebugMode) debugPrintStack(stackTrace: stackTrace);
     }
   }
 
-  static Future<void> _configureCrashlytics() async {
+  static void _installCrashlyticsErrorHandlers() {
     final crashlytics = FirebaseCrashlytics.instance;
 
-    await crashlytics.setCrashlyticsCollectionEnabled(
-      _crashlyticsCollectionEnabled,
-    );
-
-    if (!_crashlyticsCollectionEnabled) return;
-
-    // Error framework (build, layout, gesture) -> Crashlytics.
     FlutterError.onError = (details) {
       FlutterError.presentError(details);
       crashlytics.recordFlutterFatalError(details);
     };
 
-    // Error async / di luar framework (root zone) -> Crashlytics.
     PlatformDispatcher.instance.onError = (error, stack) {
       crashlytics.recordError(error, stack, fatal: true);
       return true;
     };
   }
 
-  /// Null jika Firebase tidak aktif (platform non-mobile atau init gagal).
+  /// Null when Firebase is not initialized or Analytics collection is off.
   static FirebaseAnalytics? get analytics =>
-      _isInitialized ? FirebaseAnalytics.instance : null;
+      _isInitialized && _analyticsCollectionEnabled
+          ? FirebaseAnalytics.instance
+          : null;
 
-  /// Null jika Firebase tidak aktif (platform non-mobile atau init gagal).
+  /// Null when Firebase is not initialized.
   static FirebaseCrashlytics? get crashlytics =>
       _isInitialized ? FirebaseCrashlytics.instance : null;
 
-  /// Menambahkan breadcrumb non-fatal ke laporan crash berikutnya.
+  /// Add a non-sensitive breadcrumb to the next crash report.
   static Future<void> log(String message) async {
     final instance = crashlytics;
-    if (instance == null) return;
+    if (instance == null || !_crashlyticsCollectionEnabled) return;
+
     try {
       await instance.log(message);
     } catch (error) {
-      debugPrint('[Firebase] Gagal menulis log: $error');
+      debugPrint('[Firebase] Failed to write Crashlytics log: $error');
     }
   }
 }

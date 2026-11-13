@@ -16,7 +16,7 @@ class ProgressSupabaseDatasource {
   /// Mengambil metrik teratas dari Supabase (jika Cloud Sync aktif)
   Future<ProgressMetrics> fetchTopMetrics({String? userId}) async {
     final client = SupabaseConfig.client;
-    final uid = userId ?? SupabaseConfig.currentAuthUserId;
+    final uid = _authorizedUserId(userId);
     if (client == null || uid == null || !SupabaseConfig.canSyncToCloud) {
       return const ProgressMetrics();
     }
@@ -75,7 +75,7 @@ class ProgressSupabaseDatasource {
   /// Mengambil riwayat berat badan dari `body_measurements`
   Future<List<WeightRecord>> fetchWeightHistory({String? userId}) async {
     final client = SupabaseConfig.client;
-    final uid = userId ?? SupabaseConfig.currentAuthUserId;
+    final uid = _authorizedUserId(userId);
     if (client == null || uid == null || !SupabaseConfig.canSyncToCloud) {
       return [];
     }
@@ -111,7 +111,7 @@ class ProgressSupabaseDatasource {
     int limit = 5,
   }) async {
     final client = SupabaseConfig.client;
-    final uid = userId ?? SupabaseConfig.currentAuthUserId;
+    final uid = _authorizedUserId(userId);
     if (client == null || uid == null || !SupabaseConfig.canSyncToCloud) {
       return [];
     }
@@ -157,7 +157,7 @@ class ProgressSupabaseDatasource {
   /// Mengambil aktivitas mingguan (Mon - Sun)
   Future<List<DayActivity>> fetchWeeklyActivity({String? userId}) async {
     final client = SupabaseConfig.client;
-    final uid = userId ?? SupabaseConfig.currentAuthUserId;
+    final uid = _authorizedUserId(userId);
     if (client == null || uid == null || !SupabaseConfig.canSyncToCloud) {
       return [];
     }
@@ -206,7 +206,7 @@ class ProgressSupabaseDatasource {
     String? userId,
   }) async {
     final client = SupabaseConfig.client;
-    final uid = userId ?? SupabaseConfig.currentAuthUserId;
+    final uid = _authorizedUserId(userId);
     if (client == null || uid == null || !SupabaseConfig.canSyncToCloud) {
       return;
     }
@@ -240,4 +240,18 @@ class ProgressSupabaseDatasource {
     ];
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
+}
+
+
+String? _authorizedUserId(String? requestedUserId) {
+  if (!SupabaseConfig.canSyncToCloud) return null;
+
+  final authenticatedUserId = SupabaseConfig.currentAuthUserId;
+  if (authenticatedUserId == null) return null;
+
+  if (requestedUserId != null && requestedUserId != authenticatedUserId) {
+    return null;
+  }
+
+  return authenticatedUserId;
 }
