@@ -4,6 +4,9 @@ plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+    // Firebase: membaca android/app/google-services.json dan upload mapping Crashlytics.
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 // Local release builds can use android/key.properties. CI supplies the same values
