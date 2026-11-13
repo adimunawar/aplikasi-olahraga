@@ -21,7 +21,9 @@ class CloudSyncConsent {
   static Future<void> initialize() async {
     try {
       final preferences = await SharedPreferences.getInstance();
-      _consentedUserId = preferences.getString(_preferenceKey);
+      final storedUserId = preferences.getString(_preferenceKey);
+      _consentedUserId =
+          storedUserId == null || storedUserId.isEmpty ? null : storedUserId;
     } catch (error) {
       _consentedUserId = null;
       debugPrint(
@@ -55,7 +57,10 @@ class CloudSyncConsent {
     // Fail closed immediately, even if persistence subsequently fails.
     _consentedUserId = null;
     final preferences = await SharedPreferences.getInstance();
-    await preferences.remove(_preferenceKey);
+    final removed = await preferences.remove(_preferenceKey);
+    if (!removed) {
+      throw StateError('Could not clear Cloud Sync consent.');
+    }
   }
 
   @visibleForTesting
