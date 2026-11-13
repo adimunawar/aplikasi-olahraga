@@ -35,7 +35,9 @@ ALTER TABLE public.user_profiles
     ADD COLUMN IF NOT EXISTS gender TEXT NOT NULL DEFAULT 'male',
     ADD COLUMN IF NOT EXISTS target_weight_kg NUMERIC NOT NULL DEFAULT 82.0,
     ADD COLUMN IF NOT EXISTS target_timeframe_weeks INTEGER NOT NULL DEFAULT 12,
-    ADD COLUMN IF NOT EXISTS preferred_days_per_week INTEGER;
+    ADD COLUMN IF NOT EXISTS preferred_days_per_week INTEGER,
+    ADD COLUMN IF NOT EXISTS active_program_id TEXT,
+    ADD COLUMN IF NOT EXISTS streak_days INTEGER NOT NULL DEFAULT 0;
 
 ALTER TABLE public.user_settings
     ADD COLUMN IF NOT EXISTS user_id TEXT,
@@ -56,7 +58,7 @@ ALTER TABLE public.user_settings
 
 -- Existing local-only/default rows must not become associated with a real user.
 -- Cloud rows are written with id = user_id = auth.uid() by the mobile client.
-CREATE UNIQUE INDEX IF NOT EXISTS idx_user_settings_user_id
+CREATE INDEX IF NOT EXISTS idx_user_settings_user_id
     ON public.user_settings(user_id)
     WHERE user_id IS NOT NULL;
 
