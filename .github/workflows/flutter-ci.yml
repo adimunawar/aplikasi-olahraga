@@ -115,3 +115,54 @@ jobs:
           path: build/app/outputs/flutter-apk/app-debug.apk
           if-no-files-found: error
           retention-days: 7
+
+  distribute_firebase:
+    name: Distribute to Firebase App Distribution
+    runs-on: ubuntu-latest
+    needs:
+      - build_android
+    # Distribute only trusted builds that have landed on develop, never PR code.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    timeout-minutes: 20
+    env:
+      FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+      FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+      FIREBASE_TESTER_GROUPS: ${{ vars.FIREBASE_TESTER_GROUPS }}
+
+    steps:
+      - name: Download Android debug APK
+        uses: actions/download-artifact@v7
+        with:
+          name: home-bulking-coach-debug-${{ github.sha }}
+          path: build/app/outputs/flutter-apk
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Distribute build to Firebase App Distribution
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${FIREBASE_APP_ID}" || -z "${FIREBASE_SERVICE_ACCOUNT_JSON}" || -z "${FIREBASE_TESTER_GROUPS}" ]]; then
+            echo "::notice::Firebase distribution skipped. Configure FIREBASE_APP_ID and FIREBASE_SERVICE_ACCOUNT_JSON GitHub secrets, and FIREBASE_TESTER_GROUPS repository variable."
+            exit 0
+          fi
+
+          APK_PATH="build/app/outputs/flutter-apk/app-debug.apk"
+          test -f "$APK_PATH"
+
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT_JSON" > "$RUNNER_TEMP/firebase-service-account.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/firebase-service-account.json"
+
+          npm install --global firebase-tools
+          RELEASE_NOTES="Develop build ${GITHUB_SHA::7} - $(git log -1 --pretty=%s 2>/dev/null || echo 'CI build')"
+
+          firebase appdistribution:distribute "$APK_PATH" \
+            --app "$FIREBASE_APP_ID" \
+            --groups "$FIREBASE_TESTER_GROUPS" \
+            --release-notes "$RELEASE_NOTES"
+
+          rm -f "$RUNNER_TEMP/firebase-service-account.json"
