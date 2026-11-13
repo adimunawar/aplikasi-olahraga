@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:workout_app/core/database/models/dynamic_program_entity.dart';
 import 'package:workout_app/core/database/models/user_profile_entity.dart';
 import 'package:workout_app/features/onboarding/presentation/screens/plan_preview_screen.dart';
 import 'package:workout_app/features/onboarding/presentation/screens/plan_ready_screen.dart';
@@ -144,20 +143,7 @@ void main() {
     });
 
     testWidgets('PlanPreviewScreen has strictly 2 tabs (Overview & Workout Split, NO Progress tab)', (tester) async {
-      final now = DateTime.now();
-      final mockProgram = TrainingProgramEntity(
-        id: 'test_prog',
-        userId: 'test_user',
-        name: 'Bulking Program',
-        status: 'active',
-        startDate: now,
-        weeklyFrequency: 4,
-        targetDurationMinutes: 45,
-        createdAt: now,
-        updatedAt: now,
-      );
-
-      final catalog = getStandardMockCatalog();
+      final now = DateTime.now();      final catalog = getStandardMockCatalog();
       final mockProfile = UserProfileEntity(
         id: 'test_user',
         displayName: 'Adi',
