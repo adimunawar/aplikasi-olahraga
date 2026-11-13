@@ -152,7 +152,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       debugPrint('[Onboarding] Error preparing profile: $e');
       if (mounted) {
         setState(() => _isCreatingPlan = false);
-        context.pushReplacement(AppRoutes.creatingPlan);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('We couldn’t save your preferences. Please try again.'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
       }
     }
   }

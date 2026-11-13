@@ -102,9 +102,14 @@ List<Exercise> getStandardMockCatalog() {
       movementPattern: 'back_extension',
     ),
     createMockExercise(
-      id: 'calf_raises',
-      name: 'Calf Raises',
-      movementPattern: 'isolation',
+      id: 'calf_raise',
+      name: 'Calf Raise',
+      movementPattern: 'ankle_extension',
+    ),
+    createMockExercise(
+      id: 'mountain_climber',
+      name: 'Mountain Climber',
+      movementPattern: 'core',
     ),
   ];
 }

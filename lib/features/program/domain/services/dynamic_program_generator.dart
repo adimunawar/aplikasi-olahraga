@@ -26,6 +26,10 @@ class DynamicProgramGenerator {
     required List<Exercise> catalogExercises,
     String? startingPushExerciseId,
   }) {
+    if (catalogExercises.isEmpty) {
+      throw StateError('Cannot generate a workout plan because the exercise catalog is empty.');
+    }
+
     final now = DateTime.now();
     final programId = 'prog_${userProfile.id}_${now.millisecondsSinceEpoch}';
 
@@ -417,7 +421,9 @@ class DynamicProgramGenerator {
       // Cari model exercise dari catalog
       final ex = catalogExercises.firstWhere(
         (e) => e.id == bp.exerciseId,
-        orElse: () => catalogExercises.first,
+        orElse: () => throw StateError(
+          'Required exercise "${bp.exerciseId}" is missing from the exercise catalog.',
+        ),
       );
 
       final prescription = ProgramExerciseEntity(
