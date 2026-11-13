@@ -4,9 +4,11 @@ on:
   pull_request:
     branches:
       - develop
+      - main
   push:
     branches:
       - develop
+      - main
   workflow_dispatch:
 
 permissions:
@@ -161,11 +163,6 @@ jobs:
       needs.changes.outputs.android == 'true'
 
     timeout-minutes: 35
-    env:
-      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
     steps:
       - name: Checkout repository
@@ -241,7 +238,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: home-bulking-coach-release-${{ github.sha }}
-          path: build/app/outputs/flutter-apk/app-release.a.apk
+          path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 7
   # --------------------------------------------------
@@ -293,7 +290,6 @@ jobs:
           FIREBASE_TESTER_GROUPS: ${{ vars.FIREBASE_TESTER_GROUPS }}
         run: |
           set -euo pipefail
-          APK_PATH="build/app/outputs/flutter-apk/app-release.apk"
           APK_PATH="build/app/outputs/flutter-apk/app-release.apk"
           test -f "$APK_PATH"
           SERVICE_ACCOUNT_PATH="$RUNNER_TEMP/firebase-service-account.json"
