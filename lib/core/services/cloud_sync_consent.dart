@@ -1,50 +1,65 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Persists the user's explicit Cloud Sync consent.
+/// Persists explicit Cloud Sync consent for one authenticated account.
 ///
-/// Consent defaults to false. Authentication alone must never enable cloud
-/// reads or writes. SupabaseConfig additionally verifies the active session
-/// before allowing sync.
+/// Consent defaults to disabled and is bound to a Supabase user ID so a
+/// different person signing in on the same device does not inherit it.
 class CloudSyncConsent {
   CloudSyncConsent._();
 
-  static const String _preferenceKey = 'cloud_sync_consent';
-  static bool _isEnabled = false;
+  static const String _preferenceKey = 'cloud_sync_consent_user_id';
+  static String? _consentedUserId;
 
-  static bool get isEnabled => _isEnabled;
+  static bool get isEnabled => _consentedUserId != null;
+
+  static bool isEnabledFor(String userId) =>
+      userId.isNotEmpty && _consentedUserId == userId;
 
   /// Restore consent during application bootstrap.
   /// Any storage error fails closed: cloud sync remains disabled.
   static Future<void> initialize() async {
     try {
       final preferences = await SharedPreferences.getInstance();
-      _isEnabled = preferences.getBool(_preferenceKey) ?? false;
+      _consentedUserId = preferences.getString(_preferenceKey);
     } catch (error) {
-      _isEnabled = false;
-      debugPrint('[CloudSync] Could not restore consent; sync remains disabled: $error');
+      _consentedUserId = null;
+      debugPrint(
+        '[CloudSync] Could not restore consent; sync remains disabled: $error',
+      );
     }
   }
 
-  /// Persist a consent decision. Enabling must be performed through
-  /// SupabaseConfig.enableCloudSync(), which checks authenticated identity.
-  static Future<void> setEnabled(bool enabled) async {
+  /// Persist the account ID for which the user explicitly enabled Cloud Sync.
+  /// SupabaseConfig performs the authenticated/non-anonymous session check.
+  static Future<void> enableForUser(String userId) async {
+    if (userId.isEmpty) {
+      throw ArgumentError.value(userId, 'userId', 'Must not be empty.');
+    }
+
     try {
       final preferences = await SharedPreferences.getInstance();
-      final persisted = await preferences.setBool(_preferenceKey, enabled);
+      final persisted = await preferences.setString(_preferenceKey, userId);
       if (!persisted) {
         throw StateError('Could not persist Cloud Sync consent.');
       }
-      _isEnabled = enabled;
-    } catch (error) {
-      // Fail closed on an unsuccessful enable operation.
-      if (enabled) _isEnabled = false;
+      _consentedUserId = userId;
+    } catch (_) {
+      _consentedUserId = null;
       rethrow;
     }
   }
 
+  /// Clear consent. Local SQLite data is not changed or deleted.
+  static Future<void> disable() async {
+    // Fail closed immediately, even if persistence subsequently fails.
+    _consentedUserId = null;
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.remove(_preferenceKey);
+  }
+
   @visibleForTesting
   static void resetForTesting() {
-    _isEnabled = false;
+    _consentedUserId = null;
   }
 }
