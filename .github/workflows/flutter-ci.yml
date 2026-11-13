@@ -73,14 +73,19 @@ jobs:
           retention-days: 7
 
   build_android:
-    name: Build Android debug APK
+    name: Build Android release APK
     runs-on: ubuntu-latest
     needs:
       - analyze
       - test
-    # Build only after approved code has landed on develop.
-    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    # Build distributable releases only after code has landed on develop.
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/develop'
     timeout-minutes: 35
+    env:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
     steps:
       - name: Checkout repository
@@ -96,6 +101,27 @@ jobs:
             android/**/*.gradle*
             android/gradle/wrapper/gradle-wrapper.properties
 
+      - name: Prepare Android release signing
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          : "${ANDROID_KEYSTORE_BASE64:?Missing GitHub secret ANDROID_KEYSTORE_BASE64}"
+          : "${ANDROID_KEYSTORE_PASSWORD:?Missing GitHub secret ANDROID_KEYSTORE_PASSWORD}"
+          : "${ANDROID_KEY_ALIAS:?Missing GitHub secret ANDROID_KEY_ALIAS}"
+          : "${ANDROID_KEY_PASSWORD:?Missing GitHub secret ANDROID_KEY_PASSWORD}"
+
+          KEYSTORE_PATH="$RUNNER_TEMP/upload-keystore.jks"
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE_PATH"
+          test -s "$KEYSTORE_PATH"
+
+          keytool -list \
+            -keystore "$KEYSTORE_PATH" \
+            -storepass "$ANDROID_KEYSTORE_PASSWORD" \
+            -alias "$ANDROID_KEY_ALIAS" >/dev/null
+
+          echo "ANDROID_KEYSTORE_PATH=$KEYSTORE_PATH" >> "$GITHUB_ENV"
+
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -107,14 +133,14 @@ jobs:
       - name: Install dependencies
         run: flutter pub get --enforce-lockfile
 
-      - name: Build Android debug APK
-        run: flutter build apk --debug --no-pub
+      - name: Build Android release APK
+        run: flutter build apk --release --no-pub
 
-      - name: Upload Android debug APK
+      - name: Upload Android release APK
         uses: actions/upload-artifact@v7
         with:
-          name: home-bulking-coach-debug-${{ github.sha }}
-          path: build/app/outputs/flutter-apk/app-debug.apk
+          name: home-bulking-coach-release-${{ github.sha }}
+          path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 7
 
@@ -123,8 +149,8 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - build_android
-    # Distribute only trusted builds that have landed on develop, never PR code.
-    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    # Distribute only trusted builds that have landed on develop.
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/develop'
     timeout-minutes: 20
     env:
       FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
@@ -132,10 +158,18 @@ jobs:
       FIREBASE_TESTER_GROUPS: ${{ vars.FIREBASE_TESTER_GROUPS }}
 
     steps:
-      - name: Download Android debug APK
+      - name: Validate Firebase distribution configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          : "${FIREBASE_APP_ID:?Missing GitHub secret FIREBASE_APP_ID}"
+          : "${FIREBASE_SERVICE_ACCOUNT_JSON:?Missing GitHub secret FIREBASE_SERVICE_ACCOUNT_JSON}"
+          : "${FIREBASE_TESTER_GROUPS:?Missing GitHub Actions variable FIREBASE_TESTER_GROUPS}"
+
+      - name: Download Android release APK
         uses: actions/download-artifact@v7
         with:
-          name: home-bulking-coach-debug-${{ github.sha }}
+          name: home-bulking-coach-release-${{ github.sha }}
           path: build/app/outputs/flutter-apk
 
       - name: Set up Node.js
@@ -143,28 +177,23 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Distribute build to Firebase App Distribution
+      - name: Distribute release to Firebase App Distribution
         shell: bash
         run: |
           set -euo pipefail
 
-          if [[ -z "${FIREBASE_APP_ID}" || -z "${FIREBASE_SERVICE_ACCOUNT_JSON}" || -z "${FIREBASE_TESTER_GROUPS}" ]]; then
-            echo "::notice::Firebase distribution skipped. Configure FIREBASE_APP_ID and FIREBASE_SERVICE_ACCOUNT_JSON GitHub secrets, and FIREBASE_TESTER_GROUPS repository variable."
-            exit 0
-          fi
-
-          APK_PATH="build/app/outputs/flutter-apk/app-debug.apk"
+          APK_PATH="build/app/outputs/flutter-apk/app-release.apk"
           test -f "$APK_PATH"
 
-          printf '%s' "$FIREBASE_SERVICE_ACCOUNT_JSON" > "$RUNNER_TEMP/firebase-service-account.json"
-          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/firebase-service-account.json"
+          SERVICE_ACCOUNT_PATH="$RUNNER_TEMP/firebase-service-account.json"
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT_JSON" > "$SERVICE_ACCOUNT_PATH"
+          trap 'rm -f "$SERVICE_ACCOUNT_PATH"' EXIT
+          export GOOGLE_APPLICATION_CREDENTIALS="$SERVICE_ACCOUNT_PATH"
 
           npm install --global firebase-tools
-          RELEASE_NOTES="Develop build ${GITHUB_SHA::7} - $(git log -1 --pretty=%s 2>/dev/null || echo 'CI build')"
+          RELEASE_NOTES="Develop release ${GITHUB_SHA::7} - $(git log -1 --pretty=%s 2>/dev/null || echo 'CI build')"
 
           firebase appdistribution:distribute "$APK_PATH" \
             --app "$FIREBASE_APP_ID" \
             --groups "$FIREBASE_TESTER_GROUPS" \
             --release-notes "$RELEASE_NOTES"
-
-          rm -f "$RUNNER_TEMP/firebase-service-account.json"
