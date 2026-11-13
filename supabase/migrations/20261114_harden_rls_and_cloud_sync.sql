@@ -31,6 +31,12 @@ CREATE TABLE IF NOT EXISTS public.user_settings (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+ALTER TABLE public.user_profiles
+    ADD COLUMN IF NOT EXISTS gender TEXT NOT NULL DEFAULT 'male',
+    ADD COLUMN IF NOT EXISTS target_weight_kg NUMERIC NOT NULL DEFAULT 82.0,
+    ADD COLUMN IF NOT EXISTS target_timeframe_weeks INTEGER NOT NULL DEFAULT 12,
+    ADD COLUMN IF NOT EXISTS preferred_days_per_week INTEGER;
+
 ALTER TABLE public.user_settings
     ADD COLUMN IF NOT EXISTS user_id TEXT,
     ADD COLUMN IF NOT EXISTS gender TEXT NOT NULL DEFAULT 'Male',
@@ -119,16 +125,16 @@ ALTER TABLE public.body_measurements ENABLE ROW LEVEL SECURITY;
 
 -- Remove all table privileges from anon. Authenticated privileges are granted
 -- explicitly below and still constrained by RLS.
-REVOKE ALL ON TABLE public.users FROM anon;
-REVOKE ALL ON TABLE public.user_profiles FROM anon;
-REVOKE ALL ON TABLE public.workout_sessions FROM anon;
-REVOKE ALL ON TABLE public.workout_sets FROM anon;
-REVOKE ALL ON TABLE public.progression_decisions FROM anon;
-REVOKE ALL ON TABLE public.training_programs FROM anon;
-REVOKE ALL ON TABLE public.program_sessions FROM anon;
-REVOKE ALL ON TABLE public.program_exercises FROM anon;
-REVOKE ALL ON TABLE public.user_settings FROM anon;
-REVOKE ALL ON TABLE public.body_measurements FROM anon;
+REVOKE ALL ON TABLE public.users FROM PUBLIC, anon;
+REVOKE ALL ON TABLE public.user_profiles FROM PUBLIC, anon;
+REVOKE ALL ON TABLE public.workout_sessions FROM PUBLIC, anon;
+REVOKE ALL ON TABLE public.workout_sets FROM PUBLIC, anon;
+REVOKE ALL ON TABLE public.progression_decisions FROM PUBLIC, anon;
+REVOKE ALL ON TABLE public.training_programs FROM PUBLIC, anon;
+REVOKE ALL ON TABLE public.program_sessions FROM PUBLIC, anon;
+REVOKE ALL ON TABLE public.program_exercises FROM PUBLIC, anon;
+REVOKE ALL ON TABLE public.user_settings FROM PUBLIC, anon;
+REVOKE ALL ON TABLE public.body_measurements FROM PUBLIC, anon;
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.users TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.user_profiles TO authenticated;
@@ -270,7 +276,7 @@ CREATE POLICY body_measurements_owner_all ON public.body_measurements
 -- Exercise catalog: public may read standard exercises only; authenticated
 -- users may additionally read their own custom exercises.
 ALTER TABLE public.exercises ENABLE ROW LEVEL SECURITY;
-REVOKE ALL ON TABLE public.exercises FROM anon, authenticated;
+REVOKE ALL ON TABLE public.exercises FROM PUBLIC, anon, authenticated;
 GRANT SELECT ON TABLE public.exercises TO anon, authenticated;
 GRANT INSERT, UPDATE, DELETE ON TABLE public.exercises TO authenticated;
 
@@ -316,10 +322,10 @@ ALTER TABLE public.program_weeks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.program_days ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.program_day_exercises ENABLE ROW LEVEL SECURITY;
 
-REVOKE ALL ON TABLE public.programs FROM anon, authenticated;
-REVOKE ALL ON TABLE public.program_weeks FROM anon, authenticated;
-REVOKE ALL ON TABLE public.program_days FROM anon, authenticated;
-REVOKE ALL ON TABLE public.program_day_exercises FROM anon, authenticated;
+REVOKE ALL ON TABLE public.programs FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON TABLE public.program_weeks FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON TABLE public.program_days FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON TABLE public.program_day_exercises FROM PUBLIC, anon, authenticated;
 
 GRANT SELECT ON TABLE public.programs TO anon, authenticated;
 GRANT SELECT ON TABLE public.program_weeks TO anon, authenticated;
