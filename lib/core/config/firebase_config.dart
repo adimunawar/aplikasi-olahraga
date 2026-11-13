@@ -73,6 +73,9 @@ class FirebaseConfig {
     await crashlytics.setCrashlyticsCollectionEnabled(
       _crashlyticsCollectionEnabled,
     );
+    await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(
+      _analyticsCollectionEnabled,
+    );
 
     if (!_crashlyticsCollectionEnabled) return;
 
@@ -91,7 +94,9 @@ class FirebaseConfig {
 
   /// Null jika Firebase tidak aktif (platform non-mobile atau init gagal).
   static FirebaseAnalytics? get analytics =>
-      _isInitialized ? FirebaseAnalytics.instance : null;
+      _isInitialized && _analyticsCollectionEnabled
+          ? FirebaseAnalytics.instance
+          : null;
 
   /// Null jika Firebase tidak aktif (platform non-mobile atau init gagal).
   static FirebaseCrashlytics? get crashlytics =>
