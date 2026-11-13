@@ -14,28 +14,28 @@ void main() {
     await CloudSyncConsent.initialize();
 
     expect(CloudSyncConsent.isEnabled, isFalse);
+    expect(CloudSyncConsent.isEnabledFor('user-1'), isFalse);
   });
 
-  test('Cloud Sync consent is restored from local preferences', () async {
-    SharedPreferences.setMockInitialValues({
-      'cloud_sync_consent': true,
-    });
+  test('consent is restored for the account that accepted it', () async {
+    await CloudSyncConsent.initialize();
+    await CloudSyncConsent.enableForUser('user-1');
 
+    CloudSyncConsent.resetForTesting();
     await CloudSyncConsent.initialize();
 
-    expect(CloudSyncConsent.isEnabled, isTrue);
+    expect(CloudSyncConsent.isEnabledFor('user-1'), isTrue);
+    expect(CloudSyncConsent.isEnabledFor('user-2'), isFalse);
   });
 
-  test('Cloud Sync consent can be disabled and persisted', () async {
+  test('disabling Cloud Sync clears persisted account consent', () async {
     await CloudSyncConsent.initialize();
-    await CloudSyncConsent.setEnabled(true);
+    await CloudSyncConsent.enableForUser('user-1');
 
-    expect(CloudSyncConsent.isEnabled, isTrue);
-
-    await CloudSyncConsent.setEnabled(false);
+    await CloudSyncConsent.disable();
 
     expect(CloudSyncConsent.isEnabled, isFalse);
     final preferences = await SharedPreferences.getInstance();
-    expect(preferences.getBool('cloud_sync_consent'), isFalse);
+    expect(preferences.getString('cloud_sync_consent_user_id'), isNull);
   });
 }
