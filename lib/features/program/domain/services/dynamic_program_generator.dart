@@ -300,13 +300,20 @@ class DynamicProgramGenerator {
   // ===========================================================================
 
   String _resolveStartingPush(UserProfileEntity user) {
-    if (user.trainingLimitations.contains('wrist_pain')) {
+    if (user.trainingLimitations.contains('wrist_pain') ||
+        user.trainingLimitations.contains('wrist')) {
       return 'incline_push_up';
     }
-    if (user.experienceLevel == 'beginner') {
-      return 'knee_push_up';
+
+    switch (user.experienceLevel) {
+      case 'beginner':
+        return 'knee_push_up';
+      case 'advanced':
+        return 'diamond_push_up';
+      case 'intermediate':
+      default:
+        return 'push_up';
     }
-    return 'push_up';
   }
 
   List<_ExerciseBlueprint> _get3DaySessionABlueprint(String pushId, UserProfileEntity user) {
