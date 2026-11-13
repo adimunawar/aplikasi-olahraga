@@ -179,9 +179,11 @@ Butuh macOS + Xcode. Langkahnya:
 
 ## Catatan penting
 
-- **Release signing masih memakai debug key** (`signingConfigs.getByName("debug")`).
-  Ganti sebelum distribusi produksi; Crashlytics tetap berfungsi, tapi mapping
-  deobfuscation butuh build yang konsisten.
+- Android Release uses the dedicated upload keystore configured through
+  `android/key.properties` locally and GitHub Actions Secrets in CI. The
+  Gradle configuration intentionally never falls back to the debug signing key.
+- Crashlytics collection is enabled by default only for Release builds.
+  Analytics collection follows the same Release-first default.
 - `minSdk` mengikuti default Flutter (24), sudah memenuhi requirement Firebase
   Android.
 - Simbol/mapping Crashlytics di-upload otomatis oleh plugin
