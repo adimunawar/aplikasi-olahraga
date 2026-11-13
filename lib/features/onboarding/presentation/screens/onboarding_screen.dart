@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/models/user_profile_entity.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
-import '../../../exercises/data/datasources/exercise_local_datasource.dart';
-import '../../../program/domain/services/dynamic_program_generator.dart';
+import '../../../program/presentation/controllers/draft_program_provider.dart';
 import '../widgets/onboarding_dots_indicator.dart';
 import '../widgets/step_about.dart';
 import '../widgets/step_body_target.dart';
@@ -24,14 +23,14 @@ import '../widgets/step_welcome.dart';
 /// - Single Header (Back Arrow + "X of 7" + Linear Progress Bar)
 /// - Single Sticky Bottom Bar ("Continue" / "Create My Plan") tanpa duplikasi di tiap step
 /// - Mengumpulkan semua data profil pengguna secara akurat (Audit Finding P0)
-class OnboardingScreen extends StatefulWidget {
+class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
 
   @override
-  State<OnboardingScreen> createState() => _OnboardingScreenState();
+  ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
+class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentStep = 0; // 0: Welcome, 1..7: Steps 1..7
   bool _isCreatingPlan = false;
@@ -99,11 +98,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     setState(() => _isCreatingPlan = true);
 
     try {
-      // 1. Simpan tanda telah menyelesaikan onboarding
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('has_completed_onboarding', true);
-
-      // 2. Petakan hari latihan sesuai pilihan frekuensi
+      // 1. Petakan hari latihan sesuai pilihan frekuensi
       List<String> availableDays;
       switch (_daysPerWeek) {
         case 2:
@@ -124,7 +119,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           break;
       }
 
-      // 3. Simpan Profil Pengguna Lengkap ke SQLite Database
+      // 2. Simpan Profil Pengguna Lengkap ke SQLite Database (Audit Finding P0)
       final db = AppDatabase.instance;
       final currentProfile = await db.getUserProfile();
       final updatedProfile = currentProfile.copyWith(
@@ -145,31 +140,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       );
       await db.saveUserProfile(updatedProfile);
 
-      // 4. Generate Program Latihan Dinamis sesuai Profil Aktual
-      final exerciseDatasource = ExerciseLocalDatasource(db: db);
-      final catalog = await exerciseDatasource.loadExercises();
+      // Simpan ke Riverpod state agar dapat diakses oleh CreatingPlanScreen
+      ref.read(onboardingProfileProvider.notifier).state = updatedProfile;
 
-      final startingPushId = _level == 'advanced'
-          ? 'diamond_push_up'
-          : (_level == 'intermediate' ? 'push_up' : 'knee_push_up');
-
-      final generated = const DynamicProgramGenerator().generate(
-        userProfile: updatedProfile,
-        catalogExercises: catalog,
-        startingPushExerciseId: startingPushId,
-      );
-
-      await db.saveDynamicProgram(
-        program: generated.program,
-        sessions: generated.sessions,
-      );
-
-      // 5. Navigasi ke Layar Loading Animasi "Creating your personal plan..."
+      // 3. Navigasi ke Layar Proses Nyata "Creating your personal plan..."
+      // Catatan: Program BELUM diaktifkan ke DB sebelum disetujui pengguna (Prioritas P0)
       if (mounted) {
         context.pushReplacement(AppRoutes.creatingPlan);
       }
     } catch (e) {
-      debugPrint('[Onboarding] Error creating plan: $e');
+      debugPrint('[Onboarding] Error preparing profile: $e');
       if (mounted) {
         setState(() => _isCreatingPlan = false);
         context.pushReplacement(AppRoutes.creatingPlan);

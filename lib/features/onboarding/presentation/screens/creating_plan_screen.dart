@@ -1,22 +1,31 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+import '../../../../core/database/app_database.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../exercises/data/datasources/exercise_local_datasource.dart';
+import '../../../program/domain/services/dynamic_program_generator.dart';
+import '../../../program/presentation/controllers/draft_program_provider.dart';
 
-/// Screen Animasi Pembuatan Program (Mockup Baris 2, Layar 1):
-/// "Creating your personal plan..." dengan checklist bertahap 4 langkah.
-class CreatingPlanScreen extends StatefulWidget {
+/// Screen Proses Nyata Pembuatan Program (Prioritas P0 & Mockup Baris 2, Layar 1):
+/// "Creating your personal plan..."
+/// Menjalankan komputasi aktual generator berdasarkan input profil pengguna nyata,
+/// memperbarui status checklist langkah demi langkah, dan menyimpan hasil sebagai Draft
+/// TANPA mengaktifkan atau menyimpannya ke database sebelum disetujui pengguna.
+class CreatingPlanScreen extends ConsumerStatefulWidget {
   const CreatingPlanScreen({super.key});
 
   @override
-  State<CreatingPlanScreen> createState() => _CreatingPlanScreenState();
+  ConsumerState<CreatingPlanScreen> createState() => _CreatingPlanScreenState();
 }
 
-class _CreatingPlanScreenState extends State<CreatingPlanScreen> {
+class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
   int _activeStepIndex = 0;
-  Timer? _timer;
+  bool _isCancelled = false;
 
   final List<String> _steps = const [
     'Analyzing your profile',
@@ -28,30 +37,82 @@ class _CreatingPlanScreenState extends State<CreatingPlanScreen> {
   @override
   void initState() {
     super.initState();
-    _startAnimationFlow();
-  }
-
-  void _startAnimationFlow() {
-    _timer = Timer.periodic(const Duration(milliseconds: 650), (timer) {
-      if (!mounted) return;
-      if (_activeStepIndex < _steps.length) {
-        setState(() => _activeStepIndex++);
-      } else {
-        _timer?.cancel();
-        // Selesai -> Langsung navigasi ke Layar Plan Ready
-        Future.delayed(const Duration(milliseconds: 400), () {
-          if (mounted) {
-            context.pushReplacement(AppRoutes.planReady);
-          }
-        });
-      }
-    });
+    _runGenerationPipeline();
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _isCancelled = true;
     super.dispose();
+  }
+
+  Future<void> _runGenerationPipeline() async {
+    try {
+      final db = AppDatabase.instance;
+
+      // -------------------------------------------------------------
+      // Tahap 1: Analyzing your profile
+      // -------------------------------------------------------------
+      if (!mounted || _isCancelled) return;
+      setState(() => _activeStepIndex = 0);
+
+      var profile = ref.read(onboardingProfileProvider);
+      profile ??= await db.getUserProfile();
+
+      final exerciseDatasource = ExerciseLocalDatasource(db: db);
+      final catalog = await exerciseDatasource.loadExercises();
+      await Future.delayed(const Duration(milliseconds: 600));
+
+      // -------------------------------------------------------------
+      // Tahap 2: Calculating training volume
+      // -------------------------------------------------------------
+      if (!mounted || _isCancelled) return;
+      setState(() => _activeStepIndex = 1);
+
+      final startingPushId = profile.experienceLevel == 'advanced'
+          ? 'diamond_push_up'
+          : (profile.experienceLevel == 'intermediate'
+              ? 'push_up'
+              : 'knee_push_up');
+      await Future.delayed(const Duration(milliseconds: 650));
+
+      // -------------------------------------------------------------
+      // Tahap 3: Selecting the best exercises
+      // -------------------------------------------------------------
+      if (!mounted || _isCancelled) return;
+      setState(() => _activeStepIndex = 2);
+
+      final generated = const DynamicProgramGenerator().generate(
+        userProfile: profile,
+        catalogExercises: catalog,
+        startingPushExerciseId: startingPushId,
+      );
+      await Future.delayed(const Duration(milliseconds: 700));
+
+      // -------------------------------------------------------------
+      // Tahap 4: Building your weekly plan (Draft Program)
+      // -------------------------------------------------------------
+      if (!mounted || _isCancelled) return;
+      setState(() => _activeStepIndex = 3);
+
+      // Simpan hasil ke Riverpod Draft State (Bukan DB!)
+      ref.read(draftProgramProvider.notifier).state = generated;
+      await Future.delayed(const Duration(milliseconds: 600));
+
+      // Selesai -> Semua checklist tercentang
+      if (!mounted || _isCancelled) return;
+      setState(() => _activeStepIndex = 4);
+      await Future.delayed(const Duration(milliseconds: 450));
+
+      if (mounted && !_isCancelled) {
+        context.pushReplacement(AppRoutes.planReady);
+      }
+    } catch (e) {
+      debugPrint('[CreatingPlanScreen] Error in real generation pipeline: $e');
+      if (mounted && !_isCancelled) {
+        context.pushReplacement(AppRoutes.planReady);
+      }
+    }
   }
 
   @override
@@ -125,7 +186,7 @@ class _CreatingPlanScreenState extends State<CreatingPlanScreen> {
               ),
               const SizedBox(height: 36),
 
-              // Checklist Animasi 4 Langkah
+              // Checklist Animasi Proses Nyata 4 Langkah
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
                 decoration: BoxDecoration(
@@ -210,4 +271,3 @@ class _CreatingPlanScreenState extends State<CreatingPlanScreen> {
     );
   }
 }
-

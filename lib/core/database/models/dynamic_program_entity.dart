@@ -113,6 +113,9 @@ class ProgramSessionEntity {
       createdAt: DateTime.parse(map['created_at'] as String),
     );
   }
+
+  /// Convenience alias
+  String get sessionName => name;
 }
 
 /// Entity untuk Tabel 'program_exercises'

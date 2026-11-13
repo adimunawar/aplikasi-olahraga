@@ -12,6 +12,7 @@ import '../../features/nutrition/presentation/screens/nutrition_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/onboarding/presentation/screens/creating_plan_screen.dart';
 import '../../features/onboarding/presentation/screens/plan_ready_screen.dart';
+import '../../features/onboarding/presentation/screens/plan_preview_screen.dart';
 import '../../features/plans/presentation/screens/plans_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/profile/presentation/screens/personal_information_screen.dart';
@@ -276,7 +277,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.onboardingPlan,
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => const PlansScreen(isOnboarding: true),
+        builder: (context, state) => const PlanPreviewScreen(),
       ),
 
       // Sub-halaman Edit Profile

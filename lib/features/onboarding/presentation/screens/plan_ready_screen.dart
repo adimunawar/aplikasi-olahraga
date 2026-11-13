@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/models/user_profile_entity.dart';
@@ -8,16 +9,18 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_smart_image.dart';
+import '../../../program/presentation/controllers/draft_program_provider.dart';
 
 /// Screen "Your plan is ready! 🎉" (Mockup Baris 2, Layar 2)
-class PlanReadyScreen extends StatefulWidget {
+/// Menampilkan hasil generator aktual (Prioritas P0)
+class PlanReadyScreen extends ConsumerStatefulWidget {
   const PlanReadyScreen({super.key});
 
   @override
-  State<PlanReadyScreen> createState() => _PlanReadyScreenState();
+  ConsumerState<PlanReadyScreen> createState() => _PlanReadyScreenState();
 }
 
-class _PlanReadyScreenState extends State<PlanReadyScreen> {
+class _PlanReadyScreenState extends ConsumerState<PlanReadyScreen> {
   UserProfileEntity? _profile;
 
   @override
@@ -27,26 +30,36 @@ class _PlanReadyScreenState extends State<PlanReadyScreen> {
   }
 
   Future<void> _loadProfile() async {
+    final cached = ref.read(onboardingProfileProvider);
+    if (cached != null) {
+      setState(() => _profile = cached);
+      return;
+    }
     final p = await AppDatabase.instance.getUserProfile();
     if (mounted) setState(() => _profile = p);
   }
 
   @override
   Widget build(BuildContext context) {
+    final draft = ref.watch(draftProgramProvider);
     final p = _profile;
+
     final isBulking = p?.goal.contains('muscle') == true;
     final isCutting = p?.goal.contains('fat_loss') == true;
 
-    final programTitle = isBulking
-        ? 'Bulking Program'
-        : (isCutting ? 'Fat Loss & Conditioning' : 'Maintain & Stay Fit');
+    final programTitle = draft?.program.name ??
+        (isBulking
+            ? 'Bulking Program'
+            : (isCutting ? 'Fat Loss & Conditioning' : 'Maintain & Stay Fit'));
+
     final programSubtitle = isBulking
         ? 'Muscle Gain & Strength'
         : (isCutting ? 'Fat Loss & Tone' : 'Strength & General Fitness');
 
-    final freq = p?.weeklyFrequency ?? 4;
-    final dur = p?.preferredDurationMin ?? 45;
+    final freq = draft?.program.weeklyFrequency ?? (p?.weeklyFrequency ?? 4);
+    final dur = draft?.program.targetDurationMinutes ?? (p?.preferredDurationMin ?? 45);
     final level = p?.experienceLevel.toUpperCase() ?? 'BEGINNER';
+    final weeks = p?.targetTimeframeWeeks ?? 12;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -149,8 +162,8 @@ class _PlanReadyScreenState extends State<PlanReadyScreen> {
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              const AppBadge(
-                                label: '⭐ 12 Weeks',
+                              AppBadge(
+                                label: '⭐ $weeks Weeks',
                                 variant: AppBadgeVariant.limeAccent,
                                 fontSize: 11,
                               ),
@@ -295,4 +308,3 @@ class _FeatureItem extends StatelessWidget {
     );
   }
 }
-
