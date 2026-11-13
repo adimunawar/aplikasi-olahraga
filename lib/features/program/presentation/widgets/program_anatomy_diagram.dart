@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
 
 /// Diagram Otot Anatomi (Mockup Referensi 1:1)
 /// Menampilkan siluet tubuh atas dengan highlight otot dada, bahu, dan lengan.

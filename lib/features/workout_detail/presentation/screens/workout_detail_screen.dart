@@ -5,7 +5,6 @@ import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/database/app_database.dart';
-import '../../../../core/database/models/dynamic_program_entity.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
 import '../../../exercises/data/repositories/exercise_repository_impl.dart';
 import '../../../exercises/domain/models/exercise.dart';

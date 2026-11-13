@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -27,6 +26,14 @@ class CreatingPlanScreen extends ConsumerStatefulWidget {
 class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
   int _activeStepIndex = 0;
   bool _isCancelled = false;
+  String? _errorMessage;
+
+  final List<String> _steps = const [
+    'Checking your training profile',
+    'Preparing your starting level',
+    'Selecting exercises for your plan',
+    'Preparing your plan preview',
+  ];
 
   @override
   void initState() {
@@ -44,74 +51,161 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
     try {
       final db = AppDatabase.instance;
 
-      // -------------------------------------------------------------
-      // Tahap 1: Analyzing your profile
-      // -------------------------------------------------------------
+      // Step 1: Read the actual onboarding profile and exercise catalog.
       if (!mounted || _isCancelled) return;
       setState(() => _activeStepIndex = 0);
+      await WidgetsBinding.instance.endOfFrame;
 
       var profile = ref.read(onboardingProfileProvider);
       profile ??= await db.getUserProfile();
 
       final exerciseDatasource = ExerciseLocalDatasource(db: db);
       final catalog = await exerciseDatasource.loadExercises();
-      await Future.delayed(const Duration(milliseconds: 600));
+      if (catalog.isEmpty) {
+        throw StateError('The exercise library is empty. Please try again.');
+      }
 
-      // -------------------------------------------------------------
-      // Tahap 2: Calculating training volume
-      // -------------------------------------------------------------
+      // Step 2: Resolve the initial movement variation from the user's level.
       if (!mounted || _isCancelled) return;
       setState(() => _activeStepIndex = 1);
+      await WidgetsBinding.instance.endOfFrame;
 
       final startingPushId = profile.experienceLevel == 'advanced'
           ? 'diamond_push_up'
           : (profile.experienceLevel == 'intermediate'
               ? 'push_up'
               : 'knee_push_up');
-      await Future.delayed(const Duration(milliseconds: 650));
 
-      // -------------------------------------------------------------
-      // Tahap 3: Selecting the best exercises
-      // -------------------------------------------------------------
+      // Step 3: Run the real program generator.
       if (!mounted || _isCancelled) return;
       setState(() => _activeStepIndex = 2);
+      await WidgetsBinding.instance.endOfFrame;
 
       final generated = const DynamicProgramGenerator().generate(
         userProfile: profile,
         catalogExercises: catalog,
         startingPushExerciseId: startingPushId,
       );
-      await Future.delayed(const Duration(milliseconds: 700));
+      if (generated.sessions.isEmpty) {
+        throw StateError(
+          'No workout sessions could be generated. Please review your preferences.',
+        );
+      }
 
-      // -------------------------------------------------------------
-      // Tahap 4: Building your weekly plan (Draft Program)
-      // -------------------------------------------------------------
+      // Step 4: Keep the generated result in memory as a draft only.
       if (!mounted || _isCancelled) return;
       setState(() => _activeStepIndex = 3);
+      await WidgetsBinding.instance.endOfFrame;
 
-      // Simpan hasil ke Riverpod Draft State (Bukan DB!)
       ref.read(draftProgramProvider.notifier).state = generated;
-      await Future.delayed(const Duration(milliseconds: 600));
 
-      // Selesai -> Semua checklist tercentang
       if (!mounted || _isCancelled) return;
       setState(() => _activeStepIndex = 4);
-      await Future.delayed(const Duration(milliseconds: 450));
+      await WidgetsBinding.instance.endOfFrame;
 
       if (mounted && !_isCancelled) {
         context.pushReplacement(AppRoutes.planReady);
       }
     } catch (e) {
       debugPrint('[CreatingPlanScreen] Error in real generation pipeline: $e');
+      ref.read(draftProgramProvider.notifier).state = null;
       if (mounted && !_isCancelled) {
-        context.pushReplacement(AppRoutes.planReady);
+        setState(() {
+          _errorMessage =
+              'We couldn’t create a suitable plan with the current exercise library. Please try again or review your preferences.';
+        });
       }
     }
+  }
+
+  Future<void> _retryGeneration() async {
+    if (!mounted) return;
+    _isCancelled = false;
+    ref.read(draftProgramProvider.notifier).state = null;
+    setState(() {
+      _activeStepIndex = 0;
+      _errorMessage = null;
+    });
+    await _runGenerationPipeline();
+  }
+
+  Widget _buildErrorState(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 76,
+                height: 76,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFFF1F0),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.error_outline_rounded,
+                  color: Color(0xFFDC2626),
+                  size: 38,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'We couldn’t create your plan',
+                textAlign: TextAlign.center,
+                style: AppTypography.headlineMedium.copyWith(
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.darkCharcoal,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                _errorMessage!,
+                textAlign: TextAlign.center,
+                style: AppTypography.bodySmall.copyWith(
+                  color: AppColors.neutral500,
+                  height: 1.45,
+                ),
+              ),
+              const SizedBox(height: 28),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton.icon(
+                  onPressed: _retryGeneration,
+                  icon: const Icon(Icons.refresh_rounded),
+                  label: const Text('Try Again'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.limeAccent,
+                    foregroundColor: AppColors.darkCharcoal,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextButton(
+                onPressed: () => context.go(AppRoutes.onboarding),
+                child: const Text('Review my preferences'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final t = Translations.of(context).onboarding.creating;
+
+    if (_errorMessage != null) {
+      return _buildErrorState(context);
+    }
 
     return Scaffold(
       backgroundColor: AppColors.background,

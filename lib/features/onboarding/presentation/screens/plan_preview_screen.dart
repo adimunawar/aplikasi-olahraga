@@ -293,7 +293,12 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
       debugPrint('[PlanPreviewScreen] Error activating program: $e');
       if (mounted) {
         setState(() => _isActivating = false);
-        context.go(AppRoutes.home);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('We couldn’t activate your plan. Please try again.'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
       }
     }
   }
@@ -319,7 +324,15 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
       }
     } catch (e) {
       debugPrint('[PlanPreviewScreen] Error activating program: $e');
-      if (mounted) context.go(AppRoutes.home);
+      if (mounted) {
+        setState(() => _isActivating = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('We couldn’t activate your plan. Please try again.'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     }
   }
 
@@ -328,23 +341,66 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
     final t = Translations.of(context).onboarding.preview;
     final draft = ref.watch(draftProgramProvider);
 
-    // Fallback jika belum ada draft di memori
+    // Drafts are intentionally in-memory only. Recover if app state was lost.
     if (draft == null) {
       return Scaffold(
         backgroundColor: Colors.white,
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const CircularProgressIndicator(color: Color(0xFF84CC16)),
-              const SizedBox(height: 16),
-              Text(
-                t.loading,
-                style: AppTypography.bodySmall.copyWith(
-                  color: AppColors.neutral500,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 76,
+                  height: 76,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF4F9ED),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.description_outlined,
+                    color: Color(0xFF65A30D),
+                    size: 38,
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 22),
+                Text(
+                  'Your plan preview has expired',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.headlineMedium.copyWith(
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.darkCharcoal,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Your draft is no longer available. Create your plan again to review it before activation.',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.bodySmall.copyWith(
+                    color: AppColors.neutral500,
+                    height: 1.45,
+                  ),
+                ),
+                const SizedBox(height: 26),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () => context.go(AppRoutes.onboarding),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.limeAccent,
+                      foregroundColor: AppColors.darkCharcoal,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: const Text('Create My Plan Again'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/database/app_database.dart';
-import '../../../../core/database/models/user_profile_entity.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -153,7 +152,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       debugPrint('[Onboarding] Error preparing profile: $e');
       if (mounted) {
         setState(() => _isCreatingPlan = false);
-        context.pushReplacement(AppRoutes.creatingPlan);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('We couldn’t save your preferences. Please try again.'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
       }
     }
   }

@@ -26,6 +26,10 @@ class DynamicProgramGenerator {
     required List<Exercise> catalogExercises,
     String? startingPushExerciseId,
   }) {
+    if (catalogExercises.isEmpty) {
+      throw StateError('Cannot generate a workout plan because the exercise catalog is empty.');
+    }
+
     final now = DateTime.now();
     final programId = 'prog_${userProfile.id}_${now.millisecondsSinceEpoch}';
 
@@ -296,13 +300,20 @@ class DynamicProgramGenerator {
   // ===========================================================================
 
   String _resolveStartingPush(UserProfileEntity user) {
-    if (user.trainingLimitations.contains('wrist_pain')) {
+    if (user.trainingLimitations.contains('wrist_pain') ||
+        user.trainingLimitations.contains('wrist')) {
       return 'incline_push_up';
     }
-    if (user.experienceLevel == 'beginner') {
-      return 'knee_push_up';
+
+    switch (user.experienceLevel) {
+      case 'beginner':
+        return 'knee_push_up';
+      case 'advanced':
+        return 'diamond_push_up';
+      case 'intermediate':
+      default:
+        return 'push_up';
     }
-    return 'push_up';
   }
 
   List<_ExerciseBlueprint> _get3DaySessionABlueprint(String pushId, UserProfileEntity user) {
@@ -417,7 +428,9 @@ class DynamicProgramGenerator {
       // Cari model exercise dari catalog
       final ex = catalogExercises.firstWhere(
         (e) => e.id == bp.exerciseId,
-        orElse: () => catalogExercises.first,
+        orElse: () => throw StateError(
+          'Required exercise "${bp.exerciseId}" is missing from the exercise catalog.',
+        ),
       );
 
       final prescription = ProgramExerciseEntity(

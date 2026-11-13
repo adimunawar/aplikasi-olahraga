@@ -189,5 +189,77 @@ void main() {
       }
     });
   });
+
+  group('DynamicProgramGenerator - Catalog Validation', () {
+    test('Rejects an empty exercise catalog', () {
+      final profile = createTestProfile();
+
+      expect(
+        () => generator.generate(
+          userProfile: profile,
+          catalogExercises: const [],
+        ),
+        throwsA(isA<StateError>()),
+      );
+    });
+
+    test('Rejects a required exercise missing from the catalog', () {
+      final profile = createTestProfile(experienceLevel: 'beginner');
+      final incompleteCatalog = catalog
+          .where((exercise) => exercise.id != 'knee_push_up')
+          .toList();
+
+      expect(
+        () => generator.generate(
+          userProfile: profile,
+          catalogExercises: incompleteCatalog,
+        ),
+        throwsA(
+          isA<StateError>().having(
+            (error) => error.message,
+            'message',
+            contains('knee_push_up'),
+          ),
+        ),
+      );
+    });
+  });
+
+
+  group('DynamicProgramGenerator - Catalog Validation', () {
+    test('Rejects an empty exercise catalog', () {
+      final profile = createTestProfile();
+
+      expect(
+        () => generator.generate(
+          userProfile: profile,
+          catalogExercises: const [],
+        ),
+        throwsA(isA<StateError>()),
+      );
+    });
+
+    test('Rejects a required exercise missing from the catalog', () {
+      final profile = createTestProfile(experienceLevel: 'beginner');
+      final incompleteCatalog = catalog
+          .where((exercise) => exercise.id != 'knee_push_up')
+          .toList();
+
+      expect(
+        () => generator.generate(
+          userProfile: profile,
+          catalogExercises: incompleteCatalog,
+        ),
+        throwsA(
+          isA<StateError>().having(
+            (error) => error.message.toString(),
+            'message',
+            contains('knee_push_up'),
+          ),
+        ),
+      );
+    });
+  });
+
 }
 
