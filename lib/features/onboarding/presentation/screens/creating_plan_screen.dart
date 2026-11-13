@@ -28,13 +28,6 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
   bool _isCancelled = false;
   String? _errorMessage;
 
-  final List<String> _steps = const [
-    'Checking your training profile',
-    'Preparing your starting level',
-    'Selecting exercises for your plan',
-    'Preparing your plan preview',
-  ];
-
   @override
   void initState() {
     super.initState();
