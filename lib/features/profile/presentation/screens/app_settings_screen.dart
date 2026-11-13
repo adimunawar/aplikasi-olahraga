@@ -47,9 +47,18 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
 
   Future<void> _handleDataSyncChanged(bool enabled) async {
     if (!enabled) {
-      await SupabaseConfig.disableCloudSync();
-      if (!mounted) return;
+      // Disable in-memory authorization first; even if preferences storage
+      // fails, this app session must stop all remote reads and writes.
       setState(() => _dataSync = false);
+      try {
+        await SupabaseConfig.disableCloudSync();
+      } catch (error) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Cloud Sync was disabled for this session, but its preference could not be saved: $error')),
+          );
+        }
+      }
       await _updateSettings();
       return;
     }
