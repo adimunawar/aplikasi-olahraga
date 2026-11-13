@@ -78,6 +78,8 @@ jobs:
     needs:
       - analyze
       - test
+    # Build only after approved code has landed on develop.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
     timeout-minutes: 35
 
     steps:
