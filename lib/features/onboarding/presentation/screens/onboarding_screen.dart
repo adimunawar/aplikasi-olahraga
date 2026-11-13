@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/database/app_database.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -45,7 +46,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   String _level = 'beginner';
   int _daysPerWeek = 4;
   int _durationMin = 45;
-  List<String> _equipments = ['bodyweight', 'dumbbell'];
+  final List<String> _equipments = ['bodyweight'];
   List<String> _limitations = ['none'];
 
   void _nextStep() {
@@ -108,10 +109,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           availableDays = ['monday', 'tuesday', 'thursday', 'friday'];
           break;
         case 5:
-          availableDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+          availableDays = [
+            'monday',
+            'tuesday',
+            'wednesday',
+            'thursday',
+            'friday',
+          ];
           break;
         case 6:
-          availableDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+          availableDays = [
+            'monday',
+            'tuesday',
+            'wednesday',
+            'thursday',
+            'friday',
+            'saturday',
+          ];
           break;
         case 3:
         default:
@@ -154,7 +168,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         setState(() => _isCreatingPlan = false);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('We couldn’t save your preferences. Please try again.'),
+            content: Text(
+              'We couldn’t save your preferences. Please try again.',
+            ),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -300,7 +316,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               value: (_currentStep / 7.0).clamp(0.0, 1.0),
               minHeight: 4,
               backgroundColor: const Color(0xFFE2E8F0),
-              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF84CC16)),
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                Color(0xFF84CC16),
+              ),
             ),
           ),
         ),

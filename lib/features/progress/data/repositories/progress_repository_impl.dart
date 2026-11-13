@@ -1,3 +1,5 @@
+import 'package:workout_app/core/config/supabase_config.dart';
+
 import '../../../../core/database/app_database.dart';
 import '../../domain/models/day_activity.dart';
 import '../../domain/models/progress_metrics.dart';
@@ -56,15 +58,27 @@ class ProgressRepositoryImpl implements ProgressRepository {
 
   @override
   Future<List<WeightRecord>> getWeightHistory() async {
-    try {
-      final remoteRecords = await remoteDatasource.fetchWeightHistory();
-      if (remoteRecords.isNotEmpty) {
-        return remoteRecords;
-      }
-    } catch (_) {}
+    // 1. Jika Cloud Sync aktif, coba sinkronisasi dari remote
+    if (SupabaseConfig.canSyncToCloud) {
+      try {
+        final remoteRecords = await remoteDatasource.fetchWeightHistory();
+        if (remoteRecords.isNotEmpty) {
+          return remoteRecords;
+        }
+      } catch (_) {}
+    }
 
-    // Fallback: baca berat lokal
+    // 2. Default Local-first: baca dari SQLite lokal
     try {
+      final measurements = await localDatabase.getWeightHistory();
+      if (measurements.isNotEmpty) {
+        return measurements.map((m) => WeightRecord(
+          id: m.id,
+          weightKg: m.value,
+          recordedAt: m.recordedAt,
+        )).toList();
+      }
+
       final latest = await localDatabase.getLatestWeight();
       if (latest > 0) {
         return [
@@ -99,12 +113,14 @@ class ProgressRepositoryImpl implements ProgressRepository {
       }
     } catch (_) {}
 
-    try {
-      final remoteItems = await remoteDatasource.fetchRecentWorkouts(limit: limit);
-      if (remoteItems.isNotEmpty) {
-        return remoteItems;
-      }
-    } catch (_) {}
+    if (SupabaseConfig.canSyncToCloud) {
+      try {
+        final remoteItems = await remoteDatasource.fetchRecentWorkouts(limit: limit);
+        if (remoteItems.isNotEmpty) {
+          return remoteItems;
+        }
+      } catch (_) {}
+    }
 
     return [
       const WorkoutHistoryItem(

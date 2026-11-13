@@ -17,6 +17,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # --------------------------------------------------
+  # 1. ANALYZE
+  # Always runs for pull requests and pushes.
+  # --------------------------------------------------
   analyze:
     name: Analyze Dart & Flutter
     runs-on: ubuntu-latest
@@ -30,7 +34,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: '3.47.9'
+          flutter-version: "3.47.9"
           cache: true
           pub-cache: true
 
@@ -40,6 +44,10 @@ jobs:
       - name: Analyze project
         run: flutter analyze --no-pub --no-fatal-infos
 
+  # --------------------------------------------------
+  # 2. TEST
+  # Always runs for pull requests and pushes.
+  # --------------------------------------------------
   test:
     name: Run Flutter tests
     runs-on: ubuntu-latest
@@ -53,7 +61,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: '3.47.9'
+          flutter-version: "3.47.9"
           cache: true
           pub-cache: true
 
@@ -72,14 +80,86 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-  build_android:
-    name: Build Android debug APK
+  # --------------------------------------------------
+  # 3. DETECT CHANGES
+  # Runs only for pushes and manual workflow dispatch.
+  # --------------------------------------------------
+  changes:
+    name: Detect app changes
     runs-on: ubuntu-latest
+
+    if: |
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch'
+
+    outputs:
+      android: ${{ steps.detect.outputs.android }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Detect Android app changes
+        id: detect
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+
+          # Manual execution always creates a fresh APK.
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            echo "android=true" >> "$GITHUB_OUTPUT"
+            echo "Manual workflow execution: Android build enabled."
+            exit 0
+          fi
+
+          # Build when there is no previous commit to compare.
+          if [[ -z "${BASE_SHA:-}" || "$BASE_SHA" =~ ^0+$ ]]; then
+            echo "android=true" >> "$GITHUB_OUTPUT"
+            echo "No previous commit found: Android build enabled."
+            exit 0
+          fi
+
+          CHANGED_FILES=$(git diff --name-only "$BASE_SHA" "$GITHUB_SHA")
+
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          # Files that can affect the Android application artifact.
+          if grep -Eq \
+            '^(lib/|assets/|fonts/|shaders/|android/|packages/|pubspec\.yaml$|pubspec\.lock$|slang\.yaml$|l10n\.yaml$|build\.yaml$)' \
+            <<< "$CHANGED_FILES"; then
+
+            echo "android=true" >> "$GITHUB_OUTPUT"
+            echo "Android app changes detected. Build enabled."
+          else
+            echo "android=false" >> "$GITHUB_OUTPUT"
+            echo "No Android app changes detected. Build skipped."
+          fi
+
+  # --------------------------------------------------
+  # 4. BUILD ANDROID RELEASE APK
+  # Only runs on develop after successful checks
+  # and when Android app files have changed.
+  # --------------------------------------------------
+  build_android:
+    name: Build Android release APK
+    runs-on: ubuntu-latest
+
     needs:
       - analyze
       - test
-    # Build only after approved code has landed on develop.
-    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+      - changes
+
+    if: |
+      (github.event_name == 'push' ||
+       github.event_name == 'workflow_dispatch') &&
+      github.ref == 'refs/heads/develop' &&
+      needs.changes.outputs.android == 'true'
+
     timeout-minutes: 35
 
     steps:
@@ -90,81 +170,146 @@ jobs:
         uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: "17"
           cache: gradle
           cache-dependency-path: |
             android/**/*.gradle*
             android/gradle/wrapper/gradle-wrapper.properties
 
+      - name: Prepare Android release signing
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+
+          : "${ANDROID_KEYSTORE_BASE64:?Missing GitHub secret ANDROID_KEYSTORE_BASE64}"
+          : "${ANDROID_KEYSTORE_PASSWORD:?Missing GitHub secret ANDROID_KEYSTORE_PASSWORD}"
+          : "${ANDROID_KEY_ALIAS:?Missing GitHub secret ANDROID_KEY_ALIAS}"
+          : "${ANDROID_KEY_PASSWORD:?Missing GitHub secret ANDROID_KEY_PASSWORD}"
+
+          KEYSTORE_PATH="$RUNNER_TEMP/upload-keystore.jks"
+
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" |
+            base64 --decode > "$KEYSTORE_PATH"
+
+          test -s "$KEYSTORE_PATH"
+
+          keytool -list \
+            -keystore "$KEYSTORE_PATH" \
+            -storepass "$ANDROID_KEYSTORE_PASSWORD" \
+            -alias "$ANDROID_KEY_ALIAS" >/dev/null
+
+          echo "ANDROID_KEYSTORE_PATH=$KEYSTORE_PATH" >> "$GITHUB_ENV"
+
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: '3.47.9'
+          flutter-version: "3.47.9"
           cache: true
           pub-cache: true
 
       - name: Install dependencies
         run: flutter pub get --enforce-lockfile
 
-      - name: Build Android debug APK
-        run: flutter build apk --debug --no-pub
+      # google-services.json sengaja tidak di-commit (lihat .gitignore).
+      # Isi repository secret GOOGLE_SERVICES_JSON dengan isi file tersebut.
+      - name: Prepare Firebase configuration
+        shell: bash
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          set -euo pipefail
 
-      - name: Upload Android debug APK
+          : "${GOOGLE_SERVICES_JSON:?Missing GitHub secret GOOGLE_SERVICES_JSON}"
+
+          printf '%s' "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
+          test -s android/app/google-services.json
+
+      - name: Build Android release APK
+        run: flutter build apk --release --no-pub
+
+      - name: Upload Android release APK
         uses: actions/upload-artifact@v7
         with:
-          name: home-bulking-coach-debug-${{ github.sha }}
-          path: build/app/outputs/flutter-apk/app-debug.apk
+          name: home-bulking-coach-release-${{ github.sha }}
+          path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 7
 
+  # --------------------------------------------------
+  # 5. FIREBASE APP DISTRIBUTION
+  # Only runs after a successful Android release build.
+  # --------------------------------------------------
   distribute_firebase:
     name: Distribute to Firebase App Distribution
     runs-on: ubuntu-latest
+
     needs:
       - build_android
-    # Distribute only trusted builds that have landed on develop, never PR code.
-    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+
+    if: |
+      (github.event_name == 'push' ||
+       github.event_name == 'workflow_dispatch') &&
+      github.ref == 'refs/heads/develop'
+
     timeout-minutes: 20
-    env:
-      FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
-      FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
-      FIREBASE_TESTER_GROUPS: ${{ vars.FIREBASE_TESTER_GROUPS }}
 
     steps:
-      - name: Download Android debug APK
+      - name: Validate Firebase distribution configuration
+        shell: bash
+        env:
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          FIREBASE_TESTER_GROUPS: ${{ vars.FIREBASE_TESTER_GROUPS }}
+        run: |
+          set -euo pipefail
+
+          : "${FIREBASE_APP_ID:?Missing GitHub secret FIREBASE_APP_ID}"
+          : "${FIREBASE_SERVICE_ACCOUNT_JSON:?Missing GitHub secret FIREBASE_SERVICE_ACCOUNT_JSON}"
+          : "${FIREBASE_TESTER_GROUPS:?Missing GitHub Actions variable FIREBASE_TESTER_GROUPS}"
+
+      - name: Download Android release APK
         uses: actions/download-artifact@v7
         with:
-          name: home-bulking-coach-debug-${{ github.sha }}
+          name: home-bulking-coach-release-${{ github.sha }}
           path: build/app/outputs/flutter-apk
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: "22"
 
-      - name: Distribute build to Firebase App Distribution
+      - name: Distribute release to Firebase App Distribution
         shell: bash
+        env:
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          FIREBASE_TESTER_GROUPS: ${{ vars.FIREBASE_TESTER_GROUPS }}
         run: |
           set -euo pipefail
 
-          if [[ -z "${FIREBASE_APP_ID}" || -z "${FIREBASE_SERVICE_ACCOUNT_JSON}" || -z "${FIREBASE_TESTER_GROUPS}" ]]; then
-            echo "::notice::Firebase distribution skipped. Configure FIREBASE_APP_ID and FIREBASE_SERVICE_ACCOUNT_JSON GitHub secrets, and FIREBASE_TESTER_GROUPS repository variable."
-            exit 0
-          fi
-
-          APK_PATH="build/app/outputs/flutter-apk/app-debug.apk"
+          APK_PATH="build/app/outputs/flutter-apk/app-release.apk"
           test -f "$APK_PATH"
 
-          printf '%s' "$FIREBASE_SERVICE_ACCOUNT_JSON" > "$RUNNER_TEMP/firebase-service-account.json"
-          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/firebase-service-account.json"
+          SERVICE_ACCOUNT_PATH="$RUNNER_TEMP/firebase-service-account.json"
+
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT_JSON" \
+            > "$SERVICE_ACCOUNT_PATH"
+
+          trap 'rm -f "$SERVICE_ACCOUNT_PATH"' EXIT
+
+          export GOOGLE_APPLICATION_CREDENTIALS="$SERVICE_ACCOUNT_PATH"
 
           npm install --global firebase-tools
-          RELEASE_NOTES="Develop build ${GITHUB_SHA::7} - $(git log -1 --pretty=%s 2>/dev/null || echo 'CI build')"
+
+          RELEASE_NOTES="Develop release ${GITHUB_SHA::7}"
 
           firebase appdistribution:distribute "$APK_PATH" \
             --app "$FIREBASE_APP_ID" \
             --groups "$FIREBASE_TESTER_GROUPS" \
             --release-notes "$RELEASE_NOTES"
-
-          rm -f "$RUNNER_TEMP/firebase-service-account.json"

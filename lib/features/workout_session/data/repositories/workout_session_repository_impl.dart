@@ -1,3 +1,4 @@
+import '../../../../core/config/supabase_config.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/models/workout_session_entity.dart';
 import '../../../../core/database/models/workout_set_entity.dart';
@@ -155,13 +156,17 @@ class WorkoutSessionRepositoryImpl implements WorkoutSessionRepository {
       }
     }
 
-    // 3. Sinkronkan secara asinkron ke Supabase Cloud (Dual Database Sync - Fase 5)
-    await remoteDatasource.syncCompletedSession(sessionEntity);
-    if (formattedSetLogs.isNotEmpty) {
-      await remoteDatasource.syncCompletedSets(formattedSetLogs);
-    }
-    if (savedDecisionEntities.isNotEmpty) {
-      await remoteDatasource.syncProgressionDecisions(savedDecisionEntities);
+    // 3. Sinkronkan secara asinkron ke Supabase Cloud HANYA jika Cloud Sync aktif
+    if (SupabaseConfig.canSyncToCloud) {
+      try {
+        await remoteDatasource.syncCompletedSession(sessionEntity);
+        if (formattedSetLogs.isNotEmpty) {
+          await remoteDatasource.syncCompletedSets(formattedSetLogs);
+        }
+        if (savedDecisionEntities.isNotEmpty) {
+          await remoteDatasource.syncProgressionDecisions(savedDecisionEntities);
+        }
+      } catch (_) {}
     }
 
     return WorkoutSessionResult(

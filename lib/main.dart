@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'core/config/firebase_config.dart';
 import 'core/config/supabase_config.dart';
 import 'core/localization/app_locale.dart';
 import 'core/router/app_router.dart';
@@ -10,6 +11,7 @@ import 'i18n/strings.g.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await FirebaseConfig.initialize();
   await SupabaseConfig.initialize();
   final prefs = await SharedPreferences.getInstance();
   final hasCompletedOnboarding =
