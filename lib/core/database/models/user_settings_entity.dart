@@ -30,7 +30,7 @@ class UserSettingsEntity {
     this.theme = 'Light',
     this.hapticFeedback = true,
     this.soundEffects = true,
-    this.dataSync = true,
+    this.dataSync = false,
     required this.updatedAt,
   });
 
