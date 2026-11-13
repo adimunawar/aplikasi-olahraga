@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_smart_image.dart';
+import '../../../../i18n/strings.g.dart';
 
 /// Step 0: Welcome Screen Content (Mockup 1:1, Tanpa Bottom Bar - dihandle wrapper)
 class StepWelcome extends StatelessWidget {
@@ -9,6 +10,8 @@ class StepWelcome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context).onboarding.welcome;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       child: Column(
@@ -35,7 +38,7 @@ class StepWelcome extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                'Workout\nCoach',
+                t.brand,
                 style: AppTypography.headlineSmall.copyWith(
                   fontWeight: FontWeight.w900,
                   fontSize: 13,
@@ -76,7 +79,7 @@ class StepWelcome extends StatelessWidget {
 
           // 3. Judul & Subtitle
           Text(
-            'Your Personal\nWorkout Coach',
+            t.title,
             style: AppTypography.displayMedium.copyWith(
               fontWeight: FontWeight.w900,
               fontSize: 28,
@@ -86,7 +89,7 @@ class StepWelcome extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            'Get a workout program based\non your goal, body condition,\nand lifestyle.',
+            t.subtitle,
             style: AppTypography.bodySmall.copyWith(
               color: AppColors.neutral500,
               fontSize: 14,

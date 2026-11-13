@@ -52,6 +52,14 @@ ref.read(appLocaleProvider.notifier).setLocale(AppLocale.en);
 sekaligus menyinkronkan `LocaleSettings` slang. Pilihan bahasa di
 Pengaturan → Bahasa sudah terhubung ke provider ini.
 
+## Status migrasi
+
+| Namespace | Status |
+|---|---|
+| `core` | sebagian (actions, state, badge, language, units) |
+| `onboarding` | selesai (welcome, goal, about, body target, level, jadwal, alat, batasan, creating, ready, preview) |
+| fitur lain | belum — masih hardcoded |
+
 ## Catatan
 
 - `flutter_localizations` tetap dipakai untuk localization bawaan Material

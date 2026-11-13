@@ -1,18 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
-
-class EquipmentOption {
-  final String id;
-  final String label;
-  final IconData icon;
-
-  const EquipmentOption({
-    required this.id,
-    required this.label,
-    required this.icon,
-  });
-}
+import '../../../../i18n/strings.g.dart';
 
 /// Step 6 of 7: What equipment do you have? (Mockup 1:1)
 class StepEquipment extends StatelessWidget {
@@ -25,48 +14,26 @@ class StepEquipment extends StatelessWidget {
     required this.onToggleEquipment,
   });
 
-  static const List<EquipmentOption> options = [
-    EquipmentOption(
-      id: 'bodyweight',
-      label: 'Bodyweight\n(no equipment)',
-      icon: Icons.accessibility_new_rounded,
-    ),
-    EquipmentOption(
-      id: 'dumbbell',
-      label: 'Dumbbell',
-      icon: Icons.fitness_center_rounded,
-    ),
-    EquipmentOption(
-      id: 'resistance_band',
-      label: 'Resistance\nBand',
-      icon: Icons.all_inclusive_rounded,
-    ),
-    EquipmentOption(
-      id: 'kettlebell',
-      label: 'Kettlebell',
-      icon: Icons.sports_gymnastics_rounded,
-    ),
-    EquipmentOption(
-      id: 'pull_up_bar',
-      label: 'Pull-up Bar',
-      icon: Icons.horizontal_rule_rounded,
-    ),
-    EquipmentOption(
-      id: 'barbell',
-      label: 'Barbell',
-      icon: Icons.line_weight_rounded,
-    ),
-  ];
+  static const Map<String, IconData> _icons = {
+    'bodyweight': Icons.accessibility_new_rounded,
+    'dumbbell': Icons.fitness_center_rounded,
+    'resistance_band': Icons.all_inclusive_rounded,
+    'kettlebell': Icons.sports_gymnastics_rounded,
+    'pull_up_bar': Icons.horizontal_rule_rounded,
+    'barbell': Icons.line_weight_rounded,
+  };
 
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context).onboarding.equipment;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'What equipment do you have?',
+            t.title,
             style: AppTypography.displayMedium.copyWith(
               fontWeight: FontWeight.w900,
               fontSize: 24,
@@ -75,7 +42,7 @@ class StepEquipment extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Select all that apply.',
+            t.subtitle,
             style: AppTypography.bodySmall.copyWith(
               color: AppColors.neutral500,
               fontSize: 13,
@@ -87,7 +54,7 @@ class StepEquipment extends StatelessWidget {
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: options.length,
+            itemCount: t.options.length,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               crossAxisSpacing: 14,
@@ -95,7 +62,7 @@ class StepEquipment extends StatelessWidget {
               childAspectRatio: 1.15,
             ),
             itemBuilder: (context, index) {
-              final opt = options[index];
+              final opt = t.options[index];
               final isSelected = selectedEquipments.contains(opt.id);
 
               return InkWell(
@@ -133,7 +100,8 @@ class StepEquipment extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              opt.icon,
+                              _icons[opt.id] ??
+                                  Icons.fitness_center_rounded,
                               size: 32,
                               color: isSelected
                                   ? AppColors.greenDark

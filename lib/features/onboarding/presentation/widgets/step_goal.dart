@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_smart_image.dart';
+import '../../../../i18n/strings.g.dart';
 
 /// Step 1 of 7: What's your main goal? (Mockup 1:1)
 class StepGoal extends StatelessWidget {
@@ -14,15 +15,24 @@ class StepGoal extends StatelessWidget {
     required this.onGoalSelected,
   });
 
+  /// Gambar coach untuk tiap goal (konten id tidak perlu diterjemahkan).
+  static const Map<String, String> _images = {
+    'muscle_gain': 'assets/images/coach_flex.png',
+    'fat_loss': 'assets/images/coach_hero.png',
+    'maintenance': 'assets/images/coach_crossed_arms.png',
+  };
+
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context).onboarding.goal;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "What's your main goal?",
+            t.title,
             style: AppTypography.displayMedium.copyWith(
               fontWeight: FontWeight.w900,
               fontSize: 24,
@@ -31,7 +41,7 @@ class StepGoal extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Choose the goal that fits your current focus.',
+            t.subtitle,
             style: AppTypography.bodySmall.copyWith(
               color: AppColors.neutral500,
               fontSize: 13,
@@ -39,45 +49,26 @@ class StepGoal extends StatelessWidget {
           ),
           const SizedBox(height: 24),
 
-          _buildGoalCard(
-            id: 'muscle_gain',
-            title: 'Gain Weight & Build Muscle',
-            description:
-                'Increase body weight while building muscle mass (bulking).',
-            imageAsset: 'assets/images/coach_flex.png',
-          ),
-          const SizedBox(height: 14),
-
-          _buildGoalCard(
-            id: 'fat_loss',
-            title: 'Lose Weight & Reduce Fat',
-            description:
-                'Reduce body fat while maintaining muscle (cutting).',
-            imageAsset: 'assets/images/coach_hero.png',
-          ),
-          const SizedBox(height: 14),
-
-          _buildGoalCard(
-            id: 'maintenance',
-            title: 'Maintain & Stay Fit',
-            description: 'Keep your current weight and overall fitness.',
-            imageAsset: 'assets/images/coach_crossed_arms.png',
-          ),
+          for (final option in t.options) ...[
+            _buildGoalCard(
+              option: option,
+              imageAsset: _images[option.id] ?? '',
+            ),
+            const SizedBox(height: 14),
+          ],
         ],
       ),
     );
   }
 
   Widget _buildGoalCard({
-    required String id,
-    required String title,
-    required String description,
+    required GoalOption option,
     required String imageAsset,
   }) {
-    final isSelected = selectedGoal == id;
+    final isSelected = selectedGoal == option.id;
 
     return InkWell(
-      onTap: () => onGoalSelected(id),
+      onTap: () => onGoalSelected(option.id),
       borderRadius: BorderRadius.circular(18),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -127,7 +118,7 @@ class StepGoal extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    title,
+                    option.title,
                     style: AppTypography.titleSmall.copyWith(
                       fontWeight: FontWeight.w800,
                       fontSize: 14.5,
@@ -136,7 +127,7 @@ class StepGoal extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    description,
+                    option.description,
                     style: AppTypography.bodySmall.copyWith(
                       color: AppColors.neutral500,
                       fontSize: 11.5,

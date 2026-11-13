@@ -7,6 +7,7 @@ import '../../../../core/database/app_database.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../i18n/strings.g.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
 import '../../../program/domain/services/dynamic_program_generator.dart';
 import '../../../program/presentation/controllers/draft_program_provider.dart';
@@ -26,13 +27,6 @@ class CreatingPlanScreen extends ConsumerStatefulWidget {
 class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
   int _activeStepIndex = 0;
   bool _isCancelled = false;
-
-  final List<String> _steps = const [
-    'Analyzing your profile',
-    'Calculating training volume',
-    'Selecting the best exercises',
-    'Building your weekly plan',
-  ];
 
   @override
   void initState() {
@@ -117,6 +111,8 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context).onboarding.creating;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -162,7 +158,7 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
               // Judul & Subtitle
               Center(
                 child: Text(
-                  'Creating your\npersonal plan...',
+                  t.title,
                   textAlign: TextAlign.center,
                   style: AppTypography.displayMedium.copyWith(
                     fontWeight: FontWeight.w900,
@@ -175,7 +171,7 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
               const SizedBox(height: 10),
               Center(
                 child: Text(
-                  'Analyzing your goal, body data,\npreferences, and availability.',
+                  t.subtitle,
                   textAlign: TextAlign.center,
                   style: AppTypography.bodySmall.copyWith(
                     color: AppColors.neutral500,
@@ -196,7 +192,7 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
                   boxShadow: AppColors.cardShadow,
                 ),
                 child: Column(
-                  children: List.generate(_steps.length, (index) {
+                  children: List.generate(t.steps.length, (index) {
                     final isChecked = index < _activeStepIndex;
                     final isCurrent = index == _activeStepIndex;
 
@@ -245,7 +241,7 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
                           ),
                           const SizedBox(width: 14),
                           Text(
-                            _steps[index],
+                            t.steps[index],
                             style: AppTypography.labelMedium.copyWith(
                               fontWeight: isChecked || isCurrent
                                   ? FontWeight.w700
