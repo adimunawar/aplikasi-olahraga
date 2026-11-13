@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../i18n/strings.g.dart';
 
 /// Step 5 of 7: How often can you work out? (Frequency & Duration) (Mockup 1:1)
 class StepSchedule extends StatelessWidget {
@@ -19,6 +20,8 @@ class StepSchedule extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context).onboarding.schedule;
+
     const frequencies = [2, 3, 4, 5, 6];
     const durations = [30, 45, 60];
 
@@ -28,7 +31,7 @@ class StepSchedule extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'How often can you work out?',
+            t.title,
             style: AppTypography.displayMedium.copyWith(
               fontWeight: FontWeight.w900,
               fontSize: 24,
@@ -37,7 +40,7 @@ class StepSchedule extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Choose a weekly workout schedule that fits your lifestyle.',
+            t.subtitle,
             style: AppTypography.bodySmall.copyWith(
               color: AppColors.neutral500,
               fontSize: 13,
@@ -89,7 +92,7 @@ class StepSchedule extends StatelessWidget {
                       ),
                       const SizedBox(width: 14),
                       Text(
-                        '$freq days / week',
+                        t.daysPerWeek(n: freq),
                         style: AppTypography.titleSmall.copyWith(
                           fontWeight: FontWeight.w800,
                           fontSize: 14.5,
@@ -131,7 +134,7 @@ class StepSchedule extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               Text(
-                'Session duration',
+                t.sessionDuration,
                 style: AppTypography.labelLarge.copyWith(
                   fontWeight: FontWeight.w700,
                   fontSize: 14,
@@ -167,7 +170,7 @@ class StepSchedule extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        '$dur min',
+                        t.minutes(n: dur),
                         style: AppTypography.labelLarge.copyWith(
                           fontWeight: FontWeight.w800,
                           fontSize: 13.5,

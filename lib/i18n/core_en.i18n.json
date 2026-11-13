@@ -1,0 +1,34 @@
+{
+  "appName": "Home Bulking Coach",
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back",
+    "next": "Next",
+    "skip": "Skip",
+    "done": "Done",
+    "retry": "Retry",
+    "close": "Close",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "state": {
+    "loading": "Loading...",
+    "empty": "Nothing here yet",
+    "error": "Something went wrong"
+  },
+  "badge": {
+    "currentPlan": "Current Plan"
+  },
+  "language": {
+    "label": "Language",
+    "id": "Bahasa Indonesia",
+    "en": "English"
+  },
+  "units": {
+    "reps": "reps",
+    "sets": "sets",
+    "seconds": "sec",
+    "kg": "kg"
+  }
+}

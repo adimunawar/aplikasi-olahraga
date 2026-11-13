@@ -9,6 +9,7 @@ import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../i18n/strings.g.dart';
 import '../../../exercises/domain/models/exercise.dart';
 import '../../../plans/presentation/screens/plans_screen.dart';
 import '../../../plans/presentation/widgets/plans_overview_tab.dart';
@@ -60,6 +61,8 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
 
   /// Menampilkan detail gerakan di dalam suatu sesi saat ditekan di tab Workout Split
   void _showSessionDetails(SessionWithDetail s) {
+    final t = Translations.of(context).onboarding.preview;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -99,7 +102,7 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
                         Text(
                           s.session.name.isNotEmpty
                               ? s.session.name
-                              : 'Session ${s.session.dayNumber}',
+                              : t.sessionFallbackName(n: s.session.dayNumber),
                           style: AppTypography.headlineSmall.copyWith(
                             fontWeight: FontWeight.w900,
                             fontSize: 18,
@@ -127,7 +130,7 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
-                      '${s.session.targetDurationMinutes} min',
+                      t.sessionDuration(n: s.session.targetDurationMinutes),
                       style: AppTypography.labelSmall.copyWith(
                         color: const Color(0xFF16A34A),
                         fontWeight: FontWeight.w800,
@@ -140,7 +143,7 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
               const Divider(color: Color(0xFFF3F4F6), height: 1),
               const SizedBox(height: 12),
               Text(
-                'EXERCISES IN THIS SESSION (${s.detail.exercises.length})',
+                t.exercisesInSession(count: s.detail.exercises.length),
                 style: AppTypography.labelSmall.copyWith(
                   color: const Color(0xFF9CA3AF),
                   fontSize: 11,
@@ -200,7 +203,11 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  '${item.prescription.targetSets} sets • ${item.prescription.minReps} reps • ${item.prescription.restSeconds}s rest',
+                                  t.prescription(
+                                    sets: item.prescription.targetSets,
+                                    reps: item.prescription.minReps,
+                                    rests: item.prescription.restSeconds,
+                                  ),
                                   style: AppTypography.bodySmall.copyWith(
                                     color: const Color(0xFF6B7280),
                                     fontSize: 11.5,
@@ -331,6 +338,7 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
 
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context).onboarding.preview;
     final draft = ref.watch(draftProgramProvider);
 
     // Drafts are intentionally in-memory only. Recover if app state was lost.
@@ -420,7 +428,7 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
           },
         ),
         title: Text(
-          'Your Training Plan',
+          t.title,
           style: AppTypography.headlineMedium.copyWith(
             fontWeight: FontWeight.w900,
             fontSize: 18,
@@ -452,9 +460,9 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
                 fontWeight: FontWeight.w600,
               ),
               // HANYA 2 TAB (Prioritas P1: Hilangkan Progress tab dari preview!)
-              tabs: const [
-                Tab(text: 'Overview'),
-                Tab(text: 'Workout Split'),
+              tabs: [
+                Tab(text: t.tabOverview),
+                Tab(text: t.tabWorkoutSplit),
               ],
             ),
           ),
@@ -476,7 +484,7 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
           mainAxisSize: MainAxisSize.min,
           children: [
             AppButton.primary(
-              text: 'Activate & Start Workout ➔',
+              text: t.activateStart,
               size: AppButtonSize.large,
               isLoading: _isActivating,
               onPressed: () => _activateAndStartWorkout(draft),
@@ -491,7 +499,7 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
                   horizontal: 12,
                 ),
                 child: Text(
-                  'Activate & Go to Dashboard',
+                  t.activateDashboard,
                   style: AppTypography.bodySmall.copyWith(
                     color: const Color(0xFF6B7280),
                     fontWeight: FontWeight.w700,

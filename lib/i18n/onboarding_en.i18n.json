@@ -1,0 +1,166 @@
+{
+  "nav": {
+    "progress": "$current of $total",
+    "getStarted": "Get Started ➔",
+    "continueCta": "Continue",
+    "createMyPlan": "Create My Plan"
+  },
+  "welcome": {
+    "brand": "Workout\nCoach",
+    "title": "Your Personal\nWorkout Coach",
+    "subtitle": "Get a workout program based\non your goal, body condition,\nand lifestyle."
+  },
+  "goal": {
+    "title": "What's your main goal?",
+    "subtitle": "Choose the goal that fits your current focus.",
+    "options(interface=GoalOption)": [
+      {
+        "id": "muscle_gain",
+        "title": "Gain Weight & Build Muscle",
+        "description": "Increase body weight while building muscle mass (bulking)."
+      },
+      {
+        "id": "fat_loss",
+        "title": "Lose Weight & Reduce Fat",
+        "description": "Reduce body fat while maintaining muscle (cutting)."
+      },
+      {
+        "id": "maintenance",
+        "title": "Maintain & Stay Fit",
+        "description": "Keep your current weight and overall fitness."
+      }
+    ]
+  },
+  "about": {
+    "title": "Tell us about you",
+    "subtitle": "We need some basic info to personalize your program.",
+    "gender": "Gender",
+    "male": "Male",
+    "female": "Female",
+    "age": "Age",
+    "ageUnit": "years",
+    "height": "Height",
+    "heightUnit": "cm"
+  },
+  "bodyTarget": {
+    "title": "Your body & target",
+    "subtitle": "Set your current and target weight.",
+    "currentWeight": "Current weight",
+    "targetWeight": "Target weight",
+    "unit": "kg",
+    "insight": {
+      "gainTitle": "Target gain: +$diff kg",
+      "lossTitle": "Target loss: $diff kg",
+      "maintainTitle": "Target: Maintenance",
+      "gainHint": "A healthy gain is around 0.25 - 0.5 kg per week ($minWeeks - $maxWeeks weeks).",
+      "lossHint": "A healthy loss is around 0.5 - 1.0 kg per week ($minWeeks - $maxWeeks weeks).",
+      "maintainHint": "Keep your current body weight and focus on building muscle density and strength."
+    }
+  },
+  "experience": {
+    "title": "What's your experience level?",
+    "subtitle": "Choose an option that best describes you.",
+    "options(interface=ExperienceOption)": [
+      {
+        "id": "beginner",
+        "title": "Beginner",
+        "description": "New to training or exercising inconsistently."
+      },
+      {
+        "id": "intermediate",
+        "title": "Intermediate",
+        "description": "Have some experience and train regularly."
+      },
+      {
+        "id": "advanced",
+        "title": "Advanced",
+        "description": "Train consistently, have good form, and want a bigger challenge."
+      }
+    ]
+  },
+  "schedule": {
+    "title": "How often can you work out?",
+    "subtitle": "Choose a weekly workout schedule that fits your lifestyle.",
+    "daysPerWeek": {
+      "one": "$n day / week",
+      "other": "$n days / week"
+    },
+    "sessionDuration": "Session duration",
+    "minutes": "$n min"
+  },
+  "equipment": {
+    "title": "What equipment do you have?",
+    "subtitle": "Select all that apply.",
+    "options(interface=EquipmentOption)": [
+      { "id": "bodyweight", "label": "Bodyweight\n(no equipment)" },
+      { "id": "dumbbell", "label": "Dumbbell" },
+      { "id": "resistance_band", "label": "Resistance\nBand" },
+      { "id": "kettlebell", "label": "Kettlebell" },
+      { "id": "pull_up_bar", "label": "Pull-up Bar" },
+      { "id": "barbell", "label": "Barbell" }
+    ]
+  },
+  "limitations": {
+    "title": "Any limitations or considerations?",
+    "subtitle": "Let us know if you have any health conditions or areas to avoid.",
+    "options(interface=LimitationOption)": [
+      { "id": "none", "label": "No limitations" },
+      { "id": "knee", "label": "Knee (e.g. pain, injury)" },
+      { "id": "back", "label": "Back (e.g. lower back pain)" },
+      { "id": "shoulder", "label": "Shoulder" },
+      { "id": "wrist", "label": "Wrist" },
+      { "id": "other", "label": "Other" }
+    ]
+  },
+  "creating": {
+    "title": "Creating your\npersonal plan...",
+    "subtitle": "Analyzing your goal, body data,\npreferences, and availability.",
+    "steps": [
+      "Analyzing your profile",
+      "Calculating training volume",
+      "Selecting the best exercises",
+      "Building your weekly plan"
+    ]
+  },
+  "ready": {
+    "title": "Your plan is ready! 🎉",
+    "subtitle": "A personalized program based on\nyour goal, profile, and preferences.",
+    "weeksBadge": "⭐ $weeks Weeks",
+    "daysPerWeek": "Days / Week",
+    "minutesPerSession": "Minutes / Session",
+    "level": "Level",
+    "features": [
+      "Build muscle and increase body weight",
+      "Progressive overload (gradual increase)",
+      "Designed for home training",
+      "Adapted to your schedule and equipment"
+    ],
+    "viewMyPlan": "View My Plan",
+    "program": {
+      "bulking": {
+        "title": "Bulking Program",
+        "subtitle": "Muscle Gain & Strength"
+      },
+      "cutting": {
+        "title": "Fat Loss & Conditioning",
+        "subtitle": "Fat Loss & Tone"
+      },
+      "maintain": {
+        "title": "Maintain & Stay Fit",
+        "subtitle": "Strength & General Fitness"
+      }
+    }
+  },
+  "preview": {
+    "title": "Your Training Plan",
+    "tabOverview": "Overview",
+    "tabWorkoutSplit": "Workout Split",
+    "loading": "Loading your plan preview...",
+    "activateStart": "Activate & Start Workout ➔",
+    "activateDashboard": "Activate & Go to Dashboard",
+    "sessionFallbackName": "Session $n",
+    "sessionDuration": "$n min",
+    "exercisesInSession": "EXERCISES IN THIS SESSION ($count)",
+    "prescription": "$sets sets • $reps reps • $rests rest"
+  }
+}

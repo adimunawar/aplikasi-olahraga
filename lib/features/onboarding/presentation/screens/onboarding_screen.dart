@@ -6,6 +6,7 @@ import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../i18n/strings.g.dart';
 import '../../../program/presentation/controllers/draft_program_provider.dart';
 import '../widgets/onboarding_dots_indicator.dart';
 import '../widgets/step_about.dart';
@@ -262,6 +263,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       return const SizedBox(height: 12);
     }
 
+    final t = Translations.of(context).onboarding.nav;
+
     return Column(
       children: [
         Padding(
@@ -278,7 +281,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 onPressed: _prevStep,
               ),
               Text(
-                '$_currentStep of 7',
+                t.progress(current: _currentStep, total: 7),
                 style: AppTypography.labelMedium.copyWith(
                   fontWeight: FontWeight.w800,
                   fontSize: 13,
@@ -307,6 +310,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   Widget _buildStickyBottomBar() {
+    final t = Translations.of(context).onboarding.nav;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
       decoration: BoxDecoration(
@@ -330,7 +335,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   const OnboardingDotsIndicator(activeIndex: 0),
                   const Spacer(),
                   AppButton.primary(
-                    text: 'Get Started ➔',
+                    text: t.getStarted,
                     size: AppButtonSize.large,
                     isFullWidth: false,
                     width: 200,
@@ -339,7 +344,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 ],
               )
             : AppButton.primary(
-                text: _currentStep == 7 ? 'Create My Plan' : 'Continue',
+                text: _currentStep == 7 ? t.createMyPlan : t.continueCta,
                 size: AppButtonSize.large,
                 isLoading: _isCreatingPlan,
                 onPressed: _currentStep == 7 ? _createMyPlan : _nextStep,
