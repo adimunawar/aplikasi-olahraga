@@ -4,13 +4,14 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/models/dynamic_program_entity.dart';
 import '../../../../core/database/models/user_profile_entity.dart';
+import '../../../../core/database/models/workout_session_entity.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/services/app_data_sync.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
 import '../../../exercises/domain/models/exercise.dart';
-import '../../../plans/presentation/screens/plans_screen.dart';
+import '../../domain/models/program_week_schedule.dart';
 
 /// Halaman Workouts Utama Sesuai Mockup Referensi (Design System 1:1)
 class WorkoutsScreen extends StatefulWidget {
@@ -32,10 +33,10 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
 
   UserProfileEntity? _profile;
   TrainingProgramEntity? _activeProgram;
-  List<SessionWithDetail> _weekSessions = [];
-  Set<int> _completedDays = {};
+  List<ProgramSessionEntity> _programSessions = [];
+  List<WorkoutSessionEntity> _programWorkoutHistory = [];
   List<Exercise> _allExercises = [];
-  int _completedThisWeekCount = 0;
+  int? _selectedWeek;
 
   static const List<String> _muscleCategories = [
     'All',
@@ -73,30 +74,20 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
       var program = await _db.getActiveTrainingProgram(userId);
       program ??= await _db.getActiveTrainingProgram('default_user');
 
-      final List<SessionWithDetail> sessions = [];
-      if (program != null) {
-        final rawSessions = await _db.getProgramSessions(program.id);
-        for (final s in rawSessions) {
-          final detail = await _db.getProgramSessionDetail(s.id);
-          if (detail != null) {
-            sessions.add(SessionWithDetail(session: s, detail: detail));
-          }
-        }
-      }
-
-      final completedDays = program != null
-          ? await _db.getCompletedDayNumbers(program.id)
-          : <int>{};
-      final thisWeekCount = await _db.getThisWeekCompletedCount();
+      final sessions = program != null
+          ? await _db.getProgramSessions(program.id)
+          : <ProgramSessionEntity>[];
+      final workoutHistory = program != null
+          ? await _db.getWorkoutSessionsForProgram(program.id)
+          : <WorkoutSessionEntity>[];
       final exercises = await _exerciseDatasource.loadExercises();
 
       if (mounted) {
         setState(() {
           _profile = profile;
           _activeProgram = program;
-          _weekSessions = sessions;
-          _completedDays = completedDays;
-          _completedThisWeekCount = thisWeekCount;
+          _programSessions = sessions;
+          _programWorkoutHistory = workoutHistory;
           _allExercises = exercises;
           _isLoading = false;
         });
@@ -303,18 +294,43 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
 
   Widget _buildMyProgramTab() {
     final program = _activeProgram;
-    final totalWeeks =
-        _profile?.targetTimeframeWeeks ?? program?.durationWeeks ?? 8;
-    final currentWeek = program != null
-        ? ((DateTime.now().difference(program.startDate).inDays ~/ 7) + 1)
-              .clamp(1, totalWeeks)
-        : 1;
+    if (program == null) {
+      return _buildProgramEmptyState();
+    }
 
-    final targetWeekly = _profile?.weeklyFrequency ?? 3;
-    final totalSessions = totalWeeks * targetWeekly;
-    final progressPercent = totalSessions > 0
-        ? (_completedDays.length / totalSessions).clamp(0.0, 1.0)
-        : 0.12;
+    final configuredWeeks = _profile?.targetTimeframeWeeks ?? 0;
+    final totalWeeks = configuredWeeks > 0
+        ? configuredWeeks
+        : (program.durationWeeks > 0 ? program.durationWeeks : 8);
+    final today = ProgramWeekSchedule.dateOnly(DateTime.now());
+    final currentWeek = ProgramWeekSchedule.currentWeek(
+      programStartDate: program.startDate,
+      today: today,
+      totalWeeks: totalWeeks,
+    );
+    final selectedWeek = (_selectedWeek ?? currentWeek)
+        .clamp(1, totalWeeks)
+        .toInt();
+
+    final weeklySessions = ProgramWeekSchedule.build(
+      programStartDate: program.startDate,
+      weekNumber: selectedWeek,
+      availableDays: _profile?.availableDays ?? const [],
+      sessions: _programSessions,
+    );
+
+    final completedThisWeek = weeklySessions.where((scheduled) {
+      final record = _findWorkoutRecord(scheduled);
+      return record?.status == WorkoutSessionStatus.completed;
+    }).length;
+
+    final completedProgramSessions = _programWorkoutHistory
+        .where((session) => session.status == WorkoutSessionStatus.completed)
+        .length;
+    final totalProgramSessions = totalWeeks * _programSessions.length;
+    final progressPercent = totalProgramSessions > 0
+        ? (completedProgramSessions / totalProgramSessions).clamp(0.0, 1.0)
+        : 0.0;
     final percentInt = (progressPercent * 100).toInt();
 
     return Padding(
@@ -322,7 +338,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // A. Section Active Program
+          // A. Active Program
           Text(
             'Active Program',
             style: AppTypography.titleMedium.copyWith(
@@ -332,13 +348,11 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
             ),
           ),
           const SizedBox(height: 12),
-
           InkWell(
-            onTap: () {
-              if (program != null) {
-                context.push(AppRoutes.programDetail, extra: program);
-              }
-            },
+            onTap: () => context.push(
+              AppRoutes.programDetail,
+              extra: program.id,
+            ),
             borderRadius: BorderRadius.circular(20),
             child: Container(
               padding: const EdgeInsets.all(16),
@@ -385,7 +399,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              program?.name ?? 'Full Body Adaptive',
+                              program.name,
                               style: AppTypography.titleMedium.copyWith(
                                 fontWeight: FontWeight.w800,
                                 fontSize: 15.5,
@@ -452,12 +466,12 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
 
           const SizedBox(height: 24),
 
-          // B. Section This Week
+          // B. Selected program week
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'This Week',
+                selectedWeek == currentWeek ? 'This Week' : 'Week Schedule',
                 style: AppTypography.titleMedium.copyWith(
                   fontWeight: FontWeight.w900,
                   fontSize: 16.5,
@@ -465,7 +479,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                 ),
               ),
               Text(
-                '$_completedThisWeekCount/$targetWeekly workouts',
+                '$completedThisWeek/${weeklySessions.length} workouts',
                 style: AppTypography.bodySmall.copyWith(
                   color: const Color(0xFF6B7280),
                   fontSize: 12.5,
@@ -474,58 +488,219 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
               ),
             ],
           ),
+          const SizedBox(height: 10),
+          _buildWeekNavigation(
+            selectedWeek: selectedWeek,
+            currentWeek: currentWeek,
+            totalWeeks: totalWeeks,
+          ),
           const SizedBox(height: 12),
 
-          // List Sesi Latihan
-          if (_weekSessions.isEmpty)
-            _buildSampleWeekList()
+          if (weeklySessions.isEmpty)
+            _buildNoScheduledWorkouts()
           else
             ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: _weekSessions.length,
+              itemCount: weeklySessions.length,
               separatorBuilder: (_, __) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
-                final s = _weekSessions[index];
-                final dayNumber = s.session.dayNumber;
-                final isCompleted = _completedDays.contains(dayNumber);
+                final scheduled = weeklySessions[index];
+                final session = scheduled.session;
+                final record = _findWorkoutRecord(scheduled);
+                final isCompleted =
+                    record?.status == WorkoutSessionStatus.completed;
+                final isToday = _isSameDate(scheduled.scheduledDate, today);
+                final isCurrentSelectedWeek = selectedWeek == currentWeek;
                 final isActiveToday =
-                    !isCompleted &&
-                    (index == 0 ||
-                        _completedDays.contains(
-                          _weekSessions[index - 1].session.dayNumber,
-                        ));
+                    isCurrentSelectedWeek && isToday && !isCompleted;
+                final isMissed = !isCompleted &&
+                    scheduled.scheduledDate.isBefore(today);
+                final isUpcoming = !isCompleted && !isMissed && !isActiveToday;
 
-                final title = s.session.focusLabel.isNotEmpty
-                    ? s.session.focusLabel
-                    : s.session.name;
-                final duration = s.session.targetDurationMinutes > 0
-                    ? s.session.targetDurationMinutes
+                final title = session.focusLabel.isNotEmpty
+                    ? session.focusLabel
+                    : session.name;
+                final duration = session.targetDurationMinutes > 0
+                    ? session.targetDurationMinutes
                     : 30;
 
                 return _buildWorkoutSessionCard(
-                  dayNumber: dayNumber,
+                  dayNumber: session.dayNumber,
                   title: title,
                   durationMinutes: duration,
                   isCompleted: isCompleted,
                   isActiveToday: isActiveToday,
-                  onTap: () {
-                    context.push(
-                      AppRoutes.workoutDetail,
-                      extra: WorkoutDetailArgs(
-                        dayNumber: dayNumber,
-                        weekDayText: 'Week $currentWeek • Day $dayNumber',
-                        workoutTitle: title,
-                        targetMusclesText: s.session.focusLabel,
-                        durationText: '$duration min',
-                        levelText: _profile?.experienceLevel ?? 'Intermediate',
-                      ),
-                    );
-                  },
+                  isMissed: isMissed,
+                  isUpcoming: isUpcoming,
+                  onTap: isActiveToday
+                      ? () {
+                          context.push(
+                            AppRoutes.workoutDetail,
+                            extra: WorkoutDetailArgs(
+                              dayNumber: session.dayNumber,
+                              weekNumber: selectedWeek,
+                              programId: program.id,
+                              weekDayText: 'Week $selectedWeek • Day ${session.dayNumber}',
+                              workoutTitle: title,
+                              targetMusclesText: session.focusLabel,
+                              durationText: '$duration min',
+                              levelText: _profile?.experienceLevel ?? 'Beginner',
+                            ),
+                          );
+                        }
+                      : null,
                 );
               },
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildWeekNavigation({
+    required int selectedWeek,
+    required int currentWeek,
+    required int totalWeeks,
+  }) {
+    final isCurrentWeek = selectedWeek == currentWeek;
+    final badgeLabel = isCurrentWeek
+        ? 'Current Week'
+        : selectedWeek < currentWeek
+            ? 'Previous Week'
+            : 'Upcoming Week';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 1.1),
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            tooltip: 'Previous week',
+            visualDensity: VisualDensity.compact,
+            onPressed: selectedWeek > 1
+                ? () => setState(() => _selectedWeek = selectedWeek - 1)
+                : null,
+            icon: const Icon(Icons.chevron_left_rounded),
+          ),
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Week $selectedWeek of $totalWeeks',
+                  style: AppTypography.titleSmall.copyWith(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 14,
+                    color: const Color(0xFF141718),
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isCurrentWeek
+                        ? const Color(0xFFE9F8D5)
+                        : const Color(0xFFF3F4F6),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    badgeLabel,
+                    style: TextStyle(
+                      color: isCurrentWeek
+                          ? const Color(0xFF477B12)
+                          : const Color(0xFF6B7280),
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            tooltip: 'Next week',
+            visualDensity: VisualDensity.compact,
+            onPressed: selectedWeek < totalWeeks
+                ? () => setState(() => _selectedWeek = selectedWeek + 1)
+                : null,
+            icon: const Icon(Icons.chevron_right_rounded),
+          ),
+        ],
+      ),
+    );
+  }
+
+  WorkoutSessionEntity? _findWorkoutRecord(ProgramWeekSession scheduled) {
+    final targetDate = ProgramWeekSchedule.dateOnly(scheduled.scheduledDate);
+    final matchingRecords = _programWorkoutHistory.where((record) {
+      return record.programDayId == scheduled.session.dayNumber &&
+          _isSameDate(record.scheduledDate, targetDate);
+    }).toList();
+
+    for (final record in matchingRecords.reversed) {
+      if (record.status == WorkoutSessionStatus.completed) return record;
+    }
+    return matchingRecords.isNotEmpty ? matchingRecords.last : null;
+  }
+
+  bool _isSameDate(DateTime first, DateTime second) {
+    return first.year == second.year &&
+        first.month == second.month &&
+        first.day == second.day;
+  }
+
+  Widget _buildProgramEmptyState() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 48),
+      child: Center(
+        child: Column(
+          children: [
+            const Icon(
+              Icons.fitness_center_rounded,
+              size: 42,
+              color: Color(0xFF9CA3AF),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'No active program yet',
+              style: AppTypography.titleMedium.copyWith(
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF141718),
+              ),
+            ),
+            const SizedBox(height: 5),
+            const Text(
+              'Create a program to see your weekly workouts here.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Color(0xFF6B7280), fontSize: 12.5),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNoScheduledWorkouts() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
+      child: const Text(
+        'No workout sessions are scheduled for this week.',
+        textAlign: TextAlign.center,
+        style: TextStyle(color: Color(0xFF6B7280), fontSize: 12.5),
       ),
     );
   }
@@ -536,8 +711,40 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
     required int durationMinutes,
     required bool isCompleted,
     required bool isActiveToday,
-    required VoidCallback onTap,
+    required bool isMissed,
+    required bool isUpcoming,
+    required VoidCallback? onTap,
   }) {
+    final statusText = isCompleted
+        ? 'Completed'
+        : isActiveToday
+            ? 'Today • Ready to start'
+            : isMissed
+                ? 'Missed'
+                : 'Upcoming';
+
+    final statusColor = isCompleted
+        ? const Color(0xFF16A34A)
+        : isActiveToday
+            ? const Color(0xFF65A30D)
+            : const Color(0xFF9CA3AF);
+
+    final leadingIcon = isCompleted
+        ? Icons.check_circle_rounded
+        : isActiveToday
+            ? Icons.play_arrow_rounded
+            : isMissed
+                ? Icons.event_busy_rounded
+                : Icons.calendar_today_rounded;
+
+    final trailingIcon = isCompleted
+        ? Icons.check_circle_rounded
+        : isActiveToday
+            ? Icons.play_arrow_rounded
+            : isMissed
+                ? Icons.event_busy_rounded
+                : Icons.calendar_today_rounded;
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(18),
@@ -569,22 +776,14 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                 color: isCompleted
                     ? const Color(0xFFF0FDF4)
                     : (isActiveToday
-                          ? const Color(0xFFF9FED8)
-                          : const Color(0xFFF3F4F6)),
+                        ? const Color(0xFFF9FED8)
+                        : const Color(0xFFF3F4F6)),
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                isCompleted
-                    ? Icons.check_circle_rounded
-                    : (isActiveToday
-                          ? Icons.play_arrow_rounded
-                          : Icons.lock_outline_rounded),
+                leadingIcon,
                 size: 20,
-                color: isCompleted
-                    ? const Color(0xFF16A34A)
-                    : (isActiveToday
-                          ? const Color(0xFF65A30D)
-                          : const Color(0xFF9CA3AF)),
+                color: statusColor,
               ),
             ),
             const SizedBox(width: 14),
@@ -613,69 +812,23 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '$durationMinutes min',
+                    '$durationMinutes min • $statusText',
                     style: const TextStyle(
                       color: Color(0xFF9CA3AF),
-                      fontSize: 12,
+                      fontSize: 11.5,
                     ),
                   ),
                 ],
               ),
             ),
-            if (isActiveToday)
-              Container(
-                width: 38,
-                height: 38,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFD4F836),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.play_arrow_rounded,
-                  color: Color(0xFF141718),
-                  size: 22,
-                ),
-              )
-            else if (isCompleted)
-              const Icon(
-                Icons.check_circle_rounded,
-                color: Color(0xFF16A34A),
-                size: 22,
-              )
-            else
-              const Icon(
-                Icons.lock_outline_rounded,
-                color: Color(0xFFD1D5DB),
-                size: 20,
-              ),
+            Icon(
+              trailingIcon,
+              color: statusColor,
+              size: 22,
+            ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildSampleWeekList() {
-    final sample = [
-      {'day': 1, 'title': 'Chest, Quads & Core', 'min': 30, 'active': true},
-      {'day': 2, 'title': 'Back & Arms', 'min': 28, 'active': false},
-      {'day': 3, 'title': 'Full Body & Cardio', 'min': 32, 'active': false},
-    ];
-
-    return Column(
-      children: sample.map((d) {
-        final isActive = d['active'] as bool;
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: _buildWorkoutSessionCard(
-            dayNumber: d['day'] as int,
-            title: d['title'] as String,
-            durationMinutes: d['min'] as int,
-            isCompleted: false,
-            isActiveToday: isActive,
-            onTap: () {},
-          ),
-        );
-      }).toList(),
     );
   }
 
