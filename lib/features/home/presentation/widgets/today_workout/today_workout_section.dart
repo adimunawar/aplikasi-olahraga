@@ -51,7 +51,6 @@ class TodayWorkoutSection extends StatelessWidget {
         );
       case WorkoutCardState.completed:
         return TodayWorkoutCompletedView(
-          durationMinutes: durationMinutes,
           onHydrationTap: onHydrationTap,
           onSleepTap: onSleepTap,
           onStretchingTap: onStretchingTap,
