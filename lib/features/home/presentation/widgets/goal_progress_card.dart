@@ -62,8 +62,7 @@ class GoalProgressCard extends StatelessWidget {
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFFFCFDF9), Color(0xFFF1F9E3), Color(0xFFE2F8A0)],
-            stops: [0.0, 0.55, 1.0],
+            colors: [Color(0xFFFCFDF9), Color(0xFFF7FAF1)],
           ),
           border: Border.all(color: const Color(0xFFD4EBA8), width: 1.2),
           boxShadow: [
@@ -78,28 +77,24 @@ class GoalProgressCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
           child: Stack(
             children: [
-              // 1. Organic Shape Blobs di belakang Coach (Sesuai Mockup 1:1)
+              // Soft lime glow behind the coach. Keep it subtle so it
+              // supports the hero image without creating visible green blocks.
               Positioned(
-                right: 18,
-                top: 8,
-                child: Container(
-                  width: 125,
-                  height: 125,
+                right: -36,
+                top: 2,
+                width: 232,
+                height: 232,
+                child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE9F8C6),
-                    borderRadius: BorderRadius.circular(50),
-                  ),
-                ),
-              ),
-              Positioned(
-                right: -25,
-                top: 55,
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFDCF698).withOpacity(0.65),
                     shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        const Color(0xFFDDF2B4).withValues(alpha: 0.72),
+                        const Color(0xFFDDF2B4).withValues(alpha: 0.28),
+                        const Color(0xFFDDF2B4).withValues(alpha: 0.0),
+                      ],
+                      stops: [0.0, 0.58, 1.0],
+                    ),
                   ),
                 ),
               ),
@@ -114,26 +109,6 @@ class GoalProgressCard extends StatelessWidget {
                   'assets/images/coach_crossed_arms.png',
                   fit: BoxFit.cover,
                   alignment: Alignment.topCenter,
-                ),
-              ),
-
-              // 3. Smooth Lime Gradient Wash di bagian bawah tubuh Coach (Sesuai Mockup)
-              Positioned(
-                right: 0,
-                bottom: 0,
-                width: 160,
-                height: 95,
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        const Color(0x00C7F135),
-                        const Color(0xFFC7F135),
-                      ],
-                    ),
-                  ),
                 ),
               ),
 
