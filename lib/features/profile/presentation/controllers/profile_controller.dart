@@ -246,8 +246,11 @@ class ProfileController extends StateNotifier<ProfileState> {
       final profile = await _repository.getUserProfile();
       final updatedAt = DateTime.now();
       final userId = profile.id.isNotEmpty ? profile.id : 'default_user';
-      final activeProgram = await AppDatabase.instance
+      var activeProgram = await AppDatabase.instance
           .getActiveTrainingProgram(userId)
+          .catchError((_) => null);
+      activeProgram ??= await AppDatabase.instance
+          .getActiveTrainingProgram('default_user')
           .catchError((_) => null);
 
       // Keep the existing program's weekday anchor when only duration or
