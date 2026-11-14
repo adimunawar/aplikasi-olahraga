@@ -129,9 +129,8 @@ class GoalProgressCard extends StatelessWidget {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        // const Color(0xFFE2F8A0).withOpacity(0.0),
-                        // const Color(0xFFD6F678).withOpacity(0.60),
-                        const Color(0xFFC7F135).withValues(alpha: 0.92),
+                        const Color(0x00C7F135),
+                        const Color(0xFFC7F135),
                       ],
                     ),
                   ),
