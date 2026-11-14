@@ -245,9 +245,21 @@ class ProfileController extends StateNotifier<ProfileState> {
     try {
       final profile = await _repository.getUserProfile();
       final updatedAt = DateTime.now();
+      final userId = profile.id.isNotEmpty ? profile.id : 'default_user';
+      final activeProgram =
+          await AppDatabase.instance.getActiveTrainingProgram(userId);
+
+      // Keep the existing program's weekday anchor when only duration or
+      // intensity changes. A frequency change starts a fresh schedule today;
+      // HomeController will regenerate the matching session templates.
+      final scheduleStartDate =
+          activeProgram != null &&
+              activeProgram.weeklyFrequency == trainingDaysPerWeek
+          ? activeProgram.startDate
+          : updatedAt;
       final availableDays = _getAvailableDays(
         trainingDaysPerWeek,
-        startDate: updatedAt,
+        startDate: scheduleStartDate,
       );
 
       final updatedProfile = profile.copyWith(
