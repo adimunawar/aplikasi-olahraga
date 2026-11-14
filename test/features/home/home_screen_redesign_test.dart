@@ -99,7 +99,11 @@ void main() {
       expect(planViewed, isTrue);
     });
 
-    testWidgets('TodayWorkoutSection renders rest day state with recovery tips', (tester) async {
+    testWidgets('TodayWorkoutSection renders actionable rest day recovery tips', (tester) async {
+      var hydrationOpened = false;
+      var sleepOpened = false;
+      var stretchingOpened = false;
+
       await tester.pumpWidget(
         createLocalizedTestWidget(
           TodayWorkoutSection(
@@ -109,10 +113,9 @@ void main() {
             durationMinutes: 0,
             onStartWorkout: () {},
             onViewPlan: () {},
-            onHydrationTap: () {},
-            onSleepTap: () {},
-            onStretchingTap: () {},
-
+            onHydrationTap: () => hydrationOpened = true,
+            onSleepTap: () => sleepOpened = true,
+            onStretchingTap: () => stretchingOpened = true,
           ),
         ),
       );
@@ -122,6 +125,34 @@ void main() {
       expect(find.text('Cukupi kebutuhan cairan tubuh'), findsOneWidget);
       expect(find.text('Tidur cukup 7–9 jam'), findsOneWidget);
       expect(find.text('Lakukan peregangan ringan atau mobilitas'), findsOneWidget);
+
+      await tester.tap(find.text('Cukupi kebutuhan cairan tubuh'));
+      await tester.pump();
+      expect(hydrationOpened, isTrue);
+      expect(sleepOpened, isFalse);
+      expect(stretchingOpened, isFalse);
+    });
+
+    testWidgets('TodayWorkoutSection keeps completed workout separate from rest day', (tester) async {
+      await tester.pumpWidget(
+        createLocalizedTestWidget(
+          TodayWorkoutSection(
+            state: WorkoutCardState.completed,
+            sessionTitle: '',
+            targetMuscles: '',
+            durationMinutes: 0,
+            onStartWorkout: () {},
+            onViewPlan: () {},
+            onHydrationTap: () {},
+            onSleepTap: () {},
+            onStretchingTap: () {},
+          ),
+        ),
+      );
+
+      expect(find.text('Latihan hari ini selesai!'), findsOneWidget);
+      expect(find.text('Hari Ini Istirahat'), findsNothing);
+      expect(find.text('Tips Pemulihan'), findsOneWidget);
     });
 
     testWidgets('TodayWorkoutSection renders no program state with create button', (tester) async {
@@ -185,6 +216,7 @@ void main() {
       expect(find.text('Sun'), findsOneWidget);
       expect(find.byIcon(Icons.check_rounded), findsNWidgets(2));
       expect(find.byIcon(Icons.fitness_center_rounded), findsOneWidget);
+      expect(find.text(now.day.toString()), findsNWidgets(7));
     });
 
     testWidgets('SupportGoalNutritionCard renders nutrition goal support', (tester) async {
