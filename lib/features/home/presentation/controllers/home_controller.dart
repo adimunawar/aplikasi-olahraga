@@ -49,6 +49,8 @@ class HomeController extends StateNotifier<HomeState> {
   final AppDataSync _appDataSync;
 
   int _lastKnownRevision = -1;
+  bool _isLoadingHomeData = false;
+  bool _reloadRequested = false;
 
   HomeController({
     required this._db,
@@ -100,7 +102,14 @@ class HomeController extends StateNotifier<HomeState> {
   /// Memuat data Home secara optimal.
   /// Menghindari query berulang saat tab switch jika data belum basi/berubah.
   Future<void> loadHomeData({bool forceReload = false}) async {
-    final now = DateTime.now();
+    if (_isLoadingHomeData) {
+      _reloadRequested = true;
+      return;
+    }
+    _isLoadingHomeData = true;
+
+    try {
+      final now = DateTime.now();
     final today = ProgramWeekSchedule.dateOnly(now);
 
     // Keep the cached Home data for a short period unless the database changed.
@@ -388,6 +397,13 @@ class HomeController extends StateNotifier<HomeState> {
         errorType: HomeErrorType.database,
         errorMessage: 'Database load error: $e',
       );
+    }
+    } finally {
+      _isLoadingHomeData = false;
+      if (_reloadRequested) {
+        _reloadRequested = false;
+        await loadHomeData(forceReload: true);
+      }
     }
   }
 
