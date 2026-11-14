@@ -5,8 +5,8 @@ enum RecoveryGuideType { hydration, sleep }
 Future<void> showRecoveryGuideBottomSheet(
   BuildContext context,
   RecoveryGuideType type,
-) {
-  return showModalBottomSheet<void>(
+) async {
+  await showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
