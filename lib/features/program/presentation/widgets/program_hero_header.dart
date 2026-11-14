@@ -65,7 +65,7 @@ class ProgramHeroHeader extends StatelessWidget {
                 width: 140,
                 height: 100,
                 decoration: BoxDecoration(
-                  color: AppColors.limeAccent.withOpacity(0.9),
+                  color: AppColors.limeAccent.withValues(alpha: 0.9),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.elliptical(120, 80),
                   ),
@@ -109,7 +109,7 @@ class ProgramHeroHeader extends StatelessWidget {
                     child: Text(
                       program.description.en,
                       style: AppTypography.bodySmall.copyWith(
-                        color: Colors.white.withOpacity(0.85),
+                        color: Colors.white.withValues(alpha: 0.85),
                         fontSize: 12,
                         height: 1.35,
                       ),
@@ -126,10 +126,10 @@ class ProgramHeroHeader extends StatelessWidget {
                       vertical: 10,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.35),
+                      color: Colors.black.withValues(alpha: 0.35),
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.12),
+                        color: Colors.white.withValues(alpha: 0.12),
                         width: 1,
                       ),
                     ),
@@ -191,7 +191,7 @@ class ProgramHeroHeader extends StatelessWidget {
             Text(
               subtitle,
               style: AppTypography.labelSmall.copyWith(
-                color: Colors.white.withOpacity(0.7),
+                color: Colors.white.withValues(alpha: 0.7),
                 fontSize: 10,
                 height: 1.1,
               ),
@@ -207,7 +207,7 @@ class ProgramHeroHeader extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 12),
       width: 1,
       height: 24,
-      color: Colors.white.withOpacity(0.2),
+      color: Colors.white.withValues(alpha: 0.2),
     );
   }
 }

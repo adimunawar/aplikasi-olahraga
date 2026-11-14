@@ -22,10 +22,9 @@ class ProgramDetailController extends StateNotifier<ProgramDetailState> {
 
   ProgramDetailController({
     required String programId,
-    required AppDatabase database,
+    required this._database,
     required ProgramsMockDatasource mockDatasource,
   })  : _programId = programId,
-        _database = database,
         _mockDatasource = mockDatasource,
         super(
           ProgramDetailState(

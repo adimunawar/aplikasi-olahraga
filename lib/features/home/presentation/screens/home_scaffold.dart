@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/services/app_data_sync.dart';
 import '../../../../core/theme/app_typography.dart';
 import 'home_screen.dart';
 import '../../../plans/presentation/screens/plans_screen.dart';
@@ -36,8 +35,6 @@ class _HomeScaffoldState extends State<HomeScaffold> {
     } else {
       setState(() => _currentIndex = index);
     }
-    // Memicu sinkronisasi data antar tab agar data selalu mutakhir
-    AppDataSync.instance.notifyDataChanged();
   }
 
   @override

@@ -57,9 +57,9 @@ class RoadmapHeaderCard extends StatelessWidget {
                   begin: Alignment.topRight,
                   end: Alignment.bottomLeft,
                   colors: [
-                    const Color(0xFF84CC16).withOpacity(0.95),
-                    const Color(0xFF84CC16).withOpacity(0.70),
-                    const Color(0xFF4D7C0F).withOpacity(0.35),
+                    const Color(0xFF84CC16).withValues(alpha: 0.95),
+                    const Color(0xFF84CC16).withValues(alpha: 0.70),
+                    const Color(0xFF4D7C0F).withValues(alpha: 0.35),
                   ],
                 ),
               ),
@@ -184,10 +184,10 @@ class RoadmapHeaderCard extends StatelessWidget {
                         vertical: 10,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.08),
+                        color: Colors.white.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.18),
+                          color: Colors.white.withValues(alpha: 0.18),
                           width: 1.2,
                         ),
                       ),
@@ -199,7 +199,7 @@ class RoadmapHeaderCard extends StatelessWidget {
                               Text(
                                 'Target Program Keseluruhan',
                                 style: AppTypography.bodySmall.copyWith(
-                                  color: Colors.white.withOpacity(0.85),
+                                  color: Colors.white.withValues(alpha: 0.85),
                                   fontSize: 10.5,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -237,7 +237,7 @@ class RoadmapHeaderCard extends StatelessWidget {
                             child: LinearProgressIndicator(
                               value: (progressPercent / 100).clamp(0.05, 1.0),
                               minHeight: 6,
-                              backgroundColor: Colors.white.withOpacity(0.15),
+                              backgroundColor: Colors.white.withValues(alpha: 0.15),
                               valueColor: const AlwaysStoppedAnimation<Color>(
                                 Color(0xFF84CC16),
                               ),

@@ -123,7 +123,7 @@ class StepAbout extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isSelected ? 0.04 : 0.02),
+              color: Colors.black.withValues(alpha: isSelected ? 0.04 : 0.02),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),

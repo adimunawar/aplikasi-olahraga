@@ -39,7 +39,7 @@ class OnboardingWelcomeStep extends StatelessWidget {
               'assets/images/onboarding_bg.jpg',
               fit: BoxFit.cover,
               alignment: Alignment.center,
-              errorBuilder: (_, __, ___) =>
+              errorBuilder: (_, _, _) =>
                   Container(color: const Color(0xFFF4F6F2)),
             ),
           ),
@@ -64,7 +64,7 @@ class OnboardingWelcomeStep extends StatelessWidget {
               'assets/images/coach_pointing.png',
               fit: BoxFit.contain,
               alignment: Alignment.bottomCenter,
-              errorBuilder: (_, __, ___) => Image.asset(
+              errorBuilder: (_, _, _) => Image.asset(
                 'assets/images/coach_character.png',
                 fit: BoxFit.contain,
                 alignment: Alignment.bottomCenter,

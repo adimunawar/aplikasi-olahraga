@@ -225,7 +225,7 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.limeAccent.withOpacity(0.35),
+                        color: AppColors.limeAccent.withValues(alpha: 0.35),
                         blurRadius: 28,
                         spreadRadius: 4,
                       ),

@@ -81,7 +81,7 @@ class StepExperience extends StatelessWidget {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: AppColors.limeAccent.withOpacity(0.2),
+                    color: AppColors.limeAccent.withValues(alpha: 0.2),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),

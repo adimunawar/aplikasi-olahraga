@@ -714,8 +714,8 @@ class _LineChartPainter extends CustomPainter {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          const Color(0xFF84CC16).withOpacity(0.25),
-          const Color(0xFF84CC16).withOpacity(0.0),
+          const Color(0xFF84CC16).withValues(alpha: 0.25),
+          const Color(0xFF84CC16).withValues(alpha: 0.0),
         ],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height))
       ..style = PaintingStyle.fill;

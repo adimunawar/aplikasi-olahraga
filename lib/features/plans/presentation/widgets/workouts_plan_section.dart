@@ -262,7 +262,7 @@ class WorkoutsPlanSection extends StatelessWidget {
             border: Border.all(color: const Color(0xFFF1F5F9), width: 1.2),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.04),
+                color: Colors.black.withValues(alpha: 0.04),
                 blurRadius: 14,
                 offset: const Offset(0, 4),
               ),
@@ -345,7 +345,7 @@ class WorkoutsPlanSection extends StatelessWidget {
                                         child: Image.asset(
                                           thumbPath,
                                           fit: BoxFit.cover,
-                                          errorBuilder: (ctx, _, __) {
+                                          errorBuilder: (ctx, _, _) {
                                             return const Center(
                                               child: Icon(
                                                 Icons.fitness_center_rounded,

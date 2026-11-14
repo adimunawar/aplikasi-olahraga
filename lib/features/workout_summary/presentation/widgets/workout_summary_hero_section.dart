@@ -52,7 +52,7 @@ class WorkoutSummaryHeroSection extends StatelessWidget {
                 height: 170,
                 fit: BoxFit.contain,
                 alignment: Alignment.bottomCenter,
-                errorBuilder: (_, __, ___) => Image.asset(
+                errorBuilder: (_, _, _) => Image.asset(
                   'assets/images/coach_celebration.png',
                   height: 170,
                   fit: BoxFit.contain,
@@ -97,7 +97,7 @@ class WorkoutSummaryHeroSection extends StatelessWidget {
                   // Percikan selebrasi
                   Icon(
                     Icons.auto_awesome_rounded,
-                    color: const Color(0xFF84CC16).withOpacity(0.8),
+                    color: const Color(0xFF84CC16).withValues(alpha: 0.8),
                     size: 18,
                   ),
                 ],

@@ -23,8 +23,8 @@ class ProfileHeader extends StatelessWidget {
               shape: BoxShape.circle,
               gradient: RadialGradient(
                 colors: [
-                  const Color(0xFFC7F135).withOpacity(0.35),
-                  const Color(0xFFC7F135).withOpacity(0.0),
+                  const Color(0xFFC7F135).withValues(alpha: 0.35),
+                  const Color(0xFFC7F135).withValues(alpha: 0.0),
                 ],
               ),
             ),

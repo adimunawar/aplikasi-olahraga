@@ -138,12 +138,12 @@ class _ExerciseDemoCardState extends State<ExerciseDemoCard> {
                   'assets/images/exercises/${widget.exercise.id}.webp',
                   fit: BoxFit.contain,
                   gaplessPlayback: true,
-                  errorBuilder: (_, __, ___) {
+                  errorBuilder: (_, _, _) {
                     return Image.asset(
                       widget.exercise.media.startPose,
                       fit: BoxFit.contain,
                       gaplessPlayback: true,
-                      errorBuilder: (_, __, ___) {
+                      errorBuilder: (_, _, _) {
                         return Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,

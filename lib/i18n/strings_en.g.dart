@@ -54,6 +54,8 @@ class TranslationsEn extends Translations with BaseTranslations<AppLocale, Trans
   @override
   late final _Translations$core$en core = _Translations$core$en._(_root);
   @override
+  late final _Translations$home$en home = _Translations$home$en._(_root);
+  @override
   late final _Translations$onboarding$en onboarding = _Translations$onboarding$en._(_root);
 }
 
@@ -76,6 +78,36 @@ class _Translations$core$en extends Translations$core$id {
   late final _Translations$core$language$en language = _Translations$core$language$en._(_root);
   @override
   late final _Translations$core$units$en units = _Translations$core$units$en._(_root);
+}
+
+// Path: home
+class _Translations$home$en extends Translations$home$id {
+  _Translations$home$en._(TranslationsEn root) : this._root = root, super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  late final _Translations$home$greeting$en greeting = _Translations$home$greeting$en._(_root);
+  @override
+  late final _Translations$home$goalCard$en goalCard = _Translations$home$goalCard$en._(_root);
+  @override
+  late final _Translations$home$todayWorkout$en todayWorkout = _Translations$home$todayWorkout$en._(
+    _root,
+  );
+  @override
+  late final _Translations$home$restDay$en restDay = _Translations$home$restDay$en._(_root);
+  @override
+  late final _Translations$home$noProgram$en noProgram = _Translations$home$noProgram$en._(_root);
+  @override
+  late final _Translations$home$weeklyProgress$en weeklyProgress =
+      _Translations$home$weeklyProgress$en._(_root);
+  @override
+  late final _Translations$home$supportGoal$en supportGoal = _Translations$home$supportGoal$en._(
+    _root,
+  );
+  @override
+  late final _Translations$home$error$en error = _Translations$home$error$en._(_root);
 }
 
 // Path: onboarding
@@ -208,6 +240,161 @@ class _Translations$core$units$en extends Translations$core$units$id {
   String get seconds => 'sec';
   @override
   String get kg => 'kg';
+}
+
+// Path: home.greeting
+class _Translations$home$greeting$en extends Translations$home$greeting$id {
+  _Translations$home$greeting$en._(TranslationsEn root) : this._root = root, super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String goodMorning({required Object name}) => 'Good Morning, ${name} 👋';
+  @override
+  String goodAfternoon({required Object name}) => 'Good Afternoon, ${name} 👋';
+  @override
+  String goodEvening({required Object name}) => 'Good Evening, ${name} 👋';
+  @override
+  String get subtitle => 'Stay consistent and reach your goal!';
+}
+
+// Path: home.goalCard
+class _Translations$home$goalCard$en extends Translations$home$goalCard$id {
+  _Translations$home$goalCard$en._(TranslationsEn root) : this._root = root, super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get goalPrefix => 'Goal:';
+  @override
+  String get gainWeight => 'Gain Weight & Build Muscle';
+  @override
+  String get fatLoss => 'Fat Loss & Build Lean Body';
+  @override
+  String get maintain => 'Maintain & Stay Fit';
+  @override
+  String get target => 'Target';
+  @override
+  String get current => 'Current';
+  @override
+  String programDuration({required Object weeks}) => '${weeks} Weeks Program';
+  @override
+  String weekOf({required Object current, required Object total}) => 'Week ${current} of ${total}';
+}
+
+// Path: home.todayWorkout
+class _Translations$home$todayWorkout$en extends Translations$home$todayWorkout$id {
+  _Translations$home$todayWorkout$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Today\'s Workout';
+  @override
+  String get viewPlan => 'View Plan →';
+  @override
+  String get startWorkout => 'Start Workout';
+  @override
+  String approxMin({required Object min}) => '≈ ${min} min';
+  @override
+  String approxKcal({required Object kcal}) => '≈ ${kcal} kcal';
+}
+
+// Path: home.restDay
+class _Translations$home$restDay$en extends Translations$home$restDay$id {
+  _Translations$home$restDay$en._(TranslationsEn root) : this._root = root, super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Today is a Rest Day';
+  @override
+  String get subtitle => 'Time to recover, let your muscles repair and grow.';
+  @override
+  String get recoveryTips => 'Recovery Tips';
+  @override
+  String get hydrate => 'Stay hydrated';
+  @override
+  String get sleep => 'Get 7–9 hours of sleep';
+  @override
+  String get stretch => 'Do light stretching or mobility';
+}
+
+// Path: home.noProgram
+class _Translations$home$noProgram$en extends Translations$home$noProgram$id {
+  _Translations$home$noProgram$en._(TranslationsEn root) : this._root = root, super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'You don\'t have a training program yet';
+  @override
+  String get subtitle =>
+      'Create a personalized training plan based on your goal, profile, and preference.';
+  @override
+  String get createProgram => 'Create My Program';
+}
+
+// Path: home.weeklyProgress
+class _Translations$home$weeklyProgress$en extends Translations$home$weeklyProgress$id {
+  _Translations$home$weeklyProgress$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'This Week Progress';
+  @override
+  String get seeDetails => 'See Details →';
+  @override
+  late final _Translations$home$weeklyProgress$states$en states =
+      _Translations$home$weeklyProgress$states$en._(_root);
+}
+
+// Path: home.supportGoal
+class _Translations$home$supportGoal$en extends Translations$home$supportGoal$id {
+  _Translations$home$supportGoal$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Support Your Goal';
+  @override
+  String get subtitleGain => 'Get simple nutrition tips for muscle gain.';
+  @override
+  String get subtitleLoss => 'Get simple nutrition tips for fat loss.';
+  @override
+  String get subtitleMaintain => 'Get simple nutrition tips to stay fit.';
+}
+
+// Path: home.error
+class _Translations$home$error$en extends Translations$home$error$id {
+  _Translations$home$error$en._(TranslationsEn root) : this._root = root, super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get connectionIssue => 'Connection issue';
+  @override
+  String get connectionDesc =>
+      'Some information couldn\'t be refreshed. Showing your last available data.';
+  @override
+  String lastSynced({required Object time}) => 'Last synced: ${time}';
+  @override
+  String get retry => 'Retry';
 }
 
 // Path: onboarding.nav
@@ -499,6 +686,28 @@ class _Translations$onboarding$preview$en extends Translations$onboarding$previe
   @override
   String prescription({required Object sets, required Object reps, required Object rests}) =>
       '${sets} sets • ${reps} reps • ${rests} rest';
+}
+
+// Path: home.weeklyProgress.states
+class _Translations$home$weeklyProgress$states$en
+    extends Translations$home$weeklyProgress$states$id {
+  _Translations$home$weeklyProgress$states$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get completed => 'Completed (workout done)';
+  @override
+  String get today => 'Today (scheduled workout)';
+  @override
+  String get rest => 'Rest day';
+  @override
+  String get upcoming => 'Upcoming (not yet)';
+  @override
+  String get missed => 'Missed';
 }
 
 // Path: onboarding.goal.options.0
@@ -941,6 +1150,49 @@ extension on TranslationsEn {
       'core.units.sets' => 'sets',
       'core.units.seconds' => 'sec',
       'core.units.kg' => 'kg',
+      'home.greeting.goodMorning' => ({required Object name}) => 'Good Morning, ${name} 👋',
+      'home.greeting.goodAfternoon' => ({required Object name}) => 'Good Afternoon, ${name} 👋',
+      'home.greeting.goodEvening' => ({required Object name}) => 'Good Evening, ${name} 👋',
+      'home.greeting.subtitle' => 'Stay consistent and reach your goal!',
+      'home.goalCard.goalPrefix' => 'Goal:',
+      'home.goalCard.gainWeight' => 'Gain Weight & Build Muscle',
+      'home.goalCard.fatLoss' => 'Fat Loss & Build Lean Body',
+      'home.goalCard.maintain' => 'Maintain & Stay Fit',
+      'home.goalCard.target' => 'Target',
+      'home.goalCard.current' => 'Current',
+      'home.goalCard.programDuration' => ({required Object weeks}) => '${weeks} Weeks Program',
+      'home.goalCard.weekOf' => ({required Object current, required Object total}) => 'Week ${current} of ${total}',
+      'home.todayWorkout.title' => 'Today\'s Workout',
+      'home.todayWorkout.viewPlan' => 'View Plan →',
+      'home.todayWorkout.startWorkout' => 'Start Workout',
+      'home.todayWorkout.approxMin' => ({required Object min}) => '≈ ${min} min',
+      'home.todayWorkout.approxKcal' => ({required Object kcal}) => '≈ ${kcal} kcal',
+      'home.restDay.title' => 'Today is a Rest Day',
+      'home.restDay.subtitle' => 'Time to recover, let your muscles repair and grow.',
+      'home.restDay.recoveryTips' => 'Recovery Tips',
+      'home.restDay.hydrate' => 'Stay hydrated',
+      'home.restDay.sleep' => 'Get 7–9 hours of sleep',
+      'home.restDay.stretch' => 'Do light stretching or mobility',
+      'home.noProgram.title' => 'You don\'t have a training program yet',
+      'home.noProgram.subtitle' =>
+        'Create a personalized training plan based on your goal, profile, and preference.',
+      'home.noProgram.createProgram' => 'Create My Program',
+      'home.weeklyProgress.title' => 'This Week Progress',
+      'home.weeklyProgress.seeDetails' => 'See Details →',
+      'home.weeklyProgress.states.completed' => 'Completed (workout done)',
+      'home.weeklyProgress.states.today' => 'Today (scheduled workout)',
+      'home.weeklyProgress.states.rest' => 'Rest day',
+      'home.weeklyProgress.states.upcoming' => 'Upcoming (not yet)',
+      'home.weeklyProgress.states.missed' => 'Missed',
+      'home.supportGoal.title' => 'Support Your Goal',
+      'home.supportGoal.subtitleGain' => 'Get simple nutrition tips for muscle gain.',
+      'home.supportGoal.subtitleLoss' => 'Get simple nutrition tips for fat loss.',
+      'home.supportGoal.subtitleMaintain' => 'Get simple nutrition tips to stay fit.',
+      'home.error.connectionIssue' => 'Connection issue',
+      'home.error.connectionDesc' =>
+        'Some information couldn\'t be refreshed. Showing your last available data.',
+      'home.error.lastSynced' => ({required Object time}) => 'Last synced: ${time}',
+      'home.error.retry' => 'Retry',
       'onboarding.nav.progress' => ({
         required Object current,
         required Object total,
