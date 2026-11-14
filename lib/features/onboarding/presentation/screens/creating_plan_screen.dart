@@ -78,6 +78,7 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
         userProfile: profile,
         catalogExercises: catalog,
         startingPushExerciseId: startingPushId,
+        startDate: profile.updatedAt,
       );
       if (generated.sessions.isEmpty) {
         throw StateError(
