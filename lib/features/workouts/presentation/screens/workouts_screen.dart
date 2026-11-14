@@ -329,7 +329,9 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
         .length;
     final totalProgramSessions = totalWeeks * _programSessions.length;
     final progressPercent = totalProgramSessions > 0
-        ? (completedProgramSessions / totalProgramSessions).clamp(0.0, 1.0)
+        ? (completedProgramSessions / totalProgramSessions)
+            .clamp(0.0, 1.0)
+            .toDouble()
         : 0.0;
     final percentInt = (progressPercent * 100).toInt();
 
@@ -494,7 +496,24 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
             currentWeek: currentWeek,
             totalWeeks: totalWeeks,
           ),
-          const SizedBox(height: 12),
+          if (selectedWeek != currentWeek)
+            Align(
+              alignment: Alignment.center,
+              child: TextButton.icon(
+                onPressed: () => setState(() => _selectedWeek = currentWeek),
+                icon: const Icon(Icons.today_rounded, size: 16),
+                label: const Text('Back to Current Week'),
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFF4D7C0F),
+                  textStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  visualDensity: VisualDensity.compact,
+                ),
+              ),
+            ),
+          const SizedBox(height: 8),
 
           if (weeklySessions.isEmpty)
             _buildNoScheduledWorkouts()
