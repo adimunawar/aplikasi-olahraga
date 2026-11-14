@@ -97,19 +97,6 @@ class HomeController extends StateNotifier<HomeState> {
     return days[(weekday - 1).clamp(0, 6)];
   }
 
-  String _weekdayToString(int weekday) {
-    const days = [
-      'monday',
-      'tuesday',
-      'wednesday',
-      'thursday',
-      'friday',
-      'saturday',
-      'sunday',
-    ];
-    return days[(weekday - 1).clamp(0, 6)];
-  }
-
   /// Memuat data Home secara optimal.
   /// Menghindari query berulang saat tab switch jika data belum basi/berubah.
   Future<void> loadHomeData({bool forceReload = false}) async {
@@ -334,7 +321,7 @@ class HomeController extends StateNotifier<HomeState> {
             !dateOnly.isBefore(
               ProgramWeekSchedule.dateOnly(programStartDate),
             );
-        final dayStr = _weekdayToString(date.weekday);
+        final dayStr = ProgramWeekSchedule.weekdayNames[date.weekday - 1];
         final isTrainingScheduled =
             isInsideProgram && profile.availableDays.contains(dayStr);
 
