@@ -9,7 +9,6 @@ class GoalProgressCard extends StatelessWidget {
   final String goalTitle;
   final double targetWeightKg;
   final double currentWeightKg;
-  final double? weightDeltaKg;
   final int totalWeeks;
   final int currentWeek;
   final VoidCallback? onTap;
@@ -19,7 +18,6 @@ class GoalProgressCard extends StatelessWidget {
     required this.goalTitle,
     required this.targetWeightKg,
     required this.currentWeightKg,
-    this.weightDeltaKg,
     this.totalWeeks = 12,
     this.currentWeek = 1,
     this.onTap,
@@ -31,11 +29,29 @@ class GoalProgressCard extends StatelessWidget {
     final clampedCurrentWeek = currentWeek.clamp(1, totalWeeks);
     final progressPercent = (clampedCurrentWeek / totalWeeks).clamp(0.0, 1.0);
 
-    final delta = weightDeltaKg ?? (currentWeightKg - targetWeightKg);
-    final isGainGoal =
-        goalTitle.toLowerCase().contains('gain') ||
-        goalTitle.toLowerCase().contains('naik') ||
-        goalTitle.toLowerCase().contains('bulk');
+    final normalizedGoal = goalTitle.toLowerCase();
+    final isGainGoal = normalizedGoal.contains('gain') ||
+        normalizedGoal.contains('naik') ||
+        normalizedGoal.contains('bulk');
+    final isLossGoal = normalizedGoal.contains('loss') ||
+        normalizedGoal.contains('fat') ||
+        normalizedGoal.contains('turun');
+    final hasReachedTarget = isGainGoal
+        ? currentWeightKg >= targetWeightKg
+        : isLossGoal
+            ? currentWeightKg <= targetWeightKg
+            : (currentWeightKg - targetWeightKg).abs() <= 0.5;
+    final remainingToTargetKg = isGainGoal
+        ? (targetWeightKg - currentWeightKg).clamp(0.0, double.infinity).toDouble()
+        : isLossGoal
+            ? (currentWeightKg - targetWeightKg).clamp(0.0, double.infinity).toDouble()
+            : (currentWeightKg - targetWeightKg).abs();
+    final isIndonesian = Localizations.localeOf(context).languageCode == 'id';
+    final targetStatusLabel = hasReachedTarget
+        ? (isIndonesian ? 'Target tercapai' : 'Target reached')
+        : isIndonesian
+            ? '${remainingToTargetKg.toStringAsFixed(1)} kg lagi'
+            : '${remainingToTargetKg.toStringAsFixed(1)} kg to go';
 
     return GestureDetector(
       onTap: onTap,
@@ -198,7 +214,7 @@ class GoalProgressCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 22),
 
-                        // Current
+                        // Current weight and honest distance-to-target status.
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -211,49 +227,45 @@ class GoalProgressCard extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 2),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  '${currentWeightKg.toStringAsFixed(1)} kg',
-                                  style: AppTypography.titleLarge.copyWith(
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: 18,
-                                    color: AppColors.darkCharcoal,
+                            Text(
+                              '${currentWeightKg.toStringAsFixed(1)} kg',
+                              style: AppTypography.titleLarge.copyWith(
+                                fontWeight: FontWeight.w900,
+                                fontSize: 18,
+                                color: AppColors.darkCharcoal,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 3,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFDCFCE7),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    hasReachedTarget
+                                        ? Icons.check_circle_rounded
+                                        : Icons.track_changes_rounded,
+                                    size: 12,
+                                    color: const Color(0xFF15803D),
                                   ),
-                                ),
-                                const SizedBox(width: 6),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 5,
-                                    vertical: 2,
+                                  const SizedBox(width: 3),
+                                  Text(
+                                    targetStatusLabel,
+                                    style: const TextStyle(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF15803D),
+                                    ),
                                   ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFDCFCE7),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        isGainGoal
-                                            ? Icons.arrow_drop_up
-                                            : Icons.arrow_drop_down,
-                                        size: 14,
-                                        color: const Color(0xFF15803D),
-                                      ),
-                                      Text(
-                                        '${delta >= 0 ? '+' : ''}${delta.abs().toStringAsFixed(1)} kg',
-                                        style: const TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w700,
-                                          color: Color(0xFF15803D),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ],
                         ),
