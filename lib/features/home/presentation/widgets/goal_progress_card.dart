@@ -30,28 +30,34 @@ class GoalProgressCard extends StatelessWidget {
     final progressPercent = (clampedCurrentWeek / totalWeeks).clamp(0.0, 1.0);
 
     final normalizedGoal = goalTitle.toLowerCase();
-    final isGainGoal = normalizedGoal.contains('gain') ||
+    final isGainGoal =
+        normalizedGoal.contains('gain') ||
         normalizedGoal.contains('naik') ||
         normalizedGoal.contains('bulk');
-    final isLossGoal = normalizedGoal.contains('loss') ||
+    final isLossGoal =
+        normalizedGoal.contains('loss') ||
         normalizedGoal.contains('fat') ||
         normalizedGoal.contains('turun');
     final hasReachedTarget = isGainGoal
         ? currentWeightKg >= targetWeightKg
         : isLossGoal
-            ? currentWeightKg <= targetWeightKg
-            : (currentWeightKg - targetWeightKg).abs() <= 0.5;
+        ? currentWeightKg <= targetWeightKg
+        : (currentWeightKg - targetWeightKg).abs() <= 0.5;
     final remainingToTargetKg = isGainGoal
-        ? (targetWeightKg - currentWeightKg).clamp(0.0, double.infinity).toDouble()
+        ? (targetWeightKg - currentWeightKg)
+              .clamp(0.0, double.infinity)
+              .toDouble()
         : isLossGoal
-            ? (currentWeightKg - targetWeightKg).clamp(0.0, double.infinity).toDouble()
-            : (currentWeightKg - targetWeightKg).abs();
+        ? (currentWeightKg - targetWeightKg)
+              .clamp(0.0, double.infinity)
+              .toDouble()
+        : (currentWeightKg - targetWeightKg).abs();
     final isIndonesian = Localizations.localeOf(context).languageCode == 'id';
     final targetStatusLabel = hasReachedTarget
         ? (isIndonesian ? 'Target tercapai' : 'Target reached')
         : isIndonesian
-            ? '${remainingToTargetKg.toStringAsFixed(1)} kg lagi'
-            : '${remainingToTargetKg.toStringAsFixed(1)} kg to go';
+        ? '${remainingToTargetKg.toStringAsFixed(1)} kg lagi'
+        : '${remainingToTargetKg.toStringAsFixed(1)} kg to go';
 
     return GestureDetector(
       onTap: onTap,

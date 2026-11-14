@@ -9,6 +9,7 @@ import '../widgets/goal_progress_card.dart';
 import '../widgets/home_error_banner.dart';
 import '../widgets/home_greeting_header.dart';
 import '../widgets/home_loading_skeleton.dart';
+import '../widgets/home_notification_bottom_sheet.dart';
 import '../widgets/recovery_guide_bottom_sheet.dart';
 import '../widgets/recovery_routine_screen.dart';
 import '../widgets/support_goal_nutrition_card.dart';
@@ -108,11 +109,21 @@ class HomeScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 1. Header Sapaan & Notifikasi (Mockup 1:1)
+                // 1. Header Sapaan & Notifikasi (Mockup 1:1 - Phase C Point 1 & 2)
                 HomeGreetingHeader(
                   userName: userName,
-                  hasUnreadNotification: true,
-                  onNotificationTap: () {},
+                  hasUnreadNotification: state.hasUnreadNotifications,
+                  onNotificationTap: () {
+                    HomeNotificationBottomSheet.show(
+                      context,
+                      sessionFocus: state.sessionFocus,
+                      durationMinutes: state.sessionDurationMinutes,
+                      targetMuscles: state.targetMuscles,
+                      onStartWorkout: startWorkoutSession,
+                      onOpenRecoveryGuide: openHydrationGuide,
+                      onAllRead: controller.markNotificationsAsRead,
+                    );
+                  },
                   onProfileTap: () {
                     context.push(AppRoutes.profile);
                   },

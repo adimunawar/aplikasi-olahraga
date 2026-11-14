@@ -41,6 +41,7 @@ class HomeState {
   final bool hasProgram;
   final bool isTodayRestDay;
   final bool isCompletedToday;
+  final bool hasUnreadNotifications;
   final DateTime? lastLoadedAt;
 
   const HomeState({
@@ -64,6 +65,7 @@ class HomeState {
     this.hasProgram = true,
     this.isTodayRestDay = false,
     this.isCompletedToday = false,
+    this.hasUnreadNotifications = true,
     this.lastLoadedAt,
   });
 
@@ -88,6 +90,7 @@ class HomeState {
     bool? hasProgram,
     bool? isTodayRestDay,
     bool? isCompletedToday,
+    bool? hasUnreadNotifications,
     DateTime? lastLoadedAt,
   }) {
     return HomeState(
@@ -112,6 +115,8 @@ class HomeState {
       hasProgram: hasProgram ?? this.hasProgram,
       isTodayRestDay: isTodayRestDay ?? this.isTodayRestDay,
       isCompletedToday: isCompletedToday ?? this.isCompletedToday,
+      hasUnreadNotifications:
+          hasUnreadNotifications ?? this.hasUnreadNotifications,
       lastLoadedAt: lastLoadedAt ?? this.lastLoadedAt,
     );
   }

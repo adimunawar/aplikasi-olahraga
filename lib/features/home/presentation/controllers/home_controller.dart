@@ -1,6 +1,8 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/models/dynamic_program_entity.dart';
 import '../../../../core/database/models/workout_session_entity.dart';
@@ -25,17 +27,18 @@ final homeProgramGeneratorProvider = Provider<DynamicProgramGenerator>((ref) {
   return const DynamicProgramGenerator();
 });
 
-final homeControllerProvider =
-    StateNotifierProvider<HomeController, HomeState>((ref) {
-  final controller = HomeController(
-    db: ref.watch(homeDatabaseProvider),
-    exerciseDatasource: ref.watch(homeExerciseDatasourceProvider),
-    programGenerator: ref.watch(homeProgramGeneratorProvider),
-    appDataSync: AppDataSync.instance,
-  );
-  ref.onDispose(() => controller.dispose());
-  return controller;
-});
+final homeControllerProvider = StateNotifierProvider<HomeController, HomeState>(
+  (ref) {
+    final controller = HomeController(
+      db: ref.watch(homeDatabaseProvider),
+      exerciseDatasource: ref.watch(homeExerciseDatasourceProvider),
+      programGenerator: ref.watch(homeProgramGeneratorProvider),
+      appDataSync: AppDataSync.instance,
+    );
+    ref.onDispose(() => controller.dispose());
+    return controller;
+  },
+);
 
 /// Riverpod Controller untuk Orkestrasi State & Logika Bisnis Home Screen
 class HomeController extends StateNotifier<HomeState> {
@@ -51,7 +54,7 @@ class HomeController extends StateNotifier<HomeState> {
     required this._exerciseDatasource,
     required this._programGenerator,
     required this._appDataSync,
-  })  : super(const HomeState()) {
+  }) : super(const HomeState()) {
     _init();
   }
 
@@ -82,8 +85,11 @@ class HomeController extends StateNotifier<HomeState> {
     required int totalWeeks,
   }) {
     final startDay = DateTime(startDate.year, startDate.month, startDate.day);
-    final currentDay =
-        DateTime(targetDate.year, targetDate.month, targetDate.day);
+    final currentDay = DateTime(
+      targetDate.year,
+      targetDate.month,
+      targetDate.day,
+    );
 
     if (currentDay.isBefore(startDay)) {
       return 1;
@@ -152,8 +158,8 @@ class HomeController extends StateNotifier<HomeState> {
       final targetWeekly = profile.weeklyFrequency > 0
           ? profile.weeklyFrequency
           : (profile.preferredDaysPerWeek > 0
-              ? profile.preferredDaysPerWeek
-              : 3);
+                ? profile.preferredDaysPerWeek
+                : 3);
 
       // 2. Program Latihan Aktif
       final userId = profile.id.isNotEmpty ? profile.id : 'default_user';
@@ -174,8 +180,8 @@ class HomeController extends StateNotifier<HomeState> {
           final startingPushId = profile.experienceLevel == 'advanced'
               ? 'diamond_push_up'
               : profile.experienceLevel == 'intermediate'
-                  ? 'push_up'
-                  : 'knee_push_up';
+              ? 'push_up'
+              : 'knee_push_up';
 
           final generated = _programGenerator.generate(
             userProfile: profile,
@@ -282,7 +288,8 @@ class HomeController extends StateNotifier<HomeState> {
       final List<DayProgressData> daysList = [];
       for (int i = 0; i < 7; i++) {
         final date = monday.add(Duration(days: i));
-        final isToday = date.year == now.year &&
+        final isToday =
+            date.year == now.year &&
             date.month == now.month &&
             date.day == now.day;
         final isPast = date.isBefore(DateTime(now.year, now.month, now.day));
@@ -328,10 +335,8 @@ class HomeController extends StateNotifier<HomeState> {
       final workoutCardState = activeProgram == null
           ? WorkoutCardState.noProgram
           : isCompletedToday
-              ? WorkoutCardState.completed
-              : (isRestDay
-                  ? WorkoutCardState.restDay
-                  : WorkoutCardState.active);
+          ? WorkoutCardState.completed
+          : (isRestDay ? WorkoutCardState.restDay : WorkoutCardState.active);
 
       state = state.copyWith(
         isLoading: false,
@@ -367,5 +372,10 @@ class HomeController extends StateNotifier<HomeState> {
   /// Memaksa refresh data saat pull-to-refresh
   Future<void> refresh() async {
     await loadHomeData(forceReload: true);
+  }
+
+  /// Menandai seluruh notifikasi telah dibaca (menghilangkan badge merah)
+  void markNotificationsAsRead() {
+    state = state.copyWith(hasUnreadNotifications: false);
   }
 }
