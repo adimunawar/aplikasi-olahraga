@@ -36,8 +36,6 @@ class _HomeScaffoldState extends State<HomeScaffold> {
     } else {
       setState(() => _currentIndex = index);
     }
-    // Memicu sinkronisasi data antar tab agar data selalu mutakhir
-    AppDataSync.instance.notifyDataChanged();
   }
 
   @override
