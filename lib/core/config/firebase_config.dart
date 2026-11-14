@@ -88,8 +88,8 @@ class FirebaseConfig {
   /// Null when Firebase is not initialized or Analytics collection is off.
   static FirebaseAnalytics? get analytics =>
       _isInitialized && _analyticsCollectionEnabled
-          ? FirebaseAnalytics.instance
-          : null;
+      ? FirebaseAnalytics.instance
+      : null;
 
   /// Null when Firebase is not initialized.
   static FirebaseCrashlytics? get crashlytics =>

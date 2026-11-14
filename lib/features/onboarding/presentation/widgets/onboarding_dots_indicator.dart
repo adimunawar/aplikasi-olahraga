@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Komponen indikator titik (dots indicator) onboarding reusable:
-/// Menampilkan 3 titik terpusat secara konsisten di seluruh langkah.
+/// Menampilkan pill aktif memanjang dan lingkaran inaktif sesuai mockup 1:1.
 class OnboardingDotsIndicator extends StatelessWidget {
   final int totalDots;
   final int activeIndex;
@@ -12,28 +12,27 @@ class OnboardingDotsIndicator extends StatelessWidget {
     super.key,
     this.totalDots = 3,
     required this.activeIndex,
-    this.activeColor = const Color(0xFF7CB818),
-    this.inactiveColor = const Color(0xFFD1D5DB),
+    this.activeColor = const Color(0xFF84CC16),
+    this.inactiveColor = const Color(0xFFE2E8F0),
   });
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: List.generate(totalDots, (index) {
-          final isActive = index == activeIndex;
-          return Container(
-            margin: EdgeInsets.only(right: index == totalDots - 1 ? 0 : 8),
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              color: isActive ? activeColor : inactiveColor,
-              shape: BoxShape.circle,
-            ),
-          );
-        }),
-      ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(totalDots, (index) {
+        final isActive = index == activeIndex;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          margin: EdgeInsets.only(right: index == totalDots - 1 ? 0 : 6),
+          width: isActive ? 20 : 8,
+          height: 8,
+          decoration: BoxDecoration(
+            color: isActive ? activeColor : inactiveColor,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        );
+      }),
     );
   }
 }
