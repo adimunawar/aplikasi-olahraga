@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/app_stepper_input.dart';
 import '../../../../i18n/strings.g.dart';
 
-/// Step 3 of 7: Your body & target (Current & Target Weight) (Mockup 1:1)
+/// Step 3 of 7: Your body & target (Height, Current Weight, Target Weight) (Mockup 1:1)
 class StepBodyTarget extends StatelessWidget {
+  final double heightCm;
   final double currentWeightKg;
   final double targetWeightKg;
+  final ValueChanged<double> onHeightChanged;
   final ValueChanged<double> onCurrentWeightChanged;
   final ValueChanged<double> onTargetWeightChanged;
 
   const StepBodyTarget({
     super.key,
+    required this.heightCm,
     required this.currentWeightKg,
     required this.targetWeightKg,
+    required this.onHeightChanged,
     required this.onCurrentWeightChanged,
     required this.onTargetWeightChanged,
   });
@@ -21,6 +26,7 @@ class StepBodyTarget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Translations.of(context).onboarding.bodyTarget;
+    final tAbout = Translations.of(context).onboarding.about;
 
     final diff = targetWeightKg - currentWeightKg;
     final absDiff = diff.abs();
@@ -46,7 +52,8 @@ class StepBodyTarget extends StatelessWidget {
             : t.insight.maintainHint);
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -54,7 +61,8 @@ class StepBodyTarget extends StatelessWidget {
             t.title,
             style: AppTypography.displayMedium.copyWith(
               fontWeight: FontWeight.w900,
-              fontSize: 24,
+              fontSize: 26,
+              letterSpacing: -0.5,
               color: AppColors.darkCharcoal,
             ),
           ),
@@ -62,59 +70,57 @@ class StepBodyTarget extends StatelessWidget {
           Text(
             t.subtitle,
             style: AppTypography.bodySmall.copyWith(
-              color: AppColors.neutral500,
-              fontSize: 13,
+              color: const Color(0xFF64748B),
+              fontSize: 14,
+              height: 1.4,
             ),
           ),
           const SizedBox(height: 24),
 
-          // 1. Current Weight Stepper Card
-          _buildWeightStepperCard(
-            icon: Icons.scale_rounded,
+          // 1. Height Stepper with Manual Input
+          AppStepperInput(
+            label: tAbout.height,
+            unit: tAbout.heightUnit,
+            value: heightCm,
+            step: 1.0,
+            minValue: 100.0,
+            maxValue: 230.0,
+            isDecimal: false,
+            onChanged: onHeightChanged,
+          ),
+          const SizedBox(height: 24),
+
+          // 2. Current Weight Stepper with Manual Input
+          AppStepperInput(
             label: t.currentWeight,
             unit: t.unit,
             value: currentWeightKg,
-            onMinus: () {
-              if (currentWeightKg > 35) {
-                onCurrentWeightChanged(
-                  double.parse((currentWeightKg - 0.5).toStringAsFixed(1)),
-                );
-              }
-            },
-            onPlus: () {
-              if (currentWeightKg < 200) {
-                onCurrentWeightChanged(
-                  double.parse((currentWeightKg + 0.5).toStringAsFixed(1)),
-                );
-              }
-            },
-          ),
-          const SizedBox(height: 16),
-
-          // 2. Target Weight Stepper Card
-          _buildWeightStepperCard(
-            icon: Icons.track_changes_rounded,
-            label: t.targetWeight,
-            unit: t.unit,
-            value: targetWeightKg,
-            onMinus: () {
-              if (targetWeightKg > 35) {
-                onTargetWeightChanged(
-                  double.parse((targetWeightKg - 0.5).toStringAsFixed(1)),
-                );
-              }
-            },
-            onPlus: () {
-              if (targetWeightKg < 200) {
-                onTargetWeightChanged(
-                  double.parse((targetWeightKg + 0.5).toStringAsFixed(1)),
-                );
-              }
+            step: 0.5,
+            minValue: 30.0,
+            maxValue: 250.0,
+            isDecimal: true,
+            onChanged: (val) {
+              onCurrentWeightChanged(double.parse(val.toStringAsFixed(1)));
             },
           ),
           const SizedBox(height: 24),
 
-          // 3. Dynamic Calculation Insight Card
+          // 3. Target Weight Stepper with Manual Input
+          AppStepperInput(
+            label: t.targetWeight,
+            unit: t.unit,
+            value: targetWeightKg,
+            step: 0.5,
+            minValue: 30.0,
+            maxValue: 250.0,
+            isDecimal: true,
+            onChanged: (val) {
+              onTargetWeightChanged(double.parse(val.toStringAsFixed(1)));
+            },
+          ),
+          const SizedBox(height: 24),
+
+          // 4. Dynamic Calculation Insight Card
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -165,99 +171,9 @@ class StepBodyTarget extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(height: 24),
         ],
-      ),
-    );
-  }
-
-  Widget _buildWeightStepperCard({
-    required IconData icon,
-    required String label,
-    required String unit,
-    required double value,
-    required VoidCallback onMinus,
-    required VoidCallback onPlus,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.neutral200, width: 1.2),
-        boxShadow: AppColors.cardShadow,
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: AppColors.greenDark),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              label,
-              style: AppTypography.labelLarge.copyWith(
-                fontWeight: FontWeight.w700,
-                fontSize: 14,
-                color: AppColors.darkCharcoal,
-              ),
-            ),
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildCircleStepButton(
-                icon: Icons.remove_rounded,
-                onTap: onMinus,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                child: Text(
-                  value.toStringAsFixed(1),
-                  style: AppTypography.displayMedium.copyWith(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 20,
-                    color: AppColors.darkCharcoal,
-                  ),
-                ),
-              ),
-              _buildCircleStepButton(
-                icon: Icons.add_rounded,
-                onTap: onPlus,
-              ),
-            ],
-          ),
-          const SizedBox(width: 12),
-          Text(
-            unit,
-            style: AppTypography.bodySmall.copyWith(
-              fontWeight: FontWeight.w600,
-              color: AppColors.neutral500,
-              fontSize: 13,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCircleStepButton({
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    return Material(
-      color: const Color(0xFFF1F5F9),
-      shape: const CircleBorder(),
-      child: InkWell(
-        onTap: onTap,
-        customBorder: const CircleBorder(),
-        child: Padding(
-          padding: const EdgeInsets.all(7),
-          child: Icon(
-            icon,
-            size: 18,
-            color: AppColors.darkCharcoal,
-          ),
-        ),
       ),
     );
   }
 }
-
