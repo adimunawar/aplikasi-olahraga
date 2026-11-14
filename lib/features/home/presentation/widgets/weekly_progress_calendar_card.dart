@@ -11,7 +11,7 @@ class DayProgressData {
   final String dayName;
   final DayActivityState state;
   final DateTime date;
-  final bool isToday;
+  final bool? isToday;
 
   const DayProgressData({
     required this.dayName,
@@ -134,7 +134,7 @@ class WeeklyProgressCalendarCard extends StatelessWidget {
   }
 
   Widget _buildDayItem(BuildContext context, DayProgressData day) {
-    final isToday = day.isToday;
+    final isToday = day.isToday ?? day.state == DayActivityState.today;
     final locale = Localizations.localeOf(context).toString();
 
     return Container(
