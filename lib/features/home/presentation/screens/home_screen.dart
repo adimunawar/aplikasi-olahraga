@@ -16,6 +16,8 @@ import '../../../program/data/datasources/program_local_datasource.dart';
 import '../../../program/data/repositories/program_repository_impl.dart';
 
 import '../widgets/goal_progress_card.dart';
+import '../widgets/recovery_guide_bottom_sheet.dart';
+import '../widgets/recovery_routine_screen.dart';
 import '../widgets/home_error_banner.dart';
 import '../widgets/home_greeting_header.dart';
 import '../widgets/home_loading_skeleton.dart';
@@ -58,6 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isLoading = true;
   bool _hasProgram = true;
   bool _isTodayRestDay = false;
+  bool _isCompletedToday = false;
   bool _hasSyncError = false;
   final String _lastSyncedTime = 'Today, 10:30 AM';
 
@@ -228,8 +231,8 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       }
 
-      // Rest Day condition: Bukan hari latihan terjadwal ATAU latihan hari ini sudah tuntas
-      final isRestDay = !isScheduledTrainingDay || isCompletedToday;
+      // A completed workout is its own state, not a Rest Day.
+      final isRestDay = !isScheduledTrainingDay && !isCompletedToday;
 
       // 4. Data 7 Hari Mingguan (Mon - Sun) dengan 5 Status Presisi
       final List<DayProgressData> daysList = [];
@@ -274,6 +277,7 @@ class _HomeScreenState extends State<HomeScreen> {
             dayName: _formatDayShortEn(date.weekday),
             state: state,
             date: date,
+            isToday: isToday,
           ),
         );
       }
@@ -295,6 +299,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _weeklyDays = daysList;
           _hasProgram = activeProgram != null;
           _isTodayRestDay = isRestDay;
+          _isCompletedToday = isCompletedToday;
           _currentWeek = currentWeek;
           _totalWeeks = profile.targetTimeframeWeeks > 0
               ? profile.targetTimeframeWeeks
@@ -312,6 +317,20 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     }
+  }
+
+  Future<void> _openHydrationGuide() =>
+      showRecoveryGuideBottomSheet(context, RecoveryGuideType.hydration);
+
+  Future<void> _openSleepGuide() =>
+      showRecoveryGuideBottomSheet(context, RecoveryGuideType.sleep);
+
+  void _openRecoveryRoutine() {
+    Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const RecoveryRoutineScreen(),
+      ),
+    );
   }
 
   Future<void> _startWorkoutSession() async {
@@ -369,7 +388,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final workoutCardState = !_hasProgram
         ? WorkoutCardState.noProgram
-        : (_isTodayRestDay ? WorkoutCardState.restDay : WorkoutCardState.active);
+        : _isCompletedToday
+            ? WorkoutCardState.completed
+            : (_isTodayRestDay ? WorkoutCardState.restDay : WorkoutCardState.active);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAFB),
@@ -407,12 +428,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   goalTitle: 'Goal: $_programTitle',
                   targetWeightKg: profile?.targetWeightKg ?? 82.0,
                   currentWeightKg: profile?.currentWeightKg ?? 75.8,
-                  weightDeltaKg: profile != null
-                      ? (profile.currentWeightKg - profile.targetWeightKg).abs()
-                      : 0.8,
                   totalWeeks: _totalWeeks,
                   currentWeek: _currentWeek,
-                  onTap: _viewWorkoutDetail,
+                  onTap: widget.onNavigateToProgress,
                 ),
 
                 const SizedBox(height: 22),
@@ -427,6 +445,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   onStartWorkout: _startWorkoutSession,
                   onViewPlan: _viewWorkoutDetail,
                   onCreateProgram: widget.onNavigateToCalendar,
+                  onHydrationTap: _openHydrationGuide,
+                  onSleepTap: _openSleepGuide,
+                  onStretchingTap: _openRecoveryRoutine,
                 ),
 
                 const SizedBox(height: 22),
