@@ -1,26 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:workout_app/core/database/models/workout_session_entity.dart';
+import 'package:workout_app/core/theme/app_colors.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/models/dynamic_program_entity.dart';
 import '../../../../core/database/models/user_profile_entity.dart';
+import '../../../../core/database/models/workout_session_entity.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/services/app_data_sync.dart';
 import '../../../exercises/domain/models/exercise.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
-import '../../../exercises/data/repositories/exercise_repository_impl.dart';
 import '../../../program/domain/models/program_day.dart';
 import '../../../program/domain/services/dynamic_program_generator.dart';
-import '../../../program/data/datasources/program_local_datasource.dart';
-import '../../../program/data/repositories/program_repository_impl.dart';
 
-import '../widgets/dark_hero_header.dart';
-import '../widgets/this_weeks_progress_card.dart';
-import '../widgets/todays_workout_card.dart';
-import '../widgets/your_stats_section.dart';
-import '../widgets/explore_programs_carousel.dart';
+import '../widgets/goal_progress_card.dart';
+import '../widgets/recovery_guide_bottom_sheet.dart';
+import '../widgets/recovery_routine_screen.dart';
+import '../widgets/home_error_banner.dart';
+import '../widgets/home_greeting_header.dart';
+import '../widgets/home_loading_skeleton.dart';
+import '../widgets/support_goal_nutrition_card.dart';
+import '../widgets/today_workout/today_workout_section.dart';
+import '../widgets/weekly_progress_calendar_card.dart';
 
-/// Halaman Home Utama Baru (100% Sesuai Mockup Referensi Dark Hero & Full Dinamis dari Database)
+/// Halaman Home Utama Redesign 1:1 Sesuai Mockup Referensi (Light Premium + Lime Green)
 class HomeScreen extends StatefulWidget {
   final VoidCallback onNavigateToCalendar;
   final VoidCallback onNavigateToExercises;
@@ -40,27 +42,28 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final _programRepo = ProgramRepositoryImpl(ProgramLocalDatasource());
-  final _exerciseRepo = ExerciseRepositoryImpl(ExerciseLocalDatasource());
   final _db = AppDatabase.instance;
 
   UserProfileEntity? _userProfile;
   ProgramDay? _todayProgram;
   List<Exercise> _todayExercises = [];
 
-  int _streakDays = 0;
-  int _completedThisWeek = 0;
-  int _weeklyTarget = 3;
-  int _progressPercent = 0;
-  int _totalDurationMinutes = 0;
-  bool _isCompletedToday = false;
-  int _todayCompletedMinutes = 0;
+  String _programTitle = 'Gain Weight & Build Muscle';
+  String _sessionFocus = 'Upper Body (Push)';
+  String _targetMuscles = 'Chest, Shoulders, Triceps';
+  int _sessionDurationMinutes = 45;
+  int _estimatedCalories = 280;
 
-  String _programTitle = 'Muscle Gain (Bulking)';
-  String _nextSessionFocus = 'Upper Body Strength';
-  int _nextSessionDurationMinutes = 25;
-  List<WeeklyDayProgress> _weeklyDays = [];
   bool _isLoading = true;
+  bool _hasProgram = true;
+  bool _isTodayRestDay = false;
+  bool _isCompletedToday = false;
+  bool _hasSyncError = false;
+  final String _lastSyncedTime = 'Today, 10:30 AM';
+
+  List<DayProgressData> _weeklyDays = [];
+  int _currentWeek = 1;
+  int _totalWeeks = 12;
 
   @override
   void initState() {
@@ -86,215 +89,245 @@ class _HomeScreenState extends State<HomeScreen> {
     return days[(weekday - 1).clamp(0, 6)];
   }
 
+  String _weekdayToString(int weekday) {
+    const days = [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday',
+    ];
+    return days[(weekday - 1).clamp(0, 6)];
+  }
+
   Future<void> _loadTodayData() async {
-    final profile = await _db.getUserProfile();
-    final streak = await _db.getCurrentStreak();
-    final thisWeekCount = await _db.getThisWeekCompletedCount();
-    final recentSessions = await _db.getRecentWorkoutSessions(limit: 30);
+    try {
+      final profile = await _db.getUserProfile();
+      final thisWeekCount = await _db.getThisWeekCompletedCount();
+      final recentSessions = await _db.getRecentWorkoutSessions(limit: 30);
 
-    // 1. Goal & Program Title
-    String goalStr = 'Muscle Gain (Bulking)';
-    final g = profile.goal.toLowerCase();
-    if (g.contains('fat') || g.contains('weight_loss')) {
-      goalStr = 'Fat Loss & Shred';
-    } else if (g.contains('strength')) {
-      goalStr = 'Build Pure Strength';
-    } else if (g.contains('endurance') || g.contains('tone')) {
-      goalStr = 'Tone & Lean Fit';
-    }
+      final now = DateTime.now();
+      final monday = now.subtract(Duration(days: now.weekday - 1));
 
-    final targetWeekly = profile.weeklyFrequency > 0
-        ? profile.weeklyFrequency
-        : (profile.preferredDaysPerWeek > 0 ? profile.preferredDaysPerWeek : 3);
-    final percent = targetWeekly > 0
-        ? ((thisWeekCount / targetWeekly) * 100).round().clamp(0, 100)
-        : 0;
-
-    // Hitung total durasi latihan minggu ini dari sesi completed
-    final now = DateTime.now();
-    final monday = now.subtract(Duration(days: now.weekday - 1));
-    final startOfMonday = DateTime(monday.year, monday.month, monday.day);
-    int totalMinutes = 0;
-    for (final s in recentSessions) {
-      if (s.status == WorkoutSessionStatus.completed &&
-          s.startedAt.isAfter(startOfMonday)) {
-        totalMinutes += (s.durationSeconds / 60).round();
+      // 1. Goal Label
+      String goalLabel = 'Gain Weight & Build Muscle';
+      final g = profile.goal.toLowerCase();
+      if (g.contains('fat') || g.contains('weight_loss') || g.contains('cut')) {
+        goalLabel = 'Fat Loss & Conditioning';
+      } else if (g.contains('maintain') || g.contains('fit')) {
+        goalLabel = 'Maintain & Stay Fit';
       }
-    }
 
-    // 2. Baca / Generate Dynamic Training Program (Fase 2)
-    final userId = profile.id.isNotEmpty ? profile.id : 'default_user';
-    var activeProgram = await _db.getActiveTrainingProgram(userId);
-    activeProgram ??= await _db.getActiveTrainingProgram('default_user');
+      final targetWeekly = profile.weeklyFrequency > 0
+          ? profile.weeklyFrequency
+          : (profile.preferredDaysPerWeek > 0 ? profile.preferredDaysPerWeek : 3);
 
-    List<ProgramSessionEntity> sessions = [];
-    if (activeProgram != null) {
-      sessions = await _db.getProgramSessions(activeProgram.id);
-    }
+      // 2. Baca / Generate Dynamic Training Program
+      final userId = profile.id.isNotEmpty ? profile.id : 'default_user';
+      var activeProgram = await _db.getActiveTrainingProgram(userId);
+      activeProgram ??= await _db.getActiveTrainingProgram('default_user');
 
-    // Auto-heal jika program belum ada, atau sesi kosong, atau frekuensi berubah
-    if (activeProgram == null || sessions.isEmpty || sessions.length != targetWeekly) {
-      try {
-        final exerciseDatasource = ExerciseLocalDatasource(db: _db);
-        final catalog = await exerciseDatasource.loadExercises();
-        final startingPushId = profile.experienceLevel == 'advanced'
-            ? 'diamond_push_up'
-            : profile.experienceLevel == 'intermediate'
-            ? 'push_up'
-            : 'knee_push_up';
-
-        final generated = const DynamicProgramGenerator().generate(
-          userProfile: profile,
-          catalogExercises: catalog,
-          startingPushExerciseId: startingPushId,
-        );
-
-        await _db.saveDynamicProgram(
-          program: generated.program,
-          sessions: generated.sessions,
-        );
-        activeProgram = generated.program;
+      List<ProgramSessionEntity> sessions = [];
+      if (activeProgram != null) {
         sessions = await _db.getProgramSessions(activeProgram.id);
-      } catch (e) {
-        debugPrint('[HomeScreen] Auto-generate dynamic program: $e');
       }
-    }
 
-    List<Exercise> todayExercises = [];
-    String sessionFocus = 'Upper Body Strength';
-    int sessionDuration = 25;
-    ProgramDay? programDay;
+      // Auto-heal jika program belum ada atau sesi kosong
+      if (activeProgram == null || sessions.isEmpty || sessions.length != targetWeekly) {
+        try {
+          final exerciseDatasource = ExerciseLocalDatasource(db: _db);
+          final catalog = await exerciseDatasource.loadExercises();
+          final startingPushId = profile.experienceLevel == 'advanced'
+              ? 'diamond_push_up'
+              : profile.experienceLevel == 'intermediate'
+                  ? 'push_up'
+                  : 'knee_push_up';
 
-    if (activeProgram != null && sessions.isNotEmpty) {
-      final nextIndex = thisWeekCount % sessions.length;
-      final nextSession = sessions[nextIndex];
-      sessionFocus = nextSession.focusLabel.isNotEmpty
-          ? nextSession.focusLabel
-          : 'Upper Body Strength';
-      sessionDuration = nextSession.targetDurationMinutes > 0
-          ? nextSession.targetDurationMinutes
-          : 25;
-
-      final detail = await _db.getProgramSessionDetail(nextSession.id);
-      List<WorkoutItem> workoutItems = [];
-
-      if (detail != null && detail.exercises.isNotEmpty) {
-        todayExercises = detail.exercises.map((e) => e.exercise).toList();
-        workoutItems = detail.exercises.map((e) {
-          return WorkoutItem(
-            exerciseId: e.exercise.id,
-            sets: e.prescription.targetSets,
-            reps: e.prescription.minReps,
-            restSeconds: e.prescription.restSeconds,
-            isMain: e.prescription.stage == 'main',
-            stage: e.prescription.stage,
+          final generated = const DynamicProgramGenerator().generate(
+            userProfile: profile,
+            catalogExercises: catalog,
+            startingPushExerciseId: startingPushId,
           );
-        }).toList();
-      } else {
-        workoutItems = todayExercises
-            .map(
-              (e) => WorkoutItem(
-                exerciseId: e.id,
-                sets: 3,
-                reps: 10,
-                restSeconds: 60,
-                isMain: true,
-                stage: 'main',
-              ),
-            )
-            .toList();
+
+          await _db.saveDynamicProgram(
+            program: generated.program,
+            sessions: generated.sessions,
+          );
+          activeProgram = generated.program;
+          sessions = await _db.getProgramSessions(activeProgram.id);
+        } catch (e) {
+          debugPrint('[HomeScreen] Auto-generate program error: $e');
+        }
       }
 
-      programDay = ProgramDay(
-        day: nextSession.dayNumber,
-        week: (thisWeekCount ~/ targetWeekly) + 1,
-        type: WorkoutTypeCode.f,
-        focus: LocalizedString(id: sessionFocus, en: sessionFocus),
-        isRest: false,
-        isRetestMilestone: false,
-        items: workoutItems,
-      );
-    }
+      List<Exercise> todayExercises = [];
+      String focusLabel = 'Upper Body (Push)';
+      String musclesLabel = 'Chest, Shoulders, Triceps';
+      int sessionDuration = profile.preferredDurationMin > 0
+          ? profile.preferredDurationMin
+          : 45;
+      int calories = (sessionDuration * 6.2).round();
+      ProgramDay? programDay;
 
-    // Fallback jika database belum ada latihan
-    if (todayExercises.isEmpty) {
-      final dayNum = await _programRepo.getCurrentProgramDay();
-      programDay = await _programRepo.getDay(dayNum);
-      final allExercises = await _exerciseRepo.getExercises();
-      final exercisesMap = {for (final e in allExercises) e.id: e};
-      todayExercises =
-          programDay?.items
-              .map((item) => exercisesMap[item.exerciseId])
-              .whereType<Exercise>()
-              .toList() ??
-          [];
-      if (programDay != null) {
-        sessionFocus = programDay.focus.id.isNotEmpty
-            ? programDay.focus.id
-            : 'Upper Body Strength';
+      final todayStr = _weekdayToString(now.weekday);
+      final isScheduledTrainingDay = profile.availableDays.contains(todayStr);
+
+      if (activeProgram != null && sessions.isNotEmpty) {
+        final nextIndex = thisWeekCount % sessions.length;
+        final nextSession = sessions[nextIndex];
+        focusLabel = nextSession.name.isNotEmpty
+            ? nextSession.name
+            : 'Upper Body (Push)';
+        musclesLabel = nextSession.focusLabel.isNotEmpty
+            ? nextSession.focusLabel
+            : 'Chest, Shoulders, Triceps';
+        sessionDuration = nextSession.targetDurationMinutes > 0
+            ? nextSession.targetDurationMinutes
+            : profile.preferredDurationMin;
+        calories = (sessionDuration * 6.2).round();
+
+        final detail = await _db.getProgramSessionDetail(nextSession.id);
+        List<WorkoutItem> workoutItems = [];
+
+        if (detail != null && detail.exercises.isNotEmpty) {
+          todayExercises = detail.exercises.map((e) => e.exercise).toList();
+          workoutItems = detail.exercises.map((e) {
+            return WorkoutItem(
+              exerciseId: e.exercise.id,
+              sets: e.prescription.targetSets,
+              reps: e.prescription.minReps,
+              restSeconds: e.prescription.restSeconds,
+              isMain: e.prescription.stage == 'main',
+              stage: e.prescription.stage,
+            );
+          }).toList();
+        }
+
+        programDay = ProgramDay(
+          day: nextSession.dayNumber,
+          week: (thisWeekCount ~/ targetWeekly) + 1,
+          type: WorkoutTypeCode.f,
+          focus: LocalizedString(id: focusLabel, en: focusLabel),
+          isRest: false,
+          isRetestMilestone: false,
+          items: workoutItems,
+        );
+      }
+
+      // 3. Status Selesai Hari Ini
+      bool isCompletedToday = false;
+      for (final s in recentSessions) {
+        if (s.status == WorkoutSessionStatus.completed &&
+            s.startedAt.year == now.year &&
+            s.startedAt.month == now.month &&
+            s.startedAt.day == now.day) {
+          isCompletedToday = true;
+          break;
+        }
+      }
+
+      // A completed workout is its own state, not a Rest Day.
+      final isRestDay = !isScheduledTrainingDay && !isCompletedToday;
+
+      // 4. Data 7 Hari Mingguan (Mon - Sun) dengan 5 Status Presisi
+      final List<DayProgressData> daysList = [];
+      for (int i = 0; i < 7; i++) {
+        final date = monday.add(Duration(days: i));
+        final isToday = date.year == now.year &&
+            date.month == now.month &&
+            date.day == now.day;
+        final isPast = date.isBefore(DateTime(now.year, now.month, now.day));
+
+        final isCompleted = recentSessions.any(
+          (s) =>
+              s.status == WorkoutSessionStatus.completed &&
+              s.startedAt.year == date.year &&
+              s.startedAt.month == date.month &&
+              s.startedAt.day == date.day,
+        );
+
+        final dayStr = _weekdayToString(date.weekday);
+        final isTrainingScheduled = profile.availableDays.contains(dayStr);
+
+        DayActivityState state;
+        if (isCompleted) {
+          state = DayActivityState.completed;
+        } else if (isToday) {
+          state = isTrainingScheduled
+              ? DayActivityState.today
+              : DayActivityState.rest;
+        } else if (isPast) {
+          state = isTrainingScheduled
+              ? DayActivityState.missed
+              : DayActivityState.rest;
+        } else {
+          // Future days
+          state = isTrainingScheduled
+              ? DayActivityState.upcoming
+              : DayActivityState.rest;
+        }
+
+        daysList.add(
+          DayProgressData(
+            dayName: _formatDayShortEn(date.weekday),
+            state: state,
+            date: date,
+            isToday: isToday,
+          ),
+        );
+      }
+
+      final programStartDate = activeProgram?.startDate ?? profile.createdAt;
+      final diffWeeks = (now.difference(programStartDate).inDays / 7).floor() + 1;
+      final currentWeek = diffWeeks.clamp(1, profile.targetTimeframeWeeks);
+
+      if (mounted) {
+        setState(() {
+          _userProfile = profile;
+          _programTitle = goalLabel;
+          _sessionFocus = focusLabel;
+          _targetMuscles = musclesLabel;
+          _sessionDurationMinutes = sessionDuration;
+          _estimatedCalories = calories;
+          _todayProgram = programDay;
+          _todayExercises = todayExercises;
+          _weeklyDays = daysList;
+          _hasProgram = activeProgram != null;
+          _isTodayRestDay = isRestDay;
+          _isCompletedToday = isCompletedToday;
+          _currentWeek = currentWeek;
+          _totalWeeks = profile.targetTimeframeWeeks > 0
+              ? profile.targetTimeframeWeeks
+              : 12;
+          _hasSyncError = false;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('[HomeScreen] Load error: $e');
+      if (mounted) {
+        setState(() {
+          _hasSyncError = true;
+          _isLoading = false;
+        });
       }
     }
+  }
 
-    // 3. Kalender Mingguan 7 Hari (Mon - Sun)
-    final List<WeeklyDayProgress> daysList = [];
-    for (int i = 0; i < 7; i++) {
-      final date = monday.add(Duration(days: i));
-      final isToday =
-          date.year == now.year &&
-          date.month == now.month &&
-          date.day == now.day;
+  Future<void> _openHydrationGuide() =>
+      showRecoveryGuideBottomSheet(context, RecoveryGuideType.hydration);
 
-      final isCompleted = recentSessions.any(
-        (s) =>
-            s.status == WorkoutSessionStatus.completed &&
-            s.startedAt.year == date.year &&
-            s.startedAt.month == date.month &&
-            s.startedAt.day == date.day,
-      );
+  Future<void> _openSleepGuide() =>
+      showRecoveryGuideBottomSheet(context, RecoveryGuideType.sleep);
 
-      daysList.add(
-        WeeklyDayProgress(
-          dayName: _formatDayShortEn(date.weekday),
-          isCompleted: isCompleted,
-          isToday: isToday,
-        ),
-      );
-    }
-
-    bool isCompletedToday = false;
-    int todayCompletedMinutes = 0;
-    for (final s in recentSessions) {
-      if (s.status == WorkoutSessionStatus.completed &&
-          s.startedAt.year == now.year &&
-          s.startedAt.month == now.month &&
-          s.startedAt.day == now.day) {
-        isCompletedToday = true;
-        todayCompletedMinutes = (s.durationSeconds / 60).round();
-        break;
-      }
-    }
-
-    if (mounted) {
-      setState(() {
-        _userProfile = profile;
-        _streakDays = streak;
-        _completedThisWeek = thisWeekCount;
-        _weeklyTarget = targetWeekly;
-        _progressPercent = percent;
-        _totalDurationMinutes = totalMinutes;
-        _isCompletedToday = isCompletedToday;
-        _todayCompletedMinutes = todayCompletedMinutes;
-        _programTitle = activeProgram?.name.isNotEmpty == true
-            ? activeProgram!.name
-            : goalStr;
-        _nextSessionFocus = sessionFocus;
-        _nextSessionDurationMinutes = sessionDuration;
-        _todayProgram = programDay;
-        _todayExercises = todayExercises;
-        _weeklyDays = daysList;
-        _isLoading = false;
-      });
-    }
+  void _openRecoveryRoutine() {
+    Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const RecoveryRoutineScreen(),
+      ),
+    );
   }
 
   Future<void> _startWorkoutSession() async {
@@ -320,9 +353,9 @@ class _HomeScreenState extends State<HomeScreen> {
         extra: WorkoutDetailArgs(
           dayNumber: day.day,
           weekDayText: 'Week ${day.week} • Day ${day.day}',
-          workoutTitle: _nextSessionFocus,
-          targetMusclesText: _programTitle,
-          durationText: '$_nextSessionDurationMinutes min',
+          workoutTitle: _sessionFocus,
+          targetMusclesText: _targetMuscles,
+          durationText: '$_sessionDurationMinutes min',
           levelText: _userProfile?.experienceLevel ?? 'Beginner',
         ),
       );
@@ -338,124 +371,106 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Scaffold(
-        backgroundColor: Color(0xFF141718),
-        body: Center(
-          child: CircularProgressIndicator(color: Color(0xFF84CC16)),
+        backgroundColor: Color(0xFFF9FAFB),
+        body: SafeArea(
+          child: HomeLoadingSkeleton(),
         ),
       );
     }
 
-    final explorePrograms = const [
-      ExploreProgramItem(
-        id: 'upper_body_strength',
-        title: 'Upper Body Strength',
-        durationText: '8 Minggu',
-        levelText: 'Beginner',
-        imageAsset: 'assets/images/coach_crossed_arms.png',
-      ),
-      ExploreProgramItem(
-        id: 'build_muscle',
-        title: 'Build Muscle',
-        durationText: '4 Minggu',
-        levelText: 'Beginner',
-        imageAsset: 'assets/images/coach_flex.png',
-      ),
-      ExploreProgramItem(
-        id: 'build_strength',
-        title: 'Build Strength',
-        durationText: '4 Minggu',
-        levelText: 'Beginner',
-        imageAsset: 'assets/images/coach_hero.png',
-      ),
-      ExploreProgramItem(
-        id: 'fat_loss',
-        title: 'Fat Loss',
-        durationText: '4 Minggu',
-        levelText: 'Beginner',
-        imageAsset: 'assets/images/coach_character.png',
-      ),
-    ];
+    final profile = _userProfile;
+    final userName = profile?.displayName.isNotEmpty == true
+        ? profile!.displayName
+        : 'Adi';
+
+    final workoutCardState = !_hasProgram
+        ? WorkoutCardState.noProgram
+        : _isCompletedToday
+            ? WorkoutCardState.completed
+            : (_isTodayRestDay ? WorkoutCardState.restDay : WorkoutCardState.active);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAFB),
-      body: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          children: [
-            // 1. Header Atas Gelap dengan Karakter Coach Adi
-            Container(
-              color: const Color(0xFF141718),
-              child: SafeArea(
-                bottom: false,
-                child: DarkHeroHeader(
-                  userName: _userProfile?.displayName.isNotEmpty == true
-                      ? _userProfile!.displayName
-                      : 'Adi',
-                  programName: _programTitle,
-                  onProgramTap: _viewWorkoutDetail,
+      body: SafeArea(
+        child: RefreshIndicator(
+          color: AppColors.primary,
+          onRefresh: _loadTodayData,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.only(top: 6, bottom: 32),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 1. Header Sapaan & Notifikasi (Mockup 1:1)
+                HomeGreetingHeader(
+                  userName: userName,
+                  hasUnreadNotification: true,
                   onNotificationTap: () {},
+                  onProfileTap: () {
+                    context.push(AppRoutes.profile);
+                  },
                 ),
-              ),
+
+                // Offline / Error Banner jika sync bermasalah
+                if (_hasSyncError)
+                  HomeErrorBanner(
+                    lastSyncedTime: _lastSyncedTime,
+                    onRetry: _loadTodayData,
+                  ),
+
+                const SizedBox(height: 10),
+
+                // 2. Goal Progress Card (Mockup 1:1)
+                GoalProgressCard(
+                  goalTitle: 'Goal: $_programTitle',
+                  targetWeightKg: profile?.targetWeightKg ?? 82.0,
+                  currentWeightKg: profile?.currentWeightKg ?? 75.8,
+                  totalWeeks: _totalWeeks,
+                  currentWeek: _currentWeek,
+                  onTap: widget.onNavigateToProgress,
+                ),
+
+                const SizedBox(height: 22),
+
+                // 3. Today's Workout Section (Active / Rest Day / No Program)
+                TodayWorkoutSection(
+                  state: workoutCardState,
+                  sessionTitle: _sessionFocus,
+                  targetMuscles: _targetMuscles,
+                  durationMinutes: _sessionDurationMinutes,
+                  estimatedCalories: _estimatedCalories,
+                  onStartWorkout: _startWorkoutSession,
+                  onViewPlan: _viewWorkoutDetail,
+                  onCreateProgram: widget.onNavigateToCalendar,
+                  onHydrationTap: _openHydrationGuide,
+                  onSleepTap: _openSleepGuide,
+                  onStretchingTap: _openRecoveryRoutine,
+                ),
+
+                const SizedBox(height: 22),
+
+                // 4. This Week Progress (Kalender 7 Hari, 5 Status - Mockup 1:1)
+                WeeklyProgressCalendarCard(
+                  days: _weeklyDays,
+                  onSeeDetails: () {
+                    if (widget.onNavigateToProgress != null) {
+                      widget.onNavigateToProgress!();
+                    } else {
+                      widget.onNavigateToCalendar();
+                    }
+                  },
+                ),
+
+                const SizedBox(height: 22),
+
+                // 5. Support Your Goal - Panduan Nutrisi (Mockup 1:1)
+                SupportGoalNutritionCard(
+                  userGoal: profile?.goal ?? 'muscle_gain',
+                  onTap: widget.onNavigateToNutrition,
+                ),
+              ],
             ),
-
-            // 2. Konten Utama (Cards)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children: [
-                  const SizedBox(height: 16),
-
-                  // Card 1: This Week's Progress (Real days count, circular ring %, 7 days checklist)
-                  ThisWeeksProgressCard(
-                    completedDays: _completedThisWeek,
-                    targetDays: _weeklyTarget,
-                    progressPercent: _progressPercent,
-                    days: _weeklyDays,
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Card 2: Today's Workout (Real dynamic session title, duration, exercises, ▶ Start Workout)
-                  TodaysWorkoutCard(
-                    sessionTitle: _nextSessionFocus,
-                    durationMinutes: _nextSessionDurationMinutes,
-                    exerciseCount: _todayExercises.isNotEmpty
-                        ? _todayExercises.length
-                        : 5,
-                    isCompletedToday: _isCompletedToday,
-                    todayCompletedMinutes: _todayCompletedMinutes,
-                    onStartWorkout: _startWorkoutSession,
-                    exerciseImageAsset: 'assets/images/exercises/push_up.webp',
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Card 3: Your Stats (Real Workouts This Week, Real Duration min, Real Day Streak)
-                  YourStatsSection(
-                    workoutsThisWeek: _completedThisWeek,
-                    totalDurationMinutes: _totalDurationMinutes,
-                    dayStreak: _streakDays,
-                    onViewProgress:
-                        widget.onNavigateToProgress ??
-                        widget.onNavigateToCalendar,
-                  ),
-
-                  const SizedBox(height: 22),
-
-                  // Card 4: Bagian "Jelajahi Program" yang disukai user (Lihat Semua >)
-                  ExploreProgramsCarousel(
-                    programs: explorePrograms,
-                    onSeeAll: widget.onNavigateToExercises,
-                    onProgramTap: (item) {
-                      context.push(AppRoutes.programDetail, extra: item.id);
-                    },
-                  ),
-
-                  const SizedBox(height: 32),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
