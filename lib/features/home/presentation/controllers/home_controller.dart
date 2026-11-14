@@ -133,7 +133,7 @@ class HomeController extends StateNotifier<HomeState> {
     }
 
     try {
-      final profile = await _db.getUserProfile();
+      var profile = await _db.getUserProfile();
       final monday = today.subtract(Duration(days: today.weekday - 1));
 
       String goalLabel = 'Gain Weight & Build Muscle';
@@ -160,11 +160,33 @@ class HomeController extends StateNotifier<HomeState> {
           ? await _db.getProgramSessions(activeProgram.id)
           : <ProgramSessionEntity>[];
 
-      // Regenerate only when there is no active program or its session count
-      // no longer matches the user's selected weekly frequency.
-      if (activeProgram == null ||
+      final needsProgramRegeneration = activeProgram == null ||
           sessions.isEmpty ||
-          sessions.length != targetWeekly) {
+          sessions.length != targetWeekly ||
+          activeProgram.weeklyFrequency != targetWeekly;
+      final scheduleStartDate = activeProgram == null ||
+              activeProgram.weeklyFrequency != targetWeekly
+          ? (activeProgram == null ? now : profile.updatedAt)
+          : activeProgram.startDate;
+
+      // Normalize legacy/default schedules as well as new onboarding data.
+      // The first available day always matches the program's start weekday.
+      final alignedAvailableDays =
+          ProgramWeekSchedule.availableWeekdaysForFrequency(
+        startDate: scheduleStartDate,
+        frequency: targetWeekly,
+      );
+      if (!listEquals(profile.availableDays, alignedAvailableDays)) {
+        profile = profile.copyWith(
+          availableDays: alignedAvailableDays,
+          updatedAt: profile.updatedAt,
+        );
+        await _db.saveUserProfile(profile);
+      }
+
+      // Regenerate templates only when the active program is missing or its
+      // weekly session count/frequency no longer matches the user profile.
+      if (needsProgramRegeneration) {
         try {
           final catalog = await _exerciseDatasource.loadExercises();
           final startingPushId = profile.experienceLevel == 'advanced'
@@ -177,7 +199,7 @@ class HomeController extends StateNotifier<HomeState> {
             userProfile: profile,
             catalogExercises: catalog,
             startingPushExerciseId: startingPushId,
-            startDate: activeProgram == null ? now : profile.updatedAt,
+            startDate: scheduleStartDate,
           );
 
           await _db.saveDynamicProgram(
