@@ -9,11 +9,8 @@ import '../../../../core/router/app_router.dart';
 import '../../../../core/services/app_data_sync.dart';
 import '../../../exercises/domain/models/exercise.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
-import '../../../exercises/data/repositories/exercise_repository_impl.dart';
 import '../../../program/domain/models/program_day.dart';
 import '../../../program/domain/services/dynamic_program_generator.dart';
-import '../../../program/data/datasources/program_local_datasource.dart';
-import '../../../program/data/repositories/program_repository_impl.dart';
 
 import '../widgets/goal_progress_card.dart';
 import '../widgets/recovery_guide_bottom_sheet.dart';
