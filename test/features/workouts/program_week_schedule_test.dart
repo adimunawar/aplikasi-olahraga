@@ -168,6 +168,30 @@ void main() {
       );
     });
 
+    test('resolves Sunday as the first workout date for a Sunday start', () {
+      final scheduled = ProgramWeekSchedule.sessionForDate(
+        programStartDate: DateTime(2026, 11, 1),
+        date: DateTime(2026, 11, 1, 18),
+        availableDays: const ['sunday', 'tuesday', 'thursday'],
+        sessions: sessions,
+        totalWeeks: 12,
+      );
+
+      expect(scheduled, isNotNull);
+      expect(scheduled!.session.dayNumber, 1);
+      expect(scheduled.scheduledDate, DateTime(2026, 11, 1));
+      expect(
+        ProgramWeekSchedule.sessionForDate(
+          programStartDate: DateTime(2026, 11, 1),
+          date: DateTime(2026, 11, 2),
+          availableDays: const ['sunday', 'tuesday', 'thursday'],
+          sessions: sessions,
+          totalWeeks: 12,
+        ),
+        isNull,
+      );
+    });
+
     test('handles a program that starts mid-week', () {
       final week = ProgramWeekSchedule.build(
         programStartDate: DateTime(2026, 11, 4), // Wednesday
