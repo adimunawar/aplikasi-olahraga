@@ -63,6 +63,8 @@ class AppRoutes {
 /// DTO Arguments untuk WorkoutDetailScreen
 class WorkoutDetailArgs {
   final int dayNumber;
+  final int? weekNumber;
+  final String? programId;
   final String weekDayText;
   final String workoutTitle;
   final String targetMusclesText;
@@ -72,6 +74,8 @@ class WorkoutDetailArgs {
 
   const WorkoutDetailArgs({
     this.dayNumber = 1,
+    this.weekNumber,
+    this.programId,
     this.weekDayText = 'Week 1 • Day 1',
     this.workoutTitle = 'Upper Body',
     this.targetMusclesText = 'Chest',
@@ -85,10 +89,12 @@ class WorkoutDetailArgs {
 class WorkoutSessionArgs {
   final ProgramDay day;
   final List<Exercise> exercises;
+  final String? programId;
 
   const WorkoutSessionArgs({
     required this.day,
     required this.exercises,
+    this.programId,
   });
 }
 
@@ -195,6 +201,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final args = state.extra as WorkoutDetailArgs? ?? const WorkoutDetailArgs();
           return WorkoutDetailScreen(
             dayNumber: args.dayNumber,
+            weekNumber: args.weekNumber,
+            programId: args.programId,
             weekDayText: args.weekDayText,
             workoutTitle: args.workoutTitle,
             targetMusclesText: args.targetMusclesText,
@@ -212,6 +220,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           return WorkoutSessionScreen(
             day: args.day,
             exercises: args.exercises,
+            programId: args.programId,
           );
         },
       ),
