@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: staging-build-\${{ github.ref }}
+  group: staging-build-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -35,17 +35,17 @@ jobs:
       - name: Prepare Android release signing
         shell: bash
         env:
-          ANDROID_KEYSTORE_BASE64: \${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          ANDROID_KEYSTORE_PASSWORD: \${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          ANDROID_KEY_ALIAS: \${{ secrets.ANDROID_KEY_ALIAS }}
-          ANDROID_KEY_PASSWORD: \${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           set -euo pipefail
 
-          : "\${ANDROID_KEYSTORE_BASE64:?Missing GitHub secret ANDROID_KEYSTORE_BASE64}"
-          : "\${ANDROID_KEYSTORE_PASSWORD:?Missing GitHub secret ANDROID_KEYSTORE_PASSWORD}"
-          : "\${ANDROID_KEY_ALIAS:?Missing GitHub secret ANDROID_KEY_ALIAS}"
-          : "\${ANDROID_KEY_PASSWORD:?Missing GitHub secret ANDROID_KEY_PASSWORD}"
+          : "${ANDROID_KEYSTORE_BASE64:?Missing GitHub secret ANDROID_KEYSTORE_BASE64}"
+          : "${ANDROID_KEYSTORE_PASSWORD:?Missing GitHub secret ANDROID_KEYSTORE_PASSWORD}"
+          : "${ANDROID_KEY_ALIAS:?Missing GitHub secret ANDROID_KEY_ALIAS}"
+          : "${ANDROID_KEY_PASSWORD:?Missing GitHub secret ANDROID_KEY_PASSWORD}"
 
           KEYSTORE_PATH="$RUNNER_TEMP/upload-keystore.jks"
           printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE_PATH"
@@ -72,24 +72,24 @@ jobs:
       - name: Prepare Firebase configuration
         shell: bash
         env:
-          GOOGLE_SERVICES_JSON: \${{ secrets.GOOGLE_SERVICES_JSON }}
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         run: |
           set -euo pipefail
-          : "\${GOOGLE_SERVICES_JSON:?Missing GitHub secret GOOGLE_SERVICES_JSON}"
+          : "${GOOGLE_SERVICES_JSON:?Missing GitHub secret GOOGLE_SERVICES_JSON}"
           printf '%s' "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
           test -s android/app/google-services.json
 
       - name: Build Staging APK
         env:
-          ANDROID_KEYSTORE_PASSWORD: \${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          ANDROID_KEY_ALIAS: \${{ secrets.ANDROID_KEY_ALIAS }}
-          ANDROID_KEY_PASSWORD: \${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: flutter build apk --release --no-pub
 
       - name: Upload Staging APK
         uses: actions/upload-artifact@v7
         with:
-          name: home-bulking-coach-staging-\${{ github.sha }}
+          name: home-bulking-coach-staging-${{ github.sha }}
           path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 14
@@ -105,19 +105,19 @@ jobs:
       - name: Validate Firebase distribution configuration
         shell: bash
         env:
-          FIREBASE_APP_ID: \${{ secrets.FIREBASE_APP_ID }}
-          FIREBASE_SERVICE_ACCOUNT_JSON: \${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
-          FIREBASE_TESTER_GROUPS: \${{ vars.FIREBASE_TESTER_GROUPS }}
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          FIREBASE_TESTER_GROUPS: ${{ vars.FIREBASE_TESTER_GROUPS }}
         run: |
           set -euo pipefail
-          : "\${FIREBASE_APP_ID:?Missing GitHub secret FIREBASE_APP_ID}"
-          : "\${FIREBASE_SERVICE_ACCOUNT_JSON:?Missing GitHub secret FIREBASE_SERVICE_ACCOUNT_JSON}"
-          : "\${FIREBASE_TESTER_GROUPS:?Missing GitHub Actions variable FIREBASE_TESTER_GROUPS}"
+          : "${FIREBASE_APP_ID:?Missing GitHub secret FIREBASE_APP_ID}"
+          : "${FIREBASE_SERVICE_ACCOUNT_JSON:?Missing GitHub secret FIREBASE_SERVICE_ACCOUNT_JSON}"
+          : "${FIREBASE_TESTER_GROUPS:?Missing GitHub Actions variable FIREBASE_TESTER_GROUPS}"
 
       - name: Download Staging APK
         uses: actions/download-artifact@v7
         with:
-          name: home-bulking-coach-staging-\${{ github.sha }}
+          name: home-bulking-coach-staging-${{ github.sha }}
           path: build/app/outputs/flutter-apk
 
       - name: Set up Node.js
@@ -128,9 +128,9 @@ jobs:
       - name: Distribute Staging to Firebase App Distribution
         shell: bash
         env:
-          FIREBASE_APP_ID: \${{ secrets.FIREBASE_APP_ID }}
-          FIREBASE_SERVICE_ACCOUNT_JSON: \${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
-          FIREBASE_TESTER_GROUPS: \${{ vars.FIREBASE_TESTER_GROUPS }}
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          FIREBASE_TESTER_GROUPS: ${{ vars.FIREBASE_TESTER_GROUPS }}
         run: |
           set -euo pipefail
 
@@ -144,7 +144,7 @@ jobs:
           export GOOGLE_APPLICATION_CREDENTIALS="$SERVICE_ACCOUNT_PATH"
           npm install --global firebase-tools
 
-          RELEASE_NOTES="Staging release \${GITHUB_SHA::7}"
+          RELEASE_NOTES="Staging release ${GITHUB_SHA::7}"
           firebase appdistribution:distribute "$APK_PATH" \
             --app "$FIREBASE_APP_ID" \
             --groups "$FIREBASE_TESTER_GROUPS" \
