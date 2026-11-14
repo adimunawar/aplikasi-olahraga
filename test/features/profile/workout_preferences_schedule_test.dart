@@ -97,9 +97,9 @@ void main() {
   });
 
   group('ProfileController - Pemetaan Jadwal Latihan (_getAvailableDays)', () {
-    test('Frekuensi 2 hari menghasilkan Tuesday, Thursday', () {
+    test('Frekuensi 2 hari menghasilkan Monday, Thursday', () {
       final days = controller.getAvailableDaysForTesting(2);
-      expect(days, equals(['tuesday', 'thursday']));
+      expect(days, equals(['monday', 'thursday']));
     });
 
     test('Frekuensi 3 hari menghasilkan Monday, Wednesday, Friday', () {
@@ -107,20 +107,20 @@ void main() {
       expect(days, equals(['monday', 'wednesday', 'friday']));
     });
 
-    test('Frekuensi 4 hari menghasilkan Monday, Tuesday, Thursday, Friday', () {
+    test('Frekuensi 4 hari menghasilkan Monday, Wednesday, Friday, Sunday', () {
       final days = controller.getAvailableDaysForTesting(4);
-      expect(days, equals(['monday', 'tuesday', 'thursday', 'friday']));
+      expect(days, equals(['monday', 'wednesday', 'friday', 'sunday']));
     });
 
-    test('Frekuensi 5 hari menghasilkan Monday–Friday', () {
+    test('Frekuensi 5 hari menghasilkan Monday, Tuesday, Thursday, Saturday, Sunday', () {
       final days = controller.getAvailableDaysForTesting(5);
       expect(
         days,
-        equals(['monday', 'tuesday', 'wednesday', 'thursday', 'friday']),
+        equals(['monday', 'tuesday', 'thursday', 'saturday', 'sunday']),
       );
     });
 
-    test('Frekuensi 6 hari menghasilkan Monday–Saturday', () {
+    test('Frekuensi 6 hari menghasilkan Monday, Tuesday, Wednesday, Friday, Saturday, Sunday', () {
       final days = controller.getAvailableDaysForTesting(6);
       expect(
         days,
@@ -128,9 +128,9 @@ void main() {
           'monday',
           'tuesday',
           'wednesday',
-          'thursday',
           'friday',
           'saturday',
+          'sunday',
         ]),
       );
     });
@@ -177,7 +177,7 @@ void main() {
       );
 
       test(
-        'Mengubah frekuensi ke 5 hari memperbarui ketiga properti menjadi 5 hari (Senin-Jumat)',
+        'Mengubah frekuensi ke 5 hari memperbarui ketiga properti menjadi 5 hari',
         () async {
           await controller.updateWorkoutPreferences(
             trainingDaysPerWeek: 5,
@@ -197,7 +197,7 @@ void main() {
       );
 
       test(
-        'Mengubah frekuensi ke 2 hari memperbarui ketiga properti menjadi 2 hari (Selasa & Kamis)',
+        'Mengubah frekuensi ke 2 hari memperbarui ketiga properti menjadi 2 hari',
         () async {
           await controller.updateWorkoutPreferences(
             trainingDaysPerWeek: 2,
