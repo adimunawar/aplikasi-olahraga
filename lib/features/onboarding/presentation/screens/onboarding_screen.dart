@@ -213,25 +213,26 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     onGoalSelected: (val) => setState(() => _goal = val),
                   ),
 
-                  // Step 2: About (Gender, Age, Height)
+                  // Step 2: About (Gender & Age)
                   StepAbout(
                     gender: _gender,
                     age: _age,
-                    heightCm: _heightCm,
                     onGenderChanged: (val) => setState(() => _gender = val),
                     onAgeChanged: (val) => setState(() => _age = val),
-                    onHeightChanged: (val) => setState(() => _heightCm = val),
                   ),
 
-                  // Step 3: Body & Target Weight
+                  // Step 3: Body Metrics & Target (Height, Current & Target Weight)
                   StepBodyTarget(
+                    heightCm: _heightCm,
                     currentWeightKg: _currentWeightKg,
                     targetWeightKg: _targetWeightKg,
+                    onHeightChanged: (val) => setState(() => _heightCm = val),
                     onCurrentWeightChanged: (val) =>
                         setState(() => _currentWeightKg = val),
                     onTargetWeightChanged: (val) =>
                         setState(() => _targetWeightKg = val),
                   ),
+
 
                   // Step 4: Experience Level
                   StepExperience(
@@ -331,19 +332,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final t = Translations.of(context).onboarding.nav;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        border: const Border(
-          top: BorderSide(color: Color(0xFFE2E8F0), width: 1),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, -4),
-          ),
-        ],
+        border: _currentStep == 0
+            ? null
+            : const Border(
+                top: BorderSide(color: Color(0xFFE2E8F0), width: 1),
+              ),
+        boxShadow: _currentStep == 0
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, -4),
+                ),
+              ],
       ),
       child: SafeArea(
         top: false,
@@ -356,7 +361,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     text: t.getStarted,
                     size: AppButtonSize.large,
                     isFullWidth: false,
-                    width: 200,
+                    width: 210,
                     onPressed: _nextStep,
                   ),
                 ],
@@ -370,4 +375,5 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       ),
     );
   }
+
 }

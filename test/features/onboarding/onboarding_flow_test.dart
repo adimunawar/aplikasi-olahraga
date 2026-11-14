@@ -5,7 +5,12 @@ import 'package:workout_app/core/database/models/user_profile_entity.dart';
 import 'package:workout_app/features/onboarding/presentation/screens/plan_preview_screen.dart';
 import 'package:workout_app/features/onboarding/presentation/screens/plan_ready_screen.dart';
 import 'package:workout_app/features/onboarding/presentation/widgets/step_goal.dart';
+import 'package:workout_app/features/onboarding/presentation/widgets/step_about.dart';
+import 'package:workout_app/features/onboarding/presentation/widgets/step_body_target.dart';
+import 'package:workout_app/features/onboarding/presentation/widgets/step_experience.dart';
 import 'package:workout_app/features/onboarding/presentation/widgets/step_schedule.dart';
+import 'package:workout_app/features/onboarding/presentation/widgets/step_equipment.dart';
+import 'package:workout_app/features/onboarding/presentation/widgets/step_limitations.dart';
 import 'package:workout_app/features/onboarding/presentation/widgets/step_welcome.dart';
 import 'package:workout_app/features/program/domain/services/dynamic_program_generator.dart';
 import 'package:workout_app/features/program/presentation/controllers/draft_program_provider.dart';
@@ -29,11 +34,15 @@ void main() {
       await tester.pumpWidget(createTestWidget(const StepWelcome()));
       await tester.pumpAndSettle();
 
-      expect(find.text('Coach Latihan\nPribadi Kamu'), findsOneWidget);
       expect(
-        find.textContaining('Dapatkan program latihan sesuai'),
+        find.textContaining('Coach Latihan', findRichText: true),
         findsOneWidget,
       );
+      expect(
+        find.textContaining('Dapatkan program latihan sesuai', findRichText: true),
+        findsOneWidget,
+      );
+
     });
 
     testWidgets('StepGoal renders all 3 core fitness goals', (tester) async {
@@ -104,7 +113,181 @@ void main() {
       await tester.pumpAndSettle();
       expect(duration, equals(60));
     });
+
+    testWidgets('StepAbout allows selecting gender and stepping/typing age', (tester) async {
+      int age = 28;
+      String gender = 'male';
+
+      await tester.pumpWidget(
+        createTestWidget(
+          StatefulBuilder(
+            builder: (context, setState) {
+              return StepAbout(
+                gender: gender,
+                age: age,
+                onGenderChanged: (g) => setState(() => gender = g),
+                onAgeChanged: (a) => setState(() => age = a),
+              );
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Verify initial rendering
+      expect(find.text('28'), findsOneWidget);
+
+      // Tap + button on age
+      final addButtons = find.byIcon(Icons.add_rounded);
+      await tester.tap(addButtons.first);
+      await tester.pumpAndSettle();
+      expect(age, equals(29));
+
+      // Test manual input via enterText on age field
+      final ageTextField = find.byType(TextField).first;
+      await tester.enterText(ageTextField, '32');
+      await tester.pumpAndSettle();
+      expect(age, equals(32));
+    });
+
+    testWidgets('StepBodyTarget renders height, current and target weight with stepper', (tester) async {
+      double height = 170.0;
+      double currentWeight = 65.0;
+      double targetWeight = 70.0;
+
+      await tester.pumpWidget(
+        createTestWidget(
+          StatefulBuilder(
+            builder: (context, setState) {
+              return StepBodyTarget(
+                heightCm: height,
+                currentWeightKg: currentWeight,
+                targetWeightKg: targetWeight,
+                onHeightChanged: (h) => setState(() => height = h),
+                onCurrentWeightChanged: (cw) => setState(() => currentWeight = cw),
+                onTargetWeightChanged: (tw) => setState(() => targetWeight = tw),
+              );
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('170'), findsOneWidget);
+      expect(find.text('65.0'), findsOneWidget);
+      expect(find.text('70.0'), findsOneWidget);
+
+      // Tap + button on height
+      final addButtons = find.byIcon(Icons.add_rounded);
+      await tester.tap(addButtons.first);
+      await tester.pumpAndSettle();
+      expect(height, equals(171.0));
+    });
+
+    testWidgets('StepExperience renders all 3 experience levels and allows selection', (tester) async {
+      String level = 'beginner';
+
+      await tester.pumpWidget(
+        createTestWidget(
+          StatefulBuilder(
+            builder: (context, setState) {
+              return StepExperience(
+                selectedLevel: level,
+                onLevelSelected: (l) => setState(() => level = l),
+              );
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Pemula'), findsOneWidget);
+      expect(find.text('Menengah'), findsOneWidget);
+      expect(find.text('Lanjutan'), findsOneWidget);
+
+      // Select intermediate
+      await tester.tap(find.text('Menengah'));
+      await tester.pumpAndSettle();
+      expect(level, equals('intermediate'));
+    });
+
+    testWidgets('StepEquipment renders equipment list and allows toggling', (tester) async {
+      List<String> equipments = ['bodyweight'];
+
+      await tester.pumpWidget(
+        createTestWidget(
+          StatefulBuilder(
+            builder: (context, setState) {
+              return StepEquipment(
+                selectedEquipments: equipments,
+                onToggleEquipment: (eq) {
+                  setState(() {
+                    if (equipments.contains(eq)) {
+                      equipments.remove(eq);
+                    } else {
+                      equipments.add(eq);
+                    }
+                  });
+                },
+              );
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('Berat Tubuh'), findsOneWidget);
+      expect(find.text('Dumbbell'), findsOneWidget);
+
+      // Toggle Dumbbell
+      await tester.tap(find.text('Dumbbell'));
+      await tester.pumpAndSettle();
+      expect(equipments.contains('dumbbell'), isTrue);
+    });
+
+    testWidgets('StepLimitations renders limitation options and handles toggle', (tester) async {
+      List<String> limitations = ['none'];
+
+      await tester.pumpWidget(
+        createTestWidget(
+          StatefulBuilder(
+            builder: (context, setState) {
+              return StepLimitations(
+                selectedLimitations: limitations,
+                onToggleLimitation: (lim) {
+                  setState(() {
+                    if (lim == 'none') {
+                      limitations = ['none'];
+                    } else {
+                      limitations.remove('none');
+                      if (limitations.contains(lim)) {
+                        limitations.remove(lim);
+                      } else {
+                        limitations.add(lim);
+                      }
+                    }
+                  });
+                },
+              );
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Tanpa batasan'), findsOneWidget);
+      expect(find.textContaining('Lutut'), findsOneWidget);
+
+      // Tap knee limitation
+      await tester.tap(find.textContaining('Lutut'));
+      await tester.pumpAndSettle();
+      expect(limitations.contains('knee'), isTrue);
+      expect(limitations.contains('none'), isFalse);
+    });
+
   });
+
+
 
   group('Onboarding Screens - PlanReadyScreen & PlanPreviewScreen (P0 & P1)', () {
     testWidgets('PlanReadyScreen displays celebration and View My Plan button', (tester) async {

@@ -4,7 +4,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_smart_image.dart';
 import '../../../../i18n/strings.g.dart';
 
-/// Step 0: Welcome Screen Content (Mockup 1:1, Tanpa Bottom Bar - dihandle wrapper)
+/// Step 0: Welcome Screen Content (Mockup 1:1 Visual Match)
 class StepWelcome extends StatelessWidget {
   const StepWelcome({super.key});
 
@@ -13,92 +13,170 @@ class StepWelcome extends StatelessWidget {
     final t = Translations.of(context).onboarding.welcome;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 1. Logo "Workout Coach" di Kiri Atas
+          // 1. Logo "● ● Coach" di Kiri Atas sesuai Mockup
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 32,
-                height: 32,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF84CC16),
-                  shape: BoxShape.circle,
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.fitness_center_rounded,
-                    size: 18,
-                    color: AppColors.darkCharcoal,
+              // Dua titik/pill hijau limau khas brand
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 10,
+                    height: 10,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF84CC16),
+                      shape: BoxShape.circle,
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 4),
+                  Container(
+                    width: 10,
+                    height: 10,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF84CC16),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(width: 8),
               Text(
-                t.brand,
+                'Coach',
                 style: AppTypography.headlineSmall.copyWith(
                   fontWeight: FontWeight.w900,
-                  fontSize: 13,
-                  height: 1.1,
+                  fontSize: 16,
+                  letterSpacing: -0.3,
                   color: AppColors.darkCharcoal,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
 
-          // 2. Hero Coach Image (Terpusat)
+          // 2. Hero Coach Image dengan Soft Lime Organic Card Background
           Center(
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.44,
-              constraints: const BoxConstraints(maxHeight: 380),
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height * 0.46,
+              width: double.infinity,
               child: Stack(
-                alignment: Alignment.center,
+                alignment: Alignment.bottomCenter,
                 children: [
-                  // Latar Belakang Lingkaran Glow Halus
-                  Container(
-                    width: 260,
-                    height: 260,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.limeAccent.withOpacity(0.18),
+                  // Latar Belakang Kartu Hijau Limau Halus dengan Sudut Melengkung
+                  Positioned.fill(
+                    top: 24,
+                    bottom: 0,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(32),
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFFE8F7CD),
+                            Color(0xFFF4FDE5),
+                            Color(0xFFE2F5BE),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                  const AppSmartImage(
-                    imagePathOrUrl: 'assets/images/coach_hero.png',
-                    fit: BoxFit.contain,
+
+                  // Hero Coach Image
+                  Positioned.fill(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: const AppSmartImage(
+                        imagePathOrUrl: 'assets/images/coach_hero.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+
+                  // Soft Fade Gradient di bagian bawah agar menyatu mulus ke kanvas putih
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    height: 48,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.white.withValues(alpha: 0.0),
+                            Colors.white.withValues(alpha: 0.8),
+                            Colors.white,
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
 
-          // 3. Judul & Subtitle
-          Text(
-            t.title,
-            style: AppTypography.displayMedium.copyWith(
-              fontWeight: FontWeight.w900,
-              fontSize: 28,
-              height: 1.15,
-              color: AppColors.darkCharcoal,
-            ),
+          // 3. Judul 2 Warna: Baris 1 (Hitam) & Baris 2 (Lime Green) sesuai Locale
+          Builder(
+            builder: (context) {
+              final titleParts = t.title.split('\n');
+              final firstLine = titleParts.isNotEmpty ? titleParts.first : t.title;
+              final secondLine = titleParts.length > 1 ? titleParts.sublist(1).join('\n') : '';
+
+              return Text.rich(
+                TextSpan(
+                  style: AppTypography.displayMedium.copyWith(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 32,
+                    height: 1.15,
+                    letterSpacing: -0.8,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: '$firstLine\n',
+                      style: const TextStyle(
+                        color: Color(0xFF141718),
+                      ),
+                    ),
+                    if (secondLine.isNotEmpty)
+                      TextSpan(
+                        text: secondLine,
+                        style: const TextStyle(
+                          color: Color(0xFF84CC16),
+                        ),
+                      ),
+                  ],
+                ),
+              );
+
+            },
           ),
-          const SizedBox(height: 10),
+
+          const SizedBox(height: 12),
+
+          // 4. Subtitle Deskripsi
           Text(
             t.subtitle,
             style: AppTypography.bodySmall.copyWith(
-              color: AppColors.neutral500,
-              fontSize: 14,
-              height: 1.4,
+              color: const Color(0xFF475569),
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              height: 1.45,
             ),
           ),
+          const SizedBox(height: 16),
         ],
       ),
     );
   }
 }
+
 
