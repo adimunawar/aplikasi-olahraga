@@ -291,10 +291,13 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
                     ),
                     child: Row(
                       children: [
+                        // ignore: deprecated_member_use
                         Radio<int>(
                           value: opt.rir,
+                          // ignore: deprecated_member_use
                           groupValue: _selectedRir,
                           activeColor: const Color(0xFF65A30D),
+                          // ignore: deprecated_member_use
                           onChanged: (val) {
                             if (val != null) setState(() => _selectedRir = val);
                           },
@@ -318,7 +321,7 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                     decoration: BoxDecoration(
-                                      color: opt.color.withOpacity(0.12),
+                                      color: opt.color.withValues(alpha: 0.12),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
@@ -380,7 +383,7 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(

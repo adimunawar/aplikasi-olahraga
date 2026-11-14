@@ -114,7 +114,7 @@ class AppSectionHeader extends StatelessWidget {
             ),
           ],
         ),
-        if (rightWidget != null) rightWidget,
+        ?rightWidget,
       ],
     );
   }

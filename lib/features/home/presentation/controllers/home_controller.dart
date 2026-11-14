@@ -47,15 +47,11 @@ class HomeController extends StateNotifier<HomeState> {
   int _lastKnownRevision = -1;
 
   HomeController({
-    required AppDatabase db,
-    required ExerciseLocalDatasource exerciseDatasource,
-    required DynamicProgramGenerator programGenerator,
-    required AppDataSync appDataSync,
-  })  : _db = db,
-        _exerciseDatasource = exerciseDatasource,
-        _programGenerator = programGenerator,
-        _appDataSync = appDataSync,
-        super(const HomeState()) {
+    required this._db,
+    required this._exerciseDatasource,
+    required this._programGenerator,
+    required this._appDataSync,
+  })  : super(const HomeState()) {
     _init();
   }
 

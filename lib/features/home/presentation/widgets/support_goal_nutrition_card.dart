@@ -45,7 +45,7 @@ class SupportGoalNutritionCard extends StatelessWidget {
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF84CC16).withOpacity(0.06),
+                color: const Color(0xFF84CC16).withValues(alpha: 0.06),
                 blurRadius: 10,
                 offset: const Offset(0, 3),
               ),
@@ -116,7 +116,7 @@ class SupportGoalNutritionCard extends StatelessWidget {
                   border: Border.all(color: const Color(0xFFD4EBA8), width: 2),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
+                      color: Colors.black.withValues(alpha: 0.06),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),

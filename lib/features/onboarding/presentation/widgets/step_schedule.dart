@@ -74,7 +74,7 @@ class StepSchedule extends StatelessWidget {
                     boxShadow: isSelected
                         ? [
                             BoxShadow(
-                              color: AppColors.limeAccent.withOpacity(0.2),
+                              color: AppColors.limeAccent.withValues(alpha: 0.2),
                               blurRadius: 8,
                               offset: const Offset(0, 3),
                             ),

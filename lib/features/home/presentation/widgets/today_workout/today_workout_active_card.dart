@@ -79,7 +79,7 @@ class TodayWorkoutActiveCard extends StatelessWidget {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: Colors.black.withValues(alpha: 0.04),
                   blurRadius: 10,
                   offset: const Offset(0, 3),
                 ),
@@ -189,7 +189,7 @@ class TodayWorkoutActiveCard extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      shadowColor: const Color(0xFF84CC16).withOpacity(0.3),
+                      shadowColor: const Color(0xFF84CC16).withValues(alpha: 0.3),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,

@@ -54,17 +54,12 @@ class ProgressController extends StateNotifier<ProgressState> {
   final ProgramsRepository _programsRepo;
 
   ProgressController({
-    required ProgressRepository repository,
-    required BmiCalculatorService bmiCalculator,
-    required WeightAnalyticsService weightAnalytics,
-    required UserSupabaseDatasource userDatasource,
-    required ProgramsRepository programsRepo,
-  })  : _repository = repository,
-        _bmiCalculator = bmiCalculator,
-        _weightAnalytics = weightAnalytics,
-        _userDatasource = userDatasource,
-        _programsRepo = programsRepo,
-        super(const ProgressState()) {
+    required this._repository,
+    required this._bmiCalculator,
+    required this._weightAnalytics,
+    required this._userDatasource,
+    required this._programsRepo,
+  })  : super(const ProgressState()) {
     loadProgress();
   }
 

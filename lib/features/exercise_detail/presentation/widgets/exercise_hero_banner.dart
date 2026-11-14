@@ -144,7 +144,7 @@ class ExerciseHeroBanner extends StatelessWidget {
                       child: Image.asset(
                         'assets/images/coach_character.png',
                         fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => Image.asset(
+                        errorBuilder: (_, _, _) => Image.asset(
                           'assets/images/main-caracter.png',
                           fit: BoxFit.contain,
                         ),

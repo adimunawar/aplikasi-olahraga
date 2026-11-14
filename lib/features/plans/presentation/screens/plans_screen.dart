@@ -393,7 +393,7 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
       isScrollControlled: true,
       builder: (ctx) {
         return StatefulBuilder(
-          builder: (context, setModalState) {
+          builder: (modalCtx, setModalState) {
             return Container(
               decoration: const BoxDecoration(
                 color: Colors.white,
@@ -552,7 +552,7 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
       isScrollControlled: true,
       builder: (ctx) {
         return StatefulBuilder(
-          builder: (context, setModalState) {
+          builder: (modalCtx, setModalState) {
             return Container(
               decoration: const BoxDecoration(
                 color: Colors.white,
@@ -850,7 +850,7 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
+                    color: Colors.black.withValues(alpha: 0.06),
                     blurRadius: 10,
                     offset: const Offset(0, -4),
                   ),

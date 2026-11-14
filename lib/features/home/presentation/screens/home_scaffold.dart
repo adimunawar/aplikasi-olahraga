@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/services/app_data_sync.dart';
 import '../../../../core/theme/app_typography.dart';
 import 'home_screen.dart';
 import '../../../plans/presentation/screens/plans_screen.dart';

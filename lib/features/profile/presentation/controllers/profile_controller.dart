@@ -26,9 +26,8 @@ final profileControllerProvider =
 class ProfileController extends StateNotifier<ProfileState> {
   final UserProfileRepository _repository;
 
-  ProfileController({required UserProfileRepository repository})
-    : _repository = repository,
-      super(const ProfileState()) {
+  ProfileController({required this._repository})
+    : super(const ProfileState()) {
     loadProfile();
   }
 

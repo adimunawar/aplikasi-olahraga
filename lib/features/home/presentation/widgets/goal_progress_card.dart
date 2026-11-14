@@ -67,7 +67,7 @@ class GoalProgressCard extends StatelessWidget {
           border: Border.all(color: const Color(0xFFD4EBA8), width: 1.2),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF84CC16).withOpacity(0.12),
+              color: const Color(0xFF84CC16).withValues(alpha: 0.12),
               blurRadius: 18,
               offset: const Offset(0, 6),
             ),
