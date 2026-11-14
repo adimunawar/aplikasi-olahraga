@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -214,6 +215,45 @@ class ProfileController extends StateNotifier<ProfileState> {
     }
   }
 
+  List<String> _getAvailableDays(int frequency) {
+    switch (frequency) {
+      case 2:
+        return ['tuesday', 'thursday'];
+
+      case 3:
+        return ['monday', 'wednesday', 'friday'];
+
+      case 4:
+        return ['monday', 'tuesday', 'thursday', 'friday'];
+
+      case 5:
+        return [
+          'monday',
+          'tuesday',
+          'wednesday',
+          'thursday',
+          'friday',
+        ];
+
+      case 6:
+        return [
+          'monday',
+          'tuesday',
+          'wednesday',
+          'thursday',
+          'friday',
+          'saturday',
+        ];
+
+      default:
+        throw ArgumentError('Unsupported training frequency: $frequency');
+    }
+  }
+
+  @visibleForTesting
+  List<String> getAvailableDaysForTesting(int frequency) =>
+      _getAvailableDays(frequency);
+
   Future<void> updateWorkoutPreferences({
     required int trainingDaysPerWeek,
     required int workoutDurationMin,
@@ -221,11 +261,16 @@ class ProfileController extends StateNotifier<ProfileState> {
   }) async {
     try {
       final profile = await _repository.getUserProfile();
+      final availableDays = _getAvailableDays(trainingDaysPerWeek);
+
       final updatedProfile = profile.copyWith(
         preferredDaysPerWeek: trainingDaysPerWeek,
+        weeklyFrequency: trainingDaysPerWeek,
+        availableDays: availableDays,
         preferredDurationMin: workoutDurationMin,
         updatedAt: DateTime.now(),
       );
+
       await _repository.saveUserProfile(updatedProfile);
 
       final settings = await _repository.getUserSettings();
