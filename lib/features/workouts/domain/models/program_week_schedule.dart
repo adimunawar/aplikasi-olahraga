@@ -33,7 +33,7 @@ class ProgramWeekSchedule {
     if (current.isBefore(start)) return 1;
 
     final elapsedDays = current.difference(start).inDays;
-    return ((elapsedDays ~/ 7) + 1).clamp(1, totalWeeks);
+    return ((elapsedDays ~/ 7) + 1).clamp(1, totalWeeks).toInt();
   }
 
   static DateTime startDateForWeek({
