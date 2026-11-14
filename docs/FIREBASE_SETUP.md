@@ -82,20 +82,37 @@ repository secret sebelum build release:
 Tanpa secret tersebut, job **Build Android release APK** akan gagal dengan
 pesan `Missing GitHub secret GOOGLE_SERVICES_JSON`.
 
-## Verifikasi Crashlytics
+## Collection behavior (Debug vs Release)
 
-Collection Crashlytics aktif secara default, termasuk di debug, supaya test
-langsung terlihat. Matikan bila tidak diperlukan:
+Crashlytics and Analytics collection default to **enabled in Release** and
+**disabled in Debug/Profile**. This prevents routine development crashes and
+test events from being uploaded from a developer's device.
+
+To temporarily enable Crashlytics during a local test:
 
 ```bash
-flutter run --dart-define=FIREBASE_CRASHLYTICS_ENABLED=false
+flutter run --dart-define=FIREBASE_CRASHLYTICS_ENABLED=true
 ```
 
-Untuk menguji pelaporan crash:
+To enable Analytics for Firebase DebugView:
+
+```bash
+flutter run --dart-define=FIREBASE_ANALYTICS_ENABLED=true
+```
+
+Before production, provide an appropriate privacy notice and obtain any
+consent required by the product privacy policy and applicable law. Do not send
+email addresses, names, body measurements, workout notes, or other directly
+identifying or sensitive values as Analytics event parameters.
+
+## Verifikasi Crashlytics
+
+Untuk menguji pelaporan crash, jalankan app dalam mode Debug dengan flag
+collection diaktifkan:
 
 1. Jalankan app di device/emulator Android:
    ```bash
-   flutter run
+   flutter run --dart-define=FIREBASE_CRASHLYTICS_ENABLED=true
    ```
 2. Picu crash dari kode (sementara), misalnya di sebuah tombol:
    ```dart
@@ -119,11 +136,16 @@ adb logcat | Select-String "Firebase|Crashlytics"
 Analytics otomatis mengumpulkan event dasar (`first_open`, `session_start`,
 `screen_view` bila dipanggil manual). Untuk melihat event real-time:
 
-1. Aktifkan DebugView di device:
+1. Jalankan app dengan `FIREBASE_ANALYTICS_ENABLED=true`, lalu aktifkan
+   DebugView di device:
    ```bash
    adb shell setprop debug.firebase.analytics.app com.homefitness.workout_app
    ```
-2. Jalankan app dengan `flutter run`.
+2. Jalankan aplikasi:
+   ```bash
+   flutter run --dart-define=FIREBASE_ANALYTICS_ENABLED=true
+   ```
+
 3. Buka Firebase Console → **Analytics** → **DebugView**.
 4. Matikan kembali setelah selesai:
    ```bash
@@ -179,9 +201,11 @@ Butuh macOS + Xcode. Langkahnya:
 
 ## Catatan penting
 
-- **Release signing masih memakai debug key** (`signingConfigs.getByName("debug")`).
-  Ganti sebelum distribusi produksi; Crashlytics tetap berfungsi, tapi mapping
-  deobfuscation butuh build yang konsisten.
+- Android Release uses the dedicated upload keystore configured through
+  `android/key.properties` locally and GitHub Actions Secrets in CI. The
+  Gradle configuration intentionally never falls back to the debug signing key.
+- Crashlytics collection is enabled by default only for Release builds.
+  Analytics collection follows the same Release-first default.
 - `minSdk` mengikuti default Flutter (24), sudah memenuhi requirement Firebase
   Android.
 - Simbol/mapping Crashlytics di-upload otomatis oleh plugin

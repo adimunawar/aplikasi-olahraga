@@ -30,7 +30,7 @@ class UserSettingsEntity {
     this.theme = 'Light',
     this.hapticFeedback = true,
     this.soundEffects = true,
-    this.dataSync = true,
+    this.dataSync = false,
     required this.updatedAt,
   });
 
@@ -55,21 +55,33 @@ class UserSettingsEntity {
   }
 
   factory UserSettingsEntity.fromMap(Map<String, dynamic> map) {
+    bool readBool(String key, {required bool fallback}) {
+      final value = map[key];
+      if (value is bool) return value;
+      if (value is num) return value != 0;
+      if (value is String) {
+        final normalized = value.toLowerCase().trim();
+        if (normalized == 'true' || normalized == '1') return true;
+        if (normalized == 'false' || normalized == '0') return false;
+      }
+      return fallback;
+    }
+
     return UserSettingsEntity(
       id: map['id']?.toString() ?? 'default_settings',
       gender: map['gender']?.toString() ?? 'Male',
       targetWeightKg: (map['target_weight_kg'] as num?)?.toDouble() ?? 65.0,
       trainingIntensity: map['training_intensity']?.toString() ?? 'Moderate',
-      workoutReminder: (map['workout_reminder'] as num?)?.toInt() != 0,
+      workoutReminder: readBool('workout_reminder', fallback: true),
       reminderTime: map['reminder_time']?.toString() ?? '08:00 PM',
-      restDayReminder: (map['rest_day_reminder'] as num?)?.toInt() != 0,
-      progressCheckin: (map['progress_checkin'] as num?)?.toInt() != 0,
-      streakReminder: (map['streak_reminder'] as num?)?.toInt() != 0,
+      restDayReminder: readBool('rest_day_reminder', fallback: true),
+      progressCheckin: readBool('progress_checkin', fallback: true),
+      streakReminder: readBool('streak_reminder', fallback: true),
       language: map['language']?.toString() ?? 'English',
       theme: map['theme']?.toString() ?? 'Light',
-      hapticFeedback: (map['haptic_feedback'] as num?)?.toInt() != 0,
-      soundEffects: (map['sound_effects'] as num?)?.toInt() != 0,
-      dataSync: (map['data_sync'] as num?)?.toInt() != 0,
+      hapticFeedback: readBool('haptic_feedback', fallback: true),
+      soundEffects: readBool('sound_effects', fallback: true),
+      dataSync: readBool('data_sync', fallback: false),
       updatedAt: DateTime.tryParse(map['updated_at']?.toString() ?? '') ??
           DateTime.now(),
     );

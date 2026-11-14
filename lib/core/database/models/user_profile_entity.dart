@@ -72,40 +72,44 @@ class UserProfileEntity {
   }
 
   factory UserProfileEntity.fromMap(Map<String, dynamic> map) {
-    List<String> parsedEquipments = [];
-    final eq = map['equipments'];
-    if (eq is String) {
-      try {
-        final decoded = jsonDecode(eq);
-        if (decoded is List) {
-          parsedEquipments = decoded.map((e) => e.toString()).toList();
-        }
-      } catch (_) {
-        parsedEquipments = eq.split(',').map((s) => s.trim()).toList();
+    List<String> parseStringList(
+      dynamic raw, {
+      required List<String> fallback,
+    }) {
+      if (raw is List) {
+        return raw.map((value) => value.toString()).toList();
       }
+
+      if (raw is String) {
+        try {
+          final decoded = jsonDecode(raw);
+          if (decoded is List) {
+            return decoded.map((value) => value.toString()).toList();
+          }
+        } catch (_) {
+          return raw
+              .split(',')
+              .map((value) => value.trim())
+              .where((value) => value.isNotEmpty)
+              .toList();
+        }
+      }
+
+      return fallback;
     }
 
-    List<String> parsedAvailableDays = ['monday', 'wednesday', 'friday'];
-    final rawDays = map['available_days'];
-    if (rawDays is String) {
-      try {
-        final decoded = jsonDecode(rawDays);
-        if (decoded is List) {
-          parsedAvailableDays = decoded.map((e) => e.toString()).toList();
-        }
-      } catch (_) {}
-    }
-
-    List<String> parsedLimitations = [];
-    final rawLimit = map['training_limitations'];
-    if (rawLimit is String) {
-      try {
-        final decoded = jsonDecode(rawLimit);
-        if (decoded is List) {
-          parsedLimitations = decoded.map((e) => e.toString()).toList();
-        }
-      } catch (_) {}
-    }
+    final parsedEquipments = parseStringList(
+      map['equipments'],
+      fallback: const ['bodyweight', 'dumbbell'],
+    );
+    final parsedAvailableDays = parseStringList(
+      map['available_days'],
+      fallback: const ['monday', 'wednesday', 'friday'],
+    );
+    final parsedLimitations = parseStringList(
+      map['training_limitations'],
+      fallback: const [],
+    );
 
     final freq = (map['weekly_frequency'] as num?)?.toInt() ??
         (map['preferred_days_per_week'] as num?)?.toInt() ??
