@@ -11,6 +11,7 @@ import '../../../exercises/data/datasources/exercise_local_datasource.dart';
 import '../../../exercises/domain/models/exercise.dart';
 import '../../../program/domain/models/program_day.dart';
 import '../../../program/domain/services/dynamic_program_generator.dart';
+import '../../../program/domain/services/program_week_schedule.dart';
 import '../widgets/today_workout/today_workout_section.dart';
 import '../widgets/weekly_progress_calendar_card.dart';
 import 'home_state.dart';
@@ -84,20 +85,11 @@ class HomeController extends StateNotifier<HomeState> {
     required DateTime targetDate,
     required int totalWeeks,
   }) {
-    final startDay = DateTime(startDate.year, startDate.month, startDate.day);
-    final currentDay = DateTime(
-      targetDate.year,
-      targetDate.month,
-      targetDate.day,
+    return ProgramWeekSchedule.currentWeek(
+      programStartDate: startDate,
+      today: targetDate,
+      totalWeeks: totalWeeks,
     );
-
-    if (currentDay.isBefore(startDay)) {
-      return 1;
-    }
-
-    final daysElapsed = currentDay.difference(startDay).inDays;
-    final weekNumber = (daysElapsed ~/ 7) + 1;
-    return weekNumber.clamp(1, totalWeeks > 0 ? totalWeeks : 12);
   }
 
   String _formatDayShortEn(int weekday) {
@@ -122,56 +114,54 @@ class HomeController extends StateNotifier<HomeState> {
   /// Menghindari query berulang saat tab switch jika data belum basi/berubah.
   Future<void> loadHomeData({bool forceReload = false}) async {
     final now = DateTime.now();
+    final today = ProgramWeekSchedule.dateOnly(now);
 
-    // Optimasi Reload: jika tidak dipaksa reload dan data masih mutakhir di hari yang sama, gunakan cache
+    // Keep the cached Home data for a short period unless the database changed.
     if (!forceReload &&
         state.lastLoadedAt != null &&
         state.userProfile != null &&
         now.day == state.lastLoadedAt!.day &&
+        now.month == state.lastLoadedAt!.month &&
+        now.year == state.lastLoadedAt!.year &&
         now.difference(state.lastLoadedAt!).inMinutes < 15 &&
         _appDataSync.dataRevision.value == _lastKnownRevision) {
       return;
     }
 
-    // Set loading hanya jika sebelumnya belum ada data sama sekali
     if (state.userProfile == null) {
       state = state.copyWith(isLoading: true, errorType: HomeErrorType.none);
     }
 
     try {
-      // 1. Ambil Profil & Data Workout dari Database Lokal
       final profile = await _db.getUserProfile();
-      final thisWeekCount = await _db.getThisWeekCompletedCount();
-      final recentSessions = await _db.getRecentWorkoutSessions(limit: 30);
+      final monday = today.subtract(Duration(days: today.weekday - 1));
 
-      final monday = now.subtract(Duration(days: now.weekday - 1));
-
-      // Format Goal
       String goalLabel = 'Gain Weight & Build Muscle';
-      final g = profile.goal.toLowerCase();
-      if (g.contains('fat') || g.contains('weight_loss') || g.contains('cut')) {
+      final goal = profile.goal.toLowerCase();
+      if (goal.contains('fat') ||
+          goal.contains('weight_loss') ||
+          goal.contains('cut')) {
         goalLabel = 'Fat Loss & Conditioning';
-      } else if (g.contains('maintain') || g.contains('fit')) {
+      } else if (goal.contains('maintain') || goal.contains('fit')) {
         goalLabel = 'Maintain & Stay Fit';
       }
 
       final targetWeekly = profile.weeklyFrequency > 0
           ? profile.weeklyFrequency
           : (profile.preferredDaysPerWeek > 0
-                ? profile.preferredDaysPerWeek
-                : 3);
+              ? profile.preferredDaysPerWeek
+              : 3);
 
-      // 2. Program Latihan Aktif
       final userId = profile.id.isNotEmpty ? profile.id : 'default_user';
       var activeProgram = await _db.getActiveTrainingProgram(userId);
       activeProgram ??= await _db.getActiveTrainingProgram('default_user');
 
-      List<ProgramSessionEntity> sessions = [];
-      if (activeProgram != null) {
-        sessions = await _db.getProgramSessions(activeProgram.id);
-      }
+      var sessions = activeProgram != null
+          ? await _db.getProgramSessions(activeProgram.id)
+          : <ProgramSessionEntity>[];
 
-      // Auto-heal / Generate Dynamic Program jika belum ada
+      // Regenerate only when there is no active program or its session count
+      // no longer matches the user's selected weekly frequency.
       if (activeProgram == null ||
           sessions.isEmpty ||
           sessions.length != targetWeekly) {
@@ -180,13 +170,14 @@ class HomeController extends StateNotifier<HomeState> {
           final startingPushId = profile.experienceLevel == 'advanced'
               ? 'diamond_push_up'
               : profile.experienceLevel == 'intermediate'
-              ? 'push_up'
-              : 'knee_push_up';
+                  ? 'push_up'
+                  : 'knee_push_up';
 
           final generated = _programGenerator.generate(
             userProfile: profile,
             catalogExercises: catalog,
             startingPushExerciseId: startingPushId,
+            startDate: activeProgram == null ? now : profile.updatedAt,
           );
 
           await _db.saveDynamicProgram(
@@ -204,18 +195,31 @@ class HomeController extends StateNotifier<HomeState> {
         }
       }
 
-      // 3. Perhitungan Minggu Program Presisi (Berdasarkan startDate, bukan hitungan sesi)
       final totalWeeks = profile.targetTimeframeWeeks > 0
           ? profile.targetTimeframeWeeks
           : 12;
-      final programStartDate = activeProgram?.startDate ?? profile.createdAt;
-      final currentWeek = calculateProgramWeek(
-        startDate: programStartDate,
-        targetDate: now,
+      final programStartDate = activeProgram?.startDate ?? profile.updatedAt;
+      final currentWeek = ProgramWeekSchedule.currentWeek(
+        programStartDate: programStartDate,
+        today: today,
         totalWeeks: totalWeeks,
       );
 
-      // 4. Deteksi Sesi Hari Ini
+      // Resolve today's workout from the same weekly schedule used by Workouts.
+      final todayScheduled = activeProgram == null
+          ? null
+          : ProgramWeekSchedule.sessionForDate(
+              programStartDate: programStartDate,
+              date: today,
+              availableDays: profile.availableDays,
+              sessions: sessions,
+              totalWeeks: totalWeeks,
+            );
+
+      final programWorkoutHistory = activeProgram == null
+          ? <WorkoutSessionEntity>[]
+          : await _db.getWorkoutSessionsForProgram(activeProgram.id);
+
       List<Exercise> todayExercises = [];
       String focusLabel = 'Upper Body (Push)';
       String musclesLabel = 'Chest, Shoulders, Triceps';
@@ -225,12 +229,8 @@ class HomeController extends StateNotifier<HomeState> {
       int calories = (sessionDuration * 6.2).round();
       ProgramDay? programDay;
 
-      final todayStr = _weekdayToString(now.weekday);
-      final isScheduledTrainingDay = profile.availableDays.contains(todayStr);
-
-      if (activeProgram != null && sessions.isNotEmpty) {
-        final nextIndex = thisWeekCount % sessions.length;
-        final nextSession = sessions[nextIndex];
+      if (todayScheduled != null) {
+        final nextSession = todayScheduled.session;
         focusLabel = nextSession.name.isNotEmpty
             ? nextSession.name
             : 'Upper Body (Push)';
@@ -243,25 +243,27 @@ class HomeController extends StateNotifier<HomeState> {
         calories = (sessionDuration * 6.2).round();
 
         final detail = await _db.getProgramSessionDetail(nextSession.id);
-        List<WorkoutItem> workoutItems = [];
+        final workoutItems = <WorkoutItem>[];
 
         if (detail != null && detail.exercises.isNotEmpty) {
-          todayExercises = detail.exercises.map((e) => e.exercise).toList();
-          workoutItems = detail.exercises.map((e) {
-            return WorkoutItem(
-              exerciseId: e.exercise.id,
-              sets: e.prescription.targetSets,
-              reps: e.prescription.minReps,
-              restSeconds: e.prescription.restSeconds,
-              isMain: e.prescription.stage == 'main',
-              stage: e.prescription.stage,
-            );
-          }).toList();
+          todayExercises = detail.exercises.map((item) => item.exercise).toList();
+          workoutItems.addAll(
+            detail.exercises.map((item) {
+              return WorkoutItem(
+                exerciseId: item.exercise.id,
+                sets: item.prescription.targetSets,
+                reps: item.prescription.minReps,
+                restSeconds: item.prescription.restSeconds,
+                isMain: item.prescription.stage == 'main',
+                stage: item.prescription.stage,
+              );
+            }),
+          );
         }
 
         programDay = ProgramDay(
           day: nextSession.dayNumber,
-          week: currentWeek, // Menggunakan perhitungan kalender yang presisi
+          week: currentWeek,
           type: WorkoutTypeCode.f,
           focus: LocalizedString(id: focusLabel, en: focusLabel),
           isRest: false,
@@ -270,44 +272,45 @@ class HomeController extends StateNotifier<HomeState> {
         );
       }
 
-      // 5. Cek Status Selesai Hari Ini
-      bool isCompletedToday = false;
-      for (final s in recentSessions) {
-        if (s.status == WorkoutSessionStatus.completed &&
-            s.startedAt.year == now.year &&
-            s.startedAt.month == now.month &&
-            s.startedAt.day == now.day) {
-          isCompletedToday = true;
-          break;
-        }
-      }
+      final isCompletedToday = todayScheduled != null &&
+          programWorkoutHistory.any((session) {
+            return session.programDayId == todayScheduled.session.dayNumber &&
+                session.status == WorkoutSessionStatus.completed &&
+                ProgramWeekSchedule.dateOnly(session.scheduledDate) == today;
+          });
 
+      final isScheduledTrainingDay = todayScheduled != null;
       final isRestDay = !isScheduledTrainingDay && !isCompletedToday;
 
-      // 6. Data 7 Hari Mingguan dengan 5 Status Presisi
+      // Weekly calendar remains Monday-Sunday, but training days and completed
+      // marks are derived from the active program's schedule/history.
       final List<DayProgressData> daysList = [];
-      for (int i = 0; i < 7; i++) {
+      for (var i = 0; i < 7; i++) {
         final date = monday.add(Duration(days: i));
-        final isToday =
-            date.year == now.year &&
-            date.month == now.month &&
-            date.day == now.day;
-        final isPast = date.isBefore(DateTime(now.year, now.month, now.day));
+        final dateOnly = ProgramWeekSchedule.dateOnly(date);
+        final isToday = dateOnly == today;
+        final isPast = dateOnly.isBefore(today);
 
-        final isCompleted = recentSessions.any(
-          (s) =>
-              s.status == WorkoutSessionStatus.completed &&
-              s.startedAt.year == date.year &&
-              s.startedAt.month == date.month &&
-              s.startedAt.day == date.day,
+        final isCompleted = programWorkoutHistory.any(
+          (session) =>
+              session.status == WorkoutSessionStatus.completed &&
+              ProgramWeekSchedule.dateOnly(session.scheduledDate) == dateOnly,
         );
 
+        final isInsideProgram =
+            activeProgram != null &&
+            !dateOnly.isBefore(
+              ProgramWeekSchedule.dateOnly(programStartDate),
+            );
         final dayStr = _weekdayToString(date.weekday);
-        final isTrainingScheduled = profile.availableDays.contains(dayStr);
+        final isTrainingScheduled =
+            isInsideProgram && profile.availableDays.contains(dayStr);
 
         DayActivityState dayState;
         if (isCompleted) {
           dayState = DayActivityState.completed;
+        } else if (!isInsideProgram) {
+          dayState = DayActivityState.rest;
         } else if (isToday) {
           dayState = isTrainingScheduled
               ? DayActivityState.today
@@ -335,8 +338,8 @@ class HomeController extends StateNotifier<HomeState> {
       final workoutCardState = activeProgram == null
           ? WorkoutCardState.noProgram
           : isCompletedToday
-          ? WorkoutCardState.completed
-          : (isRestDay ? WorkoutCardState.restDay : WorkoutCardState.active);
+              ? WorkoutCardState.completed
+              : (isRestDay ? WorkoutCardState.restDay : WorkoutCardState.active);
 
       state = state.copyWith(
         isLoading: false,
