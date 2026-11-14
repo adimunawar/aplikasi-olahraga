@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:workout_app/core/database/models/dynamic_program_entity.dart';
-import 'package:workout_app/features/workouts/domain/models/program_week_schedule.dart';
+import 'package:workout_app/features/program/domain/services/program_week_schedule.dart';
 
 void main() {
   final programStart = DateTime(2026, 11, 2); // Monday
