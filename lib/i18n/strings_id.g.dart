@@ -54,6 +54,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
   // Translations
   late final Translations$core$id core = Translations$core$id.internal(_root);
+  late final Translations$home$id home = Translations$home$id.internal(_root);
   late final Translations$onboarding$id onboarding = Translations$onboarding$id.internal(_root);
 }
 
@@ -73,6 +74,28 @@ class Translations$core$id {
   late final Translations$core$badge$id badge = Translations$core$badge$id.internal(_root);
   late final Translations$core$language$id language = Translations$core$language$id.internal(_root);
   late final Translations$core$units$id units = Translations$core$units$id.internal(_root);
+}
+
+// Path: home
+class Translations$home$id {
+  Translations$home$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+  late final Translations$home$greeting$id greeting = Translations$home$greeting$id.internal(_root);
+  late final Translations$home$goalCard$id goalCard = Translations$home$goalCard$id.internal(_root);
+  late final Translations$home$todayWorkout$id todayWorkout =
+      Translations$home$todayWorkout$id.internal(_root);
+  late final Translations$home$restDay$id restDay = Translations$home$restDay$id.internal(_root);
+  late final Translations$home$noProgram$id noProgram = Translations$home$noProgram$id.internal(
+    _root,
+  );
+  late final Translations$home$weeklyProgress$id weeklyProgress =
+      Translations$home$weeklyProgress$id.internal(_root);
+  late final Translations$home$supportGoal$id supportGoal =
+      Translations$home$supportGoal$id.internal(_root);
+  late final Translations$home$error$id error = Translations$home$error$id.internal(_root);
 }
 
 // Path: onboarding
@@ -214,6 +237,191 @@ class Translations$core$units$id {
 
   /// id: 'kg'
   String get kg => 'kg';
+}
+
+// Path: home.greeting
+class Translations$home$greeting$id {
+  Translations$home$greeting$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Selamat Pagi, $name 👋'
+  String goodMorning({required Object name}) => 'Selamat Pagi, ${name} 👋';
+
+  /// id: 'Selamat Siang, $name 👋'
+  String goodAfternoon({required Object name}) => 'Selamat Siang, ${name} 👋';
+
+  /// id: 'Selamat Malam, $name 👋'
+  String goodEvening({required Object name}) => 'Selamat Malam, ${name} 👋';
+
+  /// id: 'Tetap konsisten dan capai targetmu!'
+  String get subtitle => 'Tetap konsisten dan capai targetmu!';
+}
+
+// Path: home.goalCard
+class Translations$home$goalCard$id {
+  Translations$home$goalCard$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Target:'
+  String get goalPrefix => 'Target:';
+
+  /// id: 'Naikkan Berat Badan & Bentuk Otot'
+  String get gainWeight => 'Naikkan Berat Badan & Bentuk Otot';
+
+  /// id: 'Turunkan Lemak & Badan Atletis'
+  String get fatLoss => 'Turunkan Lemak & Badan Atletis';
+
+  /// id: 'Jaga Berat Badan & Tetap Bugar'
+  String get maintain => 'Jaga Berat Badan & Tetap Bugar';
+
+  /// id: 'Target'
+  String get target => 'Target';
+
+  /// id: 'Saat Ini'
+  String get current => 'Saat Ini';
+
+  /// id: '$weeks Minggu Program'
+  String programDuration({required Object weeks}) => '${weeks} Minggu Program';
+
+  /// id: 'Minggu $current dari $total'
+  String weekOf({required Object current, required Object total}) => 'Minggu ${current} dari ${total}';
+}
+
+// Path: home.todayWorkout
+class Translations$home$todayWorkout$id {
+  Translations$home$todayWorkout$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Latihan Hari Ini'
+  String get title => 'Latihan Hari Ini';
+
+  /// id: 'Lihat Jadwal →'
+  String get viewPlan => 'Lihat Jadwal →';
+
+  /// id: 'Mulai Latihan'
+  String get startWorkout => 'Mulai Latihan';
+
+  /// id: '≈ $min mnt'
+  String approxMin({required Object min}) => '≈ ${min} mnt';
+
+  /// id: '≈ $kcal kkal'
+  String approxKcal({required Object kcal}) => '≈ ${kcal} kkal';
+}
+
+// Path: home.restDay
+class Translations$home$restDay$id {
+  Translations$home$restDay$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Hari Ini Istirahat'
+  String get title => 'Hari Ini Istirahat';
+
+  /// id: 'Waktunya pemulihan, biarkan ototmu pulih dan berkembang.'
+  String get subtitle => 'Waktunya pemulihan, biarkan ototmu pulih dan berkembang.';
+
+  /// id: 'Tips Pemulihan'
+  String get recoveryTips => 'Tips Pemulihan';
+
+  /// id: 'Cukupi kebutuhan cairan tubuh'
+  String get hydrate => 'Cukupi kebutuhan cairan tubuh';
+
+  /// id: 'Tidur cukup 7–9 jam'
+  String get sleep => 'Tidur cukup 7–9 jam';
+
+  /// id: 'Lakukan peregangan ringan atau mobilitas'
+  String get stretch => 'Lakukan peregangan ringan atau mobilitas';
+}
+
+// Path: home.noProgram
+class Translations$home$noProgram$id {
+  Translations$home$noProgram$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Kamu belum memiliki program latihan'
+  String get title => 'Kamu belum memiliki program latihan';
+
+  /// id: 'Buat rencana latihan personal berdasarkan target, profil, dan preferensimu.'
+  String get subtitle =>
+      'Buat rencana latihan personal berdasarkan target, profil, dan preferensimu.';
+
+  /// id: 'Buat Program Saya'
+  String get createProgram => 'Buat Program Saya';
+}
+
+// Path: home.weeklyProgress
+class Translations$home$weeklyProgress$id {
+  Translations$home$weeklyProgress$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Kemajuan Minggu Ini'
+  String get title => 'Kemajuan Minggu Ini';
+
+  /// id: 'Lihat Detail →'
+  String get seeDetails => 'Lihat Detail →';
+
+  late final Translations$home$weeklyProgress$states$id states =
+      Translations$home$weeklyProgress$states$id.internal(_root);
+}
+
+// Path: home.supportGoal
+class Translations$home$supportGoal$id {
+  Translations$home$supportGoal$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Dukung Targetmu'
+  String get title => 'Dukung Targetmu';
+
+  /// id: 'Dapatkan tips nutrisi sederhana untuk pembentukan otot.'
+  String get subtitleGain => 'Dapatkan tips nutrisi sederhana untuk pembentukan otot.';
+
+  /// id: 'Dapatkan tips nutrisi sederhana untuk pembakaran lemak.'
+  String get subtitleLoss => 'Dapatkan tips nutrisi sederhana untuk pembakaran lemak.';
+
+  /// id: 'Dapatkan tips pola makan sehat agar tetap fit.'
+  String get subtitleMaintain => 'Dapatkan tips pola makan sehat agar tetap fit.';
+}
+
+// Path: home.error
+class Translations$home$error$id {
+  Translations$home$error$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Masalah koneksi'
+  String get connectionIssue => 'Masalah koneksi';
+
+  /// id: 'Sebagian data tidak dapat dimuat ulang. Menampilkan data terakhir yang tersimpan.'
+  String get connectionDesc =>
+      'Sebagian data tidak dapat dimuat ulang. Menampilkan data terakhir yang tersimpan.';
+
+  /// id: 'Sinkronisasi terakhir: $time'
+  String lastSynced({required Object time}) => 'Sinkronisasi terakhir: ${time}';
+
+  /// id: 'Coba Lagi'
+  String get retry => 'Coba Lagi';
 }
 
 // Path: onboarding.nav
@@ -538,6 +746,30 @@ class Translations$onboarding$preview$id {
   /// id: '$sets set • $reps repetisi • istirahat $rests dtk'
   String prescription({required Object sets, required Object reps, required Object rests}) =>
       '${sets} set • ${reps} repetisi • istirahat ${rests} dtk';
+}
+
+// Path: home.weeklyProgress.states
+class Translations$home$weeklyProgress$states$id {
+  Translations$home$weeklyProgress$states$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Selesai (latihan tuntas)'
+  String get completed => 'Selesai (latihan tuntas)';
+
+  /// id: 'Hari Ini (jadwal latihan)'
+  String get today => 'Hari Ini (jadwal latihan)';
+
+  /// id: 'Hari istirahat'
+  String get rest => 'Hari istirahat';
+
+  /// id: 'Mendatang (belum)'
+  String get upcoming => 'Mendatang (belum)';
+
+  /// id: 'Terlewat'
+  String get missed => 'Terlewat';
 }
 
 // Path: onboarding.goal.options.0
@@ -948,6 +1180,49 @@ extension on Translations {
       'core.units.sets' => 'set',
       'core.units.seconds' => 'detik',
       'core.units.kg' => 'kg',
+      'home.greeting.goodMorning' => ({required Object name}) => 'Selamat Pagi, ${name} 👋',
+      'home.greeting.goodAfternoon' => ({required Object name}) => 'Selamat Siang, ${name} 👋',
+      'home.greeting.goodEvening' => ({required Object name}) => 'Selamat Malam, ${name} 👋',
+      'home.greeting.subtitle' => 'Tetap konsisten dan capai targetmu!',
+      'home.goalCard.goalPrefix' => 'Target:',
+      'home.goalCard.gainWeight' => 'Naikkan Berat Badan & Bentuk Otot',
+      'home.goalCard.fatLoss' => 'Turunkan Lemak & Badan Atletis',
+      'home.goalCard.maintain' => 'Jaga Berat Badan & Tetap Bugar',
+      'home.goalCard.target' => 'Target',
+      'home.goalCard.current' => 'Saat Ini',
+      'home.goalCard.programDuration' => ({required Object weeks}) => '${weeks} Minggu Program',
+      'home.goalCard.weekOf' => ({required Object current, required Object total}) => 'Minggu ${current} dari ${total}',
+      'home.todayWorkout.title' => 'Latihan Hari Ini',
+      'home.todayWorkout.viewPlan' => 'Lihat Jadwal →',
+      'home.todayWorkout.startWorkout' => 'Mulai Latihan',
+      'home.todayWorkout.approxMin' => ({required Object min}) => '≈ ${min} mnt',
+      'home.todayWorkout.approxKcal' => ({required Object kcal}) => '≈ ${kcal} kkal',
+      'home.restDay.title' => 'Hari Ini Istirahat',
+      'home.restDay.subtitle' => 'Waktunya pemulihan, biarkan ototmu pulih dan berkembang.',
+      'home.restDay.recoveryTips' => 'Tips Pemulihan',
+      'home.restDay.hydrate' => 'Cukupi kebutuhan cairan tubuh',
+      'home.restDay.sleep' => 'Tidur cukup 7–9 jam',
+      'home.restDay.stretch' => 'Lakukan peregangan ringan atau mobilitas',
+      'home.noProgram.title' => 'Kamu belum memiliki program latihan',
+      'home.noProgram.subtitle' =>
+        'Buat rencana latihan personal berdasarkan target, profil, dan preferensimu.',
+      'home.noProgram.createProgram' => 'Buat Program Saya',
+      'home.weeklyProgress.title' => 'Kemajuan Minggu Ini',
+      'home.weeklyProgress.seeDetails' => 'Lihat Detail →',
+      'home.weeklyProgress.states.completed' => 'Selesai (latihan tuntas)',
+      'home.weeklyProgress.states.today' => 'Hari Ini (jadwal latihan)',
+      'home.weeklyProgress.states.rest' => 'Hari istirahat',
+      'home.weeklyProgress.states.upcoming' => 'Mendatang (belum)',
+      'home.weeklyProgress.states.missed' => 'Terlewat',
+      'home.supportGoal.title' => 'Dukung Targetmu',
+      'home.supportGoal.subtitleGain' => 'Dapatkan tips nutrisi sederhana untuk pembentukan otot.',
+      'home.supportGoal.subtitleLoss' => 'Dapatkan tips nutrisi sederhana untuk pembakaran lemak.',
+      'home.supportGoal.subtitleMaintain' => 'Dapatkan tips pola makan sehat agar tetap fit.',
+      'home.error.connectionIssue' => 'Masalah koneksi',
+      'home.error.connectionDesc' =>
+        'Sebagian data tidak dapat dimuat ulang. Menampilkan data terakhir yang tersimpan.',
+      'home.error.lastSynced' => ({required Object time}) => 'Sinkronisasi terakhir: ${time}',
+      'home.error.retry' => 'Coba Lagi',
       'onboarding.nav.progress' => ({
         required Object current,
         required Object total,
