@@ -328,10 +328,12 @@ class HomeController extends StateNotifier<HomeState> {
                 ProgramWeekSchedule.dateOnly(session.scheduledDate) == dateOnly,
           );
 
+          final daysFromProgramStart = dateOnly
+              .difference(ProgramWeekSchedule.dateOnly(programStartDate))
+              .inDays;
           final isInsideProgram = activeProgram != null &&
-              !dateOnly.isBefore(
-                ProgramWeekSchedule.dateOnly(programStartDate),
-              );
+              daysFromProgramStart >= 0 &&
+              daysFromProgramStart < totalWeeks * 7;
           final weekday = ProgramWeekSchedule.weekdayNames[date.weekday - 1];
           final isTrainingScheduled =
               isInsideProgram && profile.availableDays.contains(weekday);
