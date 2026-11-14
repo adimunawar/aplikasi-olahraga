@@ -47,7 +47,6 @@ void main() {
             goalTitle: 'Goal: Naikkan Berat Badan',
             targetWeightKg: 82.0,
             currentWeightKg: 75.8,
-            weightDeltaKg: 0.8,
             totalWeeks: 12,
             currentWeek: 3,
           ),
@@ -57,7 +56,7 @@ void main() {
       expect(find.text('Goal: Naikkan Berat Badan'), findsOneWidget);
       expect(find.text('82.0 kg'), findsOneWidget);
       expect(find.text('75.8 kg'), findsOneWidget);
-      expect(find.text('+0.8 kg'), findsOneWidget);
+      expect(find.text('6.2 kg lagi'), findsOneWidget);
       expect(find.text('12 Minggu Program'), findsOneWidget);
       expect(find.text('Minggu 3 dari 12'), findsOneWidget);
       expect(find.byType(LinearProgressIndicator), findsOneWidget);
@@ -77,6 +76,10 @@ void main() {
             estimatedCalories: 280,
             onStartWorkout: () => started = true,
             onViewPlan: () => planViewed = true,
+            onHydrationTap: () {},
+            onSleepTap: () {},
+            onStretchingTap: () {},
+
           ),
         ),
       );
@@ -106,6 +109,10 @@ void main() {
             durationMinutes: 0,
             onStartWorkout: () {},
             onViewPlan: () {},
+            onHydrationTap: () {},
+            onSleepTap: () {},
+            onStretchingTap: () {},
+
           ),
         ),
       );
@@ -130,6 +137,10 @@ void main() {
             onStartWorkout: () {},
             onViewPlan: () {},
             onCreateProgram: () => created = true,
+            onHydrationTap: () {},
+            onSleepTap: () {},
+            onStretchingTap: () {},
+
           ),
         ),
       );
