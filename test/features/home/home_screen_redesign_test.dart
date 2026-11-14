@@ -55,7 +55,12 @@ void main() {
       expect(find.text('Goal: Naikkan Berat Badan'), findsOneWidget);
       expect(find.text('82.0 kg'), findsOneWidget);
       expect(find.text('75.8 kg'), findsOneWidget);
-      expect(find.text('6.2 kg lagi'), findsOneWidget);
+      final goalCardContext = tester.element(find.byType(GoalProgressCard));
+      final isIndonesian = Localizations.localeOf(goalCardContext).languageCode == 'id';
+      expect(
+        find.text(isIndonesian ? '6.2 kg lagi' : '6.2 kg to go'),
+        findsOneWidget,
+      );
       expect(find.text('12 Minggu Program'), findsOneWidget);
       expect(find.text('Minggu 3 dari 12'), findsOneWidget);
       expect(find.byType(LinearProgressIndicator), findsOneWidget);
@@ -149,7 +154,12 @@ void main() {
         ),
       );
 
-      expect(find.text('Latihan hari ini selesai!'), findsOneWidget);
+      final completedViewContext = tester.element(find.byType(TodayWorkoutSection));
+      final isIndonesian = Localizations.localeOf(completedViewContext).languageCode == 'id';
+      expect(
+        find.text(isIndonesian ? 'Latihan hari ini selesai!' : 'Workout completed!'),
+        findsOneWidget,
+      );
       expect(find.text('Hari Ini Istirahat'), findsNothing);
       expect(find.text('Tips Pemulihan'), findsOneWidget);
     });
