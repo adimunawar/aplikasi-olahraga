@@ -18,6 +18,61 @@ void main() {
     ),
   );
 
+  group('ProgramWeekSchedule.availableWeekdaysForFrequency', () {
+    test('starts a three-day program on Sunday when activated on Sunday', () {
+      expect(
+        ProgramWeekSchedule.availableWeekdaysForFrequency(
+          startDate: DateTime(2026, 11, 1), // Sunday
+          frequency: 3,
+        ),
+        ['sunday', 'tuesday', 'thursday'],
+      );
+    });
+
+    test('supports Sunday starts for every supported frequency', () {
+      final sunday = DateTime(2026, 11, 1);
+
+      expect(
+        ProgramWeekSchedule.availableWeekdaysForFrequency(
+          startDate: sunday,
+          frequency: 2,
+        ),
+        ['sunday', 'wednesday'],
+      );
+      expect(
+        ProgramWeekSchedule.availableWeekdaysForFrequency(
+          startDate: sunday,
+          frequency: 4,
+        ),
+        ['sunday', 'tuesday', 'thursday', 'saturday'],
+      );
+      expect(
+        ProgramWeekSchedule.availableWeekdaysForFrequency(
+          startDate: sunday,
+          frequency: 5,
+        ),
+        ['sunday', 'monday', 'wednesday', 'friday', 'saturday'],
+      );
+      expect(
+        ProgramWeekSchedule.availableWeekdaysForFrequency(
+          startDate: sunday,
+          frequency: 6,
+        ),
+        ['sunday', 'monday', 'tuesday', 'thursday', 'friday', 'saturday'],
+      );
+    });
+
+    test('rejects an unsupported weekly frequency', () {
+      expect(
+        () => ProgramWeekSchedule.availableWeekdaysForFrequency(
+          startDate: DateTime(2026, 11, 1),
+          frequency: 7,
+        ),
+        throwsArgumentError,
+      );
+    });
+  });
+
   group('ProgramWeekSchedule.currentWeek', () {
     test('keeps dates in the first seven-day program block in Week 1', () {
       expect(
@@ -91,6 +146,25 @@ void main() {
       expect(
         week.map((item) => item.scheduledDate),
         [DateTime(2026, 11, 9), DateTime(2026, 11, 11), DateTime(2026, 11, 13)],
+      );
+    });
+
+    test('schedules the first workout on Sunday when the program starts Sunday', () {
+      final sundaySessions = ProgramWeekSchedule.build(
+        programStartDate: DateTime(2026, 11, 1),
+        weekNumber: 1,
+        availableDays: const ['sunday', 'tuesday', 'thursday'],
+        sessions: sessions,
+      );
+
+      expect(sundaySessions, hasLength(3));
+      expect(
+        sundaySessions.map((item) => item.scheduledDate),
+        [
+          DateTime(2026, 11, 1),
+          DateTime(2026, 11, 3),
+          DateTime(2026, 11, 5),
+        ],
       );
     });
 
