@@ -740,7 +740,9 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
             ? 'Today • Ready to start'
             : isMissed
                 ? 'Missed'
-                : 'Upcoming';
+                : isUpcoming
+                    ? 'Upcoming'
+                    : 'Scheduled';
 
     final statusColor = isCompleted
         ? const Color(0xFF16A34A)
