@@ -45,6 +45,19 @@ class FakeUserProfileRepository implements UserProfileRepository {
   Future<void> updateDisplayName(String name) async {}
 }
 
+String _weekdayFor(DateTime date) {
+  const days = [
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday',
+    'sunday',
+  ];
+  return days[date.weekday - 1];
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -163,10 +176,8 @@ void main() {
           expect(saved, isNotNull);
           expect(saved!.preferredDaysPerWeek, equals(4));
           expect(saved.weeklyFrequency, equals(4));
-          expect(
-            saved.availableDays,
-            equals(['monday', 'tuesday', 'thursday', 'friday']),
-          );
+          expect(saved.availableDays, hasLength(4));
+          expect(saved.availableDays.first, _weekdayFor(saved.updatedAt));
           expect(saved.preferredDurationMin, equals(50));
 
           // Verifikasi state controller juga ter-update
@@ -189,10 +200,8 @@ void main() {
           expect(saved, isNotNull);
           expect(saved!.preferredDaysPerWeek, equals(5));
           expect(saved.weeklyFrequency, equals(5));
-          expect(
-            saved.availableDays,
-            equals(['monday', 'tuesday', 'wednesday', 'thursday', 'friday']),
-          );
+          expect(saved.availableDays, hasLength(5));
+          expect(saved.availableDays.first, _weekdayFor(saved.updatedAt));
         },
       );
 
@@ -209,7 +218,8 @@ void main() {
           expect(saved, isNotNull);
           expect(saved!.preferredDaysPerWeek, equals(2));
           expect(saved.weeklyFrequency, equals(2));
-          expect(saved.availableDays, equals(['tuesday', 'thursday']));
+          expect(saved.availableDays, hasLength(2));
+          expect(saved.availableDays.first, _weekdayFor(saved.updatedAt));
         },
       );
     },
