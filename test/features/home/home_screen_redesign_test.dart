@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:workout_app/core/theme/app_colors.dart';
 import 'package:workout_app/features/home/presentation/widgets/goal_progress_card.dart';
 import 'package:workout_app/features/home/presentation/widgets/home_error_banner.dart';
 import 'package:workout_app/features/home/presentation/widgets/home_greeting_header.dart';
