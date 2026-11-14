@@ -61,7 +61,7 @@ class HomeLoadingSkeleton extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: AppColors.neutral200.withOpacity(0.65),
+        color: AppColors.neutral200.withValues(alpha: 0.65),
         shape: shape,
         borderRadius: shape == BoxShape.rectangle ? BorderRadius.circular(radius) : null,
       ),

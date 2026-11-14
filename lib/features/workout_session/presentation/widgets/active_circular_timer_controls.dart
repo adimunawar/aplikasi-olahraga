@@ -51,7 +51,7 @@ class ActiveCircularTimerControls extends StatelessWidget {
               boxShadow: isTimeUp
                   ? [
                       BoxShadow(
-                        color: AppColors.limeAccent.withOpacity(0.4),
+                        color: AppColors.limeAccent.withValues(alpha: 0.4),
                         blurRadius: 18,
                         spreadRadius: 2,
                       ),

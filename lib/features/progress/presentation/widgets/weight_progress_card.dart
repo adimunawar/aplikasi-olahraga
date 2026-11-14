@@ -184,8 +184,8 @@ class _WeightSparklinePainter extends CustomPainter {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          AppColors.limeAccent.withOpacity(0.42),
-          AppColors.limeAccent.withOpacity(0.02),
+          AppColors.limeAccent.withValues(alpha: 0.42),
+          AppColors.limeAccent.withValues(alpha: 0.02),
         ],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height))
       ..style = PaintingStyle.fill;

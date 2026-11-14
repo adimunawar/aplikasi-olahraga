@@ -69,7 +69,7 @@ class RecentWorkoutsSection extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: items.length,
-            separatorBuilder: (_, __) => const Padding(
+            separatorBuilder: (_, _) => const Padding(
               padding: EdgeInsets.symmetric(vertical: 4),
               child: Divider(color: AppColors.cardBorder, height: 1),
             ),

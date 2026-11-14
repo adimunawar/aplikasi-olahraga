@@ -56,7 +56,7 @@ class CoachAdiProgressionCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF22C55E).withOpacity(0.3),
+                      color: const Color(0xFF22C55E).withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 3),
                     ),
