@@ -501,8 +501,9 @@ class _RecoveryGuidedSessionScreenState extends State<RecoveryGuidedSessionScree
           height: 52,
           child: ElevatedButton(
             onPressed: () {
-              Navigator.of(context).pop(); // Guided session
-              Navigator.of(context).pop(); // Routine detail
+              final navigator = Navigator.of(context);
+              navigator.pop(); // Guided session
+              navigator.pop(); // Routine detail, returning to Home.
             },
             style: ElevatedButton.styleFrom(
               elevation: 0,
