@@ -22,6 +22,8 @@ import '../widgets/workout_exercise_list_section.dart';
 /// - Menghitung Target Muscles dan Overview metrik secara dinamis tanpa hardcode
 class WorkoutDetailScreen extends StatefulWidget {
   final int dayNumber;
+  final int? weekNumber;
+  final String? programId;
   final String weekDayText;
   final String workoutTitle;
   final String targetMusclesText;
@@ -32,6 +34,8 @@ class WorkoutDetailScreen extends StatefulWidget {
   const WorkoutDetailScreen({
     super.key,
     this.dayNumber = 1,
+    this.weekNumber,
+    this.programId,
     this.weekDayText = 'Week 1 • Day 1',
     this.workoutTitle = 'Upper Body',
     this.targetMusclesText = 'Chest • Shoulders • Triceps',
@@ -50,6 +54,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
 
   List<WorkoutDetailExerciseData> _exercises = [];
   ProgramDay? _loadedProgramDay;
+  String? _resolvedProgramId;
   bool _isLoading = true;
   bool _isBookmarked = false;
 
@@ -63,17 +68,52 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
     try {
       final List<WorkoutDetailExerciseData> list = [];
       final db = AppDatabase.instance;
-      final activeProgram = await db.getActiveTrainingProgram('default_user');
+      final profile = await db.getUserProfile();
+      final userId = profile.id.isNotEmpty ? profile.id : 'default_user';
+      var activeProgram = await db.getActiveTrainingProgram(userId);
+      activeProgram ??= await db.getActiveTrainingProgram('default_user');
 
-      // 1. Coba baca dari Dynamic Training Program (Fase 2)
+      // Use the active program belonging to the current user.
+      if (widget.programId != null && activeProgram?.id != widget.programId) {
+        activeProgram = null;
+      }
+
+      // 1. Read the selected session from the active dynamic program.
       if (activeProgram != null) {
+        _resolvedProgramId = activeProgram.id;
         final sessions = await db.getProgramSessions(activeProgram.id);
-        if (sessions.isNotEmpty) {
-          final targetIndex = (widget.dayNumber - 1) % sessions.length;
-          final session = sessions[targetIndex];
+        final sessionIndex = sessions.indexWhere(
+          (session) => session.dayNumber == widget.dayNumber,
+        );
+
+        if (sessionIndex >= 0) {
+          final session = sessions[sessionIndex];
           final detail = await db.getProgramSessionDetail(session.id);
 
           if (detail != null && detail.exercises.isNotEmpty) {
+            _loadedProgramDay = ProgramDay(
+              day: session.dayNumber,
+              week: widget.weekNumber ?? 1,
+              type: WorkoutTypeCode.f,
+              focus: LocalizedString(
+                id: session.focusLabel,
+                en: session.focusLabel,
+              ),
+              isRest: false,
+              isRetestMilestone: false,
+              items: detail.exercises.map((item) {
+                final prescription = item.prescription;
+                return WorkoutItem(
+                  exerciseId: item.exercise.id,
+                  sets: prescription.targetSets,
+                  reps: prescription.minReps,
+                  restSeconds: prescription.restSeconds,
+                  isMain: prescription.stage == 'main',
+                  stage: prescription.stage,
+                );
+              }).toList(),
+            );
+
             for (final item in detail.exercises) {
               final ex = item.exercise;
               final prescription = item.prescription;
@@ -83,8 +123,12 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
               list.add(
                 WorkoutDetailExerciseData(
                   title: ex.name.en.isNotEmpty ? ex.name.en : ex.name.id,
-                  categoryTag: ex.primaryMuscles.isNotEmpty ? ex.primaryMuscles.first.en : 'Bodyweight',
-                  thumbnailAsset: ex.media.startPose.isNotEmpty ? ex.media.startPose : 'assets/images/Detail Gerakan.png',
+                  categoryTag: ex.primaryMuscles.isNotEmpty
+                      ? ex.primaryMuscles.first.en
+                      : 'Bodyweight',
+                  thumbnailAsset: ex.media.startPose.isNotEmpty
+                      ? ex.media.startPose
+                      : 'assets/images/Detail Gerakan.png',
                   sets: prescription.targetSets,
                   reps: repsStr,
                   rest: restStr,
@@ -353,9 +397,9 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
   }
 
   void _startActiveWorkout() {
-    final calculatedWeek = (widget.dayNumber - 1) ~/ 7 + 1;
+    final calculatedWeek = widget.weekNumber ?? ((widget.dayNumber - 1) ~/ 7 + 1);
     final programDay =
-        _loadedProgramDay ??
+        _loadedProgramDay?.copyWith(week: calculatedWeek) ??
         ProgramDay(
           day: widget.dayNumber,
           week: calculatedWeek,
@@ -383,6 +427,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
       extra: WorkoutSessionArgs(
         day: programDay,
         exercises: _exercises.map((e) => e.exercise).toList(),
+        programId: _resolvedProgramId ?? widget.programId,
       ),
     );
   }
