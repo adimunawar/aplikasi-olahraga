@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -10,11 +11,13 @@ class DayProgressData {
   final String dayName;
   final DayActivityState state;
   final DateTime date;
+  final bool isToday;
 
   const DayProgressData({
     required this.dayName,
     required this.state,
     required this.date,
+    this.isToday = false,
   });
 }
 
@@ -29,25 +32,56 @@ class WeeklyProgressCalendarCard extends StatelessWidget {
     required this.onSeeDetails,
   });
 
+  String _formatWeekRange(BuildContext context) {
+    if (days.isEmpty) return '';
+    final locale = Localizations.localeOf(context).toString();
+    final first = days.first.date;
+    final last = days.last.date;
+    if (first.year == last.year && first.month == last.month) {
+      return '${DateFormat('d', locale).format(first)}–${DateFormat('d MMM yyyy', locale).format(last)}';
+    }
+    return '${DateFormat('d MMM', locale).format(first)} – ${DateFormat('d MMM yyyy', locale).format(last)}';
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = Translations.of(context);
+    final weekRange = _formatWeekRange(context);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Row
+          // Header Row with the visible week range.
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                t.home.weeklyProgress.title,
-                style: AppTypography.titleMedium.copyWith(
-                  fontWeight: FontWeight.w800,
-                  fontSize: 18,
-                  color: AppColors.darkCharcoal,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      t.home.weeklyProgress.title,
+                      style: AppTypography.titleMedium.copyWith(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 18,
+                        color: AppColors.darkCharcoal,
+                      ),
+                    ),
+                    if (weekRange.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        weekRange,
+                        style: AppTypography.bodySmall.copyWith(
+                          color: AppColors.neutral500,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
               InkWell(
@@ -89,7 +123,9 @@ class WeeklyProgressCalendarCard extends StatelessWidget {
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: days.map((day) => _buildDayItem(day)).toList(),
+              children: days
+                  .map((day) => Expanded(child: _buildDayItem(context, day)))
+                  .toList(),
             ),
           ),
         ],
@@ -97,8 +133,9 @@ class WeeklyProgressCalendarCard extends StatelessWidget {
     );
   }
 
-  Widget _buildDayItem(DayProgressData day) {
-    final isToday = day.state == DayActivityState.today;
+  Widget _buildDayItem(BuildContext context, DayProgressData day) {
+    final isToday = day.isToday;
+    final locale = Localizations.localeOf(context).toString();
 
     return Container(
       padding: EdgeInsets.symmetric(
@@ -121,6 +158,15 @@ class WeeklyProgressCalendarCard extends StatelessWidget {
             style: AppTypography.bodySmall.copyWith(
               fontSize: 11,
               fontWeight: isToday ? FontWeight.w800 : FontWeight.w600,
+              color: isToday ? AppColors.darkCharcoal : AppColors.neutral500,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            DateFormat('d', locale).format(day.date),
+            style: AppTypography.bodySmall.copyWith(
+              fontSize: 10,
+              fontWeight: isToday ? FontWeight.w800 : FontWeight.w500,
               color: isToday ? AppColors.darkCharcoal : AppColors.neutral500,
             ),
           ),
