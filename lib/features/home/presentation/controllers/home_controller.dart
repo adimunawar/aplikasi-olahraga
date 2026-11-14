@@ -152,6 +152,15 @@ class HomeController extends StateNotifier<HomeState> {
               ? profile.preferredDaysPerWeek
               : 3);
       final targetWeekly = configuredFrequency.clamp(2, 6).toInt();
+      if (profile.weeklyFrequency != targetWeekly ||
+          profile.preferredDaysPerWeek != targetWeekly) {
+        profile = profile.copyWith(
+          weeklyFrequency: targetWeekly,
+          preferredDaysPerWeek: targetWeekly,
+          updatedAt: profile.updatedAt,
+        );
+        await _db.saveUserProfile(profile);
+      }
 
       final userId = profile.id.isNotEmpty ? profile.id : 'default_user';
       var activeProgram = await _db.getActiveTrainingProgram(userId);
