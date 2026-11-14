@@ -27,11 +27,13 @@ import '../widgets/set_completion_rir_sheet.dart';
 class WorkoutSessionScreen extends ConsumerStatefulWidget {
   final ProgramDay day;
   final List<Exercise> exercises;
+  final String? programId;
 
   const WorkoutSessionScreen({
     super.key,
     required this.day,
     required this.exercises,
+    this.programId,
   });
 
   @override
@@ -325,7 +327,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
     final profile = await AppDatabase.instance.getUserProfile();
     final userName =
         profile.displayName.isNotEmpty ? profile.displayName : 'Adi';
-    const programId = 'upper_body_strength';
+    final programId = widget.programId ?? 'upper_body_strength';
 
     final programTitle = widget.day.focus.en.isNotEmpty
         ? widget.day.focus.en
