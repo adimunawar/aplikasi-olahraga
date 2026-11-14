@@ -55,7 +55,7 @@ void main() {
         updatedAt: DateTime.now(),
       );
 
-      final weightGainDelta = bulkingProfile.targetWeightKg! - bulkingProfile.currentWeightKg;
+      final weightGainDelta = bulkingProfile.targetWeightKg - bulkingProfile.currentWeightKg;
       expect(weightGainDelta, equals(7.0));
       expect(weightGainDelta > 0, isTrue);
 
@@ -77,7 +77,7 @@ void main() {
       );
 
 
-      final weightLossDelta = cuttingProfile.targetWeightKg! - cuttingProfile.currentWeightKg;
+      final weightLossDelta = cuttingProfile.targetWeightKg - cuttingProfile.currentWeightKg;
       expect(weightLossDelta, equals(-10.0));
       expect(weightLossDelta < 0, isTrue);
     });

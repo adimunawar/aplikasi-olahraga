@@ -117,7 +117,7 @@ class UserProfileEntity {
 
     return UserProfileEntity(
       id: map['id']?.toString() ?? 'default_user',
-      displayName: map['display_name']?.toString() ?? 'Adi',
+      displayName: map['display_name']?.toString() ?? 'User',
       gender: map['gender']?.toString() ?? 'male',
       age: (map['age'] as num?)?.toInt() ?? 28,
       heightCm: (map['height_cm'] as num?)?.toDouble() ?? 170.0,
