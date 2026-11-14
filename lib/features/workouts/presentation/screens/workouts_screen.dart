@@ -84,6 +84,9 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
 
       if (mounted) {
         setState(() {
+          if (_activeProgram?.id != program?.id) {
+            _selectedWeek = null;
+          }
           _profile = profile;
           _activeProgram = program;
           _programSessions = sessions;
