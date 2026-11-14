@@ -146,11 +146,12 @@ class HomeController extends StateNotifier<HomeState> {
         goalLabel = 'Maintain & Stay Fit';
       }
 
-      final targetWeekly = profile.weeklyFrequency > 0
+      final configuredFrequency = profile.weeklyFrequency > 0
           ? profile.weeklyFrequency
           : (profile.preferredDaysPerWeek > 0
               ? profile.preferredDaysPerWeek
               : 3);
+      final targetWeekly = configuredFrequency.clamp(2, 6).toInt();
 
       final userId = profile.id.isNotEmpty ? profile.id : 'default_user';
       var activeProgram = await _db.getActiveTrainingProgram(userId);
