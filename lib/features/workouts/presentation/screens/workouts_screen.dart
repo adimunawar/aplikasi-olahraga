@@ -583,11 +583,10 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
     required int totalWeeks,
   }) {
     final isCurrentWeek = selectedWeek == currentWeek;
-    final badgeLabel = isCurrentWeek
-        ? 'Current Week'
-        : selectedWeek < currentWeek
-            ? 'Previous Week'
-            : 'Upcoming Week';
+    final badgeLabel = isCurrentWeek ? 'Current Week' : 'Previous Week';
+    final hasLockedFutureWeeks =
+        isCurrentWeek && currentWeek < totalWeeks;
+    final canNavigateForward = selectedWeek < currentWeek;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
@@ -645,12 +644,21 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
             ),
           ),
           IconButton(
-            tooltip: 'Next week',
+            tooltip: hasLockedFutureWeeks
+                ? 'Next week is locked until it starts'
+                : 'Next week',
             visualDensity: VisualDensity.compact,
-            onPressed: selectedWeek < totalWeeks
+            onPressed: canNavigateForward
                 ? () => setState(() => _selectedWeek = selectedWeek + 1)
                 : null,
-            icon: const Icon(Icons.chevron_right_rounded),
+            icon: Icon(
+              hasLockedFutureWeeks
+                  ? Icons.lock_outline_rounded
+                  : Icons.chevron_right_rounded,
+              color: hasLockedFutureWeeks
+                  ? const Color(0xFF9CA3AF)
+                  : null,
+            ),
           ),
         ],
       ),
@@ -741,7 +749,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
             : isMissed
                 ? 'Missed'
                 : isUpcoming
-                    ? 'Upcoming'
+                    ? 'Locked'
                     : 'Scheduled';
 
     final statusColor = isCompleted
@@ -764,7 +772,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
             ? Icons.play_arrow_rounded
             : isMissed
                 ? Icons.event_busy_rounded
-                : Icons.calendar_today_rounded;
+                : Icons.lock_outline_rounded;
 
     return InkWell(
       onTap: onTap,
