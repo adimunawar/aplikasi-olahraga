@@ -97,7 +97,7 @@ void main() {
         ),
       );
 
-      expect(find.text('Rest'), findsOneWidget);
+      expect(find.text('Rest'), findsNWidgets(2));
       expect(find.text('Next: Push Up'), findsOneWidget);
       expect(find.text('Set 2 of 3'), findsOneWidget);
       expect(find.text('00:30'), findsOneWidget);
