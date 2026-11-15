@@ -805,7 +805,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
                     CircularProgressIndicator(color: AppColors.limeAccent),
                     SizedBox(height: 14),
                     Text(
-                      'Menyiapkan sesi latihan...',
+                      t.workoutSession.preparingSession,
                       style: TextStyle(
                         color: AppColors.darkCharcoal,
                         fontWeight: FontWeight.w700,
@@ -864,7 +864,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
                     CircularProgressIndicator(color: AppColors.limeAccent),
                     SizedBox(height: 14),
                     Text(
-                      'Menyimpan sesi latihan...',
+                      t.workoutSession.savingSession,
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,
@@ -891,8 +891,8 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
                       : _currentSetValue)
                   : null,
               icon: const Icon(Icons.check_rounded, size: 20),
-              label: const Text(
-                'Complete Set',
+              label: Text(
+                t.workoutSession.completeSet,
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
