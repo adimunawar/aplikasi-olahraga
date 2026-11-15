@@ -92,7 +92,12 @@ enum TrackingType {
   duration;
 
   static TrackingType fromString(String val) {
-    return val.toLowerCase() == 'duration' || val.toLowerCase() == 'seconds'
+    final lower = val.toLowerCase().trim();
+    return lower == 'duration' ||
+            lower == 'duration_sec' ||
+            lower == 'duration_seconds' ||
+            lower == 'seconds' ||
+            lower == 'time'
         ? TrackingType.duration
         : TrackingType.reps;
   }

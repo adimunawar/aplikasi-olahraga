@@ -96,6 +96,13 @@ class AppDatabase {
       await db.execute("ALTER TABLE ${DatabaseTables.userProfiles} ADD COLUMN timezone TEXT");
     } catch (_) {}
 
+    // Migrasi aman untuk kolom baru pada tabel workout_sessions (elapsed aktif)
+    try {
+      await db.execute(
+        "ALTER TABLE ${DatabaseTables.workoutSessions} ADD COLUMN elapsed_seconds INTEGER NOT NULL DEFAULT 0",
+      );
+    } catch (_) {}
+
     // Migrasi aman untuk kolom baru pada tabel workout_sets (Fase 3: RIR & Tracking)
     try {
       await db.execute("ALTER TABLE ${DatabaseTables.workoutSets} ADD COLUMN rir INTEGER DEFAULT 2");
@@ -331,6 +338,34 @@ class AppDatabase {
     return null;
   }
 
+  /// Memperbarui akumulasi waktu aktif sesi in_progress secara berkala.
+  /// Sengaja TIDAK memanggil AppDataSync agar tick periodik tidak memicu
+  /// reload seluruh layar.
+  Future<void> updateSessionElapsedSeconds(
+    String sessionId,
+    int elapsedSeconds,
+  ) async {
+    if (kIsWeb) {
+      final index = _webSessions.indexWhere((s) => s.id == sessionId);
+      if (index >= 0) {
+        _webSessions[index] = _webSessions[index].copyWith(
+          elapsedSeconds: elapsedSeconds,
+        );
+      }
+      return;
+    }
+
+    final db = await database;
+    if (db == null) return;
+
+    await db.update(
+      DatabaseTables.workoutSessions,
+      {'elapsed_seconds': elapsedSeconds},
+      where: 'id = ? AND status = ?',
+      whereArgs: [sessionId, WorkoutSessionStatus.inProgress.toDbString()],
+    );
+  }
+
   /// Menyimpan atau memperbarui status sesi latihan
   Future<void> saveWorkoutSession(WorkoutSessionEntity session) async {
     if (kIsWeb) {
@@ -455,6 +490,32 @@ class AppDatabase {
     } catch (_) {}
 
     return completedDays.isNotEmpty ? completedDays : {1, 2};
+  }
+
+  /// Mengambil seluruh riwayat workout untuk satu program.
+  /// Data ini dipakai untuk menentukan status tiap sesi pada masing-masing minggu.
+  Future<List<WorkoutSessionEntity>> getWorkoutSessionsForProgram(
+    String programId,
+  ) async {
+    if (kIsWeb) {
+      final sessions = _webSessions
+          .where((session) => session.programId == programId)
+          .toList()
+        ..sort((a, b) => a.scheduledDate.compareTo(b.scheduledDate));
+      return sessions;
+    }
+
+    final db = await database;
+    if (db == null) return [];
+
+    final rows = await db.query(
+      DatabaseTables.workoutSessions,
+      where: 'program_id = ?',
+      whereArgs: [programId],
+      orderBy: 'scheduled_date ASC, started_at ASC',
+    );
+
+    return rows.map(WorkoutSessionEntity.fromMap).toList();
   }
 
   /// Total sesi yang selesai secara keseluruhan (PRG-01)

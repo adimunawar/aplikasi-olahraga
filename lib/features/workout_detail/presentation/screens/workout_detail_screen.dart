@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
+import 'package:workout_app/core/database/models/dynamic_program_entity.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -11,6 +11,8 @@ import '../../../exercises/domain/models/exercise.dart';
 import '../../../program/data/datasources/program_local_datasource.dart';
 import '../../../program/data/repositories/program_repository_impl.dart';
 import '../../../program/domain/models/program_day.dart';
+import '../../../workout_session/domain/models/exercise_prescription.dart';
+import '../../../../i18n/strings.g.dart';
 import '../widgets/start_workout_bottom_bar.dart';
 import '../widgets/target_muscles_overview_section.dart';
 import '../widgets/workout_detail_hero_banner.dart';
@@ -22,6 +24,8 @@ import '../widgets/workout_exercise_list_section.dart';
 /// - Menghitung Target Muscles dan Overview metrik secara dinamis tanpa hardcode
 class WorkoutDetailScreen extends StatefulWidget {
   final int dayNumber;
+  final int? weekNumber;
+  final String? programId;
   final String weekDayText;
   final String workoutTitle;
   final String targetMusclesText;
@@ -29,15 +33,29 @@ class WorkoutDetailScreen extends StatefulWidget {
   final String levelText;
   final String description;
 
+  /// Tanggal jadwal sesi ini, dipakai untuk memulai/melanjutkan sesi.
+  final DateTime? scheduledDate;
+
+  /// Jika true, layar hanya menampilkan pratinjau tanpa tombol mulai.
+  final bool readOnly;
+
+  /// Sesi in_progress yang bisa dilanjutkan.
+  final String? activeSessionId;
+
   const WorkoutDetailScreen({
     super.key,
     this.dayNumber = 1,
+    this.weekNumber,
+    this.programId,
     this.weekDayText = 'Week 1 • Day 1',
     this.workoutTitle = 'Upper Body',
     this.targetMusclesText = 'Chest • Shoulders • Triceps',
     this.durationText = '45 min',
     this.levelText = 'Intermediate',
     this.description = 'Build strength and muscle mass at home.',
+    this.scheduledDate,
+    this.readOnly = false,
+    this.activeSessionId,
   });
 
   @override
@@ -50,6 +68,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
 
   List<WorkoutDetailExerciseData> _exercises = [];
   ProgramDay? _loadedProgramDay;
+  String? _resolvedProgramId;
   bool _isLoading = true;
   bool _isBookmarked = false;
 
@@ -63,33 +82,92 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
     try {
       final List<WorkoutDetailExerciseData> list = [];
       final db = AppDatabase.instance;
-      final activeProgram = await db.getActiveTrainingProgram('default_user');
+      final profile = await db.getUserProfile();
+      final userId = profile.id.isNotEmpty ? profile.id : 'default_user';
 
-      // 1. Coba baca dari Dynamic Training Program (Fase 2)
-      if (activeProgram != null) {
-        final sessions = await db.getProgramSessions(activeProgram.id);
-        if (sessions.isNotEmpty) {
-          final targetIndex = (widget.dayNumber - 1) % sessions.length;
-          final session = sessions[targetIndex];
+      // 1. Read the selected session from the dynamic program.
+      // If widget.programId is provided (e.g. resuming an old/archived program session,
+      // or opening a specific program), load sessions directly from that programId.
+      List<ProgramSessionEntity> sessions = [];
+      String? targetProgramId = widget.programId;
+
+      if (targetProgramId != null && targetProgramId.isNotEmpty) {
+        sessions = await db.getProgramSessions(targetProgramId);
+      }
+
+      if (sessions.isEmpty) {
+        var activeProgram = await db.getActiveTrainingProgram(userId);
+        activeProgram ??= await db.getActiveTrainingProgram('default_user');
+        if (activeProgram != null) {
+          targetProgramId = activeProgram.id;
+          sessions = await db.getProgramSessions(activeProgram.id);
+        }
+      }
+
+      if (sessions.isNotEmpty) {
+        _resolvedProgramId = targetProgramId;
+        final sessionIndex = sessions.indexWhere(
+          (session) => session.dayNumber == widget.dayNumber,
+        );
+
+        if (sessionIndex >= 0) {
+          final session = sessions[sessionIndex];
           final detail = await db.getProgramSessionDetail(session.id);
 
           if (detail != null && detail.exercises.isNotEmpty) {
+            _loadedProgramDay = ProgramDay(
+              day: session.dayNumber,
+              week: widget.weekNumber ?? 1,
+              type: WorkoutTypeCode.f,
+              focus: LocalizedString(
+                id: session.focusLabel,
+                en: session.focusLabel,
+              ),
+              isRest: false,
+              isRetestMilestone: false,
+              items: detail.exercises.map((item) {
+                final prescription = item.prescription;
+                final isDuration =
+                    item.exercise.trackingType == TrackingType.duration;
+                return WorkoutItem(
+                  exerciseId: item.exercise.id,
+                  sets: prescription.targetSets,
+                  reps: isDuration ? prescription.maxReps : prescription.minReps,
+                  durationSec: isDuration ? prescription.maxReps : null,
+                  restSeconds: prescription.restSeconds,
+                  isMain: prescription.stage == 'main',
+                  stage: prescription.stage,
+                );
+              }).toList(),
+            );
+
             for (final item in detail.exercises) {
               final ex = item.exercise;
               final prescription = item.prescription;
-              final repsStr = '${prescription.minReps} – ${prescription.maxReps} Reps';
+              final isDuration = ex.trackingType == TrackingType.duration;
+              final repsStr = isDuration
+                  ? '${prescription.minReps} – ${prescription.maxReps} sec'
+                  : '${prescription.minReps} – ${prescription.maxReps} Reps';
               final restStr = '${prescription.restSeconds} sec';
 
               list.add(
                 WorkoutDetailExerciseData(
                   title: ex.name.en.isNotEmpty ? ex.name.en : ex.name.id,
-                  categoryTag: ex.primaryMuscles.isNotEmpty ? ex.primaryMuscles.first.en : 'Bodyweight',
-                  thumbnailAsset: ex.media.startPose.isNotEmpty ? ex.media.startPose : 'assets/images/Detail Gerakan.png',
+                  categoryTag: ex.primaryMuscles.isNotEmpty
+                      ? ex.primaryMuscles.first.en
+                      : 'Bodyweight',
+                  thumbnailAsset: ex.media.startPose.isNotEmpty
+                      ? ex.media.startPose
+                      : 'assets/images/Detail Gerakan.png',
                   sets: prescription.targetSets,
                   reps: repsStr,
                   rest: restStr,
                   exercise: ex,
                   stage: prescription.stage,
+                  prescription: WorkoutExercisePrescription.fromProgramExercise(
+                    prescription,
+                    trackingType: ex.trackingType,
+                  ),
                 ),
               );
             }
@@ -304,6 +382,10 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
               levelText: widget.levelText,
               description: widget.description,
             ),
+            if (widget.readOnly) ...[
+              const SizedBox(height: 14),
+              _buildReadOnlyNotice(Translations.of(context)),
+            ],
             const SizedBox(height: 18),
 
             // 2. Workout Overview 4 Kolom (Mockup 1:1)
@@ -336,8 +418,63 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: StartWorkoutBottomBar(
-        onStartWorkout: _startActiveWorkout,
+      bottomNavigationBar: widget.readOnly
+          ? null
+          : StartWorkoutBottomBar(
+              label: widget.activeSessionId != null
+                  ? Translations.of(context).workouts.workoutDetail.resume
+                  : 'Start Workout',
+              icon: widget.activeSessionId != null
+                  ? Icons.play_circle_fill_rounded
+                  : Icons.play_arrow_rounded,
+              onStartWorkout: _startActiveWorkout,
+            ),
+    );
+  }
+
+  Widget _buildReadOnlyNotice(Translations t) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFBEB),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFFDE68A)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.visibility_rounded,
+            size: 18,
+            color: Color(0xFFB45309),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  t.workouts.workoutDetail.readOnlyTitle,
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF92400E),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  t.workouts.workoutDetail.readOnlyNotice,
+                  style: const TextStyle(
+                    fontSize: 11.5,
+                    height: 1.35,
+                    color: Color(0xFFB45309),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -353,9 +490,9 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
   }
 
   void _startActiveWorkout() {
-    final calculatedWeek = (widget.dayNumber - 1) ~/ 7 + 1;
+    final calculatedWeek = widget.weekNumber ?? ((widget.dayNumber - 1) ~/ 7 + 1);
     final programDay =
-        _loadedProgramDay ??
+        _loadedProgramDay?.copyWith(week: calculatedWeek) ??
         ProgramDay(
           day: widget.dayNumber,
           week: calculatedWeek,
@@ -383,6 +520,14 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
       extra: WorkoutSessionArgs(
         day: programDay,
         exercises: _exercises.map((e) => e.exercise).toList(),
+        programId: _resolvedProgramId ?? widget.programId,
+        scheduledDate: widget.scheduledDate,
+        activeSessionId: widget.activeSessionId,
+        prescriptions: {
+          for (final data in _exercises)
+            if (data.prescription != null)
+              data.exercise.id: data.prescription!,
+        },
       ),
     );
   }

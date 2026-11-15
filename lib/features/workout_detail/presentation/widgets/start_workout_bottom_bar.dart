@@ -4,10 +4,14 @@ import '../../../../core/widgets/core_widgets.dart';
 /// Tombol Sticky "Start Workout" di bagian bawah layar Workout Detail (DRY via AppButton)
 class StartWorkoutBottomBar extends StatelessWidget {
   final VoidCallback onStartWorkout;
+  final String label;
+  final IconData icon;
 
   const StartWorkoutBottomBar({
     super.key,
     required this.onStartWorkout,
+    this.label = 'Start Workout',
+    this.icon = Icons.play_arrow_rounded,
   });
 
   @override
@@ -27,8 +31,8 @@ class StartWorkoutBottomBar extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: AppButton.primary(
-          text: 'Start Workout',
-          icon: Icons.play_arrow_rounded,
+          text: label,
+          icon: icon,
           onPressed: onStartWorkout,
         ),
       ),

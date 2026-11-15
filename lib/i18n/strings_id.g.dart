@@ -56,6 +56,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
   late final Translations$core$id core = Translations$core$id.internal(_root);
   late final Translations$home$id home = Translations$home$id.internal(_root);
   late final Translations$onboarding$id onboarding = Translations$onboarding$id.internal(_root);
+  late final Translations$workouts$id workouts = Translations$workouts$id.internal(_root);
 }
 
 // Path: core
@@ -129,6 +130,43 @@ class Translations$onboarding$id {
   );
   late final Translations$onboarding$preview$id preview =
       Translations$onboarding$preview$id.internal(_root);
+}
+
+// Path: workouts
+class Translations$workouts$id {
+  Translations$workouts$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Latihan'
+  String get title => 'Latihan';
+
+  /// id: 'Cari latihan & gerakan...'
+  String get searchHint => 'Cari latihan & gerakan...';
+
+  late final Translations$workouts$tabs$id tabs = Translations$workouts$tabs$id.internal(_root);
+  late final Translations$workouts$activeProgram$id activeProgram =
+      Translations$workouts$activeProgram$id.internal(_root);
+  late final Translations$workouts$weeklySchedule$id weeklySchedule =
+      Translations$workouts$weeklySchedule$id.internal(_root);
+  late final Translations$workouts$emptyState$id emptyState =
+      Translations$workouts$emptyState$id.internal(_root);
+  late final Translations$workouts$allWorkouts$id allWorkouts =
+      Translations$workouts$allWorkouts$id.internal(_root);
+  late final Translations$workouts$errorState$id errorState =
+      Translations$workouts$errorState$id.internal(_root);
+  late final Translations$workouts$session$id session = Translations$workouts$session$id.internal(
+    _root,
+  );
+  late final Translations$workouts$workoutDetail$id workoutDetail =
+      Translations$workouts$workoutDetail$id.internal(_root);
+  late final Translations$workouts$filter$id filter = Translations$workouts$filter$id.internal(
+    _root,
+  );
+  late final Translations$workouts$categories$id categories =
+      Translations$workouts$categories$id.internal(_root);
 }
 
 // Path: core.actions
@@ -290,7 +328,8 @@ class Translations$home$goalCard$id {
   String programDuration({required Object weeks}) => '${weeks} Minggu Program';
 
   /// id: 'Minggu $current dari $total'
-  String weekOf({required Object current, required Object total}) => 'Minggu ${current} dari ${total}';
+  String weekOf({required Object current, required Object total}) =>
+      'Minggu ${current} dari ${total}';
 }
 
 // Path: home.todayWorkout
@@ -748,6 +787,217 @@ class Translations$onboarding$preview$id {
       '${sets} set • ${reps} repetisi • istirahat ${rests} dtk';
 }
 
+// Path: workouts.tabs
+class Translations$workouts$tabs$id {
+  Translations$workouts$tabs$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Program Saya'
+  String get myProgram => 'Program Saya';
+
+  /// id: 'Semua Latihan'
+  String get allWorkouts => 'Semua Latihan';
+}
+
+// Path: workouts.activeProgram
+class Translations$workouts$activeProgram$id {
+  Translations$workouts$activeProgram$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Program Aktif'
+  String get title => 'Program Aktif';
+
+  /// id: '$weeks minggu • Latihan di rumah'
+  String weeksHomeWorkout({required Object weeks}) => '${weeks} minggu • Latihan di rumah';
+
+  /// id: 'Minggu $current dari $total'
+  String weekOf({required Object current, required Object total}) =>
+      'Minggu ${current} dari ${total}';
+
+  late final Translations$workouts$activeProgram$status$id status =
+      Translations$workouts$activeProgram$status$id.internal(_root);
+}
+
+// Path: workouts.weeklySchedule
+class Translations$workouts$weeklySchedule$id {
+  Translations$workouts$weeklySchedule$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Jadwal Mingguan'
+  String get title => 'Jadwal Mingguan';
+
+  /// id: '$completed/$total latihan'
+  String workoutCount({required Object completed, required Object total}) =>
+      '${completed}/${total} latihan';
+
+  /// id: 'Saat Ini'
+  String get current => 'Saat Ini';
+
+  /// id: 'W$n'
+  String weekShort({required Object n}) => 'W${n}';
+
+  /// id: 'Tidak ada sesi latihan yang dijadwalkan untuk minggu ini.'
+  String get empty => 'Tidak ada sesi latihan yang dijadwalkan untuk minggu ini.';
+
+  /// id: 'Mode pratinjau'
+  String get previewTitle => 'Mode pratinjau';
+
+  /// id: 'Kamu bisa melihat rencana minggu ini, tapi latihan baru bisa dimulai sesuai jadwalnya.'
+  String get previewNotice =>
+      'Kamu bisa melihat rencana minggu ini, tapi latihan baru bisa dimulai sesuai jadwalnya.';
+
+  /// id: 'Pratinjau minggu mendatang'
+  String get previewTooltip => 'Pratinjau minggu mendatang';
+
+  late final Translations$workouts$weeklySchedule$statusTooltip$id statusTooltip =
+      Translations$workouts$weeklySchedule$statusTooltip$id.internal(_root);
+}
+
+// Path: workouts.emptyState
+class Translations$workouts$emptyState$id {
+  Translations$workouts$emptyState$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Belum ada program aktif'
+  String get noProgramTitle => 'Belum ada program aktif';
+
+  /// id: 'Buat program untuk melihat jadwal latihan mingguanmu di sini.'
+  String get noProgramSubtitle => 'Buat program untuk melihat jadwal latihan mingguanmu di sini.';
+}
+
+// Path: workouts.allWorkouts
+class Translations$workouts$allWorkouts$id {
+  Translations$workouts$allWorkouts$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Tidak ada latihan ditemukan'
+  String get emptyTitle => 'Tidak ada latihan ditemukan';
+
+  /// id: 'Coba kata kunci lain atau ubah filter otot.'
+  String get emptySubtitle => 'Coba kata kunci lain atau ubah filter otot.';
+
+  /// id: 'Hapus pencarian & filter'
+  String get clearFilters => 'Hapus pencarian & filter';
+}
+
+// Path: workouts.errorState
+class Translations$workouts$errorState$id {
+  Translations$workouts$errorState$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Gagal memuat data'
+  String get title => 'Gagal memuat data';
+
+  /// id: 'Terjadi kesalahan saat membaca data latihan. Coba lagi.'
+  String get subtitle => 'Terjadi kesalahan saat membaca data latihan. Coba lagi.';
+
+  /// id: 'Coba Lagi'
+  String get retry => 'Coba Lagi';
+
+  /// id: 'Gagal memperbarui data. Menampilkan data terakhir.'
+  String get refreshFailed => 'Gagal memperbarui data. Menampilkan data terakhir.';
+}
+
+// Path: workouts.session
+class Translations$workouts$session$id {
+  Translations$workouts$session$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Hari $n'
+  String day({required Object n}) => 'Hari ${n}';
+
+  /// id: 'Hari $n • $date'
+  String date({required Object n, required Object date}) => 'Hari ${n} • ${date}';
+
+  /// id: '$min mnt'
+  String min({required Object min}) => '${min} mnt';
+
+  late final Translations$workouts$session$status$id status =
+      Translations$workouts$session$status$id.internal(_root);
+}
+
+// Path: workouts.workoutDetail
+class Translations$workouts$workoutDetail$id {
+  Translations$workouts$workoutDetail$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Mode pratinjau'
+  String get readOnlyTitle => 'Mode pratinjau';
+
+  /// id: 'Rencana latihan ini hanya bisa dilihat. Tombol mulai aktif pada hari yang dijadwalkan.'
+  String get readOnlyNotice =>
+      'Rencana latihan ini hanya bisa dilihat. Tombol mulai aktif pada hari yang dijadwalkan.';
+
+  /// id: 'Lanjutkan Latihan'
+  String get resume => 'Lanjutkan Latihan';
+}
+
+// Path: workouts.filter
+class Translations$workouts$filter$id {
+  Translations$workouts$filter$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Filter Berdasarkan Otot'
+  String get title => 'Filter Berdasarkan Otot';
+}
+
+// Path: workouts.categories
+class Translations$workouts$categories$id {
+  Translations$workouts$categories$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Semua'
+  String get all => 'Semua';
+
+  /// id: 'Dada'
+  String get chest => 'Dada';
+
+  /// id: 'Punggung'
+  String get back => 'Punggung';
+
+  /// id: 'Kaki'
+  String get legs => 'Kaki';
+
+  /// id: 'Perut'
+  String get core => 'Perut';
+
+  /// id: 'Lengan'
+  String get arms => 'Lengan';
+
+  /// id: 'Bahu'
+  String get shoulders => 'Bahu';
+}
+
 // Path: home.weeklyProgress.states
 class Translations$home$weeklyProgress$states$id {
   Translations$home$weeklyProgress$states$id.internal(this._root);
@@ -1105,6 +1355,66 @@ class Translations$onboarding$ready$program$id {
       Translations$onboarding$ready$program$maintain$id.internal(_root);
 }
 
+// Path: workouts.activeProgram.status
+class Translations$workouts$activeProgram$status$id {
+  Translations$workouts$activeProgram$status$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Dimulai $date'
+  String notStarted({required Object date}) => 'Dimulai ${date}';
+
+  /// id: 'Program selesai'
+  String get completed => 'Program selesai';
+
+  /// id: 'Program berakhir'
+  String get expired => 'Program berakhir';
+}
+
+// Path: workouts.weeklySchedule.statusTooltip
+class Translations$workouts$weeklySchedule$statusTooltip$id {
+  Translations$workouts$weeklySchedule$statusTooltip$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Semua latihan selesai'
+  String get completed => 'Semua latihan selesai';
+
+  /// id: 'Sebagian latihan selesai'
+  String get partial => 'Sebagian latihan selesai';
+
+  /// id: 'Ada latihan yang terlewat'
+  String get missed => 'Ada latihan yang terlewat';
+}
+
+// Path: workouts.session.status
+class Translations$workouts$session$status$id {
+  Translations$workouts$session$status$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Selesai'
+  String get completed => 'Selesai';
+
+  /// id: 'Sedang berlangsung'
+  String get inProgress => 'Sedang berlangsung';
+
+  /// id: 'Hari Ini • Siap dimulai'
+  String get readyToStart => 'Hari Ini • Siap dimulai';
+
+  /// id: 'Terlewat'
+  String get missed => 'Terlewat';
+
+  /// id: 'Terjadwal'
+  String get scheduled => 'Terjadwal';
+}
+
 // Path: onboarding.ready.program.bulking
 class Translations$onboarding$ready$program$bulking$id {
   Translations$onboarding$ready$program$bulking$id.internal(this._root);
@@ -1191,7 +1501,10 @@ extension on Translations {
       'home.goalCard.target' => 'Target',
       'home.goalCard.current' => 'Saat Ini',
       'home.goalCard.programDuration' => ({required Object weeks}) => '${weeks} Minggu Program',
-      'home.goalCard.weekOf' => ({required Object current, required Object total}) => 'Minggu ${current} dari ${total}',
+      'home.goalCard.weekOf' => ({
+        required Object current,
+        required Object total,
+      }) => 'Minggu ${current} dari ${total}',
       'home.todayWorkout.title' => 'Latihan Hari Ini',
       'home.todayWorkout.viewPlan' => 'Lihat Jadwal →',
       'home.todayWorkout.startWorkout' => 'Mulai Latihan',
@@ -1372,6 +1685,70 @@ extension on Translations {
         required Object reps,
         required Object rests,
       }) => '${sets} set • ${reps} repetisi • istirahat ${rests} dtk',
+      'workouts.title' => 'Latihan',
+      'workouts.searchHint' => 'Cari latihan & gerakan...',
+      'workouts.tabs.myProgram' => 'Program Saya',
+      'workouts.tabs.allWorkouts' => 'Semua Latihan',
+      'workouts.activeProgram.title' => 'Program Aktif',
+      'workouts.activeProgram.weeksHomeWorkout' => ({
+        required Object weeks,
+      }) => '${weeks} minggu • Latihan di rumah',
+      'workouts.activeProgram.weekOf' => ({
+        required Object current,
+        required Object total,
+      }) => 'Minggu ${current} dari ${total}',
+      'workouts.activeProgram.status.notStarted' => ({required Object date}) => 'Dimulai ${date}',
+      'workouts.activeProgram.status.completed' => 'Program selesai',
+      'workouts.activeProgram.status.expired' => 'Program berakhir',
+      'workouts.weeklySchedule.title' => 'Jadwal Mingguan',
+      'workouts.weeklySchedule.workoutCount' => ({
+        required Object completed,
+        required Object total,
+      }) => '${completed}/${total} latihan',
+      'workouts.weeklySchedule.current' => 'Saat Ini',
+      'workouts.weeklySchedule.weekShort' => ({required Object n}) => 'W${n}',
+      'workouts.weeklySchedule.empty' =>
+        'Tidak ada sesi latihan yang dijadwalkan untuk minggu ini.',
+      'workouts.weeklySchedule.previewTitle' => 'Mode pratinjau',
+      'workouts.weeklySchedule.previewNotice' =>
+        'Kamu bisa melihat rencana minggu ini, tapi latihan baru bisa dimulai sesuai jadwalnya.',
+      'workouts.weeklySchedule.previewTooltip' => 'Pratinjau minggu mendatang',
+      'workouts.weeklySchedule.statusTooltip.completed' => 'Semua latihan selesai',
+      'workouts.weeklySchedule.statusTooltip.partial' => 'Sebagian latihan selesai',
+      'workouts.weeklySchedule.statusTooltip.missed' => 'Ada latihan yang terlewat',
+      'workouts.emptyState.noProgramTitle' => 'Belum ada program aktif',
+      'workouts.emptyState.noProgramSubtitle' =>
+        'Buat program untuk melihat jadwal latihan mingguanmu di sini.',
+      'workouts.allWorkouts.emptyTitle' => 'Tidak ada latihan ditemukan',
+      'workouts.allWorkouts.emptySubtitle' => 'Coba kata kunci lain atau ubah filter otot.',
+      'workouts.allWorkouts.clearFilters' => 'Hapus pencarian & filter',
+      'workouts.errorState.title' => 'Gagal memuat data',
+      'workouts.errorState.subtitle' => 'Terjadi kesalahan saat membaca data latihan. Coba lagi.',
+      'workouts.errorState.retry' => 'Coba Lagi',
+      'workouts.errorState.refreshFailed' => 'Gagal memperbarui data. Menampilkan data terakhir.',
+      'workouts.session.day' => ({required Object n}) => 'Hari ${n}',
+      'workouts.session.date' => ({
+        required Object n,
+        required Object date,
+      }) => 'Hari ${n} • ${date}',
+      'workouts.session.min' => ({required Object min}) => '${min} mnt',
+      'workouts.session.status.completed' => 'Selesai',
+      'workouts.session.status.inProgress' => 'Sedang berlangsung',
+      'workouts.session.status.readyToStart' => 'Hari Ini • Siap dimulai',
+      'workouts.session.status.missed' => 'Terlewat',
+      'workouts.session.status.scheduled' => 'Terjadwal',
+      'workouts.workoutDetail.readOnlyTitle' => 'Mode pratinjau',
+      'workouts.workoutDetail.readOnlyNotice' =>
+        'Rencana latihan ini hanya bisa dilihat. Tombol mulai aktif pada hari yang dijadwalkan.',
+      'workouts.workoutDetail.resume' => 'Lanjutkan Latihan',
+      'workouts.filter.title' => 'Filter Berdasarkan Otot',
+      'workouts.categories.all' => 'Semua',
+      'workouts.categories.chest' => 'Dada',
+      'workouts.categories.back' => 'Punggung',
+      'workouts.categories.legs' => 'Kaki',
+      'workouts.categories.core' => 'Perut',
+      'workouts.categories.arms' => 'Lengan',
+      'workouts.categories.shoulders' => 'Bahu',
       _ => null,
     };
   }

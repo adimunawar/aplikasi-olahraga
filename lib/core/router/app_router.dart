@@ -13,7 +13,7 @@ import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/onboarding/presentation/screens/creating_plan_screen.dart';
 import '../../features/onboarding/presentation/screens/plan_ready_screen.dart';
 import '../../features/onboarding/presentation/screens/plan_preview_screen.dart';
-import '../../features/plans/presentation/screens/plans_screen.dart';
+import '../../features/workouts/presentation/screens/workouts_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/profile/presentation/screens/personal_information_screen.dart';
 import '../../features/profile/presentation/screens/body_information_screen.dart';
@@ -26,6 +26,7 @@ import '../../features/program/domain/models/program_day.dart';
 import '../../features/program/presentation/screens/program_detail_screen.dart';
 import '../../features/progress/presentation/screens/progress_screen.dart';
 import '../../features/workout_detail/presentation/screens/workout_detail_screen.dart';
+import '../../features/workout_session/domain/models/exercise_prescription.dart';
 import '../../features/workout_session/presentation/screens/workout_session_screen.dart';
 import '../../features/workout_summary/presentation/screens/workout_summary_screen.dart';
 import '../../features/progression/domain/models/progression_models.dart';
@@ -62,6 +63,8 @@ class AppRoutes {
 /// DTO Arguments untuk WorkoutDetailScreen
 class WorkoutDetailArgs {
   final int dayNumber;
+  final int? weekNumber;
+  final String? programId;
   final String weekDayText;
   final String workoutTitle;
   final String targetMusclesText;
@@ -69,14 +72,28 @@ class WorkoutDetailArgs {
   final String levelText;
   final String description;
 
-  const WorkoutDetailArgs({
-    this.dayNumber = 1,
+  /// Tanggal jadwal sesi ini. Dipakai saat memulai/melanjutkan sesi agar
+  /// card di Workouts bisa mencocokkan record in_progress.
+  final DateTime? scheduledDate;
+
+  /// Pratinjau saja: daftar exercise terlihat, tombol mulai dinonaktifkan.
+  final bool readOnly;
+
+  /// Sesi in_progress yang bisa dilanjutkan untuk jadwal ini.
+  final String? activeSessionId;
+
+  const WorkoutDetailArgs({    this.dayNumber = 1,
+    this.weekNumber,
+    this.programId,
     this.weekDayText = 'Week 1 • Day 1',
     this.workoutTitle = 'Upper Body',
     this.targetMusclesText = 'Chest',
     this.durationText = '45 min',
     this.levelText = 'Intermediate',
     this.description = '',
+    this.scheduledDate,
+    this.readOnly = false,
+    this.activeSessionId,
   });
 }
 
@@ -84,10 +101,24 @@ class WorkoutDetailArgs {
 class WorkoutSessionArgs {
   final ProgramDay day;
   final List<Exercise> exercises;
+  final String? programId;
+
+  /// Tanggal jadwal sesi (bukan selalu hari ini).
+  final DateTime? scheduledDate;
+
+  /// Jika diisi, sesi yang sudah berjalan dilanjutkan, bukan dibuat baru.
+  final String? activeSessionId;
+
+  /// Preskripsi per exercise (target set, reps, rest). Kunci = exerciseId.
+  final Map<String, WorkoutExercisePrescription> prescriptions;
 
   const WorkoutSessionArgs({
     required this.day,
     required this.exercises,
+    this.programId,
+    this.scheduledDate,
+    this.activeSessionId,
+    this.prescriptions = const {},
   });
 }
 
@@ -151,12 +182,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
-          // Branch 1: Plans
+          // Branch 1: Workouts
           StatefulShellBranch(
             routes: [
               GoRoute(
                 path: AppRoutes.plans,
-                builder: (context, state) => const PlansScreen(isOnboarding: false),
+                builder: (context, state) => const WorkoutsScreen(),
               ),
             ],
           ),
@@ -194,12 +225,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final args = state.extra as WorkoutDetailArgs? ?? const WorkoutDetailArgs();
           return WorkoutDetailScreen(
             dayNumber: args.dayNumber,
+            weekNumber: args.weekNumber,
+            programId: args.programId,
             weekDayText: args.weekDayText,
             workoutTitle: args.workoutTitle,
             targetMusclesText: args.targetMusclesText,
             durationText: args.durationText,
             levelText: args.levelText,
             description: args.description,
+            scheduledDate: args.scheduledDate,
+            readOnly: args.readOnly,
+            activeSessionId: args.activeSessionId,
           );
         },
       ),
@@ -211,6 +247,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           return WorkoutSessionScreen(
             day: args.day,
             exercises: args.exercises,
+            programId: args.programId,
+            scheduledDate: args.scheduledDate,
+            activeSessionId: args.activeSessionId,
+            prescriptions: args.prescriptions,
           );
         },
       ),
