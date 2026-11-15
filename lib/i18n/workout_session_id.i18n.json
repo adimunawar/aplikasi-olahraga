@@ -60,5 +60,6 @@
   "rirBadgeEasy": "Ringan",
   "saveAndStartRest": "Simpan & Mulai Istirahat",
   "restSecondsValue": "$seconds dtk",
-  "durationMinutesValue": "$value menit"
+  "durationMinutesValue": "$value menit",
+  "savingSession": "Menyimpan sesi latihan..."
 }
