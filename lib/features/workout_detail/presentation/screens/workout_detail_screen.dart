@@ -373,6 +373,10 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
       );
     }
 
+    final descriptionText = widget.description.trim().isNotEmpty
+        ? widget.description
+        : 'Build strength and stability with a focused mix of bodyweight exercises.';
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light.copyWith(
         statusBarColor: Colors.transparent,
@@ -429,9 +433,6 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                               ),
                             ],
                           ),
-                          final descriptionText = widget.description.trim().isNotEmpty
-                              ? widget.description
-                              : 'Build strength and stability with a focused mix of bodyweight exercises.';
                           if (descriptionText.isNotEmpty) ...[
                             const SizedBox(height: 14),
                             Text(
