@@ -130,7 +130,6 @@ class HomeController extends StateNotifier<HomeState> {
 
       try {
         var profile = await _db.getUserProfile();
-        final monday = today.subtract(Duration(days: today.weekday - 1));
 
         String goalLabel = 'Gain Weight & Build Muscle';
         final goal = profile.goal.toLowerCase();
@@ -145,8 +144,8 @@ class HomeController extends StateNotifier<HomeState> {
         final configuredFrequency = profile.weeklyFrequency > 0
             ? profile.weeklyFrequency
             : (profile.preferredDaysPerWeek > 0
-                ? profile.preferredDaysPerWeek
-                : 3);
+                  ? profile.preferredDaysPerWeek
+                  : 3);
         final targetWeekly = configuredFrequency.clamp(2, 6).toInt();
         if (profile.weeklyFrequency != targetWeekly ||
             profile.preferredDaysPerWeek != targetWeekly) {
@@ -166,11 +165,13 @@ class HomeController extends StateNotifier<HomeState> {
             ? await _db.getProgramSessions(activeProgram.id)
             : <ProgramSessionEntity>[];
 
-        final needsProgramRegeneration = activeProgram == null ||
+        final needsProgramRegeneration =
+            activeProgram == null ||
             sessions.isEmpty ||
             sessions.length != targetWeekly ||
             activeProgram.weeklyFrequency != targetWeekly;
-        final scheduleStartDate = activeProgram == null ||
+        final scheduleStartDate =
+            activeProgram == null ||
                 activeProgram.weeklyFrequency != targetWeekly
             ? (activeProgram == null ? now : profile.updatedAt)
             : activeProgram.startDate;
@@ -179,9 +180,9 @@ class HomeController extends StateNotifier<HomeState> {
         // The first available day always matches the program's start weekday.
         final alignedAvailableDays =
             ProgramWeekSchedule.availableWeekdaysForFrequency(
-          startDate: scheduleStartDate,
-          frequency: targetWeekly,
-        );
+              startDate: scheduleStartDate,
+              frequency: targetWeekly,
+            );
         if (!listEquals(profile.availableDays, alignedAvailableDays)) {
           profile = profile.copyWith(
             availableDays: alignedAvailableDays,
@@ -198,8 +199,8 @@ class HomeController extends StateNotifier<HomeState> {
             final startingPushId = profile.experienceLevel == 'advanced'
                 ? 'diamond_push_up'
                 : profile.experienceLevel == 'intermediate'
-                    ? 'push_up'
-                    : 'knee_push_up';
+                ? 'push_up'
+                : 'knee_push_up';
 
             final generated = _programGenerator.generate(
               userProfile: profile,
@@ -303,7 +304,8 @@ class HomeController extends StateNotifier<HomeState> {
           );
         }
 
-        final isCompletedToday = todayScheduled != null &&
+        final isCompletedToday =
+            todayScheduled != null &&
             programWorkoutHistory.any((session) {
               return session.programDayId == todayScheduled.session.dayNumber &&
                   session.status == WorkoutSessionStatus.completed &&
@@ -313,11 +315,26 @@ class HomeController extends StateNotifier<HomeState> {
         final isScheduledTrainingDay = todayScheduled != null;
         final isRestDay = !isScheduledTrainingDay && !isCompletedToday;
 
-        // Weekly calendar remains Monday-Sunday, using the active program's
-        // scheduled weekdays and workout history.
+        // Calendar follows the active program's weekly cycle.
+        final calendarWeekStart = ProgramWeekSchedule.startDateForWeek(
+          programStartDate: programStartDate,
+          weekNumber: currentWeek,
+        );
+
+        // Use the same schedule engine as today's workout.
+        final scheduledDates =
+            ProgramWeekSchedule.build(
+                  programStartDate: programStartDate,
+                  weekNumber: currentWeek,
+                  availableDays: profile.availableDays,
+                  sessions: sessions,
+                )
+                .map((item) => ProgramWeekSchedule.dateOnly(item.scheduledDate))
+                .toSet();
+
         final daysList = <DayProgressData>[];
         for (var i = 0; i < 7; i++) {
-          final date = monday.add(Duration(days: i));
+          final date = calendarWeekStart.add(Duration(days: i));
           final dateOnly = ProgramWeekSchedule.dateOnly(date);
           final isToday = dateOnly == today;
           final isPast = dateOnly.isBefore(today);
@@ -331,12 +348,12 @@ class HomeController extends StateNotifier<HomeState> {
           final daysFromProgramStart = dateOnly
               .difference(ProgramWeekSchedule.dateOnly(programStartDate))
               .inDays;
-          final isInsideProgram = activeProgram != null &&
+          final isInsideProgram =
+              activeProgram != null &&
               daysFromProgramStart >= 0 &&
               daysFromProgramStart < totalWeeks * 7;
-          final weekday = ProgramWeekSchedule.weekdayNames[date.weekday - 1];
           final isTrainingScheduled =
-              isInsideProgram && profile.availableDays.contains(weekday);
+              isInsideProgram && scheduledDates.contains(dateOnly);
 
           DayActivityState dayState;
           if (isCompleted) {
@@ -370,10 +387,8 @@ class HomeController extends StateNotifier<HomeState> {
         final workoutCardState = activeProgram == null
             ? WorkoutCardState.noProgram
             : isCompletedToday
-                ? WorkoutCardState.completed
-                : (isRestDay
-                    ? WorkoutCardState.restDay
-                    : WorkoutCardState.active);
+            ? WorkoutCardState.completed
+            : (isRestDay ? WorkoutCardState.restDay : WorkoutCardState.active);
 
         state = state.copyWith(
           isLoading: false,

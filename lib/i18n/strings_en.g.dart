@@ -57,6 +57,8 @@ class TranslationsEn extends Translations with BaseTranslations<AppLocale, Trans
   late final _Translations$home$en home = _Translations$home$en._(_root);
   @override
   late final _Translations$onboarding$en onboarding = _Translations$onboarding$en._(_root);
+  @override
+  late final _Translations$workouts$en workouts = _Translations$workouts$en._(_root);
 }
 
 // Path: core
@@ -153,6 +155,37 @@ class _Translations$onboarding$en extends Translations$onboarding$id {
   late final _Translations$onboarding$preview$en preview = _Translations$onboarding$preview$en._(
     _root,
   );
+}
+
+// Path: workouts
+class _Translations$workouts$en extends Translations$workouts$id {
+  _Translations$workouts$en._(TranslationsEn root) : this._root = root, super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Workouts';
+  @override
+  String get searchHint => 'Search workouts & exercises...';
+  @override
+  late final _Translations$workouts$tabs$en tabs = _Translations$workouts$tabs$en._(_root);
+  @override
+  late final _Translations$workouts$activeProgram$en activeProgram =
+      _Translations$workouts$activeProgram$en._(_root);
+  @override
+  late final _Translations$workouts$weeklySchedule$en weeklySchedule =
+      _Translations$workouts$weeklySchedule$en._(_root);
+  @override
+  late final _Translations$workouts$emptyState$en emptyState =
+      _Translations$workouts$emptyState$en._(_root);
+  @override
+  late final _Translations$workouts$session$en session = _Translations$workouts$session$en._(_root);
+  @override
+  late final _Translations$workouts$filter$en filter = _Translations$workouts$filter$en._(_root);
+  @override
+  late final _Translations$workouts$categories$en categories =
+      _Translations$workouts$categories$en._(_root);
 }
 
 // Path: core.actions
@@ -688,6 +721,127 @@ class _Translations$onboarding$preview$en extends Translations$onboarding$previe
       '${sets} sets • ${reps} reps • ${rests} rest';
 }
 
+// Path: workouts.tabs
+class _Translations$workouts$tabs$en extends Translations$workouts$tabs$id {
+  _Translations$workouts$tabs$en._(TranslationsEn root) : this._root = root, super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get myProgram => 'My Program';
+  @override
+  String get allWorkouts => 'All Workouts';
+}
+
+// Path: workouts.activeProgram
+class _Translations$workouts$activeProgram$en extends Translations$workouts$activeProgram$id {
+  _Translations$workouts$activeProgram$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Active Program';
+  @override
+  String weeksHomeWorkout({required Object weeks}) => '${weeks} weeks • Home workout';
+  @override
+  String weekOf({required Object current, required Object total}) => 'Week ${current} of ${total}';
+}
+
+// Path: workouts.weeklySchedule
+class _Translations$workouts$weeklySchedule$en extends Translations$workouts$weeklySchedule$id {
+  _Translations$workouts$weeklySchedule$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Weekly Schedule';
+  @override
+  String workoutCount({required Object completed, required Object total}) =>
+      '${completed}/${total} workouts';
+  @override
+  String get current => 'Current';
+  @override
+  String weekShort({required Object n}) => 'W${n}';
+  @override
+  String get empty => 'No workout sessions are scheduled for this week.';
+}
+
+// Path: workouts.emptyState
+class _Translations$workouts$emptyState$en extends Translations$workouts$emptyState$id {
+  _Translations$workouts$emptyState$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get noProgramTitle => 'No active program yet';
+  @override
+  String get noProgramSubtitle => 'Create a program to see your weekly workouts here.';
+}
+
+// Path: workouts.session
+class _Translations$workouts$session$en extends Translations$workouts$session$id {
+  _Translations$workouts$session$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String day({required Object n}) => 'Day ${n}';
+  @override
+  String min({required Object min}) => '${min} min';
+  @override
+  late final _Translations$workouts$session$status$en status =
+      _Translations$workouts$session$status$en._(_root);
+}
+
+// Path: workouts.filter
+class _Translations$workouts$filter$en extends Translations$workouts$filter$id {
+  _Translations$workouts$filter$en._(TranslationsEn root) : this._root = root, super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Filter by Muscle Group';
+}
+
+// Path: workouts.categories
+class _Translations$workouts$categories$en extends Translations$workouts$categories$id {
+  _Translations$workouts$categories$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get all => 'All';
+  @override
+  String get chest => 'Chest';
+  @override
+  String get back => 'Back';
+  @override
+  String get legs => 'Legs';
+  @override
+  String get core => 'Core';
+  @override
+  String get arms => 'Arms';
+  @override
+  String get shoulders => 'Shoulders';
+}
+
 // Path: home.weeklyProgress.states
 class _Translations$home$weeklyProgress$states$en
     extends Translations$home$weeklyProgress$states$id {
@@ -1072,6 +1226,27 @@ class _Translations$onboarding$ready$program$en extends Translations$onboarding$
       _Translations$onboarding$ready$program$maintain$en._(_root);
 }
 
+// Path: workouts.session.status
+class _Translations$workouts$session$status$en extends Translations$workouts$session$status$id {
+  _Translations$workouts$session$status$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get completed => 'Completed';
+  @override
+  String get readyToStart => 'Today • Ready to start';
+  @override
+  String get missed => 'Missed';
+  @override
+  String get locked => 'Locked';
+  @override
+  String get scheduled => 'Scheduled';
+}
+
 // Path: onboarding.ready.program.bulking
 class _Translations$onboarding$ready$program$bulking$en
     extends Translations$onboarding$ready$program$bulking$id {
@@ -1161,7 +1336,10 @@ extension on TranslationsEn {
       'home.goalCard.target' => 'Target',
       'home.goalCard.current' => 'Current',
       'home.goalCard.programDuration' => ({required Object weeks}) => '${weeks} Weeks Program',
-      'home.goalCard.weekOf' => ({required Object current, required Object total}) => 'Week ${current} of ${total}',
+      'home.goalCard.weekOf' => ({
+        required Object current,
+        required Object total,
+      }) => 'Week ${current} of ${total}',
       'home.todayWorkout.title' => 'Today\'s Workout',
       'home.todayWorkout.viewPlan' => 'View Plan →',
       'home.todayWorkout.startWorkout' => 'Start Workout',
@@ -1342,6 +1520,44 @@ extension on TranslationsEn {
         required Object reps,
         required Object rests,
       }) => '${sets} sets • ${reps} reps • ${rests} rest',
+      'workouts.title' => 'Workouts',
+      'workouts.searchHint' => 'Search workouts & exercises...',
+      'workouts.tabs.myProgram' => 'My Program',
+      'workouts.tabs.allWorkouts' => 'All Workouts',
+      'workouts.activeProgram.title' => 'Active Program',
+      'workouts.activeProgram.weeksHomeWorkout' => ({
+        required Object weeks,
+      }) => '${weeks} weeks • Home workout',
+      'workouts.activeProgram.weekOf' => ({
+        required Object current,
+        required Object total,
+      }) => 'Week ${current} of ${total}',
+      'workouts.weeklySchedule.title' => 'Weekly Schedule',
+      'workouts.weeklySchedule.workoutCount' => ({
+        required Object completed,
+        required Object total,
+      }) => '${completed}/${total} workouts',
+      'workouts.weeklySchedule.current' => 'Current',
+      'workouts.weeklySchedule.weekShort' => ({required Object n}) => 'W${n}',
+      'workouts.weeklySchedule.empty' => 'No workout sessions are scheduled for this week.',
+      'workouts.emptyState.noProgramTitle' => 'No active program yet',
+      'workouts.emptyState.noProgramSubtitle' =>
+        'Create a program to see your weekly workouts here.',
+      'workouts.session.day' => ({required Object n}) => 'Day ${n}',
+      'workouts.session.min' => ({required Object min}) => '${min} min',
+      'workouts.session.status.completed' => 'Completed',
+      'workouts.session.status.readyToStart' => 'Today • Ready to start',
+      'workouts.session.status.missed' => 'Missed',
+      'workouts.session.status.locked' => 'Locked',
+      'workouts.session.status.scheduled' => 'Scheduled',
+      'workouts.filter.title' => 'Filter by Muscle Group',
+      'workouts.categories.all' => 'All',
+      'workouts.categories.chest' => 'Chest',
+      'workouts.categories.back' => 'Back',
+      'workouts.categories.legs' => 'Legs',
+      'workouts.categories.core' => 'Core',
+      'workouts.categories.arms' => 'Arms',
+      'workouts.categories.shoulders' => 'Shoulders',
       _ => null,
     };
   }

@@ -9,9 +9,11 @@ import '../../../../core/router/app_router.dart';
 import '../../../../core/services/app_data_sync.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../i18n/strings.g.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
 import '../../../exercises/domain/models/exercise.dart';
 import '../../../program/domain/services/program_week_schedule.dart';
+import '../widgets/weekly_schedule_selector.dart';
 
 /// Halaman Workouts Utama Sesuai Mockup Referensi (Design System 1:1)
 class WorkoutsScreen extends StatefulWidget {
@@ -126,6 +128,8 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAFB),
       body: SafeArea(
@@ -137,7 +141,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
               child: Row(
                 children: [
                   Text(
-                    'Workouts',
+                    t.workouts.title,
                     style: AppTypography.headlineMedium.copyWith(
                       fontWeight: FontWeight.w900,
                       fontSize: 26,
@@ -162,7 +166,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                     ),
                   ),
                   IconButton(
-                    onPressed: _showFilterSheet,
+                    onPressed: () => _showFilterSheet(t),
                     icon: const Icon(
                       Icons.tune_rounded,
                       color: Color(0xFF141718),
@@ -181,7 +185,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                   autofocus: true,
                   onChanged: (val) => setState(() => _searchQuery = val),
                   decoration: InputDecoration(
-                    hintText: 'Search workouts & exercises...',
+                    hintText: t.workouts.searchHint,
                     prefixIcon: const Icon(
                       Icons.search_rounded,
                       color: Color(0xFF9CA3AF),
@@ -200,7 +204,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                       borderSide: const BorderSide(
-                        color: Color(0xFFD4F836),
+                        color: AppColors.primary,
                         width: 1.5,
                       ),
                     ),
@@ -221,14 +225,14 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                   children: [
                     Expanded(
                       child: _buildPillTab(
-                        title: 'My Program',
+                        title: t.workouts.tabs.myProgram,
                         isSelected: _selectedTabIndex == 0,
                         onTap: () => setState(() => _selectedTabIndex = 0),
                       ),
                     ),
                     Expanded(
                       child: _buildPillTab(
-                        title: 'All Workouts',
+                        title: t.workouts.tabs.allWorkouts,
                         isSelected: _selectedTabIndex == 1,
                         onTap: () => setState(() => _selectedTabIndex = 1),
                       ),
@@ -244,7 +248,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
               child: _isLoading
                   ? const Center(
                       child: CircularProgressIndicator(
-                        color: Color(0xFFD4F836),
+                        color: AppColors.primary,
                       ),
                     )
                   : RefreshIndicator(
@@ -254,8 +258,8 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                         physics: const AlwaysScrollableScrollPhysics(),
                         padding: const EdgeInsets.only(bottom: 32),
                         child: _selectedTabIndex == 0
-                            ? _buildMyProgramTab()
-                            : _buildAllWorkoutsTab(),
+                            ? _buildMyProgramTab(t)
+                            : _buildAllWorkoutsTab(t),
                       ),
                     ),
             ),
@@ -295,10 +299,10 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
     );
   }
 
-  Widget _buildMyProgramTab() {
+  Widget _buildMyProgramTab(Translations t) {
     final program = _activeProgram;
     if (program == null) {
-      return _buildProgramEmptyState();
+      return _buildProgramEmptyState(t);
     }
 
     final configuredWeeks = _profile?.targetTimeframeWeeks ?? 0;
@@ -345,7 +349,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
         children: [
           // A. Active Program
           Text(
-            'Active Program',
+            t.workouts.activeProgram.title,
             style: AppTypography.titleMedium.copyWith(
               fontWeight: FontWeight.w900,
               fontSize: 16.5,
@@ -390,7 +394,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                             alignment: Alignment.topCenter,
                             errorBuilder: (_, __, ___) => const Icon(
                               Icons.fitness_center_rounded,
-                              color: Color(0xFF65A30D),
+                              color: AppColors.primary,
                               size: 26,
                             ),
                           ),
@@ -413,7 +417,9 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                             ),
                             const SizedBox(height: 3),
                             Text(
-                              '$totalWeeks weeks • Home workout',
+                              t.workouts.activeProgram.weeksHomeWorkout(
+                                weeks: totalWeeks,
+                              ),
                               style: AppTypography.bodySmall.copyWith(
                                 color: const Color(0xFF6B7280),
                                 fontSize: 12,
@@ -434,7 +440,10 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Week $currentWeek of $totalWeeks',
+                        t.workouts.activeProgram.weekOf(
+                          current: currentWeek,
+                          total: totalWeeks,
+                        ),
                         style: AppTypography.bodySmall.copyWith(
                           fontSize: 12,
                           color: const Color(0xFF6B7280),
@@ -458,7 +467,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                       minHeight: 6,
                       backgroundColor: const Color(0xFFE5E7EB),
                       valueColor: const AlwaysStoppedAnimation<Color>(
-                        Color(0xFFD4F836),
+                        AppColors.primary,
                       ),
                     ),
                   ),
@@ -474,7 +483,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                selectedWeek == currentWeek ? 'This Week' : 'Week Schedule',
+                t.workouts.weeklySchedule.title,
                 style: AppTypography.titleMedium.copyWith(
                   fontWeight: FontWeight.w900,
                   fontSize: 16.5,
@@ -482,7 +491,10 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                 ),
               ),
               Text(
-                '$completedThisWeek/${weeklySessions.length} workouts',
+                t.workouts.weeklySchedule.workoutCount(
+                  completed: completedThisWeek,
+                  total: weeklySessions.length,
+                ),
                 style: AppTypography.bodySmall.copyWith(
                   color: const Color(0xFF6B7280),
                   fontSize: 12.5,
@@ -491,33 +503,17 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          _buildWeekNavigation(
+          const SizedBox(height: 12),
+          WeeklyScheduleSelector(
             selectedWeek: selectedWeek,
             currentWeek: currentWeek,
             totalWeeks: totalWeeks,
+            onWeekSelected: (week) => setState(() => _selectedWeek = week),
           ),
-          if (selectedWeek != currentWeek)
-            Align(
-              alignment: Alignment.center,
-              child: TextButton.icon(
-                onPressed: () => setState(() => _selectedWeek = currentWeek),
-                icon: const Icon(Icons.today_rounded, size: 16),
-                label: const Text('Back to Current Week'),
-                style: TextButton.styleFrom(
-                  foregroundColor: const Color(0xFF4D7C0F),
-                  textStyle: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  visualDensity: VisualDensity.compact,
-                ),
-              ),
-            ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
 
           if (weeklySessions.isEmpty)
-            _buildNoScheduledWorkouts()
+            _buildNoScheduledWorkouts(t)
           else
             ListView.separated(
               shrinkWrap: true,
@@ -546,6 +542,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                     : 30;
 
                 return _buildWorkoutSessionCard(
+                  t: t,
                   dayNumber: session.dayNumber,
                   title: title,
                   durationMinutes: duration,
@@ -580,91 +577,6 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
     );
   }
 
-  Widget _buildWeekNavigation({
-    required int selectedWeek,
-    required int currentWeek,
-    required int totalWeeks,
-  }) {
-    final isCurrentWeek = selectedWeek == currentWeek;
-    final badgeLabel = isCurrentWeek ? 'Current Week' : 'Previous Week';
-    final hasLockedFutureWeeks = isCurrentWeek && currentWeek < totalWeeks;
-    final canNavigateForward = selectedWeek < currentWeek;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE5E7EB), width: 1.1),
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            tooltip: 'Previous week',
-            visualDensity: VisualDensity.compact,
-            onPressed: selectedWeek > 1
-                ? () => setState(() => _selectedWeek = selectedWeek - 1)
-                : null,
-            icon: const Icon(Icons.chevron_left_rounded),
-          ),
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Week $selectedWeek of $totalWeeks',
-                  style: AppTypography.titleSmall.copyWith(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 14,
-                    color: const Color(0xFF141718),
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 9,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isCurrentWeek
-                        ? const Color(0xFFE9F8D5)
-                        : const Color(0xFFF3F4F6),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    badgeLabel,
-                    style: TextStyle(
-                      color: isCurrentWeek
-                          ? const Color(0xFF477B12)
-                          : const Color(0xFF6B7280),
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            tooltip: hasLockedFutureWeeks
-                ? 'Next week is locked until it starts'
-                : 'Next week',
-            visualDensity: VisualDensity.compact,
-            onPressed: canNavigateForward
-                ? () => setState(() => _selectedWeek = selectedWeek + 1)
-                : null,
-            icon: Icon(
-              hasLockedFutureWeeks
-                  ? Icons.lock_outline_rounded
-                  : Icons.chevron_right_rounded,
-              color: hasLockedFutureWeeks ? const Color(0xFF9CA3AF) : null,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   WorkoutSessionEntity? _findWorkoutRecord(ProgramWeekSession scheduled) {
     final targetDate = ProgramWeekSchedule.dateOnly(scheduled.scheduledDate);
     final matchingRecords = _programWorkoutHistory.where((record) {
@@ -684,7 +596,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
         first.day == second.day;
   }
 
-  Widget _buildProgramEmptyState() {
+  Widget _buildProgramEmptyState(Translations t) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 48),
       child: Center(
@@ -697,17 +609,17 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              'No active program yet',
+              t.workouts.emptyState.noProgramTitle,
               style: AppTypography.titleMedium.copyWith(
                 fontWeight: FontWeight.w800,
                 color: const Color(0xFF141718),
               ),
             ),
             const SizedBox(height: 5),
-            const Text(
-              'Create a program to see your weekly workouts here.',
+            Text(
+              t.workouts.emptyState.noProgramSubtitle,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Color(0xFF6B7280), fontSize: 12.5),
+              style: const TextStyle(color: Color(0xFF6B7280), fontSize: 12.5),
             ),
           ],
         ),
@@ -715,7 +627,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
     );
   }
 
-  Widget _buildNoScheduledWorkouts() {
+  Widget _buildNoScheduledWorkouts(Translations t) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
@@ -724,15 +636,16 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: const Color(0xFFE5E7EB)),
       ),
-      child: const Text(
-        'No workout sessions are scheduled for this week.',
+      child: Text(
+        t.workouts.weeklySchedule.empty,
         textAlign: TextAlign.center,
-        style: TextStyle(color: Color(0xFF6B7280), fontSize: 12.5),
+        style: const TextStyle(color: Color(0xFF6B7280), fontSize: 12.5),
       ),
     );
   }
 
   Widget _buildWorkoutSessionCard({
+    required Translations t,
     required int dayNumber,
     required String title,
     required int durationMinutes,
@@ -743,14 +656,14 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
     required VoidCallback? onTap,
   }) {
     final statusText = isCompleted
-        ? 'Completed'
+        ? t.workouts.session.status.completed
         : isActiveToday
-        ? 'Today • Ready to start'
+        ? t.workouts.session.status.readyToStart
         : isMissed
-        ? 'Missed'
+        ? t.workouts.session.status.missed
         : isUpcoming
-        ? 'Locked'
-        : 'Scheduled';
+        ? t.workouts.session.status.locked
+        : t.workouts.session.status.scheduled;
 
     final statusColor = isCompleted
         ? const Color(0xFF16A34A)
@@ -783,9 +696,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isActiveToday
-                ? const Color(0xFFD4F836)
-                : const Color(0xFFE5E7EB),
+            color: isActiveToday ? AppColors.primary : const Color(0xFFE5E7EB),
             width: isActiveToday ? 1.5 : 1.2,
           ),
           boxShadow: const [
@@ -817,7 +728,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Day $dayNumber',
+                    t.workouts.session.day(n: dayNumber),
                     style: const TextStyle(
                       color: Color(0xFF6B7280),
                       fontSize: 11.5,
@@ -837,7 +748,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '$durationMinutes min • $statusText',
+                    '${t.workouts.session.min(min: durationMinutes)} • $statusText',
                     style: const TextStyle(
                       color: Color(0xFF9CA3AF),
                       fontSize: 11.5,
@@ -853,7 +764,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
     );
   }
 
-  Widget _buildAllWorkoutsTab() {
+  Widget _buildAllWorkoutsTab(Translations t) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -878,14 +789,12 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: isSel
-                        ? const Color(0xFFD4F836)
-                        : const Color(0xFFF3F4F6),
+                    color: isSel ? AppColors.primary : const Color(0xFFF3F4F6),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Center(
                     child: Text(
-                      cat,
+                      _getCategoryLabel(t, cat),
                       style: TextStyle(
                         fontWeight: isSel ? FontWeight.w800 : FontWeight.w600,
                         fontSize: 13,
@@ -998,7 +907,26 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
     );
   }
 
-  void _showFilterSheet() {
+  String _getCategoryLabel(Translations t, String category) {
+    switch (category) {
+      case 'Chest':
+        return t.workouts.categories.chest;
+      case 'Back':
+        return t.workouts.categories.back;
+      case 'Legs':
+        return t.workouts.categories.legs;
+      case 'Core':
+        return t.workouts.categories.core;
+      case 'Arms':
+        return t.workouts.categories.arms;
+      case 'Shoulders':
+        return t.workouts.categories.shoulders;
+      default:
+        return t.workouts.categories.all;
+    }
+  }
+
+  void _showFilterSheet(Translations t) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -1024,7 +952,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Filter by Muscle Group',
+                  t.workouts.filter.title,
                   style: AppTypography.titleMedium.copyWith(
                     fontWeight: FontWeight.w900,
                     fontSize: 18,
@@ -1038,9 +966,9 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                   children: _muscleCategories.map((cat) {
                     final isSel = cat == _selectedMuscleFilter;
                     return ChoiceChip(
-                      label: Text(cat),
+                      label: Text(_getCategoryLabel(t, cat)),
                       selected: isSel,
-                      selectedColor: const Color(0xFFD4F836),
+                      selectedColor: AppColors.primary,
                       backgroundColor: const Color(0xFFF3F4F6),
                       labelStyle: TextStyle(
                         color: const Color(0xFF141718),

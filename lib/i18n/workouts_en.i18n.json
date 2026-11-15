@@ -1,0 +1,47 @@
+{
+  "title": "Workouts",
+  "searchHint": "Search workouts & exercises...",
+  "tabs": {
+    "myProgram": "My Program",
+    "allWorkouts": "All Workouts"
+  },
+  "activeProgram": {
+    "title": "Active Program",
+    "weeksHomeWorkout": "$weeks weeks • Home workout",
+    "weekOf": "Week $current of $total"
+  },
+  "weeklySchedule": {
+    "title": "Weekly Schedule",
+    "workoutCount": "$completed/$total workouts",
+    "current": "Current",
+    "weekShort": "W$n",
+    "empty": "No workout sessions are scheduled for this week."
+  },
+  "emptyState": {
+    "noProgramTitle": "No active program yet",
+    "noProgramSubtitle": "Create a program to see your weekly workouts here."
+  },
+  "session": {
+    "day": "Day $n",
+    "min": "$min min",
+    "status": {
+      "completed": "Completed",
+      "readyToStart": "Today • Ready to start",
+      "missed": "Missed",
+      "locked": "Locked",
+      "scheduled": "Scheduled"
+    }
+  },
+  "filter": {
+    "title": "Filter by Muscle Group"
+  },
+  "categories": {
+    "all": "All",
+    "chest": "Chest",
+    "back": "Back",
+    "legs": "Legs",
+    "core": "Core",
+    "arms": "Arms",
+    "shoulders": "Shoulders"
+  }
+}

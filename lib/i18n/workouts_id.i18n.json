@@ -1,0 +1,47 @@
+{
+  "title": "Latihan",
+  "searchHint": "Cari latihan & gerakan...",
+  "tabs": {
+    "myProgram": "Program Saya",
+    "allWorkouts": "Semua Latihan"
+  },
+  "activeProgram": {
+    "title": "Program Aktif",
+    "weeksHomeWorkout": "$weeks minggu • Latihan di rumah",
+    "weekOf": "Minggu $current dari $total"
+  },
+  "weeklySchedule": {
+    "title": "Jadwal Mingguan",
+    "workoutCount": "$completed/$total latihan",
+    "current": "Saat Ini",
+    "weekShort": "W$n",
+    "empty": "Tidak ada sesi latihan yang dijadwalkan untuk minggu ini."
+  },
+  "emptyState": {
+    "noProgramTitle": "Belum ada program aktif",
+    "noProgramSubtitle": "Buat program untuk melihat jadwal latihan mingguanmu di sini."
+  },
+  "session": {
+    "day": "Hari $n",
+    "min": "$min mnt",
+    "status": {
+      "completed": "Selesai",
+      "readyToStart": "Hari Ini • Siap dimulai",
+      "missed": "Terlewat",
+      "locked": "Terkunci",
+      "scheduled": "Terjadwal"
+    }
+  },
+  "filter": {
+    "title": "Filter Berdasarkan Otot"
+  },
+  "categories": {
+    "all": "Semua",
+    "chest": "Dada",
+    "back": "Punggung",
+    "legs": "Kaki",
+    "core": "Perut",
+    "arms": "Lengan",
+    "shoulders": "Bahu"
+  }
+}

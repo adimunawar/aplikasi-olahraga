@@ -1,0 +1,312 @@
+import 'package:flutter/material.dart';
+
+import '../../../../i18n/strings.g.dart';
+
+class WeeklyScheduleSelector extends StatefulWidget {
+  final int selectedWeek;
+  final int currentWeek;
+  final int totalWeeks;
+  final ValueChanged<int> onWeekSelected;
+
+  const WeeklyScheduleSelector({
+    super.key,
+    required this.selectedWeek,
+    required this.currentWeek,
+    required this.totalWeeks,
+    required this.onWeekSelected,
+  });
+
+  @override
+  State<WeeklyScheduleSelector> createState() => _WeeklyScheduleSelectorState();
+}
+
+class _WeeklyScheduleSelectorState extends State<WeeklyScheduleSelector> {
+  final ScrollController _scrollController = ScrollController();
+  bool _canScrollLeft = false;
+  bool _canScrollRight = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_updateScrollButtons);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToWeek(widget.selectedWeek, animate: false);
+      _updateScrollButtons();
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant WeeklyScheduleSelector oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.selectedWeek != widget.selectedWeek) {
+      _scrollToWeek(widget.selectedWeek);
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_updateScrollButtons);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _updateScrollButtons() {
+    if (!_scrollController.hasClients) return;
+    final pos = _scrollController.position;
+    final canLeft = pos.pixels > 4;
+    final canRight = pos.pixels < (pos.maxScrollExtent - 4);
+    if (canLeft != _canScrollLeft || canRight != _canScrollRight) {
+      if (mounted) {
+        setState(() {
+          _canScrollLeft = canLeft;
+          _canScrollRight = canRight;
+        });
+      }
+    }
+  }
+
+  void _scrollToWeek(int weekNum, {bool animate = true}) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_scrollController.hasClients) return;
+      const itemWidth = 56.0; // 50 width + 6 spacing
+      final viewport = _scrollController.position.viewportDimension;
+      final targetOffset =
+          (14.0 + (weekNum - 1) * itemWidth + 25.0) - (viewport / 2);
+      final clampedOffset = targetOffset.clamp(
+        0.0,
+        _scrollController.position.maxScrollExtent,
+      );
+
+      if (animate) {
+        _scrollController.animateTo(
+          clampedOffset,
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeInOut,
+        );
+      } else {
+        _scrollController.jumpTo(clampedOffset);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Translations.of(context);
+
+    return Container(
+      height: 74,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 1.2),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x06000000),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // 1. Horizontal Scrollable List of Weeks
+          NotificationListener<ScrollMetricsNotification>(
+            onNotification: (notification) {
+              _updateScrollButtons();
+              return false;
+            },
+            child: NotificationListener<ScrollNotification>(
+              onNotification: (notification) {
+                _updateScrollButtons();
+                return false;
+              },
+              child: ListView.separated(
+                controller: _scrollController,
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                itemCount: widget.totalWeeks,
+                separatorBuilder: (_, __) => const SizedBox(width: 6),
+                itemBuilder: (context, index) {
+                  final weekNum = index + 1;
+                  final isSelected = weekNum == widget.selectedWeek;
+                  final isCurrent = weekNum == widget.currentWeek;
+                  final isLocked = weekNum > widget.currentWeek;
+
+                  return _buildWeekItem(
+                    t: t,
+                    weekNum: weekNum,
+                    isSelected: isSelected,
+                    isCurrent: isCurrent,
+                    isLocked: isLocked,
+                    onTap: () {
+                      widget.onWeekSelected(weekNum);
+                      _scrollToWeek(weekNum);
+                    },
+                  );
+                },
+              ),
+            ),
+          ),
+
+          // 2. Floating Left Arrow Button
+          if (_canScrollLeft)
+            Positioned(
+              left: 8,
+              child: _buildNavArrow(
+                icon: Icons.chevron_left_rounded,
+                onTap: () {
+                  if (widget.selectedWeek > 1) {
+                    final prev = (widget.selectedWeek - 1).clamp(
+                      1,
+                      widget.totalWeeks,
+                    );
+                    widget.onWeekSelected(prev);
+                    _scrollToWeek(prev);
+                  } else {
+                    _scrollController.animateTo(
+                      0,
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.easeInOut,
+                    );
+                  }
+                },
+              ),
+            ),
+
+          // 3. Floating Right Arrow Button
+          if (_canScrollRight)
+            Positioned(
+              right: 8,
+              child: _buildNavArrow(
+                icon: Icons.chevron_right_rounded,
+                onTap: () {
+                  if (widget.selectedWeek < widget.totalWeeks) {
+                    final next = (widget.selectedWeek + 1).clamp(
+                      1,
+                      widget.totalWeeks,
+                    );
+                    widget.onWeekSelected(next);
+                    _scrollToWeek(next);
+                  } else {
+                    _scrollController.animateTo(
+                      _scrollController.position.maxScrollExtent,
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.easeInOut,
+                    );
+                  }
+                },
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavArrow({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white,
+            border: Border.all(color: const Color(0xFFE5E7EB), width: 1.1),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x18000000),
+                blurRadius: 6,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Center(
+            child: Icon(
+              icon,
+              size: 20,
+              color: const Color(0xFF141718),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWeekItem({
+    required Translations t,
+    required int weekNum,
+    required bool isSelected,
+    required bool isCurrent,
+    required bool isLocked,
+    required VoidCallback onTap,
+  }) {
+    final bgColor = isSelected
+        ? const Color(0xFFE4F768)
+        : const Color(0xFFF3F4F6);
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        width: 50,
+        height: 58,
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              t.workouts.weeklySchedule.weekShort(n: weekNum),
+              style: TextStyle(
+                fontSize: 13.5,
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w700,
+                color: isSelected
+                    ? const Color(0xFF141718)
+                    : const Color(0xFF4B5563),
+              ),
+            ),
+            const SizedBox(height: 3),
+            if (isCurrent)
+              Text(
+                t.workouts.weeklySchedule.current,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: isSelected
+                      ? const Color(0xFF3F6212)
+                      : const Color(0xFF15803D),
+                ),
+              )
+            else if (isLocked)
+              Icon(
+                Icons.lock_outline_rounded,
+                size: 13.5,
+                color: isSelected
+                    ? const Color(0xFF4B5563)
+                    : const Color(0xFF9CA3AF),
+              )
+            else
+              Icon(
+                Icons.check_rounded,
+                size: 14,
+                color: isSelected
+                    ? const Color(0xFF15803D)
+                    : const Color(0xFF10B981),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
