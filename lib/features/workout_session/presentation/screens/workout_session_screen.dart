@@ -701,7 +701,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
           onPressed: () => context.pop(),
         ),
         title: Text(
-          '${sessionState.currentExerciseIndex + 1} of \$_totalExercises',
+          '${sessionState.currentExerciseIndex + 1} of $_totalExercises',
           style: AppTypography.labelLarge.copyWith(
             color: AppColors.darkCharcoal,
             fontWeight: FontWeight.w800,
