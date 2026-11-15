@@ -59,5 +59,6 @@
   "rirBadgeModerate": "Sedang",
   "rirBadgeEasy": "Ringan",
   "saveAndStartRest": "Simpan & Mulai Istirahat",
-  "restSecondsValue": "$seconds dtk"
+  "restSecondsValue": "$seconds dtk",
+  "durationMinutesValue": "$value menit"
 }
