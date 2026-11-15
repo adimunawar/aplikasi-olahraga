@@ -569,6 +569,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
       final sets = await AppDatabase.instance.getSetsForSession(
         result.sessionId,
       );
+      if (!mounted) return;
       completedExercisesCount = sets.map((s) => s.exerciseId).toSet().length;
     }
 
@@ -576,6 +577,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
         ? '$completedExercisesCount / $_totalExercises'
         : '$_totalExercises / $_totalExercises';
 
+    if (!mounted) return;
     context.pushReplacement(
       AppRoutes.workoutSummary,
       extra: WorkoutSummaryArgs(
