@@ -300,6 +300,7 @@ class Translations$workoutSession$id {
 
   String restSecondsValue({required Object seconds}) => '${seconds} dtk';
   String durationMinutesValue({required Object value}) => '${value} menit';
+  String get savingSession => 'Menyimpan sesi latihan...';
 }
 
 // Path: core.actions
@@ -1944,6 +1945,7 @@ extension on Translations {
       'workoutSession.saveAndStartRest' => 'Simpan & Mulai Istirahat',
       'workoutSession.restSecondsValue' => ({required Object seconds}) => '${seconds} dtk',
       'workoutSession.durationMinutesValue' => ({required Object value}) => '${value} menit',
+      'workoutSession.savingSession' => 'Menyimpan sesi latihan...',
       _ => null,
     };
   }
