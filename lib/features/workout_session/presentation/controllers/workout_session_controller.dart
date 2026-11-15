@@ -373,11 +373,47 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
     }
   }
 
-  /// Reset timer pada set yang sedang aktif
+  /// Reset countdown while the session is in its rest phase.
   void resetCurrentSetTimer() {
     state = state.copyWith(
+      phase: WorkoutSessionPhase.resting,
       remainingRestSeconds: state.defaultRestSeconds,
       isTimerPaused: false,
+    );
+  }
+
+  /// Start the rest phase after the set has been saved and the next position
+  /// has been selected.
+  void startRest() {
+    final seconds = state.defaultRestSeconds.clamp(0, 600);
+    state = state.copyWith(
+      phase: seconds == 0
+          ? WorkoutSessionPhase.active
+          : WorkoutSessionPhase.resting,
+      remainingRestSeconds: seconds,
+      isTimerPaused: false,
+    );
+  }
+
+  /// Return to the active exercise immediately.
+  void skipRest() {
+    state = state.copyWith(
+      phase: WorkoutSessionPhase.active,
+      remainingRestSeconds: 0,
+      isTimerPaused: false,
+    );
+  }
+
+  /// Add or subtract rest time without affecting elapsed workout time.
+  void adjustRestSeconds(int delta) {
+    if (state.phase != WorkoutSessionPhase.resting) return;
+    final adjusted = (state.remainingRestSeconds + delta).clamp(0, 600);
+    state = state.copyWith(
+      remainingRestSeconds: adjusted,
+      phase: adjusted == 0
+          ? WorkoutSessionPhase.active
+          : WorkoutSessionPhase.resting,
+      isTimerPaused: adjusted == 0 ? false : state.isTimerPaused,
     );
   }
 
@@ -418,26 +454,27 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
     }
   }
 
-  /// Menghitung detik berjalan untuk durasi latihan dan countdown timer istirahat
-  /// (TIDAK BOLEH auto-advance atau auto-finish sendiri agar user punya kontrol penuh)
+  /// Advance active workout time. The rest countdown only advances while
+  /// the session is explicitly in the resting phase.
   bool tickTimer({required int totalExercises}) {
     if (!state.isSessionReady || state.isTimerPaused) return false;
 
     final newElapsed = state.elapsedWorkoutSeconds + 1;
-
-    if (state.remainingRestSeconds > 0) {
+    if (state.phase == WorkoutSessionPhase.resting) {
+      final remaining = (state.remainingRestSeconds - 1).clamp(0, 600);
       state = state.copyWith(
-        remainingRestSeconds: state.remainingRestSeconds - 1,
+        remainingRestSeconds: remaining,
         elapsedWorkoutSeconds: newElapsed,
+        phase: remaining == 0
+            ? WorkoutSessionPhase.active
+            : WorkoutSessionPhase.resting,
+        isTimerPaused: remaining == 0 ? false : state.isTimerPaused,
       );
     } else {
-      // Countdown istirahat habis: durasi total latihan tetap bertambah,
-      // namun TIDAK melompat otomatis ke set/gerakan berikutnya.
       state = state.copyWith(elapsedWorkoutSeconds: newElapsed);
     }
 
-    // Persist waktu aktif berkala agar resume menghitung durasi dari
-    // progres nyata, bukan selisih wall-clock sejak sesi dibuat.
+    // Persist elapsed workout time (including deliberate rest intervals).
     final id = _sessionId;
     if (id != null && newElapsed % _elapsedPersistEverySeconds == 0) {
       unawaited(
