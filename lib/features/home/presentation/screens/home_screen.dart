@@ -69,7 +69,12 @@ class HomeScreen extends ConsumerWidget {
       if (day != null && !day.isRest) {
         await context.push(
           AppRoutes.workoutSession,
-          extra: WorkoutSessionArgs(day: day, exercises: state.todayExercises),
+          extra: WorkoutSessionArgs(
+            day: day,
+            exercises: state.todayExercises,
+            programId: state.activeProgram?.id,
+            scheduledDate: DateTime.now(),
+          ),
         );
         controller.refresh();
       } else {
@@ -89,6 +94,8 @@ class HomeScreen extends ConsumerWidget {
             targetMusclesText: state.targetMuscles,
             durationText: '${state.sessionDurationMinutes} min',
             levelText: state.userProfile?.experienceLevel ?? 'Beginner',
+            programId: state.activeProgram?.id,
+            scheduledDate: DateTime.now(),
           ),
         );
         controller.refresh();

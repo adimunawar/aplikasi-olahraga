@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
+import '../utils/media_url_resolver.dart';
 
 /// AppSmartImage: Widget Global Reusable untuk rendering gambar fleksibel (DRY Principle).
 ///
@@ -65,11 +66,12 @@ class AppSmartImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget content;
-    final path = imagePathOrUrl?.trim() ?? '';
+    final path = MediaUrlResolver.resolve(imagePathOrUrl)?.trim() ?? '';
+    final isNetwork = path.startsWith('http://') || path.startsWith('https://');
 
     if (path.isEmpty) {
       content = _buildFallback();
-    } else if (_isNetwork) {
+    } else if (isNetwork) {
       content = Image.network(
         path,
         width: width,

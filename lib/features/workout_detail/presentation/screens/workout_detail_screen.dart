@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:workout_app/core/database/models/dynamic_program_entity.dart';
+
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -81,6 +82,9 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
 
   Future<void> _loadWorkoutData() async {
     try {
+      // Ambil data exercise langsung dari Supabase
+      await _exerciseRepo.getExercises();
+
       final List<WorkoutDetailExerciseData> list = [];
       final db = AppDatabase.instance;
       final profile = await db.getUserProfile();
@@ -133,7 +137,9 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                 return WorkoutItem(
                   exerciseId: item.exercise.id,
                   sets: prescription.targetSets,
-                  reps: isDuration ? prescription.maxReps : prescription.minReps,
+                  reps: isDuration
+                      ? prescription.maxReps
+                      : prescription.minReps,
                   durationSec: isDuration ? prescription.maxReps : null,
                   restSeconds: prescription.restSeconds,
                   isMain: prescription.stage == 'main',
@@ -448,9 +454,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                           if (_exercises.isEmpty)
                             _buildEmptyExercisesState()
                           else
-                            WorkoutExerciseListSection(
-                              exercises: _exercises,
-                            ),
+                            WorkoutExerciseListSection(exercises: _exercises),
                         ],
                       ),
                     ),
@@ -596,10 +600,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
     );
   }
 
-  Widget _buildWorkoutMeta({
-    required IconData icon,
-    required String label,
-  }) {
+  Widget _buildWorkoutMeta({required IconData icon, required String label}) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -701,7 +702,8 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
   }
 
   void _startActiveWorkout() {
-    final calculatedWeek = widget.weekNumber ?? ((widget.dayNumber - 1) ~/ 7 + 1);
+    final calculatedWeek =
+        widget.weekNumber ?? ((widget.dayNumber - 1) ~/ 7 + 1);
     final programDay =
         _loadedProgramDay?.copyWith(week: calculatedWeek) ??
         ProgramDay(
@@ -736,8 +738,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
         activeSessionId: widget.activeSessionId,
         prescriptions: {
           for (final data in _exercises)
-            if (data.prescription != null)
-              data.exercise.id: data.prescription!,
+            if (data.prescription != null) data.exercise.id: data.prescription!,
         },
       ),
     );

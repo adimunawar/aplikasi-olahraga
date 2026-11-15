@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../../domain/models/exercise.dart';
 import '../../domain/repositories/exercise_repository.dart';
 import '../datasources/exercise_local_datasource.dart';
@@ -17,17 +19,59 @@ class ExerciseRepositoryImpl implements ExerciseRepository {
 
   @override
   Future<List<Exercise>> getExercises() async {
-    // 1. Ambil data langsung dari SQLite lokal (instan, 100% offline-first)
-    final localList = await _datasource.loadExercises();
+    // 1. Ambil data LANGSUNG dari Supabase Cloud
+    try {
+      debugPrint(
+        '[ExerciseRepositoryImpl] 🚀 Memulai fetch langsung dari Supabase...',
+      );
+      final cloudEntities = await _remoteDatasource.fetchExercisesFromCloud();
+      debugPrint(
+        '[ExerciseRepositoryImpl] 📥 Total dari Supabase: ${cloudEntities.length} items',
+      );
 
-    // 2. Sinkronkan dengan Supabase di background tanpa memblokir UI
-    _syncInBackground();
+      if (cloudEntities.isNotEmpty) {
+        // Filter khusus push-up untuk pengecekan data & log
+        final pushUps = cloudEntities
+            .where(
+              (e) =>
+                  e.id.toLowerCase().contains('push') ||
+                  e.nameId.toLowerCase().contains('push') ||
+                  e.nameEn.toLowerCase().contains('push'),
+            )
+            .toList();
 
-    return localList;
-  }
+        debugPrint('====================================================');
+        debugPrint(
+          '[ExerciseRepositoryImpl] 🔎 LOG KHUSUS PUSH-UP DARI SUPABASE:',
+        );
+        if (pushUps.isEmpty) {
+          debugPrint('  ⚠️ Tidak ada item yang mengandung kata "push"');
+        } else {
+          for (final ex in pushUps) {
+            debugPrint('  📌 ID           : "${ex.id}"');
+            debugPrint('     Name         : "${ex.nameId}" / "${ex.nameEn}"');
+            debugPrint('     video_url    : "${ex.videoUrl}"');
+            debugPrint('     startPose    : "${ex.startPoseAsset}"');
+            debugPrint('     endPose      : "${ex.endPoseAsset}"');
+            debugPrint('     trackingType : "${ex.trackingType}"');
+          }
+        }
+        debugPrint('====================================================');
 
-  void _syncInBackground() {
-    _remoteDatasource.syncWithLocal(_datasource).catchError((_) => false);
+        await _datasource.saveExercisesFromCloud(cloudEntities);
+        return cloudEntities.map((e) => e.toDomain()).toList();
+      }
+    } catch (e, stack) {
+      debugPrint(
+        '[ExerciseRepositoryImpl] ❌ Error saat fetch Supabase: $e\n$stack',
+      );
+    }
+
+    // 2. Fallback ke SQLite lokal hanya jika Supabase gagal/offline
+    debugPrint(
+      '[ExerciseRepositoryImpl] ⚠️ Memakai fallback data SQLite lokal.',
+    );
+    return _datasource.loadExercises();
   }
 
   @override
@@ -41,7 +85,9 @@ class ExerciseRepositoryImpl implements ExerciseRepository {
   }
 
   @override
-  Future<List<Exercise>> getExercisesByCategory(ExerciseCategory category) async {
+  Future<List<Exercise>> getExercisesByCategory(
+    ExerciseCategory category,
+  ) async {
     final list = await getExercises();
     return list.where((e) => e.category == category).toList();
   }

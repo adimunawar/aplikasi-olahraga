@@ -96,6 +96,7 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
           _isSameDate(existing.scheduledDate, scheduledDate);
 
       if (existing != null && !canReuse) {
+        state = state.copyWith(isPreparing: false);
         return SessionConflict(
           existingSessionId: existing.id,
           existingProgramId: existing.programId,

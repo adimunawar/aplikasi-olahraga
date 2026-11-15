@@ -185,6 +185,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         extra: WorkoutSessionArgs(
                           day: day,
                           exercises: resolvedExercises,
+                          scheduledDate: DateTime.now(),
                         ),
                       );
                     },

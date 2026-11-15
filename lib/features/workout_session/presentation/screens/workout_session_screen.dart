@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_snack_bar.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -67,7 +68,12 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
     // Jaga layar tetap menyala saat latihan berlangsung
     WakelockPlus.enable();
     // Timer & kontrol workout hanya aktif SETELAH persiapan sesi selesai.
-    _prepareSession();
+    // Menjalankan di postFrameCallback memastikan build() sudah memanggil
+    // ref.watch sehingga controller autoDispose tidak di-dispose prematur,
+    // serta context navigator siap untuk menampilkan dialog jika ada konflik.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _prepareSession();
+    });
   }
 
   @override
@@ -107,7 +113,8 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
                 .map(
                   (item) => WorkoutExercisePrescription.fromWorkoutItem(
                     item,
-                    trackingType: _findExercise(item.exerciseId)?.trackingType ??
+                    trackingType:
+                        _findExercise(item.exerciseId)?.trackingType ??
                         TrackingType.reps,
                   ),
                 )
@@ -118,27 +125,31 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
   /// Membuat record in_progress atau memulihkan sesi yang sudah berjalan,
   /// sehingga user tidak mengulang latihan dari awal setelah aplikasi tertutup.
   Future<void> _prepareSession() async {
-    final notifier = ref.read(workoutSessionControllerProvider.notifier);
+    try {
+      final notifier = ref.read(workoutSessionControllerProvider.notifier);
 
-    final result = await notifier.prepareSession(
-      programId: widget.programId ?? 'upper_body_strength',
-      dayNumber: widget.day.day,
-      programTitle: _programTitle,
-      scheduledDate: widget.scheduledDate ?? DateTime.now(),
-      exerciseIds: widget.exercises.map((exercise) => exercise.id).toList(),
-      prescriptions: _buildPrescriptions(),
-      resumeSessionId: widget.activeSessionId,
-    );
+      final result = await notifier.prepareSession(
+        programId: widget.programId ?? 'upper_body_strength',
+        dayNumber: widget.day.day,
+        programTitle: _programTitle,
+        scheduledDate: widget.scheduledDate ?? DateTime.now(),
+        exerciseIds: widget.exercises.map((exercise) => exercise.id).toList(),
+        prescriptions: _buildPrescriptions(),
+        resumeSessionId: widget.activeSessionId,
+      );
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    switch (result) {
-      case SessionPrepared():
-        _startTimer();
-      case SessionConflict():
-        await _handleConflictingSession(result);
-      case SessionPreparationFailed():
-        break; // State sudah berisi error; UI menampilkan tombol retry.
+      switch (result) {
+        case SessionPrepared():
+          _startTimer();
+        case SessionConflict():
+          await _handleConflictingSession(result);
+        case SessionPreparationFailed():
+          break; // State sudah berisi error; UI menampilkan tombol retry.
+      }
+    } catch (e, stack) {
+      debugPrint('[WorkoutSessionScreen] Error in _prepareSession: $e\n$stack');
     }
   }
 
@@ -215,8 +226,12 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
       if (result is SessionPrepared) {
         _startTimer();
       }
-      // Gagal: state berisi error, UI menampilkan tombol retry.
+      return;
     }
+
+    // Jika user menutup dialog tanpa memilih opsi (misal back button Android),
+    // kembali ke halaman sebelumnya agar tidak stuck di loading overlay.
+    context.pop();
   }
 
   @override
@@ -264,46 +279,40 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
       isDuration: isDuration,
       targetDurationSeconds: prescription.targetDurationSeconds,
       initialValue: actualValue,
-      onConfirm: ({
-        actualReps,
-        durationSeconds,
-        required rir,
-        required formScore,
-      }) async {
-        final saved = await controller.recordSetPerformance(
-          exerciseId: currentExercise.id,
-          setNumber: state.currentSet,
-          actualReps: isDuration ? null : actualReps,
-          targetReps: isDuration ? null : prescription.maxReps,
-          durationSeconds: isDuration ? durationSeconds : null,
-          rir: rir,
-          formScore: formScore,
-        );
-        if (!mounted) return;
-
-        if (!saved) {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              const SnackBar(
-                content: Text(t.workoutSession.saveSetFailed),
-                behavior: SnackBarBehavior.floating,
-              ),
+      onConfirm:
+          ({
+            actualReps,
+            durationSeconds,
+            required rir,
+            required formScore,
+          }) async {
+            final saved = await controller.recordSetPerformance(
+              exerciseId: currentExercise.id,
+              setNumber: state.currentSet,
+              actualReps: isDuration ? null : actualReps,
+              targetReps: isDuration ? null : prescription.maxReps,
+              durationSeconds: isDuration ? durationSeconds : null,
+              rir: rir,
+              formScore: formScore,
             );
-          return;
-        }
+            if (!mounted) return;
 
-        final isFinished = controller.nextPressed(
-          totalExercises: _totalExercises,
-        );
+            if (!saved) {
+              AppSnackBar.showError(context, t.workoutSession.saveSetFailed);
+              return;
+            }
 
-        if (isFinished) {
-          _timer?.cancel();
-          _showWorkoutCompleteCelebrationModal();
-        } else {
-          controller.startRest();
-        }
-      },
+            final isFinished = controller.nextPressed(
+              totalExercises: _totalExercises,
+            );
+
+            if (isFinished) {
+              _timer?.cancel();
+              _showWorkoutCompleteCelebrationModal();
+            } else {
+              controller.startRest();
+            }
+          },
     );
   }
 
@@ -350,7 +359,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
                     child: Icon(
                       Icons.emoji_events_rounded,
                       size: 34,
-                      color: Color(0xFF84CC16),
+                      color: AppColors.primary,
                     ),
                   ),
                 ),
@@ -396,7 +405,9 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
                       _buildMiniStat(
                         icon: Icons.access_time_rounded,
                         label: t.workoutSession.durationLabel,
-                        value: t.workoutSession.durationMinutesValue(value: durationMin),
+                        value: t.workoutSession.durationMinutesValue(
+                          value: durationMin,
+                        ),
                       ),
                       Container(
                         width: 1,
@@ -406,7 +417,9 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
                       _buildMiniStat(
                         icon: Icons.fitness_center_rounded,
                         label: t.workoutSession.exerciseLabel,
-                        value: t.workoutSession.exerciseCount(count: _totalExercises),
+                        value: t.workoutSession.exerciseCount(
+                          count: _totalExercises,
+                        ),
                       ),
                       Container(
                         width: 1,
@@ -416,7 +429,9 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
                       _buildMiniStat(
                         icon: Icons.check_circle_rounded,
                         label: t.workoutSession.totalSetsLabel,
-                        value: t.workoutSession.totalSetsCount(count: totalSetsDone),
+                        value: t.workoutSession.totalSetsCount(
+                          count: totalSetsDone,
+                        ),
                       ),
                     ],
                   ),
@@ -768,11 +783,13 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
                       ),
                       const SizedBox(height: 18),
                       ActiveWorkoutVideoCard(
-                        imageAsset: exercise.media.startPose.isNotEmpty
-                            ? exercise.media.startPose
-                            : 'assets/images/Detail Gerakan.png',
+                        videoUrl: exercise.resolvedVideoUrl,
+                        imageAsset: exercise.resolvedImageUrl,
                         onFullscreen: () {
-                          context.push(AppRoutes.exerciseDetail, extra: exercise);
+                          context.push(
+                            AppRoutes.exerciseDetail,
+                            extra: exercise,
+                          );
                         },
                       ),
                       const SizedBox(height: 28),
@@ -881,33 +898,15 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
         top: false,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 10, 20, 14),
-          child: SizedBox(
-            height: 54,
-            child: ElevatedButton.icon(
-              onPressed: sessionState.isSessionReady &&
-                      !sessionState.isSaving
-                  ? () => _onNextPressed(_currentSetValue == 0
-                      ? targetValue
-                      : _currentSetValue)
-                  : null,
-              icon: const Icon(Icons.check_rounded, size: 20),
-              label: Text(
-                t.workoutSession.completeSet,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.limeAccent,
-                foregroundColor: AppColors.darkCharcoal,
-                disabledBackgroundColor: AppColors.neutral200,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-              ),
-            ),
+          child: AppButton.primary(
+            text: t.workoutSession.completeSet,
+            icon: Icons.check_rounded,
+            isLoading: sessionState.isSaving,
+            onPressed: sessionState.isSessionReady && !sessionState.isSaving
+                ? () => _onNextPressed(
+                    _currentSetValue == 0 ? targetValue : _currentSetValue,
+                  )
+                : null,
           ),
         ),
       ),
@@ -959,5 +958,4 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
       ),
     );
   }
-
 }
