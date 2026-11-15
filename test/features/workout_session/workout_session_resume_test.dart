@@ -473,6 +473,92 @@ void main() {
       );
     });
 
+    test('active phase does not consume the rest countdown', () async {
+      await controller().prepareSession(
+        programId: 'program_1',
+        dayNumber: 1,
+        programTitle: 'Upper Body',
+        scheduledDate: today,
+        exerciseIds: const ['a'],
+        prescriptions: const {
+          'a': WorkoutExercisePrescription(restSeconds: 45),
+        },
+      );
+
+      controller().tickTimer(totalExercises: 1);
+
+      final state = container.read(workoutSessionControllerProvider);
+      expect(state.phase, WorkoutSessionPhase.active);
+      expect(state.elapsedWorkoutSeconds, 1);
+      expect(state.remainingRestSeconds, 45);
+    });
+
+    test('rest phase counts down and returns to active at zero', () async {
+      await controller().prepareSession(
+        programId: 'program_1',
+        dayNumber: 1,
+        programTitle: 'Upper Body',
+        scheduledDate: today,
+        exerciseIds: const ['a'],
+        prescriptions: const {
+          'a': WorkoutExercisePrescription(restSeconds: 2),
+        },
+      );
+
+      controller().startRest();
+      expect(
+        container.read(workoutSessionControllerProvider).phase,
+        WorkoutSessionPhase.resting,
+      );
+
+      controller().tickTimer(totalExercises: 1);
+      expect(
+        container.read(workoutSessionControllerProvider).remainingRestSeconds,
+        1,
+      );
+      expect(
+        container.read(workoutSessionControllerProvider).phase,
+        WorkoutSessionPhase.resting,
+      );
+
+      controller().tickTimer(totalExercises: 1);
+      final state = container.read(workoutSessionControllerProvider);
+      expect(state.phase, WorkoutSessionPhase.active);
+      expect(state.remainingRestSeconds, 0);
+      expect(state.elapsedWorkoutSeconds, 2);
+    });
+
+    test('rest controls adjust time and skip back to active workout', () async {
+      await controller().prepareSession(
+        programId: 'program_1',
+        dayNumber: 1,
+        programTitle: 'Upper Body',
+        scheduledDate: today,
+        exerciseIds: const ['a'],
+        prescriptions: const {
+          'a': WorkoutExercisePrescription(restSeconds: 20),
+        },
+      );
+
+      controller().startRest();
+      controller().adjustRestSeconds(-10);
+      expect(
+        container.read(workoutSessionControllerProvider).remainingRestSeconds,
+        10,
+      );
+
+      controller().adjustRestSeconds(10);
+      expect(
+        container.read(workoutSessionControllerProvider).remainingRestSeconds,
+        20,
+      );
+
+      controller().skipRest();
+      final state = container.read(workoutSessionControllerProvider);
+      expect(state.phase, WorkoutSessionPhase.active);
+      expect(state.remainingRestSeconds, 0);
+    });
+
     test('elapsed time persists periodically via repository', () async {
       await controller().prepareSession(
         programId: 'program_1',
