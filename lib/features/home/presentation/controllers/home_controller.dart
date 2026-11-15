@@ -87,11 +87,20 @@ class HomeController extends StateNotifier<HomeState> {
     required DateTime targetDate,
     required int totalWeeks,
   }) {
-    return ProgramWeekSchedule.currentWeek(
-      programStartDate: startDate,
-      today: targetDate,
-      totalWeeks: totalWeeks,
+    final startDay = DateTime(startDate.year, startDate.month, startDate.day);
+    final currentDay = DateTime(
+      targetDate.year,
+      targetDate.month,
+      targetDate.day,
     );
+
+    if (currentDay.isBefore(startDay)) {
+      return 1;
+    }
+
+    final daysElapsed = currentDay.difference(startDay).inDays;
+    final weekNumber = (daysElapsed ~/ 7) + 1;
+    return weekNumber.clamp(1, totalWeeks > 0 ? totalWeeks : 12);
   }
 
   String _formatDayShortEn(int weekday) {
@@ -124,22 +133,39 @@ class HomeController extends StateNotifier<HomeState> {
         return;
       }
 
-      if (state.userProfile == null) {
-        state = state.copyWith(isLoading: true, errorType: HomeErrorType.none);
+      final targetWeekly = profile.weeklyFrequency > 0
+          ? profile.weeklyFrequency
+          : (profile.preferredDaysPerWeek > 0
+                ? profile.preferredDaysPerWeek
+                : 3);
+
+      // 2. Program Latihan Aktif
+      final userId = profile.id.isNotEmpty ? profile.id : 'default_user';
+      var activeProgram = await _db.getActiveTrainingProgram(userId);
+      activeProgram ??= await _db.getActiveTrainingProgram('default_user');
+
+      List<ProgramSessionEntity> sessions = [];
+      if (activeProgram != null) {
+        sessions = await _db.getProgramSessions(activeProgram.id);
       }
 
-      try {
-        var profile = await _db.getUserProfile();
+      // Auto-heal / Generate Dynamic Program jika belum ada
+      if (activeProgram == null ||
+          sessions.isEmpty ||
+          sessions.length != targetWeekly) {
+        try {
+          final catalog = await _exerciseDatasource.loadExercises();
+          final startingPushId = profile.experienceLevel == 'advanced'
+              ? 'diamond_push_up'
+              : profile.experienceLevel == 'intermediate'
+              ? 'push_up'
+              : 'knee_push_up';
 
-        String goalLabel = 'Gain Weight & Build Muscle';
-        final goal = profile.goal.toLowerCase();
-        if (goal.contains('fat') ||
-            goal.contains('weight_loss') ||
-            goal.contains('cut')) {
-          goalLabel = 'Fat Loss & Conditioning';
-        } else if (goal.contains('maintain') || goal.contains('fit')) {
-          goalLabel = 'Maintain & Stay Fit';
-        }
+          final generated = _programGenerator.generate(
+            userProfile: profile,
+            catalogExercises: catalog,
+            startingPushExerciseId: startingPushId,
+          );
 
         final configuredFrequency = profile.weeklyFrequency > 0
             ? profile.weeklyFrequency
@@ -304,21 +330,24 @@ class HomeController extends StateNotifier<HomeState> {
           );
         }
 
-        final isCompletedToday =
-            todayScheduled != null &&
-            programWorkoutHistory.any((session) {
-              return session.programDayId == todayScheduled.session.dayNumber &&
-                  session.status == WorkoutSessionStatus.completed &&
-                  ProgramWeekSchedule.dateOnly(session.scheduledDate) == today;
-            });
+      final isRestDay = !isScheduledTrainingDay && !isCompletedToday;
 
-        final isScheduledTrainingDay = todayScheduled != null;
-        final isRestDay = !isScheduledTrainingDay && !isCompletedToday;
+      // 6. Data 7 Hari Mingguan dengan 5 Status Presisi
+      final List<DayProgressData> daysList = [];
+      for (int i = 0; i < 7; i++) {
+        final date = monday.add(Duration(days: i));
+        final isToday =
+            date.year == now.year &&
+            date.month == now.month &&
+            date.day == now.day;
+        final isPast = date.isBefore(DateTime(now.year, now.month, now.day));
 
-        // Calendar follows the active program's weekly cycle.
-        final calendarWeekStart = ProgramWeekSchedule.startDateForWeek(
-          programStartDate: programStartDate,
-          weekNumber: currentWeek,
+        final isCompleted = recentSessions.any(
+          (s) =>
+              s.status == WorkoutSessionStatus.completed &&
+              s.startedAt.year == date.year &&
+              s.startedAt.month == date.month &&
+              s.startedAt.day == date.day,
         );
 
         // Use the same schedule engine as today's workout.
@@ -419,12 +448,41 @@ class HomeController extends StateNotifier<HomeState> {
           errorMessage: 'Database load error: $e',
         );
       }
-    } finally {
-      _isLoadingHomeData = false;
-      if (_reloadRequested) {
-        _reloadRequested = false;
-        await loadHomeData(forceReload: true);
-      }
+
+      final workoutCardState = activeProgram == null
+          ? WorkoutCardState.noProgram
+          : isCompletedToday
+          ? WorkoutCardState.completed
+          : (isRestDay ? WorkoutCardState.restDay : WorkoutCardState.active);
+
+      state = state.copyWith(
+        isLoading: false,
+        errorType: HomeErrorType.none,
+        userProfile: profile,
+        activeProgram: activeProgram,
+        todayProgram: programDay,
+        todayExercises: todayExercises,
+        programTitle: goalLabel,
+        sessionFocus: focusLabel,
+        targetMuscles: musclesLabel,
+        sessionDurationMinutes: sessionDuration,
+        estimatedCalories: calories,
+        currentWeek: currentWeek,
+        totalWeeks: totalWeeks,
+        weeklyDays: daysList,
+        workoutCardState: workoutCardState,
+        hasProgram: activeProgram != null,
+        isTodayRestDay: isRestDay,
+        isCompletedToday: isCompletedToday,
+        lastLoadedAt: now,
+      );
+    } catch (e) {
+      debugPrint('[HomeController] Database / load error: $e');
+      state = state.copyWith(
+        isLoading: false,
+        errorType: HomeErrorType.database,
+        errorMessage: 'Database load error: $e',
+      );
     }
   }
 
