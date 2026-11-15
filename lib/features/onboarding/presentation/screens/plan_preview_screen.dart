@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/models/user_profile_entity.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../features/workout_session/domain/models/exercise_prescription.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -287,6 +288,12 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
               day: programDay,
               exercises: exercises,
               programId: draft.program.id,
+              prescriptions: {
+                for (final e in firstSession.exercises)
+                  e.exercise.id: WorkoutExercisePrescription.fromProgramExercise(
+                    e.prescription,
+                  ),
+              },
             ),
           );
         }

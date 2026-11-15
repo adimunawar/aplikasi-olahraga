@@ -8,6 +8,7 @@ import '../../../../core/database/models/body_measurement_entity.dart';
 import '../../../../core/database/models/dynamic_program_entity.dart';
 import '../../../../core/database/models/user_profile_entity.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../features/workout_session/domain/models/exercise_prescription.dart';
 import '../../../../core/services/app_data_sync.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -714,7 +715,16 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
 
     await context.push(
       AppRoutes.workoutSession,
-      extra: WorkoutSessionArgs(day: programDay, exercises: exercises),
+      extra: WorkoutSessionArgs(
+        day: programDay,
+        exercises: exercises,
+        prescriptions: {
+          for (final e in s.detail.exercises)
+            e.exercise.id: WorkoutExercisePrescription.fromProgramExercise(
+              e.prescription,
+            ),
+        },
+      ),
     );
     if (mounted) {
       _loadPlanData();

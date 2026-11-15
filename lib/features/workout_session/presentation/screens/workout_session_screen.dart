@@ -14,6 +14,7 @@ import '../../../exercises/domain/models/exercise.dart';
 import '../../../program/domain/models/program_day.dart';
 import '../controllers/workout_session_controller.dart';
 import '../controllers/workout_session_state.dart';
+import '../../domain/models/exercise_prescription.dart';
 import '../widgets/active_workout_header.dart';
 import '../widgets/active_workout_video_card.dart';
 import '../widgets/active_exercise_info_header.dart';
@@ -36,6 +37,9 @@ class WorkoutSessionScreen extends ConsumerStatefulWidget {
   /// Sesi in_progress yang harus dilanjutkan.
   final String? activeSessionId;
 
+  /// Preskripsi per exerciseId (target set, reps, rest).
+  final Map<String, WorkoutExercisePrescription> prescriptions;
+
   const WorkoutSessionScreen({
     super.key,
     required this.day,
@@ -43,6 +47,7 @@ class WorkoutSessionScreen extends ConsumerStatefulWidget {
     this.programId,
     this.scheduledDate,
     this.activeSessionId,
+    this.prescriptions = const {},
   });
 
   @override
@@ -50,16 +55,50 @@ class WorkoutSessionScreen extends ConsumerStatefulWidget {
       _WorkoutSessionScreenState();
 }
 
-class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
+class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
+    with WidgetsBindingObserver {
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
+    // Persist waktu aktif saat aplikasi berpindah ke background/tertutup.
+    WidgetsBinding.instance.addObserver(this);
     // Jaga layar tetap menyala saat latihan berlangsung
     WakelockPlus.enable();
     // Timer & kontrol workout hanya aktif SETELAH persiapan sesi selesai.
     _prepareSession();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden) {
+      // Simpan akumulasi waktu aktif sebelum sesi "hilang" dari latar depan.
+      ref.read(workoutSessionControllerProvider.notifier).persistElapsedNow();
+    }
+  }
+
+  /// Preskripsi per exercise: mulai dari ProgramDay.items (sets/reps/rest),
+  /// lalu timpa dengan preskripsi eksplisit dari args yang lebih akurat
+  /// (punya rentang min/max reps).
+  Map<String, WorkoutExercisePrescription> _buildPrescriptions() {
+    final map = <String, WorkoutExercisePrescription>{
+      for (final item in widget.day.items)
+        item.exerciseId: WorkoutExercisePrescription.fromWorkoutItem(item),
+    };
+    map.addAll(widget.prescriptions);
+    return map;
+  }
+
+  WorkoutExercisePrescription _prescriptionFor(String exerciseId) {
+    return widget.prescriptions[exerciseId] ??
+        (widget.day.items
+            .where((item) => item.exerciseId == exerciseId)
+            .map(WorkoutExercisePrescription.fromWorkoutItem)
+            .firstOrNull ??
+        const WorkoutExercisePrescription());
   }
 
   /// Membuat record in_progress atau memulihkan sesi yang sudah berjalan,
@@ -73,6 +112,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
       programTitle: _programTitle,
       scheduledDate: widget.scheduledDate ?? DateTime.now(),
       exerciseIds: widget.exercises.map((exercise) => exercise.id).toList(),
+      prescriptions: _buildPrescriptions(),
       resumeSessionId: widget.activeSessionId,
     );
 
@@ -127,9 +167,21 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
     final notifier = ref.read(workoutSessionControllerProvider.notifier);
 
     if (choice == 'resume') {
-      // Kembali ke layar sebelumnya; sesi lama tetap in_progress dan bisa
-      // dilanjutkan dari card Workouts.
-      context.pop();
+      // Ganti layar ini dengan detail sesi LAMA: tombolnya jadi "Lanjutkan
+      // Latihan" (activeSessionId) sehingga sesi lama benar-benar dilanjutkan,
+      // bukan sekadar menutup layar.
+      context.pushReplacement(
+        AppRoutes.workoutDetail,
+        extra: WorkoutDetailArgs(
+          dayNumber: conflict.existingDayNumber,
+          programId: conflict.existingProgramId,
+          weekDayText: 'Hari ${conflict.existingDayNumber}',
+          workoutTitle: conflict.existingProgramTitle,
+          targetMusclesText: conflict.existingProgramTitle,
+          scheduledDate: conflict.existingScheduledDate,
+          activeSessionId: conflict.existingSessionId,
+        ),
+      );
       return;
     }
 
@@ -141,6 +193,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
         programTitle: _programTitle,
         scheduledDate: widget.scheduledDate ?? DateTime.now(),
         exerciseIds: widget.exercises.map((exercise) => exercise.id).toList(),
+        prescriptions: _buildPrescriptions(),
       );
       if (!mounted) return;
       if (result is SessionPrepared) {
@@ -152,6 +205,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
     WakelockPlus.disable();
     super.dispose();
@@ -170,11 +224,14 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
 
   Future<void> _onNextPressed() async {
     final controller = ref.read(workoutSessionControllerProvider.notifier);
+    // Bersihkan error pencatatan sebelumnya agar user bisa mencoba lagi.
+    controller.clearError();
     // Kontrol workout terkunci sampai persiapan sesi selesai.
     if (!ref.read(workoutSessionControllerProvider).isSessionReady) return;
 
     final state = ref.read(workoutSessionControllerProvider);
     final currentExercise = _getCurrentExercise(state.currentExerciseIndex);
+    final prescription = _prescriptionFor(currentExercise.id);
 
     // Buka Bottom Sheet pencatatan set & RIR (Fase 3: RIR & Performa Nyata)
     SetCompletionRirSheet.show(
@@ -184,20 +241,36 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
       exerciseName: currentExercise.name.en.isNotEmpty
           ? currentExercise.name.en
           : currentExercise.name.id,
-      targetReps: 10,
-      restSeconds: state.defaultRestSeconds,
+      targetReps: prescription.maxReps,
+      restSeconds: prescription.restSeconds,
       onConfirm: ({required actualReps, required rir, required formScore}) async {
         // 1. Catat performa set ke controller (di-await agar tersimpan ke
         //    database sebelum maju ke set berikutnya).
-        await controller.recordSetPerformance(
+        final saved = await controller.recordSetPerformance(
               exerciseId: currentExercise.id,
               setNumber: state.currentSet,
               actualReps: actualReps,
-              targetReps: 10,
+              targetReps: prescription.maxReps,
               rir: rir,
               formScore: formScore,
             );
         if (!mounted) return;
+
+        // Gagal tersimpan: posisi TIDAK maju supaya user bisa mencatat ulang
+        // set yang sama tanpa kehilangan progres.
+        if (!saved) {
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Gagal menyimpan set. Periksa koneksi lalu coba lagi.',
+                ),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          return;
+        }
 
         // 2. Maju ke set berikutnya / gerakan berikutnya
         final isFinished = controller.nextPressed(totalExercises: _totalExercises);
@@ -573,6 +646,8 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
 
     final exercise = _getCurrentExercise(sessionState.currentExerciseIndex);
     final next = _getNextExercise(sessionState.currentExerciseIndex);
+    // Preskripsi gerakan aktif: target reps & rest yang sebenarnya.
+    final prescription = _prescriptionFor(exercise.id);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -648,12 +723,13 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // 4. Strip Metrik: Sets (1/3), Reps (8-12), Rest (60 sec)
+                // 4. Strip Metrik: Sets (per preskripsi), Reps, Rest
                 ActiveWorkoutMetricsStrip(
                   setsText:
                       '${sessionState.currentSet} / ${sessionState.totalSetsPerExercise}',
-                  repsText: '8 – 12',
-                  restText: '${sessionState.defaultRestSeconds} sec',
+                  repsText:
+                      '${prescription.minReps} – ${prescription.maxReps}',
+                  restText: '${prescription.restSeconds} sec',
                 ),
                 const SizedBox(height: 24),
 

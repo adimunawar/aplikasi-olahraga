@@ -8,6 +8,7 @@ import '../../../../core/database/models/workout_set_entity.dart';
 import '../../../plans/presentation/controllers/plans_controller.dart';
 import '../../../progress/presentation/controllers/progress_controller.dart';
 import '../../data/repositories/workout_session_repository_impl.dart';
+import '../../domain/models/exercise_prescription.dart';
 import '../../domain/models/workout_session_result.dart';
 import '../../domain/repositories/workout_session_repository.dart';
 import 'workout_session_state.dart';
@@ -35,21 +36,34 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
   final Ref _ref;
   final List<WorkoutSetEntity> _recordedSets = [];
 
-  /// Batas maksimum durasi yang dipulihkan saat resume untuk record LAMA
-  /// (sebelum kolom elapsed_seconds ada). Record baru memakai waktu aktif
-  /// yang tersimpan, bukan selisih wall-clock.
-  static const int _maxLegacyRestoredElapsedSeconds = 90 * 60;
+  /// Batas wall-clock fallback: hanya dipercaya untuk sesi yang baru saja
+  /// dibuka (mis. aplikasi tewas beberapa detik setelah mulai). Sesi yang
+  /// sudah lama berhenti tidak boleh dihitung dari selisih wall-clock.
+  static const int _maxRecentSessionFallbackSeconds = 5 * 60;
 
   /// Interval persistensi waktu aktif saat sesi berjalan.
   static const int _elapsedPersistEverySeconds = 30;
 
+  static const WorkoutExercisePrescription _defaultPrescription = WorkoutExercisePrescription();
+
   DateTime _startedAt = DateTime.now();
   String? _sessionId;
+
+  /// Urutan exercise sesi ini; kunci untuk preskripsi per exercise.
+  List<String> _exerciseIds = const [];
+
+  /// Preskripsi per exerciseId (target set, reps, rest).
+  Map<String, WorkoutExercisePrescription> _prescriptions = const {};
 
   WorkoutSessionController({required this._repository, required this._ref})
     : super(const WorkoutSessionState());
 
   String? get sessionId => _sessionId;
+
+  WorkoutExercisePrescription _prescriptionFor(String? exerciseId) {
+    if (exerciseId == null) return _defaultPrescription;
+    return _prescriptions[exerciseId] ?? _defaultPrescription;
+  }
 
   /// Menyiapkan sesi aktif: melanjutkan record in_progress yang cocok, atau
   /// membuat record baru. Set yang sudah tercatat dipulihkan agar user tidak
@@ -63,9 +77,12 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
     required String programTitle,
     required DateTime scheduledDate,
     required List<String> exerciseIds,
+    Map<String, WorkoutExercisePrescription> prescriptions = const {},
     String? resumeSessionId,
   }) async {
     state = state.copyWith(isPreparing: true, clearError: true);
+    _exerciseIds = List.unmodifiable(exerciseIds);
+    _prescriptions = prescriptions;
 
     try {
       final existing = await _repository.getActiveInProgressSession();
@@ -84,6 +101,7 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
           existingProgramId: existing.programId,
           existingDayNumber: existing.programDayId,
           existingProgramTitle: existing.programTitle,
+          existingScheduledDate: existing.scheduledDate,
         );
       }
 
@@ -111,6 +129,7 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
   Future<SessionPreparationResult> resumeExistingSession({
     required String sessionId,
     required List<String> exerciseIds,
+    Map<String, WorkoutExercisePrescription> prescriptions = const {},
   }) async {
     try {
       final session = await _repository.getActiveInProgressSession();
@@ -118,6 +137,8 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
       if (session == null || session.id != sessionId) {
         return const SessionPreparationFailed('Sesi tidak ditemukan');
       }
+      _exerciseIds = List.unmodifiable(exerciseIds);
+      _prescriptions = prescriptions;
       return await _activateSession(session, exerciseIds);
     } catch (error) {
       if (!mounted) return const SessionPreparationFailed('unmounted');
@@ -138,8 +159,11 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
     required String programTitle,
     required DateTime scheduledDate,
     required List<String> exerciseIds,
+    Map<String, WorkoutExercisePrescription> prescriptions = const {},
   }) async {
     try {
+      _exerciseIds = List.unmodifiable(exerciseIds);
+      _prescriptions = prescriptions;
       await _repository.abandonSession(conflictingSessionId);
       final session = await _repository.startWorkoutSession(
         programId: programId,
@@ -173,15 +197,19 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
       ..clear()
       ..addAll(sets.where((set) => set.status == WorkoutSetStatus.completed));
 
-    // Waktu aktif tersimpan lebih diutamakan; wall-clock hanya fallback
-    // untuk record lama yang belum punya kolom elapsed_seconds.
+    // Waktu aktif tersimpan lebih diutamakan. Wall-clock hanya fallback untuk
+    // sesi yang baru saja dibuat/dihentikan (dalam batas beberapa menit);
+    // sesi yang sudah lama berhenti mulai dari 0 agar waktu aplikasi
+    // tertutup tidak ikut terhitung.
     final wallClockSeconds = DateTime.now()
         .difference(session.startedAt)
-        .inSeconds
-        .clamp(0, _maxLegacyRestoredElapsedSeconds);
+        .inSeconds;
     final restoredElapsed = session.elapsedSeconds > 0
         ? session.elapsedSeconds
-        : wallClockSeconds;
+        : (wallClockSeconds >= 0 &&
+              wallClockSeconds <= _maxRecentSessionFallbackSeconds
+              ? wallClockSeconds
+              : 0);
 
     state = state.copyWith(
       elapsedWorkoutSeconds: restoredElapsed,
@@ -195,6 +223,7 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
   }
 
   /// Menentukan posisi exercise/set terakhir berdasarkan log yang tersimpan.
+  /// Set total set & rest juga mengikuti preskripsi exercise aktif.
   void _restorePosition(List<String> exerciseIds) {
     if (exerciseIds.isEmpty) return;
 
@@ -209,12 +238,15 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
 
     var index = 0;
     var currentSet = 1;
+    var totalSets = _prescriptionFor(exerciseIds.first).targetSets;
     var found = false;
     for (var i = 0; i < exerciseIds.length; i++) {
+      final rx = _prescriptionFor(exerciseIds[i]);
       final done = completedPerExercise[exerciseIds[i]] ?? 0;
-      if (done >= state.totalSetsPerExercise) continue;
+      if (done >= rx.targetSets) continue;
       index = i;
       currentSet = done + 1;
+      totalSets = rx.targetSets;
       found = true;
       break;
     }
@@ -223,21 +255,27 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
     // disimpan tuntas): tampilkan posisi terakhir tanpa melewati batas.
     if (!found) {
       index = exerciseIds.length - 1;
-      currentSet = state.totalSetsPerExercise;
+      totalSets = _prescriptionFor(exerciseIds[index]).targetSets;
+      currentSet = totalSets;
     }
 
+    final rx = _prescriptionFor(exerciseIds[index]);
     state = state.copyWith(
       currentExerciseIndex: index,
       currentSet: currentSet,
+      totalSetsPerExercise: totalSets,
+      defaultRestSeconds: rx.restSeconds,
     );
   }
 
   /// Mencatat hasil set aktual & RIR (Fase 3: Set-by-Set Tracking).
   ///
   /// Set langsung disimpan ke database (di-await) supaya sesi bisa
-  /// dilanjutkan tanpa kehilangan set terakhir. Dipanggil hanya setelah
-  /// persiapan sesi selesai; tanpa sessionId set TIDAK dicatat.
-  Future<void> recordSetPerformance({
+  /// dilanjutkan tanpa kehilangan set terakhir. Mengembalikan `false` jika
+  /// penyimpanan gagal — pemanggil TIDAK boleh memajukan posisi set.
+  /// Dipanggil hanya setelah persiapan sesi selesai; tanpa sessionId set
+  /// TIDAK dicatat.
+  Future<bool> recordSetPerformance({
     required String exerciseId,
     required int setNumber,
     required int actualReps,
@@ -246,7 +284,7 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
     double formScore = 1.0,
   }) async {
     final sessionId = _sessionId;
-    if (sessionId == null) return;
+    if (sessionId == null) return false;
 
     final set = WorkoutSetEntity(
       id: '${sessionId}_${exerciseId}_$setNumber',
@@ -272,18 +310,65 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
 
     try {
       await _repository.saveSetLog(set);
+
+      // Piggyback: persist waktu aktif bersama set supaya sesi pendek
+      // (kurang dari interval 30 detik) juga tercatat untuk resume.
+      unawaited(
+        _repository.updateSessionProgress(
+          sessionId,
+          elapsedSeconds: state.elapsedWorkoutSeconds,
+        ),
+      );
+
+      if (mounted) {
+        state = state.copyWith(clearError: true, clearSetSaveError: true);
+      }
+      return true;
     } catch (error) {
+      // Rollback: set yang gagal tersimpan tidak dihitung selesai, dan
+      // pemanggil tidak boleh memajukan posisi.
+      _recordedSets.remove(set);
       if (mounted) {
         state = state.copyWith(
-          errorMessage: 'Gagal menyimpan set latihan: $error',
+          completedSets: _recordedSets.length,
+          setSaveError: 'Gagal menyimpan set latihan: $error',
         );
       }
+      return false;
+    }
+  }
+
+  /// Menyimpan akumulasi waktu aktif terkini ke database.
+  /// Dipanggil saat lifecycle aplikasi berubah (pause/hidden) dan saat
+  /// timer dijeda, agar sesi pendek tidak kehilangan durasinya.
+  Future<void> persistElapsedNow() async {
+    final id = _sessionId;
+    if (id == null) return;
+    try {
+      await _repository.updateSessionProgress(
+        id,
+        elapsedSeconds: state.elapsedWorkoutSeconds,
+      );
+    } catch (_) {
+      // Persist waktu aktif best-effort; jangan ganggu sesi.
+    }
+  }
+
+  /// Membersihkan error pencatatan set agar user bisa mencoba lagi.
+  void clearError() {
+    if (state.errorMessage != null) {
+      state = state.copyWith(clearError: true);
     }
   }
 
   /// Jeda atau lanjutkan timer
   void togglePauseTimer() {
-    state = state.copyWith(isTimerPaused: !state.isTimerPaused);
+    final nowPaused = !state.isTimerPaused;
+    state = state.copyWith(isTimerPaused: nowPaused);
+    // Saat user jeda, simpan waktu aktif terkini segera.
+    if (nowPaused) {
+      unawaited(persistElapsedNow());
+    }
   }
 
   /// Reset timer pada set yang sedang aktif
@@ -294,9 +379,13 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
     );
   }
 
-  /// Berpindah ke set berikutnya atau gerakan berikutnya
+  /// Berpindah ke set berikutnya atau gerakan berikutnya.
+  /// Rest & total set mengikuti preskripsi exercise yang aktif.
   /// Mengembalikan `true` jika sesi latihan telah selesai seluruhnya
   bool nextPressed({required int totalExercises}) {
+    final ids = _exerciseIds;
+    final total = ids.isNotEmpty ? ids.length : totalExercises;
+
     if (state.currentSet < state.totalSetsPerExercise) {
       state = state.copyWith(
         currentSet: state.currentSet + 1,
@@ -306,11 +395,17 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
       return false;
     } else {
       // Pindah ke gerakan berikutnya
-      if (state.currentExerciseIndex < totalExercises - 1) {
+      final nextIndex = state.currentExerciseIndex + 1;
+      if (state.currentExerciseIndex < total - 1) {
+        final nextRx = _prescriptionFor(
+          ids.isNotEmpty ? ids[nextIndex] : null,
+        );
         state = state.copyWith(
-          currentExerciseIndex: state.currentExerciseIndex + 1,
+          currentExerciseIndex: nextIndex,
           currentSet: 1,
-          remainingRestSeconds: state.defaultRestSeconds,
+          totalSetsPerExercise: nextRx.targetSets,
+          defaultRestSeconds: nextRx.restSeconds,
+          remainingRestSeconds: nextRx.restSeconds,
           isTimerPaused: false,
         );
         return false;

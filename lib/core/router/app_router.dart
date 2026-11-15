@@ -26,6 +26,7 @@ import '../../features/program/domain/models/program_day.dart';
 import '../../features/program/presentation/screens/program_detail_screen.dart';
 import '../../features/progress/presentation/screens/progress_screen.dart';
 import '../../features/workout_detail/presentation/screens/workout_detail_screen.dart';
+import '../../features/workout_session/domain/models/exercise_prescription.dart';
 import '../../features/workout_session/presentation/screens/workout_session_screen.dart';
 import '../../features/workout_summary/presentation/screens/workout_summary_screen.dart';
 import '../../features/progression/domain/models/progression_models.dart';
@@ -81,8 +82,7 @@ class WorkoutDetailArgs {
   /// Sesi in_progress yang bisa dilanjutkan untuk jadwal ini.
   final String? activeSessionId;
 
-  const WorkoutDetailArgs({
-    this.dayNumber = 1,
+  const WorkoutDetailArgs({    this.dayNumber = 1,
     this.weekNumber,
     this.programId,
     this.weekDayText = 'Week 1 • Day 1',
@@ -109,12 +109,16 @@ class WorkoutSessionArgs {
   /// Jika diisi, sesi yang sudah berjalan dilanjutkan, bukan dibuat baru.
   final String? activeSessionId;
 
+  /// Preskripsi per exercise (target set, reps, rest). Kunci = exerciseId.
+  final Map<String, WorkoutExercisePrescription> prescriptions;
+
   const WorkoutSessionArgs({
     required this.day,
     required this.exercises,
     this.programId,
     this.scheduledDate,
     this.activeSessionId,
+    this.prescriptions = const {},
   });
 }
 
@@ -246,6 +250,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             programId: args.programId,
             scheduledDate: args.scheduledDate,
             activeSessionId: args.activeSessionId,
+            prescriptions: args.prescriptions,
           );
         },
       ),

@@ -11,6 +11,7 @@ import '../../../exercises/domain/models/exercise.dart';
 import '../../../program/data/datasources/program_local_datasource.dart';
 import '../../../program/data/repositories/program_repository_impl.dart';
 import '../../../program/domain/models/program_day.dart';
+import '../../../workout_session/domain/models/exercise_prescription.dart';
 import '../../../../i18n/strings.g.dart';
 import '../widgets/start_workout_bottom_bar.dart';
 import '../widgets/target_muscles_overview_section.dart';
@@ -147,6 +148,9 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                   rest: restStr,
                   exercise: ex,
                   stage: prescription.stage,
+                  prescription: WorkoutExercisePrescription.fromProgramExercise(
+                    prescription,
+                  ),
                 ),
               );
             }
@@ -502,6 +506,11 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
         programId: _resolvedProgramId ?? widget.programId,
         scheduledDate: widget.scheduledDate,
         activeSessionId: widget.activeSessionId,
+        prescriptions: {
+          for (final data in _exercises)
+            if (data.prescription != null)
+              data.exercise.id: data.prescription!,
+        },
       ),
     );
   }

@@ -19,6 +19,10 @@ class WorkoutSessionState {
   final WorkoutSessionResult? completedResult;
   final String? errorMessage;
 
+  /// Error khusus kegagalan menyimpan satu set. Tidak mengunci kontrol
+  /// workout — user tinggal mencatat ulang set yang sama.
+  final String? setSaveError;
+
   const WorkoutSessionState({
     this.currentExerciseIndex = 0,
     this.currentSet = 1,
@@ -32,6 +36,7 @@ class WorkoutSessionState {
     this.completedSets = 0,
     this.completedResult,
     this.errorMessage,
+    this.setSaveError,
   });
 
   bool get isLastExercise => false; // Diatur dinamis oleh controller
@@ -53,7 +58,9 @@ class WorkoutSessionState {
     int? completedSets,
     WorkoutSessionResult? completedResult,
     String? errorMessage,
+    String? setSaveError,
     bool clearError = false,
+    bool clearSetSaveError = false,
   }) {
     return WorkoutSessionState(
       currentExerciseIndex: currentExerciseIndex ?? this.currentExerciseIndex,
@@ -68,6 +75,9 @@ class WorkoutSessionState {
       completedSets: completedSets ?? this.completedSets,
       completedResult: completedResult ?? this.completedResult,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      setSaveError: clearSetSaveError
+          ? null
+          : (setSaveError ?? this.setSaveError),
     );
   }
 }
@@ -90,12 +100,14 @@ class SessionConflict extends SessionPreparationResult {
   final String existingProgramId;
   final int existingDayNumber;
   final String existingProgramTitle;
+  final DateTime existingScheduledDate;
 
   const SessionConflict({
     required this.existingSessionId,
     required this.existingProgramId,
     required this.existingDayNumber,
     required this.existingProgramTitle,
+    required this.existingScheduledDate,
   });
 }
 

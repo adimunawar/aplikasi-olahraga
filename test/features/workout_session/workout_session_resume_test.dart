@@ -11,6 +11,7 @@ import 'package:workout_app/features/progress/application/weight_analytics_servi
 import 'package:workout_app/features/progress/data/datasources/progress_supabase_datasource.dart';
 import 'package:workout_app/features/progress/data/repositories/progress_repository_impl.dart';
 import 'package:workout_app/features/progress/presentation/controllers/progress_controller.dart';
+import 'package:workout_app/features/workout_session/domain/models/exercise_prescription.dart';
 import 'package:workout_app/features/workout_session/domain/models/workout_session_result.dart';
 import 'package:workout_app/features/workout_session/domain/repositories/workout_session_repository.dart';
 import 'package:workout_app/features/workout_session/presentation/controllers/workout_session_controller.dart';
@@ -63,6 +64,9 @@ class _FakeWorkoutSessionRepository implements WorkoutSessionRepository {
   final List<WorkoutSessionResult> completedResults = [];
   final List<int> progressUpdates = [];
 
+  /// Simulasi kegagalan database saat menyimpan set.
+  bool failSaveSet = false;
+
   int _idCounter = 0;
 
   @override
@@ -94,6 +98,9 @@ class _FakeWorkoutSessionRepository implements WorkoutSessionRepository {
 
   @override
   Future<void> saveSetLog(WorkoutSetEntity set) async {
+    if (failSaveSet) {
+      throw Exception('database unavailable');
+    }
     savedSets.add(set);
   }
 
@@ -480,6 +487,204 @@ void main() {
 
       expect(repository.progressUpdates, contains(30));
       expect(repository.active?.elapsedSeconds, 30);
+    });
+
+    test('P1: prescriptions drive total sets, rest, and resume position', () async {
+      repository.active = WorkoutSessionEntity(
+        id: 's1',
+        programId: 'program_1',
+        programDayId: 1,
+        programTitle: 'Upper Body',
+        scheduledDate: today,
+        startedAt: today,
+        elapsedSeconds: 100,
+        status: WorkoutSessionStatus.inProgress,
+      );
+      // Exercise 'a' hanya 2 set; 'b' 4 set dengan rest 90s.
+      repository.setsBySession['s1'] = [
+        completedSet('a', 1),
+        completedSet('a', 2),
+        completedSet('b', 1),
+      ];
+
+      final result = await controller().prepareSession(
+        programId: 'program_1',
+        dayNumber: 1,
+        programTitle: 'Upper Body',
+        scheduledDate: today,
+        exerciseIds: const ['a', 'b'],
+        prescriptions: const {
+          'a': WorkoutExercisePrescription(
+            targetSets: 2,
+            minReps: 8,
+            maxReps: 12,
+            restSeconds: 60,
+          ),
+          'b': WorkoutExercisePrescription(
+            targetSets: 4,
+            minReps: 10,
+            maxReps: 15,
+            restSeconds: 90,
+          ),
+        },
+      );
+
+      final state = container.read(workoutSessionControllerProvider);
+      expect(result, isA<SessionPrepared>());
+      // Posisi resume mengikuti target set per exercise, bukan asumsi 3.
+      expect(state.currentExerciseIndex, 1);
+      expect(state.currentSet, 2);
+      expect(state.totalSetsPerExercise, 4);
+      expect(state.defaultRestSeconds, 90);
+
+      // Maju ke exercise berikutnya memakai preskripsi exercise itu.
+      controller().nextPressed(totalExercises: 2);
+      final after = container.read(workoutSessionControllerProvider);
+      expect(after.currentExerciseIndex, 1);
+      expect(after.remainingRestSeconds, 90);
+    });
+
+    test('P2: failed set save returns false and rolls the set back', () async {
+      await controller().prepareSession(
+        programId: 'program_1',
+        dayNumber: 1,
+        programTitle: 'Upper Body',
+        scheduledDate: today,
+        exerciseIds: const ['a', 'b'],
+      );
+      final controller0 = controller();
+      await controller0.recordSetPerformance(
+        exerciseId: 'a',
+        setNumber: 1,
+        actualReps: 10,
+        rir: 2,
+      );
+      expect(
+        container.read(workoutSessionControllerProvider).completedSets,
+        1,
+      );
+
+      repository.failSaveSet = true;
+      final saved = await controller0.recordSetPerformance(
+        exerciseId: 'a',
+        setNumber: 2,
+        actualReps: 8,
+        rir: 2,
+      );
+
+      // Penyimpanan gagal: caller tidak boleh memajukan posisi.
+      expect(saved, isFalse);
+      expect(repository.savedSets, hasLength(1));
+      expect(
+        container.read(workoutSessionControllerProvider).completedSets,
+        1,
+      );
+      // Error set disimpan terpisah supaya kontrol workout tidak terkunci.
+      expect(
+        container.read(workoutSessionControllerProvider).setSaveError,
+        isNotNull,
+      );
+      expect(
+        container.read(workoutSessionControllerProvider).isSessionReady,
+        isTrue,
+      );
+
+      // Retry setelah database normal kembali berhasil & error terhapus.
+      repository.failSaveSet = false;
+      controller0.clearError();
+      final retried = await controller0.recordSetPerformance(
+        exerciseId: 'a',
+        setNumber: 2,
+        actualReps: 8,
+        rir: 2,
+      );
+
+      expect(retried, isTrue);
+      expect(repository.savedSets, hasLength(2));
+      expect(
+        container.read(workoutSessionControllerProvider).completedSets,
+        2,
+      );
+      expect(
+        container.read(workoutSessionControllerProvider).setSaveError,
+        isNull,
+      );
+    });
+
+    test('P2: short-lived sessions no longer inherit closed-app wall time', () async {
+      // Sesi dibuat 2 jam lalu tanpa waktu aktif tersimpan (mis. aplikasi
+      // tewas beberapa detik setelah mulai). Resume TIDAK boleh menghitung
+      // 2 jam sebagai durasi latihan.
+      repository.active = WorkoutSessionEntity(
+        id: 's_short',
+        programId: 'program_1',
+        programDayId: 1,
+        programTitle: 'Upper Body',
+        scheduledDate: today,
+        startedAt: DateTime.now().subtract(const Duration(hours: 2)),
+        elapsedSeconds: 0,
+        status: WorkoutSessionStatus.inProgress,
+      );
+
+      await controller().resumeExistingSession(
+        sessionId: 's_short',
+        exerciseIds: const ['a'],
+      );
+
+      expect(
+        container.read(workoutSessionControllerProvider).elapsedWorkoutSeconds,
+        0,
+      );
+    });
+
+    test('P2: recently-interrupted session keeps its wall-clock estimate', () async {
+      // Sesi baru dibuat 20 detik lalu lalu aplikasi tewas: wall-clock masih
+      // akurat sebagai estimasi waktu aktif.
+      repository.active = WorkoutSessionEntity(
+        id: 's_recent',
+        programId: 'program_1',
+        programDayId: 1,
+        programTitle: 'Upper Body',
+        scheduledDate: today,
+        startedAt: DateTime.now().subtract(const Duration(seconds: 20)),
+        elapsedSeconds: 0,
+        status: WorkoutSessionStatus.inProgress,
+      );
+
+      await controller().resumeExistingSession(
+        sessionId: 's_recent',
+        exerciseIds: const ['a'],
+      );
+
+      expect(
+        container.read(workoutSessionControllerProvider).elapsedWorkoutSeconds,
+        inExclusiveRange(15, 40),
+      );
+    });
+
+    test('P1: conflict carries the old session schedule for navigation', () async {
+      final oldDate = today.subtract(const Duration(days: 2));
+      repository.active = WorkoutSessionEntity(
+        id: 'session_conflict',
+        programId: 'program_old',
+        programDayId: 1,
+        programTitle: 'Old Program',
+        scheduledDate: oldDate,
+        startedAt: oldDate,
+        status: WorkoutSessionStatus.inProgress,
+      );
+
+      final result = await controller().prepareSession(
+        programId: 'program_1',
+        dayNumber: 1,
+        programTitle: 'Upper Body',
+        scheduledDate: today,
+        exerciseIds: const ['a'],
+      );
+
+      final conflict = result as SessionConflict;
+      expect(conflict.existingSessionId, 'session_conflict');
+      expect(conflict.existingScheduledDate, oldDate);
     });
   });
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_typography.dart';
 import '../../../exercises/domain/models/exercise.dart';
+import '../../../workout_session/domain/models/exercise_prescription.dart';
 import 'workout_exercise_list_item.dart';
 
 /// Section daftar gerakan latihan:
@@ -191,6 +192,10 @@ class WorkoutDetailExerciseData {
   final Exercise exercise;
   final String stage; // 'warmup', 'main', 'cooldown'
 
+  /// Preskripsi asli dari program (target set, min/max reps, rest) supaya
+  /// bisa diteruskan ke Active Workout tanpa kehilangan detail.
+  final WorkoutExercisePrescription? prescription;
+
   WorkoutDetailExerciseData({
     required this.title,
     required this.categoryTag,
@@ -200,5 +205,6 @@ class WorkoutDetailExerciseData {
     this.rest = '60 – 90s',
     required this.exercise,
     this.stage = 'main',
+    this.prescription,
   });
 }
