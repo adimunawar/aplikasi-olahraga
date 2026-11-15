@@ -375,17 +375,13 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
 
   /// Reset countdown while the session is in its rest phase.
   void resetCurrentSetTimer() {
-    state = state.copyWith(
-      phase: WorkoutSessionPhase.resting,
-      remainingRestSeconds: state.defaultRestSeconds,
-      isTimerPaused: false,
-    );
+    startRest();
   }
 
   /// Start the rest phase after the set has been saved and the next position
   /// has been selected.
   void startRest() {
-    final seconds = state.defaultRestSeconds.clamp(0, 600);
+    final seconds = state.defaultRestSeconds.clamp(0, 600).toInt();
     state = state.copyWith(
       phase: seconds == 0
           ? WorkoutSessionPhase.active
