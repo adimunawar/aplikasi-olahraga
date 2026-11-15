@@ -11,6 +11,7 @@ import '../../../exercises/data/datasources/exercise_local_datasource.dart';
 import '../../../exercises/domain/models/exercise.dart';
 import '../../../program/domain/models/program_day.dart';
 import '../../../program/domain/services/dynamic_program_generator.dart';
+import '../../../program/domain/services/program_week_schedule.dart';
 import '../widgets/today_workout/today_workout_section.dart';
 import '../widgets/weekly_progress_calendar_card.dart';
 import 'home_state.dart';
@@ -48,6 +49,8 @@ class HomeController extends StateNotifier<HomeState> {
   final AppDataSync _appDataSync;
 
   int _lastKnownRevision = -1;
+  bool _isLoadingHomeData = false;
+  bool _reloadRequested = false;
 
   HomeController({
     required this._db,
@@ -84,20 +87,11 @@ class HomeController extends StateNotifier<HomeState> {
     required DateTime targetDate,
     required int totalWeeks,
   }) {
-    final startDay = DateTime(startDate.year, startDate.month, startDate.day);
-    final currentDay = DateTime(
-      targetDate.year,
-      targetDate.month,
-      targetDate.day,
+    return ProgramWeekSchedule.currentWeek(
+      programStartDate: startDate,
+      today: targetDate,
+      totalWeeks: totalWeeks,
     );
-
-    if (currentDay.isBefore(startDay)) {
-      return 1;
-    }
-
-    final daysElapsed = currentDay.difference(startDay).inDays;
-    final weekNumber = (daysElapsed ~/ 7) + 1;
-    return weekNumber.clamp(1, totalWeeks > 0 ? totalWeeks : 12);
   }
 
   String _formatDayShortEn(int weekday) {
@@ -105,267 +99,317 @@ class HomeController extends StateNotifier<HomeState> {
     return days[(weekday - 1).clamp(0, 6)];
   }
 
-  String _weekdayToString(int weekday) {
-    const days = [
-      'monday',
-      'tuesday',
-      'wednesday',
-      'thursday',
-      'friday',
-      'saturday',
-      'sunday',
-    ];
-    return days[(weekday - 1).clamp(0, 6)];
-  }
-
   /// Memuat data Home secara optimal.
   /// Menghindari query berulang saat tab switch jika data belum basi/berubah.
   Future<void> loadHomeData({bool forceReload = false}) async {
-    final now = DateTime.now();
-
-    // Optimasi Reload: jika tidak dipaksa reload dan data masih mutakhir di hari yang sama, gunakan cache
-    if (!forceReload &&
-        state.lastLoadedAt != null &&
-        state.userProfile != null &&
-        now.day == state.lastLoadedAt!.day &&
-        now.difference(state.lastLoadedAt!).inMinutes < 15 &&
-        _appDataSync.dataRevision.value == _lastKnownRevision) {
+    if (_isLoadingHomeData) {
+      _reloadRequested = true;
       return;
     }
-
-    // Set loading hanya jika sebelumnya belum ada data sama sekali
-    if (state.userProfile == null) {
-      state = state.copyWith(isLoading: true, errorType: HomeErrorType.none);
-    }
+    _isLoadingHomeData = true;
 
     try {
-      // 1. Ambil Profil & Data Workout dari Database Lokal
-      final profile = await _db.getUserProfile();
-      final thisWeekCount = await _db.getThisWeekCompletedCount();
-      final recentSessions = await _db.getRecentWorkoutSessions(limit: 30);
+      final now = DateTime.now();
+      final today = ProgramWeekSchedule.dateOnly(now);
 
-      final monday = now.subtract(Duration(days: now.weekday - 1));
-
-      // Format Goal
-      String goalLabel = 'Gain Weight & Build Muscle';
-      final g = profile.goal.toLowerCase();
-      if (g.contains('fat') || g.contains('weight_loss') || g.contains('cut')) {
-        goalLabel = 'Fat Loss & Conditioning';
-      } else if (g.contains('maintain') || g.contains('fit')) {
-        goalLabel = 'Maintain & Stay Fit';
+      // Keep cached Home data for a short period unless the database changed.
+      if (!forceReload &&
+          state.lastLoadedAt != null &&
+          state.userProfile != null &&
+          now.day == state.lastLoadedAt!.day &&
+          now.month == state.lastLoadedAt!.month &&
+          now.year == state.lastLoadedAt!.year &&
+          now.difference(state.lastLoadedAt!).inMinutes < 15 &&
+          _appDataSync.dataRevision.value == _lastKnownRevision) {
+        return;
       }
 
-      final targetWeekly = profile.weeklyFrequency > 0
-          ? profile.weeklyFrequency
-          : (profile.preferredDaysPerWeek > 0
+      if (state.userProfile == null) {
+        state = state.copyWith(isLoading: true, errorType: HomeErrorType.none);
+      }
+
+      try {
+        var profile = await _db.getUserProfile();
+        final monday = today.subtract(Duration(days: today.weekday - 1));
+
+        String goalLabel = 'Gain Weight & Build Muscle';
+        final goal = profile.goal.toLowerCase();
+        if (goal.contains('fat') ||
+            goal.contains('weight_loss') ||
+            goal.contains('cut')) {
+          goalLabel = 'Fat Loss & Conditioning';
+        } else if (goal.contains('maintain') || goal.contains('fit')) {
+          goalLabel = 'Maintain & Stay Fit';
+        }
+
+        final configuredFrequency = profile.weeklyFrequency > 0
+            ? profile.weeklyFrequency
+            : (profile.preferredDaysPerWeek > 0
                 ? profile.preferredDaysPerWeek
                 : 3);
-
-      // 2. Program Latihan Aktif
-      final userId = profile.id.isNotEmpty ? profile.id : 'default_user';
-      var activeProgram = await _db.getActiveTrainingProgram(userId);
-      activeProgram ??= await _db.getActiveTrainingProgram('default_user');
-
-      List<ProgramSessionEntity> sessions = [];
-      if (activeProgram != null) {
-        sessions = await _db.getProgramSessions(activeProgram.id);
-      }
-
-      // Auto-heal / Generate Dynamic Program jika belum ada
-      if (activeProgram == null ||
-          sessions.isEmpty ||
-          sessions.length != targetWeekly) {
-        try {
-          final catalog = await _exerciseDatasource.loadExercises();
-          final startingPushId = profile.experienceLevel == 'advanced'
-              ? 'diamond_push_up'
-              : profile.experienceLevel == 'intermediate'
-              ? 'push_up'
-              : 'knee_push_up';
-
-          final generated = _programGenerator.generate(
-            userProfile: profile,
-            catalogExercises: catalog,
-            startingPushExerciseId: startingPushId,
+        final targetWeekly = configuredFrequency.clamp(2, 6).toInt();
+        if (profile.weeklyFrequency != targetWeekly ||
+            profile.preferredDaysPerWeek != targetWeekly) {
+          profile = profile.copyWith(
+            weeklyFrequency: targetWeekly,
+            preferredDaysPerWeek: targetWeekly,
+            updatedAt: profile.updatedAt,
           );
-
-          await _db.saveDynamicProgram(
-            program: generated.program,
-            sessions: generated.sessions,
-          );
-          activeProgram = generated.program;
-          sessions = await _db.getProgramSessions(activeProgram.id);
-        } catch (e) {
-          debugPrint('[HomeController] Program generation error: $e');
-          state = state.copyWith(
-            errorType: HomeErrorType.programGeneration,
-            errorMessage: 'Gagal membuat program latihan dinamis: $e',
-          );
+          await _db.saveUserProfile(profile);
         }
-      }
 
-      // 3. Perhitungan Minggu Program Presisi (Berdasarkan startDate, bukan hitungan sesi)
-      final totalWeeks = profile.targetTimeframeWeeks > 0
-          ? profile.targetTimeframeWeeks
-          : 12;
-      final programStartDate = activeProgram?.startDate ?? profile.createdAt;
-      final currentWeek = calculateProgramWeek(
-        startDate: programStartDate,
-        targetDate: now,
-        totalWeeks: totalWeeks,
-      );
+        final userId = profile.id.isNotEmpty ? profile.id : 'default_user';
+        var activeProgram = await _db.getActiveTrainingProgram(userId);
+        activeProgram ??= await _db.getActiveTrainingProgram('default_user');
 
-      // 4. Deteksi Sesi Hari Ini
-      List<Exercise> todayExercises = [];
-      String focusLabel = 'Upper Body (Push)';
-      String musclesLabel = 'Chest, Shoulders, Triceps';
-      int sessionDuration = profile.preferredDurationMin > 0
-          ? profile.preferredDurationMin
-          : 45;
-      int calories = (sessionDuration * 6.2).round();
-      ProgramDay? programDay;
+        var sessions = activeProgram != null
+            ? await _db.getProgramSessions(activeProgram.id)
+            : <ProgramSessionEntity>[];
 
-      final todayStr = _weekdayToString(now.weekday);
-      final isScheduledTrainingDay = profile.availableDays.contains(todayStr);
+        final needsProgramRegeneration = activeProgram == null ||
+            sessions.isEmpty ||
+            sessions.length != targetWeekly ||
+            activeProgram.weeklyFrequency != targetWeekly;
+        final scheduleStartDate = activeProgram == null ||
+                activeProgram.weeklyFrequency != targetWeekly
+            ? (activeProgram == null ? now : profile.updatedAt)
+            : activeProgram.startDate;
 
-      if (activeProgram != null && sessions.isNotEmpty) {
-        final nextIndex = thisWeekCount % sessions.length;
-        final nextSession = sessions[nextIndex];
-        focusLabel = nextSession.name.isNotEmpty
-            ? nextSession.name
-            : 'Upper Body (Push)';
-        musclesLabel = nextSession.focusLabel.isNotEmpty
-            ? nextSession.focusLabel
-            : 'Chest, Shoulders, Triceps';
-        sessionDuration = nextSession.targetDurationMinutes > 0
-            ? nextSession.targetDurationMinutes
-            : profile.preferredDurationMin;
-        calories = (sessionDuration * 6.2).round();
+        // Normalize legacy/default schedules as well as onboarding data.
+        // The first available day always matches the program's start weekday.
+        final alignedAvailableDays =
+            ProgramWeekSchedule.availableWeekdaysForFrequency(
+          startDate: scheduleStartDate,
+          frequency: targetWeekly,
+        );
+        if (!listEquals(profile.availableDays, alignedAvailableDays)) {
+          profile = profile.copyWith(
+            availableDays: alignedAvailableDays,
+            updatedAt: profile.updatedAt,
+          );
+          await _db.saveUserProfile(profile);
+        }
 
-        final detail = await _db.getProgramSessionDetail(nextSession.id);
-        List<WorkoutItem> workoutItems = [];
+        // Regenerate only if the active program is missing or its session
+        // count/frequency no longer matches the user's profile.
+        if (needsProgramRegeneration) {
+          try {
+            final catalog = await _exerciseDatasource.loadExercises();
+            final startingPushId = profile.experienceLevel == 'advanced'
+                ? 'diamond_push_up'
+                : profile.experienceLevel == 'intermediate'
+                    ? 'push_up'
+                    : 'knee_push_up';
 
-        if (detail != null && detail.exercises.isNotEmpty) {
-          todayExercises = detail.exercises.map((e) => e.exercise).toList();
-          workoutItems = detail.exercises.map((e) {
-            return WorkoutItem(
-              exerciseId: e.exercise.id,
-              sets: e.prescription.targetSets,
-              reps: e.prescription.minReps,
-              restSeconds: e.prescription.restSeconds,
-              isMain: e.prescription.stage == 'main',
-              stage: e.prescription.stage,
+            final generated = _programGenerator.generate(
+              userProfile: profile,
+              catalogExercises: catalog,
+              startingPushExerciseId: startingPushId,
+              startDate: scheduleStartDate,
             );
-          }).toList();
+
+            await _db.saveDynamicProgram(
+              program: generated.program,
+              sessions: generated.sessions,
+            );
+            activeProgram = generated.program;
+            sessions = await _db.getProgramSessions(activeProgram.id);
+          } catch (e) {
+            debugPrint('[HomeController] Program generation error: $e');
+            state = state.copyWith(
+              errorType: HomeErrorType.programGeneration,
+              errorMessage: 'Gagal membuat program latihan dinamis: $e',
+            );
+          }
         }
 
-        programDay = ProgramDay(
-          day: nextSession.dayNumber,
-          week: currentWeek, // Menggunakan perhitungan kalender yang presisi
-          type: WorkoutTypeCode.f,
-          focus: LocalizedString(id: focusLabel, en: focusLabel),
-          isRest: false,
-          isRetestMilestone: false,
-          items: workoutItems,
+        final totalWeeks = profile.targetTimeframeWeeks > 0
+            ? profile.targetTimeframeWeeks
+            : 12;
+        final programStartDate = activeProgram?.startDate ?? profile.updatedAt;
+        final currentWeek = ProgramWeekSchedule.currentWeek(
+          programStartDate: programStartDate,
+          today: today,
+          totalWeeks: totalWeeks,
         );
-      }
 
-      // 5. Cek Status Selesai Hari Ini
-      bool isCompletedToday = false;
-      for (final s in recentSessions) {
-        if (s.status == WorkoutSessionStatus.completed &&
-            s.startedAt.year == now.year &&
-            s.startedAt.month == now.month &&
-            s.startedAt.day == now.day) {
-          isCompletedToday = true;
-          break;
+        // Resolve today's workout from the same schedule used by Workouts.
+        final todayScheduled = activeProgram == null
+            ? null
+            : ProgramWeekSchedule.sessionForDate(
+                programStartDate: programStartDate,
+                date: today,
+                availableDays: profile.availableDays,
+                sessions: sessions,
+                totalWeeks: totalWeeks,
+              );
+
+        final programWorkoutHistory = activeProgram == null
+            ? <WorkoutSessionEntity>[]
+            : await _db.getWorkoutSessionsForProgram(activeProgram.id);
+
+        final todayExercises = <Exercise>[];
+        var focusLabel = 'Upper Body (Push)';
+        var musclesLabel = 'Chest, Shoulders, Triceps';
+        final sessionDuration = profile.preferredDurationMin > 0
+            ? profile.preferredDurationMin
+            : 45;
+        var effectiveSessionDuration = sessionDuration;
+        var calories = (effectiveSessionDuration * 6.2).round();
+        ProgramDay? programDay;
+
+        if (todayScheduled != null) {
+          final nextSession = todayScheduled.session;
+          focusLabel = nextSession.name.isNotEmpty
+              ? nextSession.name
+              : 'Upper Body (Push)';
+          musclesLabel = nextSession.focusLabel.isNotEmpty
+              ? nextSession.focusLabel
+              : 'Chest, Shoulders, Triceps';
+          effectiveSessionDuration = nextSession.targetDurationMinutes > 0
+              ? nextSession.targetDurationMinutes
+              : sessionDuration;
+          calories = (effectiveSessionDuration * 6.2).round();
+
+          final detail = await _db.getProgramSessionDetail(nextSession.id);
+          final workoutItems = <WorkoutItem>[];
+
+          if (detail != null && detail.exercises.isNotEmpty) {
+            todayExercises.addAll(
+              detail.exercises.map((item) => item.exercise),
+            );
+            workoutItems.addAll(
+              detail.exercises.map((item) {
+                return WorkoutItem(
+                  exerciseId: item.exercise.id,
+                  sets: item.prescription.targetSets,
+                  reps: item.prescription.minReps,
+                  restSeconds: item.prescription.restSeconds,
+                  isMain: item.prescription.stage == 'main',
+                  stage: item.prescription.stage,
+                );
+              }),
+            );
+          }
+
+          programDay = ProgramDay(
+            day: nextSession.dayNumber,
+            week: currentWeek,
+            type: WorkoutTypeCode.f,
+            focus: LocalizedString(id: focusLabel, en: focusLabel),
+            isRest: false,
+            isRetestMilestone: false,
+            items: workoutItems,
+          );
         }
-      }
 
-      final isRestDay = !isScheduledTrainingDay && !isCompletedToday;
+        final isCompletedToday = todayScheduled != null &&
+            programWorkoutHistory.any((session) {
+              return session.programDayId == todayScheduled.session.dayNumber &&
+                  session.status == WorkoutSessionStatus.completed &&
+                  ProgramWeekSchedule.dateOnly(session.scheduledDate) == today;
+            });
 
-      // 6. Data 7 Hari Mingguan dengan 5 Status Presisi
-      final List<DayProgressData> daysList = [];
-      for (int i = 0; i < 7; i++) {
-        final date = monday.add(Duration(days: i));
-        final isToday =
-            date.year == now.year &&
-            date.month == now.month &&
-            date.day == now.day;
-        final isPast = date.isBefore(DateTime(now.year, now.month, now.day));
+        final isScheduledTrainingDay = todayScheduled != null;
+        final isRestDay = !isScheduledTrainingDay && !isCompletedToday;
 
-        final isCompleted = recentSessions.any(
-          (s) =>
-              s.status == WorkoutSessionStatus.completed &&
-              s.startedAt.year == date.year &&
-              s.startedAt.month == date.month &&
-              s.startedAt.day == date.day,
-        );
+        // Weekly calendar remains Monday-Sunday, using the active program's
+        // scheduled weekdays and workout history.
+        final daysList = <DayProgressData>[];
+        for (var i = 0; i < 7; i++) {
+          final date = monday.add(Duration(days: i));
+          final dateOnly = ProgramWeekSchedule.dateOnly(date);
+          final isToday = dateOnly == today;
+          final isPast = dateOnly.isBefore(today);
 
-        final dayStr = _weekdayToString(date.weekday);
-        final isTrainingScheduled = profile.availableDays.contains(dayStr);
+          final isCompleted = programWorkoutHistory.any(
+            (session) =>
+                session.status == WorkoutSessionStatus.completed &&
+                ProgramWeekSchedule.dateOnly(session.scheduledDate) == dateOnly,
+          );
 
-        DayActivityState dayState;
-        if (isCompleted) {
-          dayState = DayActivityState.completed;
-        } else if (isToday) {
-          dayState = isTrainingScheduled
-              ? DayActivityState.today
-              : DayActivityState.rest;
-        } else if (isPast) {
-          dayState = isTrainingScheduled
-              ? DayActivityState.missed
-              : DayActivityState.rest;
-        } else {
-          dayState = isTrainingScheduled
-              ? DayActivityState.upcoming
-              : DayActivityState.rest;
+          final daysFromProgramStart = dateOnly
+              .difference(ProgramWeekSchedule.dateOnly(programStartDate))
+              .inDays;
+          final isInsideProgram = activeProgram != null &&
+              daysFromProgramStart >= 0 &&
+              daysFromProgramStart < totalWeeks * 7;
+          final weekday = ProgramWeekSchedule.weekdayNames[date.weekday - 1];
+          final isTrainingScheduled =
+              isInsideProgram && profile.availableDays.contains(weekday);
+
+          DayActivityState dayState;
+          if (isCompleted) {
+            dayState = DayActivityState.completed;
+          } else if (!isInsideProgram) {
+            dayState = DayActivityState.rest;
+          } else if (isToday) {
+            dayState = isTrainingScheduled
+                ? DayActivityState.today
+                : DayActivityState.rest;
+          } else if (isPast) {
+            dayState = isTrainingScheduled
+                ? DayActivityState.missed
+                : DayActivityState.rest;
+          } else {
+            dayState = isTrainingScheduled
+                ? DayActivityState.upcoming
+                : DayActivityState.rest;
+          }
+
+          daysList.add(
+            DayProgressData(
+              dayName: _formatDayShortEn(date.weekday),
+              state: dayState,
+              date: date,
+              isToday: isToday,
+            ),
+          );
         }
 
-        daysList.add(
-          DayProgressData(
-            dayName: _formatDayShortEn(date.weekday),
-            state: dayState,
-            date: date,
-            isToday: isToday,
-          ),
+        final workoutCardState = activeProgram == null
+            ? WorkoutCardState.noProgram
+            : isCompletedToday
+                ? WorkoutCardState.completed
+                : (isRestDay
+                    ? WorkoutCardState.restDay
+                    : WorkoutCardState.active);
+
+        state = state.copyWith(
+          isLoading: false,
+          errorType: HomeErrorType.none,
+          userProfile: profile,
+          activeProgram: activeProgram,
+          todayProgram: programDay,
+          todayExercises: todayExercises,
+          programTitle: goalLabel,
+          sessionFocus: focusLabel,
+          targetMuscles: musclesLabel,
+          sessionDurationMinutes: effectiveSessionDuration,
+          estimatedCalories: calories,
+          currentWeek: currentWeek,
+          totalWeeks: totalWeeks,
+          weeklyDays: daysList,
+          workoutCardState: workoutCardState,
+          hasProgram: activeProgram != null,
+          isTodayRestDay: isRestDay,
+          isCompletedToday: isCompletedToday,
+          lastLoadedAt: now,
+        );
+      } catch (e) {
+        debugPrint('[HomeController] Database / load error: $e');
+        state = state.copyWith(
+          isLoading: false,
+          errorType: HomeErrorType.database,
+          errorMessage: 'Database load error: $e',
         );
       }
-
-      final workoutCardState = activeProgram == null
-          ? WorkoutCardState.noProgram
-          : isCompletedToday
-          ? WorkoutCardState.completed
-          : (isRestDay ? WorkoutCardState.restDay : WorkoutCardState.active);
-
-      state = state.copyWith(
-        isLoading: false,
-        errorType: HomeErrorType.none,
-        userProfile: profile,
-        activeProgram: activeProgram,
-        todayProgram: programDay,
-        todayExercises: todayExercises,
-        programTitle: goalLabel,
-        sessionFocus: focusLabel,
-        targetMuscles: musclesLabel,
-        sessionDurationMinutes: sessionDuration,
-        estimatedCalories: calories,
-        currentWeek: currentWeek,
-        totalWeeks: totalWeeks,
-        weeklyDays: daysList,
-        workoutCardState: workoutCardState,
-        hasProgram: activeProgram != null,
-        isTodayRestDay: isRestDay,
-        isCompletedToday: isCompletedToday,
-        lastLoadedAt: now,
-      );
-    } catch (e) {
-      debugPrint('[HomeController] Database / load error: $e');
-      state = state.copyWith(
-        isLoading: false,
-        errorType: HomeErrorType.database,
-        errorMessage: 'Database load error: $e',
-      );
+    } finally {
+      _isLoadingHomeData = false;
+      if (_reloadRequested) {
+        _reloadRequested = false;
+        await loadHomeData(forceReload: true);
+      }
     }
   }
 

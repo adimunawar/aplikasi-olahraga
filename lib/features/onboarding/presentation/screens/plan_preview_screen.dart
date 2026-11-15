@@ -283,7 +283,11 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
           context.go(AppRoutes.home);
           context.push(
             AppRoutes.workoutSession,
-            extra: WorkoutSessionArgs(day: programDay, exercises: exercises),
+            extra: WorkoutSessionArgs(
+              day: programDay,
+              exercises: exercises,
+              programId: draft.program.id,
+            ),
           );
         }
       } else {

@@ -11,7 +11,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
 import '../../../exercises/domain/models/exercise.dart';
-import '../../domain/models/program_week_schedule.dart';
+import '../../../program/domain/services/program_week_schedule.dart';
 
 /// Halaman Workouts Utama Sesuai Mockup Referensi (Design System 1:1)
 class WorkoutsScreen extends StatefulWidget {
@@ -84,6 +84,9 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
 
       if (mounted) {
         setState(() {
+          if (_activeProgram?.id != program?.id) {
+            _selectedWeek = null;
+          }
           _profile = profile;
           _activeProgram = program;
           _programSessions = sessions;

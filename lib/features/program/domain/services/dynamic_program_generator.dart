@@ -25,12 +25,13 @@ class DynamicProgramGenerator {
     required UserProfileEntity userProfile,
     required List<Exercise> catalogExercises,
     String? startingPushExerciseId,
+    DateTime? startDate,
   }) {
     if (catalogExercises.isEmpty) {
       throw StateError('Cannot generate a workout plan because the exercise catalog is empty.');
     }
 
-    final now = DateTime.now();
+    final now = startDate ?? DateTime.now();
     final programId = 'prog_${userProfile.id}_${now.millisecondsSinceEpoch}';
 
     // 1. Tentukan latihan dorong awal (Primary Horizontal Push) sesuai hasil Onboarding
