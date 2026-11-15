@@ -13,6 +13,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../exercises/domain/models/exercise.dart';
 import '../../../program/domain/models/program_day.dart';
 import '../controllers/workout_session_controller.dart';
+import '../controllers/workout_session_state.dart';
 import '../widgets/active_workout_header.dart';
 import '../widgets/active_workout_video_card.dart';
 import '../widgets/active_exercise_info_header.dart';
@@ -57,28 +58,96 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
     super.initState();
     // Jaga layar tetap menyala saat latihan berlangsung
     WakelockPlus.enable();
+    // Timer & kontrol workout hanya aktif SETELAH persiapan sesi selesai.
     _prepareSession();
-    _startTimer();
   }
 
   /// Membuat record in_progress atau memulihkan sesi yang sudah berjalan,
   /// sehingga user tidak mengulang latihan dari awal setelah aplikasi tertutup.
   Future<void> _prepareSession() async {
+    final notifier = ref.read(workoutSessionControllerProvider.notifier);
+
+    final result = await notifier.prepareSession(
+      programId: widget.programId ?? 'upper_body_strength',
+      dayNumber: widget.day.day,
+      programTitle: _programTitle,
+      scheduledDate: widget.scheduledDate ?? DateTime.now(),
+      exerciseIds: widget.exercises.map((exercise) => exercise.id).toList(),
+      resumeSessionId: widget.activeSessionId,
+    );
+
+    if (!mounted) return;
+
+    switch (result) {
+      case SessionPrepared():
+        _startTimer();
+      case SessionConflict():
+        await _handleConflictingSession(result);
+      case SessionPreparationFailed():
+        break; // State sudah berisi error; UI menampilkan tombol retry.
+    }
+  }
+
+  String get _programTitle {
     final focus = widget.day.focus;
-    final programTitle = focus.en.isNotEmpty
+    return focus.en.isNotEmpty
         ? focus.en
         : (focus.id.isNotEmpty ? focus.id : 'Upper Body Strength');
+  }
 
-    await ref
-        .read(workoutSessionControllerProvider.notifier)
-        .prepareSession(
-          programId: widget.programId ?? 'upper_body_strength',
-          dayNumber: widget.day.day,
-          programTitle: programTitle,
-          scheduledDate: widget.scheduledDate ?? DateTime.now(),
-          exerciseIds: widget.exercises.map((exercise) => exercise.id).toList(),
-          resumeSessionId: widget.activeSessionId,
-        );
+  /// Ada sesi in_progress lain (program/jadwal berbeda). Sesi lama TIDAK
+  /// otomatis di-abandon: user memilih melanjutkan atau mengakhirinya.
+  Future<void> _handleConflictingSession(SessionConflict conflict) async {
+    final choice = await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Ada latihan yang belum selesai'),
+        content: Text(
+          'Kamu masih punya sesi "${conflict.existingProgramTitle}" '
+          '(Hari ${conflict.existingDayNumber}) yang sedang berlangsung. '
+          'Lanjutkan sesi itu dulu, atau akhiri untuk mulai latihan ini.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, 'resume'),
+            child: const Text('Lanjutkan Sesi Lama'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, 'discard'),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Akhiri Sesi Lama'),
+          ),
+        ],
+      ),
+    );
+
+    if (!mounted) return;
+    final notifier = ref.read(workoutSessionControllerProvider.notifier);
+
+    if (choice == 'resume') {
+      // Kembali ke layar sebelumnya; sesi lama tetap in_progress dan bisa
+      // dilanjutkan dari card Workouts.
+      context.pop();
+      return;
+    }
+
+    if (choice == 'discard') {
+      final result = await notifier.discardConflictingAndStart(
+        conflictingSessionId: conflict.existingSessionId,
+        programId: widget.programId ?? 'upper_body_strength',
+        dayNumber: widget.day.day,
+        programTitle: _programTitle,
+        scheduledDate: widget.scheduledDate ?? DateTime.now(),
+        exerciseIds: widget.exercises.map((exercise) => exercise.id).toList(),
+      );
+      if (!mounted) return;
+      if (result is SessionPrepared) {
+        _startTimer();
+      }
+      // Gagal: state berisi error, UI menampilkan tombol retry.
+    }
   }
 
   @override
@@ -99,7 +168,11 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
     });
   }
 
-  void _onNextPressed() {
+  Future<void> _onNextPressed() async {
+    final controller = ref.read(workoutSessionControllerProvider.notifier);
+    // Kontrol workout terkunci sampai persiapan sesi selesai.
+    if (!ref.read(workoutSessionControllerProvider).isSessionReady) return;
+
     final state = ref.read(workoutSessionControllerProvider);
     final currentExercise = _getCurrentExercise(state.currentExerciseIndex);
 
@@ -113,9 +186,10 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
           : currentExercise.name.id,
       targetReps: 10,
       restSeconds: state.defaultRestSeconds,
-      onConfirm: ({required actualReps, required rir, required formScore}) {
-        // 1. Catat performa set ke controller
-        ref.read(workoutSessionControllerProvider.notifier).recordSetPerformance(
+      onConfirm: ({required actualReps, required rir, required formScore}) async {
+        // 1. Catat performa set ke controller (di-await agar tersimpan ke
+        //    database sebelum maju ke set berikutnya).
+        await controller.recordSetPerformance(
               exerciseId: currentExercise.id,
               setNumber: state.currentSet,
               actualReps: actualReps,
@@ -123,11 +197,10 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
               rir: rir,
               formScore: formScore,
             );
+        if (!mounted) return;
 
         // 2. Maju ke set berikutnya / gerakan berikutnya
-        final isFinished = ref
-            .read(workoutSessionControllerProvider.notifier)
-            .nextPressed(totalExercises: _totalExercises);
+        final isFinished = controller.nextPressed(totalExercises: _totalExercises);
 
         if (isFinished) {
           _timer?.cancel();
@@ -178,7 +251,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
     _timer?.cancel();
     final sessionState = ref.read(workoutSessionControllerProvider);
     final durationMin = (sessionState.elapsedWorkoutSeconds / 60).ceil();
-    final totalSetsDone = _totalExercises * sessionState.totalSetsPerExercise;
+    final totalSetsDone = sessionState.completedSets;
 
     showModalBottomSheet(
       context: context,
@@ -357,17 +430,9 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
     final userName =
         profile.displayName.isNotEmpty ? profile.displayName : 'Adi';
     final programId = widget.programId ?? 'upper_body_strength';
-
-    final programTitle = widget.day.focus.en.isNotEmpty
-        ? widget.day.focus.en
-        : (widget.day.focus.id.isNotEmpty
-              ? widget.day.focus.id
-              : 'Upper Body Strength');
+    final programTitle = _programTitle;
 
     // 1. Simpan sesi melalui Riverpod Controller (otomatis simpan SQLite & Supabase Sync)
-    final currentState = ref.read(workoutSessionControllerProvider);
-    final curEx = _getCurrentExercise(currentState.currentExerciseIndex);
-
     final result = await ref
         .read(workoutSessionControllerProvider.notifier)
         .finishWorkoutSession(
@@ -375,20 +440,18 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
           dayNumber: widget.day.day,
           programTitle: programTitle,
           totalExercises: _totalExercises,
-          currentExerciseId: curEx.id,
         );
 
     if (!mounted) return;
 
+    final currentState = ref.read(workoutSessionControllerProvider);
     final durationText = result != null
         ? '${result.durationMinutes} min'
-        : '25 min';
+        : '${(currentState.elapsedWorkoutSeconds / 60).ceil()} min';
     final caloriesText = result != null
         ? '≈ ${result.caloriesBurned} kcal'
-        : '≈ 185 kcal';
-    final completedSetsText = result != null
-        ? '${result.completedSets}'
-        : '${_totalExercises * 3}';
+        : '≈ 0 kcal';
+    final completedSetsText = '${result?.completedSets ?? currentState.completedSets}';
 
     context.pushReplacement(
       AppRoutes.workoutSummary,
@@ -599,9 +662,11 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
                   totalSeconds: sessionState.defaultRestSeconds,
                   remainingSeconds: sessionState.remainingRestSeconds,
                   isPaused: sessionState.isTimerPaused,
-                  onPauseToggle: () => ref
-                      .read(workoutSessionControllerProvider.notifier)
-                      .togglePauseTimer(),
+                  onPauseToggle: sessionState.isSessionReady
+                      ? () => ref
+                            .read(workoutSessionControllerProvider.notifier)
+                            .togglePauseTimer()
+                      : () {},
                   onNext: _onNextPressed,
                 ),
                 const SizedBox(height: 18),
@@ -614,7 +679,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
                           : 'Selesaikan Latihan Hari Ini 🎉')
                       : 'Selesaikan Set ${sessionState.currentSet} (Catat Reps) ➔',
                   size: AppButtonSize.large,
-                  onPressed: _onNextPressed,
+                  onPressed: sessionState.isSessionReady ? _onNextPressed : null,
                 ),
                 const SizedBox(height: 20),
 
@@ -636,6 +701,68 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
               ],
             ),
           ),
+
+          // Overlay persiapan sesi: kontrol workout terkunci sampai
+          // record in_progress siap.
+          if (sessionState.isPreparing)
+            Container(
+              color: Colors.white.withValues(alpha: 0.85),
+              child: const Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(color: AppColors.limeAccent),
+                    SizedBox(height: 14),
+                    Text(
+                      'Menyiapkan sesi latihan...',
+                      style: TextStyle(
+                        color: Color(0xFF141718),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+          // Panel error persiapan dengan tombol retry.
+          if (!sessionState.isPreparing &&
+              sessionState.errorMessage != null &&
+              sessionState.completedResult == null)
+            Container(
+              color: Colors.white.withValues(alpha: 0.92),
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.error_outline_rounded,
+                        size: 44,
+                        color: Color(0xFFDC2626),
+                      ),
+                      const SizedBox(height: 14),
+                      Text(
+                        sessionState.errorMessage!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Color(0xFF141718),
+                          fontSize: 14,
+                          height: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      AppButton.primary(
+                        text: 'Coba Lagi',
+                        onPressed: _prepareSession,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
 
           // Loading Overlay saat menyimpan sesi ke SQLite & Supabase
           if (sessionState.isSaving)

@@ -34,6 +34,12 @@ abstract class WorkoutSessionRepository {
   /// Menandai sesi in_progress sebagai abandoned.
   Future<void> abandonSession(String sessionId);
 
+  /// Memperbarui akumulasi waktu aktif sesi secara berkala (elapsed aktif).
+  Future<void> updateSessionProgress(
+    String sessionId, {
+    required int elapsedSeconds,
+  });
+
   /// Semua set yang tercatat untuk sebuah sesi.
   Future<List<WorkoutSetEntity>> getSetsForSession(String sessionId);
 

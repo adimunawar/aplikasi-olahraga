@@ -240,6 +240,14 @@ class WorkoutSessionRepositoryImpl implements WorkoutSessionRepository {
   }
 
   @override
+  Future<void> updateSessionProgress(
+    String sessionId, {
+    required int elapsedSeconds,
+  }) async {
+    await localDatabase.updateSessionElapsedSeconds(sessionId, elapsedSeconds);
+  }
+
+  @override
   Future<List<WorkoutSetEntity>> getSetsForSession(String sessionId) async {
     return await localDatabase.getSetsForSession(sessionId);
   }

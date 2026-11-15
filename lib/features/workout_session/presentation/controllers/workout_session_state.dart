@@ -10,6 +10,12 @@ class WorkoutSessionState {
   final bool isTimerPaused;
   final int elapsedWorkoutSeconds;
   final bool isSaving;
+
+  /// True selama persiapan sesi (buat/pulihkan record in_progress) berjalan.
+  final bool isPreparing;
+
+  /// Jumlah set yang benar-benar tercatat (dari log aktual, bukan posisi).
+  final int completedSets;
   final WorkoutSessionResult? completedResult;
   final String? errorMessage;
 
@@ -22,11 +28,17 @@ class WorkoutSessionState {
     this.isTimerPaused = false,
     this.elapsedWorkoutSeconds = 0,
     this.isSaving = false,
+    this.isPreparing = true,
+    this.completedSets = 0,
     this.completedResult,
     this.errorMessage,
   });
 
   bool get isLastExercise => false; // Diatur dinamis oleh controller
+
+  /// Kontrol workout (timer, complete set, next) hanya aktif setelah
+  /// record in_progress siap dan tidak ada error persiapan.
+  bool get isSessionReady => !isPreparing && errorMessage == null;
 
   WorkoutSessionState copyWith({
     int? currentExerciseIndex,
@@ -37,8 +49,11 @@ class WorkoutSessionState {
     bool? isTimerPaused,
     int? elapsedWorkoutSeconds,
     bool? isSaving,
+    bool? isPreparing,
+    int? completedSets,
     WorkoutSessionResult? completedResult,
     String? errorMessage,
+    bool clearError = false,
   }) {
     return WorkoutSessionState(
       currentExerciseIndex: currentExerciseIndex ?? this.currentExerciseIndex,
@@ -49,9 +64,43 @@ class WorkoutSessionState {
       isTimerPaused: isTimerPaused ?? this.isTimerPaused,
       elapsedWorkoutSeconds: elapsedWorkoutSeconds ?? this.elapsedWorkoutSeconds,
       isSaving: isSaving ?? this.isSaving,
+      isPreparing: isPreparing ?? this.isPreparing,
+      completedSets: completedSets ?? this.completedSets,
       completedResult: completedResult ?? this.completedResult,
-      errorMessage: errorMessage ?? this.errorMessage,
+      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );
   }
 }
 
+/// Hasil persiapan sesi latihan.
+sealed class SessionPreparationResult {
+  const SessionPreparationResult();
+}
+
+/// Sesi siap dipakai (record in_progress aktif tersedia).
+class SessionPrepared extends SessionPreparationResult {
+  final String sessionId;
+  const SessionPrepared(this.sessionId);
+}
+
+/// Ada sesi in_progress lain (jadwal/program berbeda). User harus memilih:
+/// lanjutkan sesi lama atau akhiri dulu sebelum mulai yang baru.
+class SessionConflict extends SessionPreparationResult {
+  final String existingSessionId;
+  final String existingProgramId;
+  final int existingDayNumber;
+  final String existingProgramTitle;
+
+  const SessionConflict({
+    required this.existingSessionId,
+    required this.existingProgramId,
+    required this.existingDayNumber,
+    required this.existingProgramTitle,
+  });
+}
+
+/// Persiapan gagal (mis. database error). Layar menampilkan tombol retry.
+class SessionPreparationFailed extends SessionPreparationResult {
+  final String message;
+  const SessionPreparationFailed(this.message);
+}

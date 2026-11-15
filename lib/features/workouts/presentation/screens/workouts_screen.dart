@@ -719,6 +719,10 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
                 final isCurrentSelectedWeek = selectedWeek == currentWeek;
                 final isInProgress =
                     activeSession != null &&
+                    // Wajib: tanpa ini, sesi program lama bisa
+                    // dianggap milik program baru yang kebetulan punya
+                    // Day dan tanggal yang sama.
+                    activeSession.programId == program.id &&
                     activeSession.programDayId == session.dayNumber &&
                     _isSameDate(
                       activeSession.scheduledDate,

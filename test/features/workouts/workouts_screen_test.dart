@@ -322,6 +322,38 @@ void main() {
       expect(find.textContaining('Hari 1 •'), findsOneWidget);
     });
 
+    testWidgets('ignores an in-progress session from another program', (
+      tester,
+    ) async {
+      final today = ProgramWeekSchedule.dateOnly(DateTime.now());
+      final weekday = ProgramWeekSchedule.weekdayNames[today.weekday - 1];
+      final program = makeProgram(startDate: today);
+      // Sesi program LAMA dengan Day 1 dan tanggal yang sama dengan
+      // program saat ini: tidak boleh ditampilkan sebagai berlangsung.
+      final activeSession = WorkoutSessionEntity(
+        id: 'session_old_program',
+        programId: 'program_old',
+        programDayId: 1,
+        programTitle: 'Old Focus 1',
+        scheduledDate: today,
+        startedAt: DateTime.now(),
+        status: WorkoutSessionStatus.inProgress,
+      );
+
+      await pumpScreen(
+        tester,
+        () async => WorkoutsSnapshot(
+          profile: makeProfile(availableDays: [weekday]),
+          program: program,
+          sessions: [makeSession(1)],
+          activeSession: activeSession,
+        ),
+      );
+
+      expect(find.textContaining('Sedang berlangsung'), findsNothing);
+      expect(find.textContaining('Siap dimulai'), findsOneWidget);
+    });
+
     testWidgets('ignores stale refresh results (latest request wins)', (
       tester,
     ) async {
