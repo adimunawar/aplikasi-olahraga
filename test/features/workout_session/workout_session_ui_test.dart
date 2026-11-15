@@ -15,6 +15,46 @@ void main() {
     LocaleSettings.setLocaleSync(AppLocale.en);
   });
 
+  group('Workout session translations', () {
+    test('formats set progress, RIR labels, and durations in both locales', () {
+      final english = AppLocale.en.buildSync();
+      expect(
+        english.workoutSession.setCompleteTitle(current: 1, total: 3),
+        'Set 1 of 3 Complete! 🎉',
+      );
+      expect(
+        english.workoutSession.targetReps(reps: 12),
+        'Target: 12 reps',
+      );
+      expect(
+        english.workoutSession.rirIdealTitle,
+        '2 — Ideal Zone (Target)',
+      );
+      expect(
+        english.workoutSession.durationMinutesValue(value: 25),
+        '25 min',
+      );
+
+      final indonesian = AppLocale.id.buildSync();
+      expect(
+        indonesian.workoutSession.setCompleteTitle(current: 1, total: 3),
+        'Set 1 dari 3 selesai! 🎉',
+      );
+      expect(
+        indonesian.workoutSession.targetReps(reps: 12),
+        'Target: 12 repetisi',
+      );
+      expect(
+        indonesian.workoutSession.rirIdealTitle,
+        '2 — Zona Ideal (Target)',
+      );
+      expect(
+        indonesian.workoutSession.durationMinutesValue(value: 25),
+        '25 menit',
+      );
+    });
+  });
+
   group('ActiveWorkoutRepCounter', () {
     testWidgets('increments and decrements the entered rep value', (
       tester,
