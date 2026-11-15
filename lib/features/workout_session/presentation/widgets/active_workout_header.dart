@@ -16,8 +16,6 @@ class ActiveWorkoutHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final safeTotal = totalExercises > 0 ? totalExercises : 1;
-    final progress = ((currentExerciseIndex + 1) / safeTotal).clamp(0.0, 1.0);
-
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: LinearProgressIndicator(
