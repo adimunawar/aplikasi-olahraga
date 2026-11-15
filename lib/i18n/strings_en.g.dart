@@ -333,6 +333,8 @@ class _Translations$workoutSession$en extends Translations$workoutSession$id {
   String restSecondsValue({required Object seconds}) => '${seconds} s';
   @override
   String durationMinutesValue({required Object value}) => '${value} min';
+  @override
+  String get savingSession => 'Saving your workout...';
 }
 
 // Path: core.actions
@@ -1897,6 +1899,7 @@ extension on TranslationsEn {
       'workoutSession.saveAndStartRest' => 'Save & Start Rest',
       'workoutSession.restSecondsValue' => ({required Object seconds}) => '${seconds} s',
       'workoutSession.durationMinutesValue' => ({required Object value}) => '${value} min',
+      'workoutSession.savingSession' => 'Saving your workout...',
       _ => null,
     };
   }
