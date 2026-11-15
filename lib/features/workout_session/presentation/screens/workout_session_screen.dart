@@ -10,6 +10,7 @@ import '../../../../core/database/app_database.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../i18n/strings.g.dart';
 import '../../../exercises/domain/models/exercise.dart';
 import '../../../program/domain/models/program_day.dart';
 import '../controllers/workout_session_controller.dart';
@@ -151,26 +152,28 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
   /// Ada sesi in_progress lain (program/jadwal berbeda). Sesi lama TIDAK
   /// otomatis di-abandon: user memilih melanjutkan atau mengakhirinya.
   Future<void> _handleConflictingSession(SessionConflict conflict) async {
+    final t = Translations.of(context);
     final choice = await showDialog<String>(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Ada latihan yang belum selesai'),
+        title: Text(t.workoutSession.sessionConflictTitle),
         content: Text(
-          'Kamu masih punya sesi "${conflict.existingProgramTitle}" '
-          '(Hari ${conflict.existingDayNumber}) yang sedang berlangsung. '
-          'Lanjutkan sesi itu dulu, atau akhiri untuk mulai latihan ini.',
+          t.workoutSession.sessionConflictMessage(
+            program: conflict.existingProgramTitle,
+            day: conflict.existingDayNumber,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, 'resume'),
-            child: const Text('Lanjutkan Sesi Lama'),
+            child: Text(t.workoutSession.resumePreviousSession),
           ),
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, 'discard'),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Akhiri Sesi Lama'),
+            child: Text(t.workoutSession.endPreviousSession),
           ),
         ],
       ),
@@ -237,6 +240,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
   }
 
   Future<void> _onNextPressed(int actualValue) async {
+    final t = Translations.of(context);
     final controller = ref.read(workoutSessionControllerProvider.notifier);
     controller.clearError();
     if (!ref.read(workoutSessionControllerProvider).isSessionReady) return;
@@ -282,9 +286,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
             ..hideCurrentSnackBar()
             ..showSnackBar(
               const SnackBar(
-                content: Text(
-                  'Gagal menyimpan set. Periksa koneksi lalu coba lagi.',
-                ),
+                content: Text(t.workoutSession.saveSetFailed),
                 behavior: SnackBarBehavior.floating,
               ),
             );
@@ -307,6 +309,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
 
   /// Modal Selebrasi saat semua latihan hari itu tuntas
   void _showWorkoutCompleteCelebrationModal() {
+    final t = Translations.of(context);
     _timer?.cancel();
     final sessionState = ref.read(workoutSessionControllerProvider);
     final durationMin = (sessionState.elapsedWorkoutSeconds / 60).ceil();
@@ -355,7 +358,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
 
                 // Judul Selebrasi
                 Text(
-                  'Latihan Hari Ini Tuntas! 🎉',
+                  t.workoutSession.completionTitle,
                   style: AppTypography.headlineMedium.copyWith(
                     fontWeight: FontWeight.w900,
                     fontSize: 20,
@@ -367,7 +370,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
 
                 // Deskripsi apresiasi
                 Text(
-                  'Semua set dan gerakan telah berhasil kamu selesaikan. Istirahatlah dengan baik untuk pemulihan otot.',
+                  t.workoutSession.completionDescription,
                   style: AppTypography.bodySmall.copyWith(
                     color: AppColors.neutral600,
                     fontSize: 13,
@@ -392,8 +395,8 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
                     children: [
                       _buildMiniStat(
                         icon: Icons.access_time_rounded,
-                        label: 'Durasi',
-                        value: '$durationMin min',
+                        label: t.workoutSession.durationLabel,
+                        value: t.workoutSession.durationMinutesValue(value: durationMin),
                       ),
                       Container(
                         width: 1,
@@ -402,8 +405,8 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
                       ),
                       _buildMiniStat(
                         icon: Icons.fitness_center_rounded,
-                        label: 'Gerakan',
-                        value: '$_totalExercises Gerakan',
+                        label: t.workoutSession.exerciseLabel,
+                        value: t.workoutSession.exerciseCount(count: _totalExercises),
                       ),
                       Container(
                         width: 1,
@@ -412,8 +415,8 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
                       ),
                       _buildMiniStat(
                         icon: Icons.check_circle_rounded,
-                        label: 'Total Set',
-                        value: '$totalSetsDone Sets',
+                        label: t.workoutSession.totalSetsLabel,
+                        value: t.workoutSession.totalSetsCount(count: totalSetsDone),
                       ),
                     ],
                   ),
@@ -422,7 +425,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
 
                 // Tombol Lihat Ringkasan (AppButton.primary)
                 AppButton.primary(
-                  text: 'Lihat Ringkasan & Evaluasi ➔',
+                  text: t.workoutSession.viewSummary,
                   size: AppButtonSize.large,
                   onPressed: () {
                     Navigator.pop(ctx);
@@ -546,6 +549,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
   }
 
   void _showOptionsSheet() {
+    final t = Translations.of(context);
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -557,7 +561,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
           children: [
             ListTile(
               leading: const Icon(Icons.refresh_rounded),
-              title: const Text('Restart Rest Timer'),
+              title: Text(t.workoutSession.restartRestTimer),
               onTap: () {
                 ref
                     .read(workoutSessionControllerProvider.notifier)
@@ -570,9 +574,9 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
                 Icons.check_circle_outline_rounded,
                 color: Color(0xFF65A30D),
               ),
-              title: const Text(
-                'Selesaikan Sesi Sekarang',
-                style: TextStyle(
+              title: Text(
+                t.workoutSession.finishSessionNow,
+                style: const TextStyle(
                   color: Color(0xFF65A30D),
                   fontWeight: FontWeight.bold,
                 ),
@@ -584,9 +588,9 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
             ),
             ListTile(
               leading: const Icon(Icons.exit_to_app_rounded, color: Colors.red),
-              title: const Text(
-                'Keluar Tanpa Menyimpan',
-                style: TextStyle(color: Colors.red),
+              title: Text(
+                t.workoutSession.exitWithoutSaving,
+                style: const TextStyle(color: Colors.red),
               ),
               onTap: () async {
                 Navigator.pop(ctx);
@@ -647,6 +651,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
 
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context);
     final sessionState = ref.watch(workoutSessionControllerProvider);
     final exercise = _getCurrentExercise(sessionState.currentExerciseIndex);
     final prescription = _prescriptionFor(exercise.id);
@@ -656,7 +661,9 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
     final targetValue = isDuration
         ? (prescription.targetDurationSeconds ?? 45)
         : prescription.maxReps;
-    final valueLabel = isDuration ? '${targetValue} sec' : '${targetValue} reps';
+    final valueLabel = isDuration
+        ? t.workoutSession.durationValue(value: targetValue)
+        : t.workoutSession.repsValue(value: targetValue);
 
     if (sessionState.phase == WorkoutSessionPhase.resting) {
       final nextExerciseName = exercise.name.en.isNotEmpty
@@ -695,7 +702,10 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
           onPressed: () => context.pop(),
         ),
         title: Text(
-          '${sessionState.currentExerciseIndex + 1} of $_totalExercises',
+          t.workoutSession.exerciseProgress(
+            current: sessionState.currentExerciseIndex + 1,
+            total: _totalExercises,
+          ),
           style: AppTypography.labelLarge.copyWith(
             color: AppColors.darkCharcoal,
             fontWeight: FontWeight.w800,
@@ -745,7 +755,11 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
                       ),
                       const SizedBox(height: 5),
                       Text(
-                        'Set ${sessionState.currentSet} of ${sessionState.totalSetsPerExercise} · $valueLabel',
+                        t.workoutSession.setProgress(
+                          current: sessionState.currentSet,
+                          total: sessionState.totalSetsPerExercise,
+                          target: valueLabel,
+                        ),
                         textAlign: TextAlign.center,
                         style: AppTypography.bodySmall.copyWith(
                           color: AppColors.neutral600,
@@ -831,7 +845,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
                       ),
                       const SizedBox(height: 18),
                       AppButton.primary(
-                        text: 'Coba Lagi',
+                        text: t.workoutSession.retry,
                         onPressed: _prepareSession,
                       ),
                     ],
@@ -926,7 +940,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
           const SizedBox(width: 9),
           Expanded(
             child: Text(
-              'Next: Rest',
+              Translations.of(context).workoutSession.nextRest,
               style: AppTypography.labelLarge.copyWith(
                 color: AppColors.darkCharcoal,
                 fontWeight: FontWeight.w700,
