@@ -420,7 +420,7 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
+                  Text(
                     t.workoutSession.saveAndStartRest,
                     style: TextStyle(
                       fontSize: 15,
