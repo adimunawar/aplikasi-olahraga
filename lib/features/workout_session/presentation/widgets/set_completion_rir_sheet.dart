@@ -19,6 +19,7 @@ class SetCompletionRirSheet extends StatefulWidget {
   final int targetReps;
   final bool isDuration;
   final int? targetDurationSeconds;
+  final int? initialValue;
   final int restSeconds;
   final OnSetCompletedCallback onConfirm;
 
@@ -30,6 +31,7 @@ class SetCompletionRirSheet extends StatefulWidget {
     required this.targetReps,
     this.isDuration = false,
     this.targetDurationSeconds,
+    this.initialValue,
     this.restSeconds = 60,
     required this.onConfirm,
   });
@@ -42,6 +44,7 @@ class SetCompletionRirSheet extends StatefulWidget {
     required int targetReps,
     bool isDuration = false,
     int? targetDurationSeconds,
+    int? initialValue,
     int restSeconds = 60,
     required OnSetCompletedCallback onConfirm,
   }) {
@@ -58,6 +61,7 @@ class SetCompletionRirSheet extends StatefulWidget {
         targetReps: targetReps,
         isDuration: isDuration,
         targetDurationSeconds: targetDurationSeconds,
+        initialValue: initialValue,
         restSeconds: restSeconds,
         onConfirm: onConfirm,
       ),
@@ -113,9 +117,10 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
   @override
   void initState() {
     super.initState();
-    _value = widget.isDuration
-        ? (widget.targetDurationSeconds ?? widget.targetReps)
-        : widget.targetReps;
+    _value = widget.initialValue ??
+        (widget.isDuration
+            ? (widget.targetDurationSeconds ?? widget.targetReps)
+            : widget.targetReps);
   }
 
   void _submit() {
