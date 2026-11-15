@@ -15,6 +15,8 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
 import '../../../exercises/domain/models/exercise.dart';
+import '../../../program/domain/models/program_lifecycle.dart';
+import '../../../program/domain/services/program_lifecycle_calculator.dart';
 import '../../../program/domain/services/program_week_schedule.dart';
 import '../../domain/models/exercise_muscle_filter.dart';
 import '../../domain/models/workouts_snapshot.dart';
@@ -44,6 +46,11 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
   DateTime? _loadedDate;
   Timer? _midnightTimer;
 
+  /// Latest-request-wins: refresh dari lifecycle, AppDataSync, timer, dan
+  /// pull-to-refresh bisa selesai tidak berurutan.
+  int _loadRequestId = 0;
+  bool _refreshErrorShown = false;
+
   int _selectedTabIndex = 0; // 0: My Program, 1: All Workouts
   ExerciseMuscleFilter _selectedMuscleFilter = ExerciseMuscleFilter.all;
   String _searchQuery = '';
@@ -54,6 +61,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
   List<ProgramSessionEntity> _programSessions = [];
   List<WorkoutSessionEntity> _programWorkoutHistory = [];
   List<Exercise> _allExercises = [];
+  WorkoutSessionEntity? _activeSession;
   int? _selectedWeek;
 
   @override
@@ -114,6 +122,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
     final workoutHistory = program != null
         ? await _db.getWorkoutSessionsForProgram(program.id)
         : <WorkoutSessionEntity>[];
+    final activeSession = await _db.getActiveSession();
     final exercises = await _exerciseDatasource.loadExercises();
 
     return WorkoutsSnapshot(
@@ -122,10 +131,13 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
       sessions: sessions,
       history: workoutHistory,
       exercises: exercises,
+      activeSession: activeSession,
     );
   }
 
   Future<void> _loadData({bool showLoading = false}) async {
+    final requestId = ++_loadRequestId;
+
     if (showLoading && mounted) {
       setState(() {
         _isLoading = true;
@@ -135,7 +147,8 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
 
     try {
       final snapshot = await (widget.dataLoader ?? _loadFromDatabase)();
-      if (!mounted) return;
+      // Abaikan hasil request lama yang selesai setelah request yang lebih baru.
+      if (!mounted || requestId != _loadRequestId) return;
 
       final today = ProgramWeekSchedule.dateOnly(DateTime.now());
       final dateChanged =
@@ -152,17 +165,38 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
         _programSessions = snapshot.sessions;
         _programWorkoutHistory = snapshot.history;
         _allExercises = snapshot.exercises;
+        _activeSession = snapshot.activeSession;
         _isLoading = false;
         _loadError = null;
+        _refreshErrorShown = false;
         _loadedDate = today;
       });
     } catch (error) {
       debugPrint('[WorkoutsScreen] Error loading data: $error');
-      if (!mounted) return;
+      if (!mounted || requestId != _loadRequestId) return;
+
       setState(() {
         _isLoading = false;
         _loadError = error;
       });
+
+      // Refresh gagal padahal data lama masih ada: beri tahu user tanpa
+      // menghapus tampilan yang sudah ter-load.
+      final hasCachedData =
+          _activeProgram != null || _allExercises.isNotEmpty;
+      if (hasCachedData && !_refreshErrorShown) {
+        _refreshErrorShown = true;
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(
+              content: Text(
+                Translations.of(context).workouts.errorState.refreshFailed,
+              ),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+      }
     }
   }
 
@@ -236,11 +270,35 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
                       ),
                     ),
                     IconButton(
+                      tooltip: t.workouts.filter.title,
                       onPressed: () => _showFilterSheet(t),
-                      icon: const Icon(
-                        Icons.tune_rounded,
-                        color: Color(0xFF141718),
-                        size: 24,
+                      icon: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          const Icon(
+                            Icons.tune_rounded,
+                            color: Color(0xFF141718),
+                            size: 24,
+                          ),
+                          // Penanda filter otot sedang aktif.
+                          if (_selectedMuscleFilter != ExerciseMuscleFilter.all)
+                            Positioned(
+                              right: -2,
+                              top: -2,
+                              child: Container(
+                                width: 9,
+                                height: 9,
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: const Color(0xFFF9FAFB),
+                                    width: 1.5,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                   ],
@@ -392,11 +450,54 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
         ? configuredWeeks
         : (program.durationWeeks > 0 ? program.durationWeeks : 8);
     final today = ProgramWeekSchedule.dateOnly(DateTime.now());
-    final currentWeek = ProgramWeekSchedule.currentWeek(
+
+    // Hitung dulu progres per minggu untuk mendapatkan total sesi program,
+    // lalu tentukan lifecycle. currentWeek saja tidak cukup karena nilainya
+    // selalu di-clamp dan membuat program yang sudah lewat tampak aktif.
+    final progressWithActiveLifecycle = WeekProgressCalculator.calculate(
       programStartDate: program.startDate,
-      today: today,
       totalWeeks: totalWeeks,
+      currentWeek: ProgramWeekSchedule.currentWeek(
+        programStartDate: program.startDate,
+        today: today,
+        totalWeeks: totalWeeks,
+      ),
+      availableDays: _profile?.availableDays ?? const [],
+      sessions: _programSessions,
+      history: _programWorkoutHistory,
     );
+
+    final totalProgramSessions = progressWithActiveLifecycle.fold<int>(
+      0,
+      (sum, item) => sum + item.totalSessions,
+    );
+    final completedProgramSessions = progressWithActiveLifecycle.fold<int>(
+      0,
+      (sum, item) => sum + item.completedSessions,
+    );
+
+    final lifecycle = ProgramLifecycleCalculator.resolve(
+      programStartDate: program.startDate,
+      totalWeeks: totalWeeks,
+      today: today,
+      storedStatus: program.status,
+      completedSessions: completedProgramSessions,
+      totalSessions: totalProgramSessions,
+    );
+    final currentWeek = lifecycle.currentWeek;
+
+    final weekProgress = lifecycle.state == ProgramLifecycle.active
+        ? progressWithActiveLifecycle
+        : WeekProgressCalculator.calculate(
+            programStartDate: program.startDate,
+            totalWeeks: totalWeeks,
+            currentWeek: currentWeek,
+            availableDays: _profile?.availableDays ?? const [],
+            sessions: _programSessions,
+            history: _programWorkoutHistory,
+            lifecycle: lifecycle.state,
+          );
+
     final selectedWeek = (_selectedWeek ?? currentWeek)
         .clamp(1, totalWeeks)
         .toInt();
@@ -408,14 +509,6 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
       sessions: _programSessions,
     );
 
-    final weekProgress = WeekProgressCalculator.calculate(
-      programStartDate: program.startDate,
-      totalWeeks: totalWeeks,
-      currentWeek: currentWeek,
-      availableDays: _profile?.availableDays ?? const [],
-      sessions: _programSessions,
-      history: _programWorkoutHistory,
-    );
     final progressByWeek = {
       for (final item in weekProgress) item.weekNumber: item,
     };
@@ -424,19 +517,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
 
     // Hitung unik per program-day + tanggal supaya record duplikat tidak
     // menggelembungkan persentase.
-    final totalProgramSessions = weekProgress.fold<int>(
-      0,
-      (sum, item) => sum + item.totalSessions,
-    );
-    final completedProgramSessions = weekProgress.fold<int>(
-      0,
-      (sum, item) => sum + item.completedSessions,
-    );
-    final progressPercent = totalProgramSessions > 0
-        ? (completedProgramSessions / totalProgramSessions)
-              .clamp(0.0, 1.0)
-              .toDouble()
-        : 0.0;
+    final progressPercent = lifecycle.completionRate;
     final percentInt = (progressPercent * 100).toInt();
 
     return Padding(
@@ -536,14 +617,16 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        t.workouts.activeProgram.weekOf(
-                          current: currentWeek,
-                          total: totalWeeks,
-                        ),
-                        style: AppTypography.bodySmall.copyWith(
-                          fontSize: 12,
-                          color: const Color(0xFF6B7280),
+                      Expanded(
+                        child: Text(
+                          _programLifecycleLabel(t, lifecycle),
+                          style: AppTypography.bodySmall.copyWith(
+                            fontSize: 12,
+                            color: _programLifecycleColor(lifecycle.state),
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       Text(
@@ -609,7 +692,8 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
             onWeekSelected: (week) => setState(() => _selectedWeek = week),
           ),
 
-          if (selectedWeek > currentWeek) ...[
+          if (selectedWeek > currentWeek ||
+              lifecycle.state == ProgramLifecycle.notStarted) ...[
             const SizedBox(height: 14),
             _buildWeekPreviewNotice(t),
           ],
@@ -628,14 +712,31 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
                 final scheduled = weeklySessions[index];
                 final session = scheduled.session;
                 final record = _findWorkoutRecord(scheduled);
+                final activeSession = _activeSession;
                 final isCompleted =
                     record?.status == WorkoutSessionStatus.completed;
                 final isToday = _isSameDate(scheduled.scheduledDate, today);
                 final isCurrentSelectedWeek = selectedWeek == currentWeek;
+                final isInProgress =
+                    activeSession != null &&
+                    activeSession.programDayId == session.dayNumber &&
+                    _isSameDate(
+                      activeSession.scheduledDate,
+                      scheduled.scheduledDate,
+                    );
+                // Hanya sesi hari ini pada program yang masih berjalan yang
+                // boleh dimulai. Pratinjau/riwayat dibuka read-only.
                 final isActiveToday =
-                    isCurrentSelectedWeek && isToday && !isCompleted;
+                    lifecycle.canStartWorkout &&
+                    isCurrentSelectedWeek &&
+                    isToday &&
+                    !isCompleted &&
+                    !isInProgress;
                 final isMissed =
-                    !isCompleted && scheduled.scheduledDate.isBefore(today);
+                    !isCompleted &&
+                    !isInProgress &&
+                    scheduled.scheduledDate.isBefore(today);
+                final isReadOnly = !(isActiveToday || isInProgress);
 
                 final title = session.focusLabel.isNotEmpty
                     ? session.focusLabel
@@ -643,40 +744,79 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
                 final duration = session.targetDurationMinutes > 0
                     ? session.targetDurationMinutes
                     : 30;
+                final dateText = MaterialLocalizations.of(
+                  context,
+                ).formatMediumDate(scheduled.scheduledDate);
 
                 return _buildWorkoutSessionCard(
                   t: t,
                   dayNumber: session.dayNumber,
+                  dateText: dateText,
                   title: title,
                   durationMinutes: duration,
                   isCompleted: isCompleted,
+                  isInProgress: isInProgress,
                   isActiveToday: isActiveToday,
                   isMissed: isMissed,
-                  onTap: isActiveToday
-                      ? () {
-                          context.push(
-                            AppRoutes.workoutDetail,
-                            extra: WorkoutDetailArgs(
-                              dayNumber: session.dayNumber,
-                              weekNumber: selectedWeek,
-                              programId: program.id,
-                              weekDayText:
-                                  'Week $selectedWeek • Day ${session.dayNumber}',
-                              workoutTitle: title,
-                              targetMusclesText: session.focusLabel,
-                              durationText: '$duration min',
-                              levelText:
-                                  _profile?.experienceLevel ?? 'Beginner',
-                            ),
-                          );
-                        }
-                      : null,
+                  onTap: () {
+                    context.push(
+                      AppRoutes.workoutDetail,
+                      extra: WorkoutDetailArgs(
+                        dayNumber: session.dayNumber,
+                        weekNumber: selectedWeek,
+                        programId: program.id,
+                        weekDayText:
+                            'Week $selectedWeek • Day ${session.dayNumber}',
+                        workoutTitle: title,
+                        targetMusclesText: session.focusLabel,
+                        durationText: '$duration min',
+                        levelText: _profile?.experienceLevel ?? 'Beginner',
+                        scheduledDate: scheduled.scheduledDate,
+                        readOnly: isReadOnly,
+                        activeSessionId: isInProgress
+                            ? activeSession.id
+                            : null,
+                      ),
+                    );
+                  },
                 );
               },
             ),
         ],
       ),
     );
+  }
+
+  String _programLifecycleLabel(Translations t, ProgramLifecycleInfo lifecycle) {
+    switch (lifecycle.state) {
+      case ProgramLifecycle.notStarted:
+        final date = MaterialLocalizations.of(
+          context,
+        ).formatMediumDate(lifecycle.startDate);
+        return t.workouts.activeProgram.status.notStarted(date: date);
+      case ProgramLifecycle.completed:
+        return t.workouts.activeProgram.status.completed;
+      case ProgramLifecycle.expired:
+        return t.workouts.activeProgram.status.expired;
+      case ProgramLifecycle.active:
+        return t.workouts.activeProgram.weekOf(
+          current: lifecycle.currentWeek,
+          total: lifecycle.totalWeeks,
+        );
+    }
+  }
+
+  Color _programLifecycleColor(ProgramLifecycle state) {
+    switch (state) {
+      case ProgramLifecycle.notStarted:
+        return const Color(0xFF6B7280);
+      case ProgramLifecycle.active:
+        return const Color(0xFF6B7280);
+      case ProgramLifecycle.completed:
+        return const Color(0xFF15803D);
+      case ProgramLifecycle.expired:
+        return const Color(0xFFB45309);
+    }
   }
 
   WorkoutSessionEntity? _findWorkoutRecord(ProgramWeekSession scheduled) {
@@ -796,9 +936,11 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
   Widget _buildWorkoutSessionCard({
     required Translations t,
     required int dayNumber,
+    required String dateText,
     required String title,
     required int durationMinutes,
     required bool isCompleted,
+    required bool isInProgress,
     required bool isActiveToday,
     required bool isMissed,
     required VoidCallback? onTap,
@@ -807,20 +949,28 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
     // melihat rencananya, hanya belum bisa memulai. Jadi pakai "Terjadwal".
     final statusText = isCompleted
         ? t.workouts.session.status.completed
+        : isInProgress
+        ? t.workouts.session.status.inProgress
         : isActiveToday
         ? t.workouts.session.status.readyToStart
         : isMissed
         ? t.workouts.session.status.missed
         : t.workouts.session.status.scheduled;
 
+    final isHighlighted = isInProgress || isActiveToday;
+
     final statusColor = isCompleted
         ? const Color(0xFF16A34A)
+        : isInProgress
+        ? const Color(0xFFB45309)
         : isActiveToday
         ? const Color(0xFF65A30D)
         : const Color(0xFF9CA3AF);
 
     final leadingIcon = isCompleted
         ? Icons.check_circle_rounded
+        : isInProgress
+        ? Icons.play_circle_fill_rounded
         : isActiveToday
         ? Icons.play_arrow_rounded
         : isMissed
@@ -829,6 +979,8 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
 
     final trailingIcon = isCompleted
         ? Icons.check_circle_rounded
+        : isInProgress
+        ? Icons.play_circle_fill_rounded
         : isActiveToday
         ? Icons.play_arrow_rounded
         : isMissed
@@ -844,8 +996,8 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isActiveToday ? AppColors.primary : const Color(0xFFE5E7EB),
-            width: isActiveToday ? 1.5 : 1.2,
+            color: isHighlighted ? AppColors.primary : const Color(0xFFE5E7EB),
+            width: isHighlighted ? 1.5 : 1.2,
           ),
           boxShadow: const [
             BoxShadow(
@@ -863,7 +1015,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
               decoration: BoxDecoration(
                 color: isCompleted
                     ? const Color(0xFFF0FDF4)
-                    : (isActiveToday
+                    : (isHighlighted
                           ? const Color(0xFFF9FED8)
                           : const Color(0xFFF3F4F6)),
                 shape: BoxShape.circle,
@@ -876,7 +1028,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    t.workouts.session.day(n: dayNumber),
+                    t.workouts.session.date(n: dayNumber, date: dateText),
                     style: const TextStyle(
                       color: Color(0xFF6B7280),
                       fontSize: 11.5,

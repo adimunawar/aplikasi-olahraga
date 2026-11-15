@@ -1,5 +1,6 @@
 import '../../../../core/database/models/dynamic_program_entity.dart';
 import '../../../../core/database/models/workout_session_entity.dart';
+import '../../../program/domain/models/program_lifecycle.dart';
 import '../../../program/domain/services/program_week_schedule.dart';
 import '../models/week_progress.dart';
 
@@ -15,6 +16,7 @@ class WeekProgressCalculator {
     required List<String> availableDays,
     required List<ProgramSessionEntity> sessions,
     required List<WorkoutSessionEntity> history,
+    ProgramLifecycle lifecycle = ProgramLifecycle.active,
   }) {
     if (totalWeeks < 1) return const [];
 
@@ -49,6 +51,7 @@ class WeekProgressCalculator {
           status: _statusFor(
             weekNumber: weekNumber,
             currentWeek: currentWeek,
+            lifecycle: lifecycle,
             completed: completed,
             total: scheduled.length,
           ),
@@ -62,11 +65,21 @@ class WeekProgressCalculator {
   static WeekStatus _statusFor({
     required int weekNumber,
     required int currentWeek,
+    required ProgramLifecycle lifecycle,
     required int completed,
     required int total,
   }) {
-    if (weekNumber == currentWeek) return WeekStatus.current;
-    if (weekNumber > currentWeek) return WeekStatus.upcoming;
+    // Program yang belum mulai: semua minggu masih pratinjau.
+    if (lifecycle == ProgramLifecycle.notStarted) return WeekStatus.upcoming;
+
+    // Hanya program yang masih berjalan yang punya "minggu saat ini".
+    // Program selesai/berakhir dinilai sepenuhnya dari riwayat, sehingga
+    // minggu terakhir tidak terus-menerus tampil sebagai Current.
+    if (lifecycle == ProgramLifecycle.active) {
+      if (weekNumber == currentWeek) return WeekStatus.current;
+      if (weekNumber > currentWeek) return WeekStatus.upcoming;
+    }
+
     if (total == 0) return WeekStatus.empty;
     if (completed >= total) return WeekStatus.completed;
     if (completed > 0) return WeekStatus.partial;

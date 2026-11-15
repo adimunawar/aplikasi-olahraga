@@ -14,7 +14,28 @@ abstract class WorkoutSessionRepository {
     required int totalExercises,
     required DateTime startedAt,
     List<WorkoutSetEntity> setLogs = const [],
+
+    /// Jika diisi, record in_progress yang sudah ada di-update menjadi
+    /// completed (bukan membuat record baru).
+    String? sessionId,
   });
+
+  /// Membuat sesi in_progress baru (WKO-10) agar latihan bisa dilanjutkan.
+  Future<WorkoutSessionEntity> startWorkoutSession({
+    required String programId,
+    required int dayNumber,
+    required String programTitle,
+    required DateTime scheduledDate,
+  });
+
+  /// Menyimpan satu set yang sudah diselesaikan untuk pemulihan sesi.
+  Future<void> saveSetLog(WorkoutSetEntity set);
+
+  /// Menandai sesi in_progress sebagai abandoned.
+  Future<void> abandonSession(String sessionId);
+
+  /// Semua set yang tercatat untuk sebuah sesi.
+  Future<List<WorkoutSetEntity>> getSetsForSession(String sessionId);
 
   /// Mengambil status crash recovery jika ada sesi yang belum selesai (WKO-10)
   Future<WorkoutSessionEntity?> getActiveInProgressSession();

@@ -188,6 +188,9 @@ class _Translations$workouts$en extends Translations$workouts$id {
   @override
   late final _Translations$workouts$session$en session = _Translations$workouts$session$en._(_root);
   @override
+  late final _Translations$workouts$workoutDetail$en workoutDetail =
+      _Translations$workouts$workoutDetail$en._(_root);
+  @override
   late final _Translations$workouts$filter$en filter = _Translations$workouts$filter$en._(_root);
   @override
   late final _Translations$workouts$categories$en categories =
@@ -755,6 +758,9 @@ class _Translations$workouts$activeProgram$en extends Translations$workouts$acti
   String weeksHomeWorkout({required Object weeks}) => '${weeks} weeks • Home workout';
   @override
   String weekOf({required Object current, required Object total}) => 'Week ${current} of ${total}';
+  @override
+  late final _Translations$workouts$activeProgram$status$en status =
+      _Translations$workouts$activeProgram$status$en._(_root);
 }
 
 // Path: workouts.weeklySchedule
@@ -836,6 +842,8 @@ class _Translations$workouts$errorState$en extends Translations$workouts$errorSt
   String get subtitle => 'Something went wrong while reading your workout data. Please try again.';
   @override
   String get retry => 'Retry';
+  @override
+  String get refreshFailed => 'Failed to refresh. Showing the last loaded data.';
 }
 
 // Path: workouts.session
@@ -850,10 +858,30 @@ class _Translations$workouts$session$en extends Translations$workouts$session$id
   @override
   String day({required Object n}) => 'Day ${n}';
   @override
+  String date({required Object n, required Object date}) => 'Day ${n} • ${date}';
+  @override
   String min({required Object min}) => '${min} min';
   @override
   late final _Translations$workouts$session$status$en status =
       _Translations$workouts$session$status$en._(_root);
+}
+
+// Path: workouts.workoutDetail
+class _Translations$workouts$workoutDetail$en extends Translations$workouts$workoutDetail$id {
+  _Translations$workouts$workoutDetail$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get readOnlyTitle => 'Preview mode';
+  @override
+  String get readOnlyNotice =>
+      'You can review this workout plan. The start button unlocks on its scheduled day.';
+  @override
+  String get resume => 'Resume Workout';
 }
 
 // Path: workouts.filter
@@ -1276,6 +1304,24 @@ class _Translations$onboarding$ready$program$en extends Translations$onboarding$
       _Translations$onboarding$ready$program$maintain$en._(_root);
 }
 
+// Path: workouts.activeProgram.status
+class _Translations$workouts$activeProgram$status$en
+    extends Translations$workouts$activeProgram$status$id {
+  _Translations$workouts$activeProgram$status$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String notStarted({required Object date}) => 'Starts ${date}';
+  @override
+  String get completed => 'Program completed';
+  @override
+  String get expired => 'Program ended';
+}
+
 // Path: workouts.weeklySchedule.statusTooltip
 class _Translations$workouts$weeklySchedule$statusTooltip$en
     extends Translations$workouts$weeklySchedule$statusTooltip$id {
@@ -1305,6 +1351,8 @@ class _Translations$workouts$session$status$en extends Translations$workouts$ses
   // Translations
   @override
   String get completed => 'Completed';
+  @override
+  String get inProgress => 'In progress';
   @override
   String get readyToStart => 'Today • Ready to start';
   @override
@@ -1598,6 +1646,9 @@ extension on TranslationsEn {
         required Object current,
         required Object total,
       }) => 'Week ${current} of ${total}',
+      'workouts.activeProgram.status.notStarted' => ({required Object date}) => 'Starts ${date}',
+      'workouts.activeProgram.status.completed' => 'Program completed',
+      'workouts.activeProgram.status.expired' => 'Program ended',
       'workouts.weeklySchedule.title' => 'Weekly Schedule',
       'workouts.weeklySchedule.workoutCount' => ({
         required Object completed,
@@ -1622,12 +1673,22 @@ extension on TranslationsEn {
       'workouts.errorState.subtitle' =>
         'Something went wrong while reading your workout data. Please try again.',
       'workouts.errorState.retry' => 'Retry',
+      'workouts.errorState.refreshFailed' => 'Failed to refresh. Showing the last loaded data.',
       'workouts.session.day' => ({required Object n}) => 'Day ${n}',
+      'workouts.session.date' => ({
+        required Object n,
+        required Object date,
+      }) => 'Day ${n} • ${date}',
       'workouts.session.min' => ({required Object min}) => '${min} min',
       'workouts.session.status.completed' => 'Completed',
+      'workouts.session.status.inProgress' => 'In progress',
       'workouts.session.status.readyToStart' => 'Today • Ready to start',
       'workouts.session.status.missed' => 'Missed',
       'workouts.session.status.scheduled' => 'Scheduled',
+      'workouts.workoutDetail.readOnlyTitle' => 'Preview mode',
+      'workouts.workoutDetail.readOnlyNotice' =>
+        'You can review this workout plan. The start button unlocks on its scheduled day.',
+      'workouts.workoutDetail.resume' => 'Resume Workout',
       'workouts.filter.title' => 'Filter by Muscle Group',
       'workouts.categories.all' => 'All',
       'workouts.categories.chest' => 'Chest',

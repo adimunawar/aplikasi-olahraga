@@ -8,7 +8,12 @@
   "activeProgram": {
     "title": "Program Aktif",
     "weeksHomeWorkout": "$weeks minggu • Latihan di rumah",
-    "weekOf": "Minggu $current dari $total"
+    "weekOf": "Minggu $current dari $total",
+    "status": {
+      "notStarted": "Dimulai $date",
+      "completed": "Program selesai",
+      "expired": "Program berakhir"
+    }
   },
   "weeklySchedule": {
     "title": "Jadwal Mingguan",
@@ -37,17 +42,25 @@
   "errorState": {
     "title": "Gagal memuat data",
     "subtitle": "Terjadi kesalahan saat membaca data latihan. Coba lagi.",
-    "retry": "Coba Lagi"
+    "retry": "Coba Lagi",
+    "refreshFailed": "Gagal memperbarui data. Menampilkan data terakhir."
   },
   "session": {
     "day": "Hari $n",
+    "date": "Hari $n • $date",
     "min": "$min mnt",
     "status": {
       "completed": "Selesai",
+      "inProgress": "Sedang berlangsung",
       "readyToStart": "Hari Ini • Siap dimulai",
       "missed": "Terlewat",
       "scheduled": "Terjadwal"
     }
+  },
+  "workoutDetail": {
+    "readOnlyTitle": "Mode pratinjau",
+    "readOnlyNotice": "Rencana latihan ini hanya bisa dilihat. Tombol mulai aktif pada hari yang dijadwalkan.",
+    "resume": "Lanjutkan Latihan"
   },
   "filter": {
     "title": "Filter Berdasarkan Otot"

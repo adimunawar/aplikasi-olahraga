@@ -29,11 +29,19 @@ class WorkoutSessionScreen extends ConsumerStatefulWidget {
   final List<Exercise> exercises;
   final String? programId;
 
+  /// Tanggal jadwal sesi (bukan selalu hari ini).
+  final DateTime? scheduledDate;
+
+  /// Sesi in_progress yang harus dilanjutkan.
+  final String? activeSessionId;
+
   const WorkoutSessionScreen({
     super.key,
     required this.day,
     required this.exercises,
     this.programId,
+    this.scheduledDate,
+    this.activeSessionId,
   });
 
   @override
@@ -49,7 +57,28 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
     super.initState();
     // Jaga layar tetap menyala saat latihan berlangsung
     WakelockPlus.enable();
+    _prepareSession();
     _startTimer();
+  }
+
+  /// Membuat record in_progress atau memulihkan sesi yang sudah berjalan,
+  /// sehingga user tidak mengulang latihan dari awal setelah aplikasi tertutup.
+  Future<void> _prepareSession() async {
+    final focus = widget.day.focus;
+    final programTitle = focus.en.isNotEmpty
+        ? focus.en
+        : (focus.id.isNotEmpty ? focus.id : 'Upper Body Strength');
+
+    await ref
+        .read(workoutSessionControllerProvider.notifier)
+        .prepareSession(
+          programId: widget.programId ?? 'upper_body_strength',
+          dayNumber: widget.day.day,
+          programTitle: programTitle,
+          scheduledDate: widget.scheduledDate ?? DateTime.now(),
+          exerciseIds: widget.exercises.map((exercise) => exercise.id).toList(),
+          resumeSessionId: widget.activeSessionId,
+        );
   }
 
   @override
@@ -419,9 +448,12 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen> {
                 'Keluar Tanpa Menyimpan',
                 style: TextStyle(color: Colors.red),
               ),
-              onTap: () {
+              onTap: () async {
                 Navigator.pop(ctx);
-                context.pop();
+                await ref
+                    .read(workoutSessionControllerProvider.notifier)
+                    .abandonActiveSession();
+                if (mounted) context.pop();
               },
             ),
           ],

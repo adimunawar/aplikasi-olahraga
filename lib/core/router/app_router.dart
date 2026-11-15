@@ -71,6 +71,16 @@ class WorkoutDetailArgs {
   final String levelText;
   final String description;
 
+  /// Tanggal jadwal sesi ini. Dipakai saat memulai/melanjutkan sesi agar
+  /// card di Workouts bisa mencocokkan record in_progress.
+  final DateTime? scheduledDate;
+
+  /// Pratinjau saja: daftar exercise terlihat, tombol mulai dinonaktifkan.
+  final bool readOnly;
+
+  /// Sesi in_progress yang bisa dilanjutkan untuk jadwal ini.
+  final String? activeSessionId;
+
   const WorkoutDetailArgs({
     this.dayNumber = 1,
     this.weekNumber,
@@ -81,6 +91,9 @@ class WorkoutDetailArgs {
     this.durationText = '45 min',
     this.levelText = 'Intermediate',
     this.description = '',
+    this.scheduledDate,
+    this.readOnly = false,
+    this.activeSessionId,
   });
 }
 
@@ -90,10 +103,18 @@ class WorkoutSessionArgs {
   final List<Exercise> exercises;
   final String? programId;
 
+  /// Tanggal jadwal sesi (bukan selalu hari ini).
+  final DateTime? scheduledDate;
+
+  /// Jika diisi, sesi yang sudah berjalan dilanjutkan, bukan dibuat baru.
+  final String? activeSessionId;
+
   const WorkoutSessionArgs({
     required this.day,
     required this.exercises,
     this.programId,
+    this.scheduledDate,
+    this.activeSessionId,
   });
 }
 
@@ -208,6 +229,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             durationText: args.durationText,
             levelText: args.levelText,
             description: args.description,
+            scheduledDate: args.scheduledDate,
+            readOnly: args.readOnly,
+            activeSessionId: args.activeSessionId,
           );
         },
       ),
@@ -220,6 +244,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             day: args.day,
             exercises: args.exercises,
             programId: args.programId,
+            scheduledDate: args.scheduledDate,
+            activeSessionId: args.activeSessionId,
           );
         },
       ),

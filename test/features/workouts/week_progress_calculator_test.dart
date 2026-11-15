@@ -3,6 +3,7 @@ import 'package:workout_app/core/database/models/dynamic_program_entity.dart';
 import 'package:workout_app/core/database/models/workout_session_entity.dart';
 import 'package:workout_app/features/workouts/domain/models/week_progress.dart';
 import 'package:workout_app/features/workouts/domain/services/week_progress_calculator.dart';
+import 'package:workout_app/features/program/domain/models/program_lifecycle.dart';
 
 void main() {
   final programStart = DateTime(2026, 11, 2); // Monday
@@ -42,6 +43,7 @@ void main() {
     int totalWeeks = 5,
     List<String> days = availableDays,
     List<ProgramSessionEntity>? sessionList,
+    ProgramLifecycle lifecycle = ProgramLifecycle.active,
   }) {
     return WeekProgressCalculator.calculate(
       programStartDate: programStart,
@@ -50,6 +52,7 @@ void main() {
       availableDays: days,
       sessions: sessionList ?? sessions,
       history: history,
+      lifecycle: lifecycle,
     );
   }
 
@@ -153,6 +156,51 @@ void main() {
         status: WeekStatus.completed,
       );
       expect(progress.completionRate, 1.0);
+    });
+
+    test('expired programs never keep a current week', () {
+      final result = calculate(
+        lifecycle: ProgramLifecycle.expired,
+        history: [
+          record(day: 1, date: DateTime(2026, 11, 2)),
+          record(day: 2, date: DateTime(2026, 11, 4)),
+          record(day: 3, date: DateTime(2026, 11, 6)),
+        ],
+      );
+
+      // Week 4 is `currentWeek`, but the program already ended.
+      expect(
+        result.where((week) => week.status == WeekStatus.current),
+        isEmpty,
+      );
+      expect(result[0].status, WeekStatus.completed);
+      expect(result[1].status, WeekStatus.missed);
+      expect(result[3].status, WeekStatus.missed);
+      expect(result[4].status, WeekStatus.missed);
+    });
+
+    test('completed programs are judged only by history', () {
+      final result = calculate(lifecycle: ProgramLifecycle.completed);
+
+      expect(
+        result.where((week) => week.status == WeekStatus.current),
+        isEmpty,
+      );
+      expect(
+        result.where((week) => week.status == WeekStatus.upcoming),
+        isEmpty,
+      );
+      expect(result.every((week) => week.status == WeekStatus.missed), isTrue);
+    });
+
+    test('not started programs show every week as upcoming', () {
+      final result = calculate(lifecycle: ProgramLifecycle.notStarted);
+
+      expect(result, hasLength(5));
+      expect(
+        result.every((week) => week.status == WeekStatus.upcoming),
+        isTrue,
+      );
     });
   });
 }

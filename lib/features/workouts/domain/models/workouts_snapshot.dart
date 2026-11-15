@@ -14,11 +14,15 @@ class WorkoutsSnapshot {
   final List<WorkoutSessionEntity> history;
   final List<Exercise> exercises;
 
+  /// Sesi yang sedang berjalan (status in_progress), jika ada.
+  final WorkoutSessionEntity? activeSession;
+
   const WorkoutsSnapshot({
     this.profile,
     this.program,
     this.sessions = const [],
     this.history = const [],
     this.exercises = const [],
+    this.activeSession,
   });
 }

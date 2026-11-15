@@ -8,7 +8,12 @@
   "activeProgram": {
     "title": "Active Program",
     "weeksHomeWorkout": "$weeks weeks • Home workout",
-    "weekOf": "Week $current of $total"
+    "weekOf": "Week $current of $total",
+    "status": {
+      "notStarted": "Starts $date",
+      "completed": "Program completed",
+      "expired": "Program ended"
+    }
   },
   "weeklySchedule": {
     "title": "Weekly Schedule",
@@ -37,17 +42,25 @@
   "errorState": {
     "title": "Failed to load data",
     "subtitle": "Something went wrong while reading your workout data. Please try again.",
-    "retry": "Retry"
+    "retry": "Retry",
+    "refreshFailed": "Failed to refresh. Showing the last loaded data."
   },
   "session": {
     "day": "Day $n",
+    "date": "Day $n • $date",
     "min": "$min min",
     "status": {
       "completed": "Completed",
+      "inProgress": "In progress",
       "readyToStart": "Today • Ready to start",
       "missed": "Missed",
       "scheduled": "Scheduled"
     }
+  },
+  "workoutDetail": {
+    "readOnlyTitle": "Preview mode",
+    "readOnlyNotice": "You can review this workout plan. The start button unlocks on its scheduled day.",
+    "resume": "Resume Workout"
   },
   "filter": {
     "title": "Filter by Muscle Group"

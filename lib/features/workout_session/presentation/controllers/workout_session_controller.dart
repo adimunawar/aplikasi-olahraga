@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/database/app_database.dart';
@@ -30,13 +32,125 @@ final workoutSessionControllerProvider =
 class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
   final WorkoutSessionRepository _repository;
   final Ref _ref;
-  final DateTime _startedAt = DateTime.now();
   final List<WorkoutSetEntity> _recordedSets = [];
+
+  /// Batas maksimum durasi yang dipulihkan saat resume, agar sesi yang
+  /// tertinggal berhari-hari tidak menghasilkan durasi tidak masuk akal.
+  static const int _maxRestoredElapsedSeconds = 4 * 60 * 60;
+
+  DateTime _startedAt = DateTime.now();
+  String? _sessionId;
 
   WorkoutSessionController({required this._repository, required this._ref})
     : super(const WorkoutSessionState());
 
-  /// Mencatat hasil set aktual & RIR (Fase 3: Set-by-Set Tracking)
+  String? get sessionId => _sessionId;
+
+  /// Menyiapkan sesi aktif: melanjutkan record in_progress yang cocok, atau
+  /// membuat record baru. Set yang sudah tercatat dipulihkan agar user tidak
+  /// mengulang latihan dari awal.
+  Future<String?> prepareSession({
+    required String programId,
+    required int dayNumber,
+    required String programTitle,
+    required DateTime scheduledDate,
+    required List<String> exerciseIds,
+    String? resumeSessionId,
+  }) async {
+    try {
+      var session = await _repository.getActiveInProgressSession();
+      if (!mounted) return null;
+
+      final canResume =
+          session != null &&
+          (resumeSessionId == null || session.id == resumeSessionId) &&
+          session.programId == programId &&
+          session.programDayId == dayNumber &&
+          _isSameDate(session.scheduledDate, scheduledDate);
+
+      if (!canResume) {
+        // Sesi lama untuk jadwal lain tidak boleh menggantung sebagai
+        // in_progress selamanya.
+        if (session != null) {
+          await _repository.abandonSession(session.id);
+        }
+        session = await _repository.startWorkoutSession(
+          programId: programId,
+          dayNumber: dayNumber,
+          programTitle: programTitle,
+          scheduledDate: scheduledDate,
+        );
+      }
+
+      _sessionId = session.id;
+      _startedAt = session.startedAt;
+
+      final sets = await _repository.getSetsForSession(session.id);
+      if (!mounted) return session.id;
+
+      _recordedSets
+        ..clear()
+        ..addAll(
+          sets.where((set) => set.status == WorkoutSetStatus.completed),
+        );
+
+      final elapsed = DateTime.now().difference(session.startedAt).inSeconds;
+      state = state.copyWith(
+        elapsedWorkoutSeconds: elapsed.clamp(0, _maxRestoredElapsedSeconds),
+      );
+      _restorePosition(exerciseIds);
+
+      return session.id;
+    } catch (error) {
+      if (!mounted) return null;
+      state = state.copyWith(
+        errorMessage: 'Gagal memulai sesi latihan: $error',
+      );
+      return null;
+    }
+  }
+
+  /// Menentukan posisi exercise/set terakhir berdasarkan log yang tersimpan.
+  void _restorePosition(List<String> exerciseIds) {
+    if (exerciseIds.isEmpty) return;
+
+    final completedPerExercise = <String, int>{};
+    for (final set in _recordedSets) {
+      completedPerExercise.update(
+        set.exerciseId,
+        (value) => value + 1,
+        ifAbsent: () => 1,
+      );
+    }
+
+    var index = 0;
+    var currentSet = 1;
+    var found = false;
+    for (var i = 0; i < exerciseIds.length; i++) {
+      final done = completedPerExercise[exerciseIds[i]] ?? 0;
+      if (done >= state.totalSetsPerExercise) continue;
+      index = i;
+      currentSet = done + 1;
+      found = true;
+      break;
+    }
+
+    // Semua set sudah tercatat (mis. aplikasi tertutup tepat sebelum sesi
+    // disimpan tuntas): tampilkan posisi terakhir tanpa melewati batas.
+    if (!found) {
+      index = exerciseIds.length - 1;
+      currentSet = state.totalSetsPerExercise;
+    }
+
+    state = state.copyWith(
+      currentExerciseIndex: index,
+      currentSet: currentSet,
+    );
+  }
+
+  /// Mencatat hasil set aktual & RIR (Fase 3: Set-by-Set Tracking).
+  ///
+  /// Set langsung disimpan ke database supaya sesi bisa dilanjutkan.
   void recordSetPerformance({
     required String exerciseId,
     required int setNumber,
@@ -45,19 +159,32 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
     required int rir,
     double formScore = 1.0,
   }) {
-    _recordedSets.add(
-      WorkoutSetEntity(
-        id: '',
-        sessionId: '',
-        exerciseId: exerciseId,
-        setNumber: setNumber,
-        targetReps: targetReps,
-        actualReps: actualReps,
-        rir: rir,
-        formScore: formScore,
-        status: WorkoutSetStatus.completed,
-      ),
+    final sessionId = _sessionId;
+    final set = WorkoutSetEntity(
+      id: sessionId != null
+          ? '${sessionId}_${exerciseId}_$setNumber'
+          : 'pending_${exerciseId}_$setNumber',
+      sessionId: sessionId ?? '',
+      exerciseId: exerciseId,
+      setNumber: setNumber,
+      targetReps: targetReps,
+      actualReps: actualReps,
+      rir: rir,
+      formScore: formScore,
+      status: WorkoutSetStatus.completed,
     );
+
+    _recordedSets
+      ..removeWhere(
+        (existing) =>
+            existing.exerciseId == exerciseId &&
+            existing.setNumber == setNumber,
+      )
+      ..add(set);
+
+    if (sessionId != null) {
+      unawaited(_repository.saveSetLog(set));
+    }
   }
 
   /// Jeda atau lanjutkan timer
@@ -170,8 +297,13 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
         totalExercises: totalExercises,
         startedAt: _startedAt,
         setLogs: logsToSave,
+        sessionId: _sessionId,
       );
 
+      // Record in_progress sudah di-update menjadi completed; jangan update
+      // ulang record yang sama pada sesi berikutnya.
+      _sessionId = null;
+      _recordedSets.clear();
       state = state.copyWith(isSaving: false, completedResult: result);
 
       // Otomatis refresh state Plans & Progress agar centang hijau ✓ langsung muncul
@@ -186,5 +318,19 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
       );
       return null;
     }
+  }
+
+  /// Menandai sesi aktif sebagai abandoned saat user keluar tanpa menyimpan.
+  Future<void> abandonActiveSession() async {
+    final id = _sessionId;
+    _sessionId = null;
+    if (id == null) return;
+    await _repository.abandonSession(id);
+  }
+
+  bool _isSameDate(DateTime first, DateTime second) {
+    return first.year == second.year &&
+        first.month == second.month &&
+        first.day == second.day;
   }
 }

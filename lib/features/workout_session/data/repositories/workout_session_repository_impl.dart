@@ -32,6 +32,7 @@ class WorkoutSessionRepositoryImpl implements WorkoutSessionRepository {
     required int totalExercises,
     required DateTime startedAt,
     List<WorkoutSetEntity> setLogs = const [],
+    String? sessionId,
   }) async {
     final endedAt = DateTime.now();
 
@@ -44,13 +45,22 @@ class WorkoutSessionRepositoryImpl implements WorkoutSessionRepository {
     );
 
     // 2. Buat entity dan simpan ke SQLite lokal terlebih dahulu (Offline-First)
+    // Jika sesi ini dilanjutkan dari record in_progress, update record yang
+    // sama supaya tidak muncul dua entri untuk satu jadwal.
+    final activeSession = sessionId != null
+        ? await localDatabase.getActiveSession()
+        : null;
+    final resumedSession = activeSession?.id == sessionId ? activeSession : null;
+    final resolvedSessionId =
+        sessionId ?? 'session_${endedAt.millisecondsSinceEpoch}';
+
     final sessionEntity = WorkoutSessionEntity(
-      id: 'session_${endedAt.millisecondsSinceEpoch}',
+      id: resolvedSessionId,
       programId: programId,
       programDayId: dayNumber,
       programTitle: programTitle,
-      scheduledDate: startedAt,
-      startedAt: startedAt,
+      scheduledDate: resumedSession?.scheduledDate ?? startedAt,
+      startedAt: resumedSession?.startedAt ?? startedAt,
       endedAt: endedAt,
       durationSeconds: durationSeconds,
       caloriesBurned: calories,
@@ -187,6 +197,51 @@ class WorkoutSessionRepositoryImpl implements WorkoutSessionRepository {
   @override
   Future<WorkoutSessionEntity?> getActiveInProgressSession() async {
     return await localDatabase.getActiveSession();
+  }
+
+  @override
+  Future<WorkoutSessionEntity> startWorkoutSession({
+    required String programId,
+    required int dayNumber,
+    required String programTitle,
+    required DateTime scheduledDate,
+  }) async {
+    final now = DateTime.now();
+    final session = WorkoutSessionEntity(
+      id: 'session_${now.millisecondsSinceEpoch}',
+      programId: programId,
+      programDayId: dayNumber,
+      programTitle: programTitle,
+      scheduledDate: scheduledDate,
+      startedAt: now,
+      status: WorkoutSessionStatus.inProgress,
+    );
+
+    await localDatabase.saveWorkoutSession(session);
+    return session;
+  }
+
+  @override
+  Future<void> saveSetLog(WorkoutSetEntity set) async {
+    await localDatabase.saveWorkoutSet(set);
+  }
+
+  @override
+  Future<void> abandonSession(String sessionId) async {
+    final active = await localDatabase.getActiveSession();
+    if (active == null || active.id != sessionId) return;
+
+    await localDatabase.saveWorkoutSession(
+      active.copyWith(
+        status: WorkoutSessionStatus.abandoned,
+        endedAt: DateTime.now(),
+      ),
+    );
+  }
+
+  @override
+  Future<List<WorkoutSetEntity>> getSetsForSession(String sessionId) async {
+    return await localDatabase.getSetsForSession(sessionId);
   }
 }
 

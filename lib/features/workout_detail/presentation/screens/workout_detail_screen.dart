@@ -11,6 +11,7 @@ import '../../../exercises/domain/models/exercise.dart';
 import '../../../program/data/datasources/program_local_datasource.dart';
 import '../../../program/data/repositories/program_repository_impl.dart';
 import '../../../program/domain/models/program_day.dart';
+import '../../../../i18n/strings.g.dart';
 import '../widgets/start_workout_bottom_bar.dart';
 import '../widgets/target_muscles_overview_section.dart';
 import '../widgets/workout_detail_hero_banner.dart';
@@ -31,6 +32,15 @@ class WorkoutDetailScreen extends StatefulWidget {
   final String levelText;
   final String description;
 
+  /// Tanggal jadwal sesi ini, dipakai untuk memulai/melanjutkan sesi.
+  final DateTime? scheduledDate;
+
+  /// Jika true, layar hanya menampilkan pratinjau tanpa tombol mulai.
+  final bool readOnly;
+
+  /// Sesi in_progress yang bisa dilanjutkan.
+  final String? activeSessionId;
+
   const WorkoutDetailScreen({
     super.key,
     this.dayNumber = 1,
@@ -42,6 +52,9 @@ class WorkoutDetailScreen extends StatefulWidget {
     this.durationText = '45 min',
     this.levelText = 'Intermediate',
     this.description = 'Build strength and muscle mass at home.',
+    this.scheduledDate,
+    this.readOnly = false,
+    this.activeSessionId,
   });
 
   @override
@@ -348,6 +361,10 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
               levelText: widget.levelText,
               description: widget.description,
             ),
+            if (widget.readOnly) ...[
+              const SizedBox(height: 14),
+              _buildReadOnlyNotice(Translations.of(context)),
+            ],
             const SizedBox(height: 18),
 
             // 2. Workout Overview 4 Kolom (Mockup 1:1)
@@ -380,8 +397,63 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: StartWorkoutBottomBar(
-        onStartWorkout: _startActiveWorkout,
+      bottomNavigationBar: widget.readOnly
+          ? null
+          : StartWorkoutBottomBar(
+              label: widget.activeSessionId != null
+                  ? Translations.of(context).workouts.workoutDetail.resume
+                  : 'Start Workout',
+              icon: widget.activeSessionId != null
+                  ? Icons.play_circle_fill_rounded
+                  : Icons.play_arrow_rounded,
+              onStartWorkout: _startActiveWorkout,
+            ),
+    );
+  }
+
+  Widget _buildReadOnlyNotice(Translations t) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFBEB),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFFDE68A)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.visibility_rounded,
+            size: 18,
+            color: Color(0xFFB45309),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  t.workouts.workoutDetail.readOnlyTitle,
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF92400E),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  t.workouts.workoutDetail.readOnlyNotice,
+                  style: const TextStyle(
+                    fontSize: 11.5,
+                    height: 1.35,
+                    color: Color(0xFFB45309),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -428,6 +500,8 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
         day: programDay,
         exercises: _exercises.map((e) => e.exercise).toList(),
         programId: _resolvedProgramId ?? widget.programId,
+        scheduledDate: widget.scheduledDate,
+        activeSessionId: widget.activeSessionId,
       ),
     );
   }
