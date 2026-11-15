@@ -229,7 +229,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) return;
-      // Hanya menghitung detik berjalan latihan (TIDAK auto-finish sesi)
+      // Menghitung durasi sesi; countdown hanya berjalan pada fase Rest.
       ref
           .read(workoutSessionControllerProvider.notifier)
           .tickTimer(totalExercises: _totalExercises);
@@ -260,7 +260,12 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
       isDuration: isDuration,
       targetDurationSeconds: prescription.targetDurationSeconds,
       initialValue: actualValue,
-      onConfirm: ({actualReps, durationSeconds, required rir, required formScore}) async {
+      onConfirm: ({
+        actualReps,
+        durationSeconds,
+        required rir,
+        required formScore,
+      }) async {
         final saved = await controller.recordSetPerformance(
           exerciseId: currentExercise.id,
           setNumber: state.currentSet,
@@ -475,17 +480,6 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
       return widget.exercises[currentIndex];
     }
     return _buildFallbackExercise('Push-up', 'Chest');
-  }
-
-  Exercise? _getNextExercise(int currentIndex) {
-    final nextIdx = currentIndex + 1;
-    if (widget.exercises.isNotEmpty && nextIdx < widget.exercises.length) {
-      return widget.exercises[nextIdx];
-    }
-    if (currentIndex < 4) {
-      return _buildFallbackExercise('Superman Pull', 'Back');
-    }
-    return null;
   }
 
   Future<void> _openSummaryScreen({bool isEndingEarly = false}) async {
