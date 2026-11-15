@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../i18n/strings.g.dart';
 
 /// Callback ketika set selesai dicatat
 typedef OnSetCompletedCallback = void Function({
@@ -76,43 +77,45 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
   late int _value;
   int _selectedRir = 2; // Default zona ideal (2 RIR)
 
-  final List<_RirOption> _rirOptions = const [
-    _RirOption(
-      rir: 0,
-      title: '0 — Habis Total (Max Failure)',
-      description: 'Tenaga habis total, tidak sanggup menambah 1 rep lagi dengan teknik rapi.',
-      color: Color(0xFFEF4444),
-      badgeText: 'Maksimal',
-    ),
-    _RirOption(
-      rir: 1,
-      title: '1 — Sangat Berat',
-      description: 'Hanya sanggup 1 repetisi lagi sebelum gagal.',
-      color: Color(0xFFF59E0B),
-      badgeText: 'Tinggi',
-    ),
-    _RirOption(
-      rir: 2,
-      title: '2 — Zona Ideal (Target)',
-      description: 'Cukup menantang, masih bisa 2 repetisi lagi jika dipaksa.',
-      color: Color(0xFF65A30D),
-      badgeText: 'Optimal ⭐',
-    ),
-    _RirOption(
-      rir: 3,
-      title: '3 — Cukup Ringan',
-      description: 'Masih tersisa 3 repetisi di dalam tangki tenaga.',
-      color: Color(0xFF3B82F6),
-      badgeText: 'Sedang',
-    ),
-    _RirOption(
-      rir: 4,
-      title: '4+ — Terlalu Mudah',
-      description: 'Sangat enteng, masih sanggup melakukan 4 repetisi atau lebih.',
-      color: Color(0xFF8B5CF6),
-      badgeText: 'Ringan',
-    ),
-  ];
+  List<_RirOption> _buildRirOptions(Translations t) {
+    return [
+      _RirOption(
+        rir: 0,
+        title: t.workoutSession.rirFailureTitle,
+        description: t.workoutSession.rirFailureDescription,
+        color: const Color(0xFFEF4444),
+        badgeText: t.workoutSession.rirBadgeMax,
+      ),
+      _RirOption(
+        rir: 1,
+        title: t.workoutSession.rirVeryHardTitle,
+        description: t.workoutSession.rirVeryHardDescription,
+        color: const Color(0xFFF59E0B),
+        badgeText: t.workoutSession.rirBadgeHigh,
+      ),
+      _RirOption(
+        rir: 2,
+        title: t.workoutSession.rirIdealTitle,
+        description: t.workoutSession.rirIdealDescription,
+        color: const Color(0xFF65A30D),
+        badgeText: t.workoutSession.rirBadgeOptimal,
+      ),
+      _RirOption(
+        rir: 3,
+        title: t.workoutSession.rirModerateTitle,
+        description: t.workoutSession.rirModerateDescription,
+        color: const Color(0xFF3B82F6),
+        badgeText: t.workoutSession.rirBadgeModerate,
+      ),
+      _RirOption(
+        rir: 4,
+        title: t.workoutSession.rirEasyTitle,
+        description: t.workoutSession.rirEasyDescription,
+        color: const Color(0xFF8B5CF6),
+        badgeText: t.workoutSession.rirBadgeEasy,
+      ),
+    ];
+  }
 
   @override
   void initState() {
@@ -135,6 +138,9 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context);
+    final rirOptions = _buildRirOptions(t);
+
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -171,7 +177,10 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Set ${widget.setNumber} of ${widget.totalSets} Complete! 🎉',
+                    t.workoutSession.setCompleteTitle(
+                      current: widget.setNumber,
+                      total: widget.totalSets,
+                    ),
                     style: AppTypography.headlineSmall.copyWith(
                       fontWeight: FontWeight.w900,
                       color: const Color(0xFF1A1D1E),
@@ -197,8 +206,10 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
                 ),
                 child: Text(
                   widget.isDuration
-                      ? 'Target: ${widget.targetDurationSeconds ?? widget.targetReps} dtk'
-                      : 'Target: ${widget.targetReps} reps',
+                      ? t.workoutSession.targetDuration(
+                          seconds: widget.targetDurationSeconds ?? widget.targetReps,
+                        )
+                      : t.workoutSession.targetReps(reps: widget.targetReps),
                   style: AppTypography.labelSmall.copyWith(
                     color: const Color(0xFF558B0A),
                     fontWeight: FontWeight.w700,
@@ -224,7 +235,9 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.isDuration ? 'Durasi Selesai' : 'Repetisi Selesai',
+                      widget.isDuration
+                          ? t.workoutSession.durationCompleted
+                          : t.workoutSession.repsCompleted,
                       style: AppTypography.titleMedium.copyWith(
                         fontWeight: FontWeight.w800,
                         fontSize: 14,
@@ -233,8 +246,8 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
                     ),
                     Text(
                       widget.isDuration
-                          ? 'Berapa detik kamu bertahan?'
-                          : 'Berapa kali kamu berhasil?',
+                          ? t.workoutSession.durationQuestion
+                          : t.workoutSession.repsQuestion,
                       style: AppTypography.bodySmall.copyWith(
                         color: const Color(0xFF64748B),
                         fontSize: 12,
@@ -260,7 +273,7 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
                     ),
                     const SizedBox(width: 14),
                     Text(
-                      widget.isDuration ? '$_value s' : '$_value',
+                      widget.isDuration ? t.workoutSession.durationValue(value: _value) : '$_value',
                       style: AppTypography.headlineMedium.copyWith(
                         fontWeight: FontWeight.w900,
                         fontSize: 22,
@@ -287,7 +300,7 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
 
           // Section 2: RIR Selector
           Text(
-            'Sisa Tenaga Kamu (RIR - Reps in Reserve)',
+            t.workoutSession.rirTitle,
             style: AppTypography.titleMedium.copyWith(
               fontWeight: FontWeight.w800,
               fontSize: 14,
@@ -296,7 +309,7 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Berapa repetisi lagi yang sanggup kamu lakukan sebelum benar-benar gagal?',
+            t.workoutSession.rirQuestion,
             style: AppTypography.bodySmall.copyWith(
               color: const Color(0xFF64748B),
               fontSize: 12,
@@ -306,7 +319,7 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
 
           // List of RIR options
           Column(
-            children: _rirOptions.map((opt) {
+            children: rirOptions.map((opt) {
               final isSelected = _selectedRir == opt.rir;
               return Padding(
                 padding: const EdgeInsets.only(bottom: 8),
@@ -408,7 +421,7 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    'Simpan & Mulai Istirahat',
+                    t.workoutSession.saveAndStartRest,
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
@@ -422,7 +435,7 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      '${widget.restSeconds}s',
+                      t.workoutSession.restSecondsValue(seconds: widget.restSeconds),
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
