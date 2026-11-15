@@ -429,6 +429,7 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
       state = state.copyWith(
         currentSet: state.currentSet + 1,
         remainingRestSeconds: state.defaultRestSeconds,
+        restDurationSeconds: state.defaultRestSeconds,
         isTimerPaused: false,
       );
       return false;
@@ -445,6 +446,7 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
           totalSetsPerExercise: nextRx.targetSets,
           defaultRestSeconds: nextRx.restSeconds,
           remainingRestSeconds: nextRx.restSeconds,
+          restDurationSeconds: nextRx.restSeconds,
           isTimerPaused: false,
         );
         return false;
