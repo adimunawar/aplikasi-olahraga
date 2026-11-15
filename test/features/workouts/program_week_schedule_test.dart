@@ -193,6 +193,10 @@ void main() {
     });
 
     test('handles a program that starts mid-week', () {
+      // Program weeks are rolling 7-day blocks anchored to the start date,
+      // which is exactly how currentWeek() measures weeks. A program that
+      // starts on Wednesday therefore has its first "Monday" in the
+      // following calendar week but still inside program week 1.
       final week = ProgramWeekSchedule.build(
         programStartDate: DateTime(2026, 11, 4), // Wednesday
         weekNumber: 1,
@@ -200,10 +204,39 @@ void main() {
         sessions: sessions,
       );
 
-      expect(week, hasLength(2));
+      expect(week, hasLength(3));
       expect(
         week.map((item) => item.scheduledDate),
-        [DateTime(2026, 11, 4), DateTime(2026, 11, 6)],
+        [DateTime(2026, 11, 4), DateTime(2026, 11, 6), DateTime(2026, 11, 9)],
+      );
+    });
+
+    test('week boundaries match currentWeek for a mid-week start', () {
+      final start = DateTime(2026, 11, 4); // Wednesday
+      final weekTwoStart = ProgramWeekSchedule.startDateForWeek(
+        programStartDate: start,
+        weekNumber: 2,
+      );
+
+      expect(weekTwoStart, DateTime(2026, 11, 11));
+
+      // The day before the block boundary is still week 1, and the boundary
+      // itself is week 2, so scheduled sessions never leak across weeks.
+      expect(
+        ProgramWeekSchedule.currentWeek(
+          programStartDate: start,
+          today: DateTime(2026, 11, 10),
+          totalWeeks: 12,
+        ),
+        1,
+      );
+      expect(
+        ProgramWeekSchedule.currentWeek(
+          programStartDate: start,
+          today: weekTwoStart,
+          totalWeeks: 12,
+        ),
+        2,
       );
     });
 

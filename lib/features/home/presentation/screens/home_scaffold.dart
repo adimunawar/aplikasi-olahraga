@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_typography.dart';
 import 'home_screen.dart';
 import '../../../workouts/presentation/screens/workouts_screen.dart';
-import '../../../plans/presentation/screens/plans_screen.dart';
 import '../../../progress/presentation/screens/progress_screen.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
 

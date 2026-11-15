@@ -15,11 +15,29 @@
     "workoutCount": "$completed/$total latihan",
     "current": "Saat Ini",
     "weekShort": "W$n",
-    "empty": "Tidak ada sesi latihan yang dijadwalkan untuk minggu ini."
+    "empty": "Tidak ada sesi latihan yang dijadwalkan untuk minggu ini.",
+    "previewTitle": "Mode pratinjau",
+    "previewNotice": "Kamu bisa melihat rencana minggu ini, tapi latihan baru bisa dimulai sesuai jadwalnya.",
+    "previewTooltip": "Pratinjau minggu mendatang",
+    "statusTooltip": {
+      "completed": "Semua latihan selesai",
+      "partial": "Sebagian latihan selesai",
+      "missed": "Ada latihan yang terlewat"
+    }
   },
   "emptyState": {
     "noProgramTitle": "Belum ada program aktif",
     "noProgramSubtitle": "Buat program untuk melihat jadwal latihan mingguanmu di sini."
+  },
+  "allWorkouts": {
+    "emptyTitle": "Tidak ada latihan ditemukan",
+    "emptySubtitle": "Coba kata kunci lain atau ubah filter otot.",
+    "clearFilters": "Hapus pencarian & filter"
+  },
+  "errorState": {
+    "title": "Gagal memuat data",
+    "subtitle": "Terjadi kesalahan saat membaca data latihan. Coba lagi.",
+    "retry": "Coba Lagi"
   },
   "session": {
     "day": "Hari $n",
@@ -28,7 +46,6 @@
       "completed": "Selesai",
       "readyToStart": "Hari Ini • Siap dimulai",
       "missed": "Terlewat",
-      "locked": "Terkunci",
       "scheduled": "Terjadwal"
     }
   },

@@ -13,7 +13,6 @@ import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/onboarding/presentation/screens/creating_plan_screen.dart';
 import '../../features/onboarding/presentation/screens/plan_ready_screen.dart';
 import '../../features/onboarding/presentation/screens/plan_preview_screen.dart';
-import '../../features/plans/presentation/screens/plans_screen.dart';
 import '../../features/workouts/presentation/screens/workouts_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/profile/presentation/screens/personal_information_screen.dart';

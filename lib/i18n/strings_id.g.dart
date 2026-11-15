@@ -153,6 +153,10 @@ class Translations$workouts$id {
       Translations$workouts$weeklySchedule$id.internal(_root);
   late final Translations$workouts$emptyState$id emptyState =
       Translations$workouts$emptyState$id.internal(_root);
+  late final Translations$workouts$allWorkouts$id allWorkouts =
+      Translations$workouts$allWorkouts$id.internal(_root);
+  late final Translations$workouts$errorState$id errorState =
+      Translations$workouts$errorState$id.internal(_root);
   late final Translations$workouts$session$id session = Translations$workouts$session$id.internal(
     _root,
   );
@@ -838,6 +842,19 @@ class Translations$workouts$weeklySchedule$id {
 
   /// id: 'Tidak ada sesi latihan yang dijadwalkan untuk minggu ini.'
   String get empty => 'Tidak ada sesi latihan yang dijadwalkan untuk minggu ini.';
+
+  /// id: 'Mode pratinjau'
+  String get previewTitle => 'Mode pratinjau';
+
+  /// id: 'Kamu bisa melihat rencana minggu ini, tapi latihan baru bisa dimulai sesuai jadwalnya.'
+  String get previewNotice =>
+      'Kamu bisa melihat rencana minggu ini, tapi latihan baru bisa dimulai sesuai jadwalnya.';
+
+  /// id: 'Pratinjau minggu mendatang'
+  String get previewTooltip => 'Pratinjau minggu mendatang';
+
+  late final Translations$workouts$weeklySchedule$statusTooltip$id statusTooltip =
+      Translations$workouts$weeklySchedule$statusTooltip$id.internal(_root);
 }
 
 // Path: workouts.emptyState
@@ -853,6 +870,42 @@ class Translations$workouts$emptyState$id {
 
   /// id: 'Buat program untuk melihat jadwal latihan mingguanmu di sini.'
   String get noProgramSubtitle => 'Buat program untuk melihat jadwal latihan mingguanmu di sini.';
+}
+
+// Path: workouts.allWorkouts
+class Translations$workouts$allWorkouts$id {
+  Translations$workouts$allWorkouts$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Tidak ada latihan ditemukan'
+  String get emptyTitle => 'Tidak ada latihan ditemukan';
+
+  /// id: 'Coba kata kunci lain atau ubah filter otot.'
+  String get emptySubtitle => 'Coba kata kunci lain atau ubah filter otot.';
+
+  /// id: 'Hapus pencarian & filter'
+  String get clearFilters => 'Hapus pencarian & filter';
+}
+
+// Path: workouts.errorState
+class Translations$workouts$errorState$id {
+  Translations$workouts$errorState$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Gagal memuat data'
+  String get title => 'Gagal memuat data';
+
+  /// id: 'Terjadi kesalahan saat membaca data latihan. Coba lagi.'
+  String get subtitle => 'Terjadi kesalahan saat membaca data latihan. Coba lagi.';
+
+  /// id: 'Coba Lagi'
+  String get retry => 'Coba Lagi';
 }
 
 // Path: workouts.session
@@ -1272,6 +1325,24 @@ class Translations$onboarding$ready$program$id {
       Translations$onboarding$ready$program$maintain$id.internal(_root);
 }
 
+// Path: workouts.weeklySchedule.statusTooltip
+class Translations$workouts$weeklySchedule$statusTooltip$id {
+  Translations$workouts$weeklySchedule$statusTooltip$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Semua latihan selesai'
+  String get completed => 'Semua latihan selesai';
+
+  /// id: 'Sebagian latihan selesai'
+  String get partial => 'Sebagian latihan selesai';
+
+  /// id: 'Ada latihan yang terlewat'
+  String get missed => 'Ada latihan yang terlewat';
+}
+
 // Path: workouts.session.status
 class Translations$workouts$session$status$id {
   Translations$workouts$session$status$id.internal(this._root);
@@ -1288,9 +1359,6 @@ class Translations$workouts$session$status$id {
 
   /// id: 'Terlewat'
   String get missed => 'Terlewat';
-
-  /// id: 'Terkunci'
-  String get locked => 'Terkunci';
 
   /// id: 'Terjadwal'
   String get scheduled => 'Terjadwal';
@@ -1587,15 +1655,27 @@ extension on Translations {
       'workouts.weeklySchedule.weekShort' => ({required Object n}) => 'W${n}',
       'workouts.weeklySchedule.empty' =>
         'Tidak ada sesi latihan yang dijadwalkan untuk minggu ini.',
+      'workouts.weeklySchedule.previewTitle' => 'Mode pratinjau',
+      'workouts.weeklySchedule.previewNotice' =>
+        'Kamu bisa melihat rencana minggu ini, tapi latihan baru bisa dimulai sesuai jadwalnya.',
+      'workouts.weeklySchedule.previewTooltip' => 'Pratinjau minggu mendatang',
+      'workouts.weeklySchedule.statusTooltip.completed' => 'Semua latihan selesai',
+      'workouts.weeklySchedule.statusTooltip.partial' => 'Sebagian latihan selesai',
+      'workouts.weeklySchedule.statusTooltip.missed' => 'Ada latihan yang terlewat',
       'workouts.emptyState.noProgramTitle' => 'Belum ada program aktif',
       'workouts.emptyState.noProgramSubtitle' =>
         'Buat program untuk melihat jadwal latihan mingguanmu di sini.',
+      'workouts.allWorkouts.emptyTitle' => 'Tidak ada latihan ditemukan',
+      'workouts.allWorkouts.emptySubtitle' => 'Coba kata kunci lain atau ubah filter otot.',
+      'workouts.allWorkouts.clearFilters' => 'Hapus pencarian & filter',
+      'workouts.errorState.title' => 'Gagal memuat data',
+      'workouts.errorState.subtitle' => 'Terjadi kesalahan saat membaca data latihan. Coba lagi.',
+      'workouts.errorState.retry' => 'Coba Lagi',
       'workouts.session.day' => ({required Object n}) => 'Hari ${n}',
       'workouts.session.min' => ({required Object min}) => '${min} mnt',
       'workouts.session.status.completed' => 'Selesai',
       'workouts.session.status.readyToStart' => 'Hari Ini • Siap dimulai',
       'workouts.session.status.missed' => 'Terlewat',
-      'workouts.session.status.locked' => 'Terkunci',
       'workouts.session.status.scheduled' => 'Terjadwal',
       'workouts.filter.title' => 'Filter Berdasarkan Otot',
       'workouts.categories.all' => 'Semua',

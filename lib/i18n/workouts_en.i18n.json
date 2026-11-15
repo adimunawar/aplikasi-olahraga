@@ -15,11 +15,29 @@
     "workoutCount": "$completed/$total workouts",
     "current": "Current",
     "weekShort": "W$n",
-    "empty": "No workout sessions are scheduled for this week."
+    "empty": "No workout sessions are scheduled for this week.",
+    "previewTitle": "Preview mode",
+    "previewNotice": "You can review this week's plan, but workouts can only be started on their scheduled day.",
+    "previewTooltip": "Preview upcoming week",
+    "statusTooltip": {
+      "completed": "All workouts completed",
+      "partial": "Some workouts completed",
+      "missed": "Some workouts were missed"
+    }
   },
   "emptyState": {
     "noProgramTitle": "No active program yet",
     "noProgramSubtitle": "Create a program to see your weekly workouts here."
+  },
+  "allWorkouts": {
+    "emptyTitle": "No exercises found",
+    "emptySubtitle": "Try another search or adjust your muscle filters.",
+    "clearFilters": "Clear search & filters"
+  },
+  "errorState": {
+    "title": "Failed to load data",
+    "subtitle": "Something went wrong while reading your workout data. Please try again.",
+    "retry": "Retry"
   },
   "session": {
     "day": "Day $n",
@@ -28,7 +46,6 @@
       "completed": "Completed",
       "readyToStart": "Today • Ready to start",
       "missed": "Missed",
-      "locked": "Locked",
       "scheduled": "Scheduled"
     }
   },

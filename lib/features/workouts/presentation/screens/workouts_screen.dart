@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -9,27 +11,41 @@ import '../../../../core/router/app_router.dart';
 import '../../../../core/services/app_data_sync.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
 import '../../../exercises/domain/models/exercise.dart';
 import '../../../program/domain/services/program_week_schedule.dart';
+import '../../domain/models/exercise_muscle_filter.dart';
+import '../../domain/models/workouts_snapshot.dart';
+import '../../domain/services/week_progress_calculator.dart';
 import '../widgets/weekly_schedule_selector.dart';
+
+/// Loader yang bisa diganti saat widget test (tanpa menyentuh SQLite).
+typedef WorkoutsDataLoader = Future<WorkoutsSnapshot> Function();
 
 /// Halaman Workouts Utama Sesuai Mockup Referensi (Design System 1:1)
 class WorkoutsScreen extends StatefulWidget {
-  const WorkoutsScreen({super.key});
+  final WorkoutsDataLoader? dataLoader;
+
+  const WorkoutsScreen({super.key, this.dataLoader});
 
   @override
   State<WorkoutsScreen> createState() => _WorkoutsScreenState();
 }
 
-class _WorkoutsScreenState extends State<WorkoutsScreen> {
+class _WorkoutsScreenState extends State<WorkoutsScreen>
+    with WidgetsBindingObserver {
   final _db = AppDatabase.instance;
   late final ExerciseLocalDatasource _exerciseDatasource;
 
   bool _isLoading = true;
+  Object? _loadError;
+  DateTime? _loadedDate;
+  Timer? _midnightTimer;
+
   int _selectedTabIndex = 0; // 0: My Program, 1: All Workouts
-  String _selectedMuscleFilter = 'All';
+  ExerciseMuscleFilter _selectedMuscleFilter = ExerciseMuscleFilter.all;
   String _searchQuery = '';
   bool _isSearchActive = false;
 
@@ -40,89 +56,141 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
   List<Exercise> _allExercises = [];
   int? _selectedWeek;
 
-  static const List<String> _muscleCategories = [
-    'All',
-    'Chest',
-    'Back',
-    'Legs',
-    'Core',
-    'Arms',
-    'Shoulders',
-  ];
-
   @override
   void initState() {
     super.initState();
     _exerciseDatasource = ExerciseLocalDatasource(db: _db);
-    _loadData();
+    WidgetsBinding.instance.addObserver(this);
     AppDataSync.instance.dataRevision.addListener(_onDataSync);
+    _loadData();
+    _scheduleMidnightRefresh();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     AppDataSync.instance.dataRevision.removeListener(_onDataSync);
+    _midnightTimer?.cancel();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Screen lives inside StatefulShellRoute, jadi initState hanya sekali.
+      _loadData();
+      _scheduleMidnightRefresh();
+    }
+  }
+
+  void _scheduleMidnightRefresh() {
+    _midnightTimer?.cancel();
+    final now = DateTime.now();
+    final nextMidnight = DateTime(now.year, now.month, now.day + 1);
+    _midnightTimer = Timer(
+      nextMidnight.difference(now) + const Duration(seconds: 1),
+      () {
+        if (!mounted) return;
+        _loadData();
+        _scheduleMidnightRefresh();
+      },
+    );
   }
 
   void _onDataSync() {
     if (mounted) _loadData();
   }
 
-  Future<void> _loadData() async {
+  Future<WorkoutsSnapshot> _loadFromDatabase() async {
+    final profile = await _db.getUserProfile();
+    final userId = profile.id.isNotEmpty ? profile.id : 'default_user';
+
+    var program = await _db.getActiveTrainingProgram(userId);
+    program ??= await _db.getActiveTrainingProgram('default_user');
+
+    final sessions = program != null
+        ? await _db.getProgramSessions(program.id)
+        : <ProgramSessionEntity>[];
+    final workoutHistory = program != null
+        ? await _db.getWorkoutSessionsForProgram(program.id)
+        : <WorkoutSessionEntity>[];
+    final exercises = await _exerciseDatasource.loadExercises();
+
+    return WorkoutsSnapshot(
+      profile: profile,
+      program: program,
+      sessions: sessions,
+      history: workoutHistory,
+      exercises: exercises,
+    );
+  }
+
+  Future<void> _loadData({bool showLoading = false}) async {
+    if (showLoading && mounted) {
+      setState(() {
+        _isLoading = true;
+        _loadError = null;
+      });
+    }
+
     try {
-      final profile = await _db.getUserProfile();
-      final userId = profile.id.isNotEmpty ? profile.id : 'default_user';
+      final snapshot = await (widget.dataLoader ?? _loadFromDatabase)();
+      if (!mounted) return;
 
-      var program = await _db.getActiveTrainingProgram(userId);
-      program ??= await _db.getActiveTrainingProgram('default_user');
+      final today = ProgramWeekSchedule.dateOnly(DateTime.now());
+      final dateChanged =
+          _loadedDate == null || !_isSameDate(_loadedDate!, today);
+      final programChanged = _activeProgram?.id != snapshot.program?.id;
 
-      final sessions = program != null
-          ? await _db.getProgramSessions(program.id)
-          : <ProgramSessionEntity>[];
-      final workoutHistory = program != null
-          ? await _db.getWorkoutSessionsForProgram(program.id)
-          : <WorkoutSessionEntity>[];
-      final exercises = await _exerciseDatasource.loadExercises();
+      setState(() {
+        // Jangan pertahankan pilihan minggu lama ketika tanggal/program
+        // berganti; biarkan layar kembali mengikuti current week.
+        if (dateChanged || programChanged) _selectedWeek = null;
 
-      if (mounted) {
-        setState(() {
-          if (_activeProgram?.id != program?.id) {
-            _selectedWeek = null;
-          }
-          _profile = profile;
-          _activeProgram = program;
-          _programSessions = sessions;
-          _programWorkoutHistory = workoutHistory;
-          _allExercises = exercises;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      debugPrint('[WorkoutsScreen] Error loading data: $e');
-      if (mounted) setState(() => _isLoading = false);
+        _profile = snapshot.profile;
+        _activeProgram = snapshot.program;
+        _programSessions = snapshot.sessions;
+        _programWorkoutHistory = snapshot.history;
+        _allExercises = snapshot.exercises;
+        _isLoading = false;
+        _loadError = null;
+        _loadedDate = today;
+      });
+    } catch (error) {
+      debugPrint('[WorkoutsScreen] Error loading data: $error');
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _loadError = error;
+      });
     }
   }
 
+  bool get _isAllWorkoutsTab => _selectedTabIndex == 1;
+
   List<Exercise> get _filteredExercises {
-    var list = _allExercises;
-    if (_selectedMuscleFilter != 'All') {
-      final q = _selectedMuscleFilter.toLowerCase();
-      list = list.where((e) {
-        final cat = e.category.name.toLowerCase();
-        final muscles = e.primaryMuscles
-            .map((m) => m.en.toLowerCase())
-            .join(' ');
-        return cat.contains(q) || muscles.contains(q);
-      }).toList();
-    }
-    if (_searchQuery.trim().isNotEmpty) {
-      final q = _searchQuery.trim().toLowerCase();
-      list = list.where((e) {
-        final nameEn = e.name.en.toLowerCase();
-        final nameId = e.name.id.toLowerCase();
-        return nameEn.contains(q) || nameId.contains(q);
-      }).toList();
-    }
+    var list = _allExercises
+        .where((exercise) => _selectedMuscleFilter.matches(exercise))
+        .toList();
+
+    final query = _searchQuery.trim().toLowerCase();
+    if (query.isEmpty) return list;
+
+    list = list.where((exercise) {
+      final haystack = <String>[
+        exercise.name.id,
+        exercise.name.en,
+        for (final muscle in exercise.primaryMuscles) ...[
+          muscle.id,
+          muscle.en,
+        ],
+        exercise.category.localizedName('id'),
+        exercise.category.localizedName('en'),
+      ].join(' ').toLowerCase();
+
+      return haystack.contains(query);
+    }).toList();
+
     return list;
   }
 
@@ -150,35 +218,38 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                     ),
                   ),
                   const Spacer(),
-                  IconButton(
-                    onPressed: () {
-                      setState(() {
-                        _isSearchActive = !_isSearchActive;
-                        _searchQuery = '';
-                      });
-                    },
-                    icon: Icon(
-                      _isSearchActive
-                          ? Icons.close_rounded
-                          : Icons.search_rounded,
-                      color: const Color(0xFF141718),
-                      size: 24,
+                  // Search & filter hanya relevan untuk All Workouts.
+                  if (_isAllWorkoutsTab) ...[
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _isSearchActive = !_isSearchActive;
+                          _searchQuery = '';
+                        });
+                      },
+                      icon: Icon(
+                        _isSearchActive
+                            ? Icons.close_rounded
+                            : Icons.search_rounded,
+                        color: const Color(0xFF141718),
+                        size: 24,
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    onPressed: () => _showFilterSheet(t),
-                    icon: const Icon(
-                      Icons.tune_rounded,
-                      color: Color(0xFF141718),
-                      size: 24,
+                    IconButton(
+                      onPressed: () => _showFilterSheet(t),
+                      icon: const Icon(
+                        Icons.tune_rounded,
+                        color: Color(0xFF141718),
+                        size: 24,
+                      ),
                     ),
-                  ),
+                  ],
                 ],
               ),
             ),
 
-            // Search Bar (bila aktif)
-            if (_isSearchActive)
+            // Search Bar (hanya di All Workouts)
+            if (_isAllWorkoutsTab && _isSearchActive)
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
                 child: TextField(
@@ -227,7 +298,11 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                       child: _buildPillTab(
                         title: t.workouts.tabs.myProgram,
                         isSelected: _selectedTabIndex == 0,
-                        onTap: () => setState(() => _selectedTabIndex = 0),
+                        onTap: () => setState(() {
+                          _selectedTabIndex = 0;
+                          _isSearchActive = false;
+                          _searchQuery = '';
+                        }),
                       ),
                     ),
                     Expanded(
@@ -244,27 +319,34 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
             const SizedBox(height: 18),
 
             // 3. Tab Body
-            Expanded(
-              child: _isLoading
-                  ? const Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.primary,
-                      ),
-                    )
-                  : RefreshIndicator(
-                      color: AppColors.primary,
-                      onRefresh: _loadData,
-                      child: SingleChildScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        padding: const EdgeInsets.only(bottom: 32),
-                        child: _selectedTabIndex == 0
-                            ? _buildMyProgramTab(t)
-                            : _buildAllWorkoutsTab(t),
-                      ),
-                    ),
-            ),
+            Expanded(child: _buildBody(t)),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildBody(Translations t) {
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(color: AppColors.primary),
+      );
+    }
+
+    // Kegagalan database tidak boleh terlihat seperti "belum punya program".
+    if (_loadError != null && _activeProgram == null && _allExercises.isEmpty) {
+      return _buildErrorState(t);
+    }
+
+    return RefreshIndicator(
+      color: AppColors.primary,
+      onRefresh: _loadData,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.only(bottom: 32),
+        child: _selectedTabIndex == 0
+            ? _buildMyProgramTab(t)
+            : _buildAllWorkoutsTab(t),
       ),
     );
   }
@@ -326,15 +408,30 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
       sessions: _programSessions,
     );
 
-    final completedThisWeek = weeklySessions.where((scheduled) {
-      final record = _findWorkoutRecord(scheduled);
-      return record?.status == WorkoutSessionStatus.completed;
-    }).length;
+    final weekProgress = WeekProgressCalculator.calculate(
+      programStartDate: program.startDate,
+      totalWeeks: totalWeeks,
+      currentWeek: currentWeek,
+      availableDays: _profile?.availableDays ?? const [],
+      sessions: _programSessions,
+      history: _programWorkoutHistory,
+    );
+    final progressByWeek = {
+      for (final item in weekProgress) item.weekNumber: item,
+    };
+    final selectedProgress = progressByWeek[selectedWeek];
+    final completedThisWeek = selectedProgress?.completedSessions ?? 0;
 
-    final completedProgramSessions = _programWorkoutHistory
-        .where((session) => session.status == WorkoutSessionStatus.completed)
-        .length;
-    final totalProgramSessions = totalWeeks * _programSessions.length;
+    // Hitung unik per program-day + tanggal supaya record duplikat tidak
+    // menggelembungkan persentase.
+    final totalProgramSessions = weekProgress.fold<int>(
+      0,
+      (sum, item) => sum + item.totalSessions,
+    );
+    final completedProgramSessions = weekProgress.fold<int>(
+      0,
+      (sum, item) => sum + item.completedSessions,
+    );
     final progressPercent = totalProgramSessions > 0
         ? (completedProgramSessions / totalProgramSessions)
               .clamp(0.0, 1.0)
@@ -392,7 +489,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                             'assets/images/coach_hero.png',
                             fit: BoxFit.cover,
                             alignment: Alignment.topCenter,
-                            errorBuilder: (_, __, ___) => const Icon(
+                            errorBuilder: (_, _, _) => const Icon(
                               Icons.fitness_center_rounded,
                               color: AppColors.primary,
                               size: 26,
@@ -508,8 +605,15 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
             selectedWeek: selectedWeek,
             currentWeek: currentWeek,
             totalWeeks: totalWeeks,
+            weekProgress: progressByWeek,
             onWeekSelected: (week) => setState(() => _selectedWeek = week),
           ),
+
+          if (selectedWeek > currentWeek) ...[
+            const SizedBox(height: 14),
+            _buildWeekPreviewNotice(t),
+          ],
+
           const SizedBox(height: 16),
 
           if (weeklySessions.isEmpty)
@@ -519,7 +623,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: weeklySessions.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              separatorBuilder: (_, _) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
                 final scheduled = weeklySessions[index];
                 final session = scheduled.session;
@@ -532,7 +636,6 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                     isCurrentSelectedWeek && isToday && !isCompleted;
                 final isMissed =
                     !isCompleted && scheduled.scheduledDate.isBefore(today);
-                final isUpcoming = !isCompleted && !isMissed && !isActiveToday;
 
                 final title = session.focusLabel.isNotEmpty
                     ? session.focusLabel
@@ -549,7 +652,6 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                   isCompleted: isCompleted,
                   isActiveToday: isActiveToday,
                   isMissed: isMissed,
-                  isUpcoming: isUpcoming,
                   onTap: isActiveToday
                       ? () {
                           context.push(
@@ -594,6 +696,53 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
     return first.year == second.year &&
         first.month == second.month &&
         first.day == second.day;
+  }
+
+  Widget _buildWeekPreviewNotice(Translations t) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFBEB),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFFDE68A)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.visibility_rounded,
+            size: 18,
+            color: Color(0xFFB45309),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  t.workouts.weeklySchedule.previewTitle,
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF92400E),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  t.workouts.weeklySchedule.previewNotice,
+                  style: const TextStyle(
+                    fontSize: 11.5,
+                    height: 1.35,
+                    color: Color(0xFFB45309),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildProgramEmptyState(Translations t) {
@@ -652,17 +801,16 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
     required bool isCompleted,
     required bool isActiveToday,
     required bool isMissed,
-    required bool isUpcoming,
     required VoidCallback? onTap,
   }) {
+    // Sesi yang belum waktunya dimulai bukan "terkunci": user tetap bisa
+    // melihat rencananya, hanya belum bisa memulai. Jadi pakai "Terjadwal".
     final statusText = isCompleted
         ? t.workouts.session.status.completed
         : isActiveToday
         ? t.workouts.session.status.readyToStart
         : isMissed
         ? t.workouts.session.status.missed
-        : isUpcoming
-        ? t.workouts.session.status.locked
         : t.workouts.session.status.scheduled;
 
     final statusColor = isCompleted
@@ -685,7 +833,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
         ? Icons.play_arrow_rounded
         : isMissed
         ? Icons.event_busy_rounded
-        : Icons.lock_outline_rounded;
+        : Icons.calendar_today_rounded;
 
     return InkWell(
       onTap: onTap,
@@ -765,6 +913,8 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
   }
 
   Widget _buildAllWorkoutsTab(Translations t) {
+    final langCode = LocaleSettings.currentLocale.languageCode;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -774,14 +924,14 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
           child: ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             scrollDirection: Axis.horizontal,
-            itemCount: _muscleCategories.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 8),
+            itemCount: ExerciseMuscleFilter.values.length,
+            separatorBuilder: (_, _) => const SizedBox(width: 8),
             itemBuilder: (context, index) {
-              final cat = _muscleCategories[index];
-              final isSel = cat == _selectedMuscleFilter;
+              final filter = ExerciseMuscleFilter.values[index];
+              final isSel = filter == _selectedMuscleFilter;
 
               return GestureDetector(
-                onTap: () => setState(() => _selectedMuscleFilter = cat),
+                onTap: () => setState(() => _selectedMuscleFilter = filter),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 180),
                   padding: const EdgeInsets.symmetric(
@@ -794,7 +944,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                   ),
                   child: Center(
                     child: Text(
-                      _getCategoryLabel(t, cat),
+                      _getCategoryLabel(t, filter),
                       style: TextStyle(
                         fontWeight: isSel ? FontWeight.w800 : FontWeight.w600,
                         fontSize: 13,
@@ -812,117 +962,226 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
         const SizedBox(height: 16),
 
         // List Latihan
-        ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          itemCount: _filteredExercises.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 10),
-          itemBuilder: (context, index) {
-            final ex = _filteredExercises[index];
-            final target = ex.primaryMuscles.isNotEmpty
-                ? ex.primaryMuscles.map((m) => m.en).join(', ')
-                : ex.category.name;
-            final thumb = ex.media.startPose.isNotEmpty
-                ? ex.media.startPose
-                : ex.media.endPose;
-
-            return InkWell(
-              onTap: () => context.push(AppRoutes.exerciseDetail, extra: ex),
-              borderRadius: BorderRadius.circular(18),
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(
-                    color: const Color(0xFFE5E7EB),
-                    width: 1.2,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 52,
-                      height: 52,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF3F4F6),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
-                        child: thumb.isNotEmpty
-                            ? Image.asset(
-                                thumb,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => const Icon(
-                                  Icons.fitness_center_rounded,
-                                  color: Color(0xFF65A30D),
-                                  size: 26,
-                                ),
-                              )
-                            : const Icon(
-                                Icons.fitness_center_rounded,
-                                color: Color(0xFF65A30D),
-                                size: 26,
-                              ),
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            ex.name.en.isNotEmpty ? ex.name.en : ex.name.id,
-                            style: AppTypography.titleSmall.copyWith(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 14.5,
-                              color: const Color(0xFF141718),
-                            ),
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                            '$target • 10 min',
-                            style: const TextStyle(
-                              color: Color(0xFF6B7280),
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Icon(
-                      Icons.chevron_right_rounded,
-                      color: Color(0xFF9CA3AF),
-                      size: 24,
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
+        if (_filteredExercises.isEmpty)
+          _buildExerciseEmptyState(t)
+        else
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            itemCount: _filteredExercises.length,
+            separatorBuilder: (_, _) => const SizedBox(height: 10),
+            itemBuilder: (context, index) {
+              return _buildExerciseCard(
+                _filteredExercises[index],
+                langCode,
+              );
+            },
+          ),
       ],
     );
   }
 
-  String _getCategoryLabel(Translations t, String category) {
-    switch (category) {
-      case 'Chest':
-        return t.workouts.categories.chest;
-      case 'Back':
-        return t.workouts.categories.back;
-      case 'Legs':
-        return t.workouts.categories.legs;
-      case 'Core':
-        return t.workouts.categories.core;
-      case 'Arms':
-        return t.workouts.categories.arms;
-      case 'Shoulders':
-        return t.workouts.categories.shoulders;
-      default:
+  Widget _buildExerciseCard(Exercise exercise, String langCode) {
+    final localizedName = exercise.name.get(langCode);
+    final name = localizedName.trim().isNotEmpty
+        ? localizedName
+        : exercise.name.id;
+
+    final primaryMuscle = exercise.primaryMuscles.isNotEmpty
+        ? exercise.primaryMuscles.first.get(langCode)
+        : exercise.category.localizedName(langCode);
+    final difficulty = exercise.difficulty.localizedName(langCode);
+
+    final thumb = exercise.media.startPose.isNotEmpty
+        ? exercise.media.startPose
+        : exercise.media.endPose;
+
+    return InkWell(
+      onTap: () => context.push(AppRoutes.exerciseDetail, extra: exercise),
+      borderRadius: BorderRadius.circular(18),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: const Color(0xFFE5E7EB), width: 1.2),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF3F4F6),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: thumb.isNotEmpty
+                    ? Image.asset(
+                        thumb,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, _, _) => const Icon(
+                          Icons.fitness_center_rounded,
+                          color: Color(0xFF65A30D),
+                          size: 26,
+                        ),
+                      )
+                    : const Icon(
+                        Icons.fitness_center_rounded,
+                        color: Color(0xFF65A30D),
+                        size: 26,
+                      ),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: AppTypography.titleSmall.copyWith(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 14.5,
+                      color: const Color(0xFF141718),
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    '$primaryMuscle • $difficulty',
+                    style: const TextStyle(
+                      color: Color(0xFF6B7280),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: Color(0xFF9CA3AF),
+              size: 24,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildExerciseEmptyState(Translations t) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
+      child: Column(
+        children: [
+          const Icon(
+            Icons.search_off_rounded,
+            size: 40,
+            color: Color(0xFF9CA3AF),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            t.workouts.allWorkouts.emptyTitle,
+            textAlign: TextAlign.center,
+            style: AppTypography.titleMedium.copyWith(
+              fontWeight: FontWeight.w800,
+              fontSize: 15,
+              color: const Color(0xFF141718),
+            ),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            t.workouts.allWorkouts.emptySubtitle,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Color(0xFF6B7280), fontSize: 12.5),
+          ),
+          const SizedBox(height: 8),
+          TextButton(
+            onPressed: _clearFilters,
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFF3F6212),
+            ),
+            child: Text(
+              t.workouts.allWorkouts.clearFilters,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState(Translations t) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
+      child: Center(
+        child: Column(
+          children: [
+            const Icon(
+              Icons.cloud_off_rounded,
+              size: 44,
+              color: Color(0xFF9CA3AF),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              t.workouts.errorState.title,
+              textAlign: TextAlign.center,
+              style: AppTypography.titleMedium.copyWith(
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF141718),
+              ),
+            ),
+            const SizedBox(height: 5),
+            Text(
+              t.workouts.errorState.subtitle,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Color(0xFF6B7280), fontSize: 12.5),
+            ),
+            const SizedBox(height: 16),
+            AppButton.primary(
+              text: t.workouts.errorState.retry,
+              isFullWidth: false,
+              width: 150,
+              onPressed: () => _loadData(showLoading: true),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _clearFilters() {
+    setState(() {
+      _searchQuery = '';
+      _isSearchActive = false;
+      _selectedMuscleFilter = ExerciseMuscleFilter.all;
+    });
+  }
+
+  String _getCategoryLabel(Translations t, ExerciseMuscleFilter filter) {
+    switch (filter) {
+      case ExerciseMuscleFilter.all:
         return t.workouts.categories.all;
+      case ExerciseMuscleFilter.chest:
+        return t.workouts.categories.chest;
+      case ExerciseMuscleFilter.back:
+        return t.workouts.categories.back;
+      case ExerciseMuscleFilter.legs:
+        return t.workouts.categories.legs;
+      case ExerciseMuscleFilter.core:
+        return t.workouts.categories.core;
+      case ExerciseMuscleFilter.arms:
+        return t.workouts.categories.arms;
+      case ExerciseMuscleFilter.shoulders:
+        return t.workouts.categories.shoulders;
     }
   }
 
@@ -963,10 +1222,10 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                 Wrap(
                   spacing: 8,
                   runSpacing: 10,
-                  children: _muscleCategories.map((cat) {
-                    final isSel = cat == _selectedMuscleFilter;
+                  children: ExerciseMuscleFilter.values.map((filter) {
+                    final isSel = filter == _selectedMuscleFilter;
                     return ChoiceChip(
-                      label: Text(_getCategoryLabel(t, cat)),
+                      label: Text(_getCategoryLabel(t, filter)),
                       selected: isSel,
                       selectedColor: AppColors.primary,
                       backgroundColor: const Color(0xFFF3F4F6),
@@ -975,7 +1234,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                         fontWeight: isSel ? FontWeight.w800 : FontWeight.w500,
                       ),
                       onSelected: (_) {
-                        setState(() => _selectedMuscleFilter = cat);
+                        setState(() => _selectedMuscleFilter = filter);
                         Navigator.pop(context);
                       },
                     );

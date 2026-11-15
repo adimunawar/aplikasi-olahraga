@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 
 import '../../../../i18n/strings.g.dart';
+import '../../domain/models/week_progress.dart';
 
 class WeeklyScheduleSelector extends StatefulWidget {
   final int selectedWeek;
   final int currentWeek;
   final int totalWeeks;
+
+  /// Progres tiap minggu (key: nomor minggu).
+  final Map<int, WeekProgress> weekProgress;
+
   final ValueChanged<int> onWeekSelected;
 
   const WeeklyScheduleSelector({
@@ -13,6 +18,7 @@ class WeeklyScheduleSelector extends StatefulWidget {
     required this.selectedWeek,
     required this.currentWeek,
     required this.totalWeeks,
+    required this.weekProgress,
     required this.onWeekSelected,
   });
 
@@ -128,19 +134,17 @@ class _WeeklyScheduleSelectorState extends State<WeeklyScheduleSelector> {
                 physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 itemCount: widget.totalWeeks,
-                separatorBuilder: (_, __) => const SizedBox(width: 6),
+                separatorBuilder: (_, _) => const SizedBox(width: 6),
                 itemBuilder: (context, index) {
                   final weekNum = index + 1;
                   final isSelected = weekNum == widget.selectedWeek;
-                  final isCurrent = weekNum == widget.currentWeek;
-                  final isLocked = weekNum > widget.currentWeek;
+                  final progress = widget.weekProgress[weekNum];
 
                   return _buildWeekItem(
                     t: t,
                     weekNum: weekNum,
                     isSelected: isSelected,
-                    isCurrent: isCurrent,
-                    isLocked: isLocked,
+                    progress: progress,
                     onTap: () {
                       widget.onWeekSelected(weekNum);
                       _scrollToWeek(weekNum);
@@ -245,13 +249,20 @@ class _WeeklyScheduleSelectorState extends State<WeeklyScheduleSelector> {
     required Translations t,
     required int weekNum,
     required bool isSelected,
-    required bool isCurrent,
-    required bool isLocked,
+    required WeekProgress? progress,
     required VoidCallback onTap,
   }) {
     final bgColor = isSelected
         ? const Color(0xFFE4F768)
         : const Color(0xFFF3F4F6);
+
+    final status =
+        progress?.status ??
+        (weekNum == widget.currentWeek
+            ? WeekStatus.current
+            : weekNum > widget.currentWeek
+            ? WeekStatus.upcoming
+            : WeekStatus.empty);
 
     return InkWell(
       onTap: onTap,
@@ -277,36 +288,102 @@ class _WeeklyScheduleSelectorState extends State<WeeklyScheduleSelector> {
               ),
             ),
             const SizedBox(height: 3),
-            if (isCurrent)
-              Text(
-                t.workouts.weeklySchedule.current,
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                  color: isSelected
-                      ? const Color(0xFF3F6212)
-                      : const Color(0xFF15803D),
-                ),
-              )
-            else if (isLocked)
-              Icon(
-                Icons.lock_outline_rounded,
-                size: 13.5,
-                color: isSelected
-                    ? const Color(0xFF4B5563)
-                    : const Color(0xFF9CA3AF),
-              )
-            else
-              Icon(
-                Icons.check_rounded,
-                size: 14,
-                color: isSelected
-                    ? const Color(0xFF15803D)
-                    : const Color(0xFF10B981),
-              ),
+            _buildWeekStatus(
+              t: t,
+              status: status,
+              isSelected: isSelected,
+              completionRate: progress?.completionRate ?? 0,
+            ),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildWeekStatus({
+    required Translations t,
+    required WeekStatus status,
+    required bool isSelected,
+    required double completionRate,
+  }) {
+    switch (status) {
+      case WeekStatus.current:
+        return Text(
+          t.workouts.weeklySchedule.current,
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            color: isSelected
+                ? const Color(0xFF3F6212)
+                : const Color(0xFF15803D),
+          ),
+        );
+
+      case WeekStatus.completed:
+        return Tooltip(
+          message: t.workouts.weeklySchedule.statusTooltip.completed,
+          child: Icon(
+            Icons.check_rounded,
+            size: 14,
+            color: isSelected
+                ? const Color(0xFF15803D)
+                : const Color(0xFF10B981),
+          ),
+        );
+
+      case WeekStatus.partial:
+        final color = isSelected
+            ? const Color(0xFF3F6212)
+            : const Color(0xFF65A30D);
+        return Tooltip(
+          message: t.workouts.weeklySchedule.statusTooltip.partial,
+          child: SizedBox(
+            width: 13,
+            height: 13,
+            child: CircularProgressIndicator(
+              value: completionRate,
+              strokeWidth: 2,
+              backgroundColor: isSelected
+                  ? const Color(0x334B5563)
+                  : const Color(0xFFE5E7EB),
+              valueColor: AlwaysStoppedAnimation<Color>(color),
+            ),
+          ),
+        );
+
+      case WeekStatus.missed:
+        return Tooltip(
+          message: t.workouts.weeklySchedule.statusTooltip.missed,
+          child: Icon(
+            Icons.error_outline_rounded,
+            size: 14,
+            color: isSelected
+                ? const Color(0xFFB45309)
+                : const Color(0xFFF59E0B),
+          ),
+        );
+
+      case WeekStatus.upcoming:
+        // Future week boleh dibuka untuk pratinjau, jadi bukan "lock".
+        return Tooltip(
+          message: t.workouts.weeklySchedule.previewTooltip,
+          child: Icon(
+            Icons.visibility_outlined,
+            size: 14,
+            color: isSelected
+                ? const Color(0xFF4B5563)
+                : const Color(0xFF9CA3AF),
+          ),
+        );
+
+      case WeekStatus.empty:
+        return Icon(
+          Icons.remove_rounded,
+          size: 14,
+          color: isSelected
+              ? const Color(0xFF4B5563)
+              : const Color(0xFF9CA3AF),
+        );
+    }
   }
 }

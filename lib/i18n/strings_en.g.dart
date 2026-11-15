@@ -180,6 +180,12 @@ class _Translations$workouts$en extends Translations$workouts$id {
   late final _Translations$workouts$emptyState$en emptyState =
       _Translations$workouts$emptyState$en._(_root);
   @override
+  late final _Translations$workouts$allWorkouts$en allWorkouts =
+      _Translations$workouts$allWorkouts$en._(_root);
+  @override
+  late final _Translations$workouts$errorState$en errorState =
+      _Translations$workouts$errorState$en._(_root);
+  @override
   late final _Translations$workouts$session$en session = _Translations$workouts$session$en._(_root);
   @override
   late final _Translations$workouts$filter$en filter = _Translations$workouts$filter$en._(_root);
@@ -771,6 +777,16 @@ class _Translations$workouts$weeklySchedule$en extends Translations$workouts$wee
   String weekShort({required Object n}) => 'W${n}';
   @override
   String get empty => 'No workout sessions are scheduled for this week.';
+  @override
+  String get previewTitle => 'Preview mode';
+  @override
+  String get previewNotice =>
+      'You can review this week\'s plan, but workouts can only be started on their scheduled day.';
+  @override
+  String get previewTooltip => 'Preview upcoming week';
+  @override
+  late final _Translations$workouts$weeklySchedule$statusTooltip$en statusTooltip =
+      _Translations$workouts$weeklySchedule$statusTooltip$en._(_root);
 }
 
 // Path: workouts.emptyState
@@ -786,6 +802,40 @@ class _Translations$workouts$emptyState$en extends Translations$workouts$emptySt
   String get noProgramTitle => 'No active program yet';
   @override
   String get noProgramSubtitle => 'Create a program to see your weekly workouts here.';
+}
+
+// Path: workouts.allWorkouts
+class _Translations$workouts$allWorkouts$en extends Translations$workouts$allWorkouts$id {
+  _Translations$workouts$allWorkouts$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get emptyTitle => 'No exercises found';
+  @override
+  String get emptySubtitle => 'Try another search or adjust your muscle filters.';
+  @override
+  String get clearFilters => 'Clear search & filters';
+}
+
+// Path: workouts.errorState
+class _Translations$workouts$errorState$en extends Translations$workouts$errorState$id {
+  _Translations$workouts$errorState$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Failed to load data';
+  @override
+  String get subtitle => 'Something went wrong while reading your workout data. Please try again.';
+  @override
+  String get retry => 'Retry';
 }
 
 // Path: workouts.session
@@ -1226,6 +1276,24 @@ class _Translations$onboarding$ready$program$en extends Translations$onboarding$
       _Translations$onboarding$ready$program$maintain$en._(_root);
 }
 
+// Path: workouts.weeklySchedule.statusTooltip
+class _Translations$workouts$weeklySchedule$statusTooltip$en
+    extends Translations$workouts$weeklySchedule$statusTooltip$id {
+  _Translations$workouts$weeklySchedule$statusTooltip$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get completed => 'All workouts completed';
+  @override
+  String get partial => 'Some workouts completed';
+  @override
+  String get missed => 'Some workouts were missed';
+}
+
 // Path: workouts.session.status
 class _Translations$workouts$session$status$en extends Translations$workouts$session$status$id {
   _Translations$workouts$session$status$en._(TranslationsEn root)
@@ -1241,8 +1309,6 @@ class _Translations$workouts$session$status$en extends Translations$workouts$ses
   String get readyToStart => 'Today • Ready to start';
   @override
   String get missed => 'Missed';
-  @override
-  String get locked => 'Locked';
   @override
   String get scheduled => 'Scheduled';
 }
@@ -1540,15 +1606,27 @@ extension on TranslationsEn {
       'workouts.weeklySchedule.current' => 'Current',
       'workouts.weeklySchedule.weekShort' => ({required Object n}) => 'W${n}',
       'workouts.weeklySchedule.empty' => 'No workout sessions are scheduled for this week.',
+      'workouts.weeklySchedule.previewTitle' => 'Preview mode',
+      'workouts.weeklySchedule.previewNotice' => 'You can review this week\'s plan, but workouts can only be started on their scheduled day.',
+      'workouts.weeklySchedule.previewTooltip' => 'Preview upcoming week',
+      'workouts.weeklySchedule.statusTooltip.completed' => 'All workouts completed',
+      'workouts.weeklySchedule.statusTooltip.partial' => 'Some workouts completed',
+      'workouts.weeklySchedule.statusTooltip.missed' => 'Some workouts were missed',
       'workouts.emptyState.noProgramTitle' => 'No active program yet',
       'workouts.emptyState.noProgramSubtitle' =>
         'Create a program to see your weekly workouts here.',
+      'workouts.allWorkouts.emptyTitle' => 'No exercises found',
+      'workouts.allWorkouts.emptySubtitle' => 'Try another search or adjust your muscle filters.',
+      'workouts.allWorkouts.clearFilters' => 'Clear search & filters',
+      'workouts.errorState.title' => 'Failed to load data',
+      'workouts.errorState.subtitle' =>
+        'Something went wrong while reading your workout data. Please try again.',
+      'workouts.errorState.retry' => 'Retry',
       'workouts.session.day' => ({required Object n}) => 'Day ${n}',
       'workouts.session.min' => ({required Object min}) => '${min} min',
       'workouts.session.status.completed' => 'Completed',
       'workouts.session.status.readyToStart' => 'Today • Ready to start',
       'workouts.session.status.missed' => 'Missed',
-      'workouts.session.status.locked' => 'Locked',
       'workouts.session.status.scheduled' => 'Scheduled',
       'workouts.filter.title' => 'Filter by Muscle Group',
       'workouts.categories.all' => 'All',
