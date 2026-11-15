@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../i18n/strings.g.dart';
 
 /// Dedicated rest phase shown between completed sets.
 class RestTimerScreen extends StatelessWidget {
@@ -41,6 +42,7 @@ class RestTimerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context);
     final progress = totalSeconds > 0
         ? (remainingSeconds / totalSeconds).clamp(0.0, 1.0).toDouble()
         : 0.0;
@@ -59,7 +61,7 @@ class RestTimerScreen extends StatelessWidget {
           ),
         ),
         title: Text(
-          'Rest',
+          t.workoutSession.restTitle,
           style: AppTypography.headlineSmall.copyWith(
             color: AppColors.darkCharcoal,
             fontWeight: FontWeight.w800,
@@ -74,7 +76,7 @@ class RestTimerScreen extends StatelessWidget {
             children: [
               const SizedBox(height: 12),
               Text(
-                'Next: $nextExerciseName',
+                t.workoutSession.restNextExercise(exercise: nextExerciseName),
                 textAlign: TextAlign.center,
                 style: AppTypography.titleMedium.copyWith(
                   color: AppColors.darkCharcoal,
@@ -83,7 +85,7 @@ class RestTimerScreen extends StatelessWidget {
               ),
               const SizedBox(height: 5),
               Text(
-                'Set $nextSet of $totalSets',
+                t.workoutSession.restSetProgress(current: nextSet, total: totalSets),
                 style: AppTypography.bodySmall.copyWith(
                   color: AppColors.neutral500,
                   fontWeight: FontWeight.w600,
@@ -104,7 +106,7 @@ class RestTimerScreen extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'Rest',
+                          t.workoutSession.restTitle,
                           style: AppTypography.titleMedium.copyWith(
                             color: AppColors.neutral600,
                             fontWeight: FontWeight.w600,
@@ -123,7 +125,7 @@ class RestTimerScreen extends StatelessWidget {
                         if (isPaused) ...[
                           const SizedBox(height: 5),
                           Text(
-                            'PAUSED',
+                            t.workoutSession.restPaused,
                             style: AppTypography.labelSmall.copyWith(
                               color: AppColors.greenDark,
                               fontWeight: FontWeight.w800,
@@ -141,7 +143,7 @@ class RestTimerScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   _RestControlButton(
-                    label: '-10s',
+                    label: t.workoutSession.restMinusTenSeconds,
                     onTap: () => onAdjustTime(-10),
                   ),
                   _RestPauseButton(
@@ -149,7 +151,7 @@ class RestTimerScreen extends StatelessWidget {
                     onTap: onPauseToggle,
                   ),
                   _RestControlButton(
-                    label: '+10s',
+                    label: t.workoutSession.restPlusTenSeconds,
                     onTap: () => onAdjustTime(10),
                   ),
                 ],
@@ -179,7 +181,7 @@ class RestTimerScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Tip',
+                            t.workoutSession.restTipTitle,
                             style: AppTypography.labelLarge.copyWith(
                               color: AppColors.greenDark,
                               fontWeight: FontWeight.w800,
@@ -187,7 +189,7 @@ class RestTimerScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Keep breathing and stay hydrated.',
+                            t.workoutSession.restTipDescription,
                             style: AppTypography.bodySmall.copyWith(
                               color: AppColors.neutral700,
                               fontSize: 11.5,
@@ -208,7 +210,7 @@ class RestTimerScreen extends StatelessWidget {
                   size: 19,
                 ),
                 label: Text(
-                  'Skip Rest',
+                  t.workoutSession.skipRest,
                   style: AppTypography.labelLarge.copyWith(
                     color: AppColors.darkCharcoal,
                     fontWeight: FontWeight.w800,
