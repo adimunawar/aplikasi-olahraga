@@ -673,7 +673,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
         nextSet: sessionState.currentSet,
         totalSets: sessionState.totalSetsPerExercise,
         remainingSeconds: sessionState.remainingRestSeconds,
-        totalSeconds: sessionState.defaultRestSeconds,
+        totalSeconds: sessionState.restDurationSeconds,
         isPaused: sessionState.isTimerPaused,
         onBack: _skipRest,
         onAdjustTime: ref
