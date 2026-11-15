@@ -59,6 +59,9 @@ class TranslationsEn extends Translations with BaseTranslations<AppLocale, Trans
   late final _Translations$onboarding$en onboarding = _Translations$onboarding$en._(_root);
   @override
   late final _Translations$workouts$en workouts = _Translations$workouts$en._(_root);
+  @override
+  late final _Translations$workoutSession$en workoutSession =
+      _Translations$workoutSession$en._(_root);
 }
 
 // Path: core
@@ -195,6 +198,139 @@ class _Translations$workouts$en extends Translations$workouts$id {
   @override
   late final _Translations$workouts$categories$en categories =
       _Translations$workouts$categories$en._(_root);
+}
+
+// Path: workoutSession
+class _Translations$workoutSession$en extends Translations$workoutSession$id {
+  _Translations$workoutSession$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String exerciseProgress({required Object current, required Object total}) => 'Exercise \${current} of \${total}';
+  @override
+  String setProgress({required Object current, required Object total, required Object target}) => 'Set \${current} of \${total} · \${target}';
+  @override
+  String get repsUnit => 'reps';
+  @override
+  String get durationUnit => 'sec';
+  @override
+  String repsValue({required Object value}) => '\${value} reps';
+  @override
+  String durationValue({required Object value}) => '\${value} sec';
+  @override
+  String get completeSet => 'Complete Set';
+  @override
+  String get nextRest => 'Next: Rest';
+  @override
+  String get preparingSession => 'Preparing your workout...';
+  @override
+  String get retry => 'Try Again';
+  @override
+  String get saveSetFailed => 'Failed to save the set. Check your connection and try again.';
+  @override
+  String get sessionConflictTitle => 'You have an unfinished workout';
+  @override
+  String sessionConflictMessage({required Object program, required Object day}) => 'You still have an active session for "\${program}" (Day \${day}). Resume that session first, or end it to start this workout.';
+  @override
+  String get resumePreviousSession => 'Resume Previous Session';
+  @override
+  String get endPreviousSession => 'End Previous Session';
+  @override
+  String get completionTitle => 'Workout Completed! 🎉';
+  @override
+  String get completionDescription => 'You completed all sets and exercises. Get some rest to help your muscles recover.';
+  @override
+  String get durationLabel => 'Duration';
+  @override
+  String get exerciseLabel => 'Exercises';
+  @override
+  String exerciseCount({required Object count}) => '\${count} exercises';
+  @override
+  String get totalSetsLabel => 'Total Sets';
+  @override
+  String totalSetsCount({required Object count}) => '\${count} sets';
+  @override
+  String get viewSummary => 'View Workout Summary ➔';
+  @override
+  String get restartRestTimer => 'Restart Rest Timer';
+  @override
+  String get finishSessionNow => 'Finish Workout Now';
+  @override
+  String get exitWithoutSaving => 'Exit Without Saving';
+  @override
+  String get restTitle => 'Rest';
+  @override
+  String restNextExercise({required Object exercise}) => 'Next: \${exercise}';
+  @override
+  String restSetProgress({required Object current, required Object total}) => 'Set \${current} of \${total}';
+  @override
+  String get restPaused => 'PAUSED';
+  @override
+  String get restMinusTenSeconds => '-10s';
+  @override
+  String get restPlusTenSeconds => '+10s';
+  @override
+  String get restTipTitle => 'Tip';
+  @override
+  String get restTipDescription => 'Keep breathing and stay hydrated.';
+  @override
+  String get skipRest => 'Skip Rest';
+  @override
+  String setCompleteTitle({required Object current, required Object total}) => 'Set \${current} of \${total} Complete! 🎉';
+  @override
+  String targetDuration({required Object seconds}) => 'Target: \${seconds} sec';
+  @override
+  String targetReps({required Object reps}) => 'Target: \${reps} reps';
+  @override
+  String get durationCompleted => 'Duration Completed';
+  @override
+  String get repsCompleted => 'Reps Completed';
+  @override
+  String get durationQuestion => 'How many seconds did you hold?';
+  @override
+  String get repsQuestion => 'How many reps did you complete?';
+  @override
+  String get rirTitle => 'Remaining Strength (RIR - Reps in Reserve)';
+  @override
+  String get rirQuestion => 'How many more reps could you do before reaching failure?';
+  @override
+  String get rirFailureTitle => '0 — Absolute Failure';
+  @override
+  String get rirFailureDescription => 'You had no reps left with proper form.';
+  @override
+  String get rirVeryHardTitle => '1 — Very Hard';
+  @override
+  String get rirVeryHardDescription => 'You could only complete one more rep before failure.';
+  @override
+  String get rirIdealTitle => '2 — Ideal Zone (Target)';
+  @override
+  String get rirIdealDescription => 'Challenging, with about two reps still in reserve.';
+  @override
+  String get rirModerateTitle => '3 — Moderate';
+  @override
+  String get rirModerateDescription => 'You still had about three reps in reserve.';
+  @override
+  String get rirEasyTitle => '4+ — Too Easy';
+  @override
+  String get rirEasyDescription => 'Very easy, with four or more reps still in reserve.';
+  @override
+  String get rirBadgeMax => 'Maximum';
+  @override
+  String get rirBadgeHigh => 'High';
+  @override
+  String get rirBadgeOptimal => 'Optimal ⭐';
+  @override
+  String get rirBadgeModerate => 'Moderate';
+  @override
+  String get rirBadgeEasy => 'Easy';
+  @override
+  String get saveAndStartRest => 'Save & Start Rest';
+  @override
+  String restSecondsValue({required Object seconds}) => '\${seconds} s';
 }
 
 // Path: core.actions
@@ -1697,6 +1833,67 @@ extension on TranslationsEn {
       'workouts.categories.core' => 'Core',
       'workouts.categories.arms' => 'Arms',
       'workouts.categories.shoulders' => 'Shoulders',
+            'workoutSession.exerciseProgress' => ({required Object current, required Object total}) => 'Exercise \${current} of \${total}',
+      'workoutSession.setProgress' => ({required Object current, required Object total, required Object target}) => 'Set \${current} of \${total} · \${target}',
+      'workoutSession.repsUnit' => 'reps',
+      'workoutSession.durationUnit' => 'sec',
+      'workoutSession.repsValue' => ({required Object value}) => '\${value} reps',
+      'workoutSession.durationValue' => ({required Object value}) => '\${value} sec',
+      'workoutSession.completeSet' => 'Complete Set',
+      'workoutSession.nextRest' => 'Next: Rest',
+      'workoutSession.preparingSession' => 'Preparing your workout...',
+      'workoutSession.retry' => 'Try Again',
+      'workoutSession.saveSetFailed' => 'Failed to save the set. Check your connection and try again.',
+      'workoutSession.sessionConflictTitle' => 'You have an unfinished workout',
+      'workoutSession.sessionConflictMessage' => ({required Object program, required Object day}) => 'You still have an active session for "\${program}" (Day \${day}). Resume that session first, or end it to start this workout.',
+      'workoutSession.resumePreviousSession' => 'Resume Previous Session',
+      'workoutSession.endPreviousSession' => 'End Previous Session',
+      'workoutSession.completionTitle' => 'Workout Completed! 🎉',
+      'workoutSession.completionDescription' => 'You completed all sets and exercises. Get some rest to help your muscles recover.',
+      'workoutSession.durationLabel' => 'Duration',
+      'workoutSession.exerciseLabel' => 'Exercises',
+      'workoutSession.exerciseCount' => ({required Object count}) => '\${count} exercises',
+      'workoutSession.totalSetsLabel' => 'Total Sets',
+      'workoutSession.totalSetsCount' => ({required Object count}) => '\${count} sets',
+      'workoutSession.viewSummary' => 'View Workout Summary ➔',
+      'workoutSession.restartRestTimer' => 'Restart Rest Timer',
+      'workoutSession.finishSessionNow' => 'Finish Workout Now',
+      'workoutSession.exitWithoutSaving' => 'Exit Without Saving',
+      'workoutSession.restTitle' => 'Rest',
+      'workoutSession.restNextExercise' => ({required Object exercise}) => 'Next: \${exercise}',
+      'workoutSession.restSetProgress' => ({required Object current, required Object total}) => 'Set \${current} of \${total}',
+      'workoutSession.restPaused' => 'PAUSED',
+      'workoutSession.restMinusTenSeconds' => '-10s',
+      'workoutSession.restPlusTenSeconds' => '+10s',
+      'workoutSession.restTipTitle' => 'Tip',
+      'workoutSession.restTipDescription' => 'Keep breathing and stay hydrated.',
+      'workoutSession.skipRest' => 'Skip Rest',
+      'workoutSession.setCompleteTitle' => ({required Object current, required Object total}) => 'Set \${current} of \${total} Complete! 🎉',
+      'workoutSession.targetDuration' => ({required Object seconds}) => 'Target: \${seconds} sec',
+      'workoutSession.targetReps' => ({required Object reps}) => 'Target: \${reps} reps',
+      'workoutSession.durationCompleted' => 'Duration Completed',
+      'workoutSession.repsCompleted' => 'Reps Completed',
+      'workoutSession.durationQuestion' => 'How many seconds did you hold?',
+      'workoutSession.repsQuestion' => 'How many reps did you complete?',
+      'workoutSession.rirTitle' => 'Remaining Strength (RIR - Reps in Reserve)',
+      'workoutSession.rirQuestion' => 'How many more reps could you do before reaching failure?',
+      'workoutSession.rirFailureTitle' => '0 — Absolute Failure',
+      'workoutSession.rirFailureDescription' => 'You had no reps left with proper form.',
+      'workoutSession.rirVeryHardTitle' => '1 — Very Hard',
+      'workoutSession.rirVeryHardDescription' => 'You could only complete one more rep before failure.',
+      'workoutSession.rirIdealTitle' => '2 — Ideal Zone (Target)',
+      'workoutSession.rirIdealDescription' => 'Challenging, with about two reps still in reserve.',
+      'workoutSession.rirModerateTitle' => '3 — Moderate',
+      'workoutSession.rirModerateDescription' => 'You still had about three reps in reserve.',
+      'workoutSession.rirEasyTitle' => '4+ — Too Easy',
+      'workoutSession.rirEasyDescription' => 'Very easy, with four or more reps still in reserve.',
+      'workoutSession.rirBadgeMax' => 'Maximum',
+      'workoutSession.rirBadgeHigh' => 'High',
+      'workoutSession.rirBadgeOptimal' => 'Optimal ⭐',
+      'workoutSession.rirBadgeModerate' => 'Moderate',
+      'workoutSession.rirBadgeEasy' => 'Easy',
+      'workoutSession.saveAndStartRest' => 'Save & Start Rest',
+      'workoutSession.restSecondsValue' => ({required Object seconds}) => '\${seconds} s',
       _ => null,
     };
   }
