@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../i18n/strings.g.dart';
 
 /// Large set counter used on the Active Workout screen.
 class ActiveWorkoutRepCounter extends StatefulWidget {
@@ -51,7 +52,10 @@ class _ActiveWorkoutRepCounterState extends State<ActiveWorkoutRepCounter> {
 
   @override
   Widget build(BuildContext context) {
-    final unit = widget.isDuration ? 'sec' : 'reps';
+    final t = Translations.of(context);
+    final unit = widget.isDuration
+        ? t.workoutSession.durationUnit
+        : t.workoutSession.repsUnit;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
