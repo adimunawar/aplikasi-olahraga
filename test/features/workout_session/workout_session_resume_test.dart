@@ -546,10 +546,18 @@ void main() {
         container.read(workoutSessionControllerProvider).remainingRestSeconds,
         10,
       );
+      expect(
+        container.read(workoutSessionControllerProvider).restDurationSeconds,
+        10,
+      );
 
       controller().adjustRestSeconds(10);
       expect(
         container.read(workoutSessionControllerProvider).remainingRestSeconds,
+        20,
+      );
+      expect(
+        container.read(workoutSessionControllerProvider).restDurationSeconds,
         20,
       );
 
