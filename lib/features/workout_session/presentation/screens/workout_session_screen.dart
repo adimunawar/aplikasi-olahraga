@@ -662,7 +662,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
     final targetValue = isDuration
         ? (prescription.targetDurationSeconds ?? 45)
         : prescription.maxReps;
-    final valueLabel = isDuration ? '\${targetValue} sec' : '\${targetValue} reps';
+    final valueLabel = isDuration ? '${targetValue} sec' : '${targetValue} reps';
 
     if (sessionState.phase == WorkoutSessionPhase.resting) {
       final nextExerciseName = exercise.name.en.isNotEmpty
@@ -701,7 +701,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
           onPressed: () => context.pop(),
         ),
         title: Text(
-          '\${sessionState.currentExerciseIndex + 1} of \$_totalExercises',
+          '${sessionState.currentExerciseIndex + 1} of \$_totalExercises',
           style: AppTypography.labelLarge.copyWith(
             color: AppColors.darkCharcoal,
             fontWeight: FontWeight.w800,
@@ -751,7 +751,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
                       ),
                       const SizedBox(height: 5),
                       Text(
-                        'Set \${sessionState.currentSet} of \${sessionState.totalSetsPerExercise} · $valueLabel',
+                        'Set ${sessionState.currentSet} of ${sessionState.totalSetsPerExercise} · $valueLabel',
                         textAlign: TextAlign.center,
                         style: AppTypography.bodySmall.copyWith(
                           color: AppColors.neutral600,
@@ -770,7 +770,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
                       const SizedBox(height: 28),
                       ActiveWorkoutRepCounter(
                         key: ValueKey(
-                          '\${exercise.id}_\${sessionState.currentSet}',
+                          '${exercise.id}_${sessionState.currentSet}',
                         ),
                         initialValue: targetValue,
                         isDuration: isDuration,
