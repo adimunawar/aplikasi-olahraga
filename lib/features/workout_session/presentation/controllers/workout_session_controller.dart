@@ -387,6 +387,7 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
           ? WorkoutSessionPhase.active
           : WorkoutSessionPhase.resting,
       remainingRestSeconds: seconds,
+      restDurationSeconds: seconds,
       isTimerPaused: false,
     );
   }
@@ -404,8 +405,10 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
   void adjustRestSeconds(int delta) {
     if (state.phase != WorkoutSessionPhase.resting) return;
     final adjusted = (state.remainingRestSeconds + delta).clamp(0, 600).toInt();
+    final total = (state.restDurationSeconds + delta).clamp(0, 600).toInt();
     state = state.copyWith(
       remainingRestSeconds: adjusted,
+      restDurationSeconds: total,
       phase: adjusted == 0
           ? WorkoutSessionPhase.active
           : WorkoutSessionPhase.resting,
