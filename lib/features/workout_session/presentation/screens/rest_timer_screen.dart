@@ -33,7 +33,7 @@ class RestTimerScreen extends StatelessWidget {
   });
 
   String _formatTime(int seconds) {
-    final safeSeconds = seconds.clamp(0, 5999);
+    final safeSeconds = seconds.clamp(0, 5999).toInt();
     final minutes = (safeSeconds ~/ 60).toString().padLeft(2, '0');
     final remainder = (safeSeconds % 60).toString().padLeft(2, '0');
     return '$minutes:$remainder';
@@ -42,7 +42,7 @@ class RestTimerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final progress = totalSeconds > 0
-        ? (remainingSeconds / totalSeconds).clamp(0.0, 1.0)
+        ? (remainingSeconds / totalSeconds).clamp(0.0, 1.0).toDouble()
         : 0.0;
 
     return Scaffold(
