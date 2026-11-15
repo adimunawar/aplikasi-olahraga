@@ -1,7 +1,11 @@
 import '../../domain/models/workout_session_result.dart';
 
+/// Current presentation phase for the workout session.
+enum WorkoutSessionPhase { active, resting }
+
 /// Immutable State untuk Sesi Latihan Aktif (Presentation Layer)
 class WorkoutSessionState {
+  final WorkoutSessionPhase phase;
   final int currentExerciseIndex;
   final int currentSet;
   final int totalSetsPerExercise;
@@ -24,6 +28,7 @@ class WorkoutSessionState {
   final String? setSaveError;
 
   const WorkoutSessionState({
+    this.phase = WorkoutSessionPhase.active,
     this.currentExerciseIndex = 0,
     this.currentSet = 1,
     this.totalSetsPerExercise = 3,
@@ -46,6 +51,7 @@ class WorkoutSessionState {
   bool get isSessionReady => !isPreparing && errorMessage == null;
 
   WorkoutSessionState copyWith({
+    WorkoutSessionPhase? phase,
     int? currentExerciseIndex,
     int? currentSet,
     int? totalSetsPerExercise,
@@ -63,6 +69,7 @@ class WorkoutSessionState {
     bool clearSetSaveError = false,
   }) {
     return WorkoutSessionState(
+      phase: phase ?? this.phase,
       currentExerciseIndex: currentExerciseIndex ?? this.currentExerciseIndex,
       currentSet: currentSet ?? this.currentSet,
       totalSetsPerExercise: totalSetsPerExercise ?? this.totalSetsPerExercise,
