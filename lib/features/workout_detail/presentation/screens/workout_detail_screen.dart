@@ -18,10 +18,10 @@ import '../../../../core/widgets/app_smart_image.dart';
 import '../widgets/start_workout_bottom_bar.dart';
 import '../widgets/workout_exercise_list_section.dart';
 
-/// Layar Workout Detail (Mockup 1:1 Resolusi Tinggi):
-/// - Terintegrasi dinamis dengan ProgramRepository dan ExerciseRepository
-/// - Menampilkan gerakan latihan riil sesuai dayNumber dari program_30_days.json
-/// - Menghitung Target Muscles dan Overview metrik secara dinamis tanpa hardcode
+/// Workout Detail screen:
+/// - Menampilkan hero exercise, ringkasan program, dan daftar gerakan
+/// - Data tetap dimuat dari program dinamis atau program statis sebagai fallback
+/// - Menjaga kontrak navigasi ke Active Workout
 class WorkoutDetailScreen extends StatefulWidget {
   final int dayNumber;
   final int? weekNumber;
@@ -460,7 +460,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
             ),
           ],
         ),
-        bottomNavigationBar: widget.readOnly
+        bottomNavigationBar: widget.readOnly || _exercises.isEmpty
             ? null
             : StartWorkoutBottomBar(
                 label: widget.activeSessionId != null
@@ -544,11 +544,13 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
   }
 
   Future<void> _copyWorkoutDetails() async {
-    final description = widget.description.trim();
+    final description = widget.description.trim().isNotEmpty
+        ? widget.description.trim()
+        : 'Build strength and stability with a focused mix of bodyweight exercises.';
     final details = [
       widget.workoutTitle,
       '${widget.durationText} • ${_exercises.length} exercises • ${widget.levelText}',
-      if (description.isNotEmpty) description,
+      description,
     ].join('\n');
 
     await Clipboard.setData(ClipboardData(text: details));
