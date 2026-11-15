@@ -29,7 +29,8 @@ class _ActiveWorkoutRepCounterState extends State<ActiveWorkoutRepCounter> {
   @override
   void initState() {
     super.initState();
-    _value = widget.initialValue.clamp(1, 999);
+    _value = widget.initialValue.clamp(1, 999).toInt();
+    widget.onChanged(_value);
   }
 
   @override
@@ -37,12 +38,12 @@ class _ActiveWorkoutRepCounterState extends State<ActiveWorkoutRepCounter> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.initialValue != widget.initialValue ||
         oldWidget.isDuration != widget.isDuration) {
-      _value = widget.initialValue.clamp(1, 999);
+      _value = widget.initialValue.clamp(1, 999).toInt();
     }
   }
 
   void _change(int delta) {
-    final next = (_value + delta).clamp(1, 999);
+    final next = (_value + delta).clamp(1, 999).toInt();
     if (next == _value) return;
     setState(() => _value = next);
     widget.onChanged(_value);
