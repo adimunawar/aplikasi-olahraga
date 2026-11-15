@@ -127,13 +127,10 @@ class WorkoutExerciseListSection extends StatelessWidget {
           key: ValueKey('${item.exercise.id}_$index'),
           padding: const EdgeInsets.only(bottom: 10),
           child: WorkoutExerciseListItem(
-            index: index,
             title: item.title,
-            categoryTag: item.categoryTag,
             thumbnailAsset: item.thumbnailAsset,
             sets: item.sets,
             reps: item.reps,
-            rest: item.rest,
             exercise: item.exercise,
           ),
         );
