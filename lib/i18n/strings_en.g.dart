@@ -210,17 +210,17 @@ class _Translations$workoutSession$en extends Translations$workoutSession$id {
 
   // Translations
   @override
-  String exerciseProgress({required Object current, required Object total}) => 'Exercise \${current} of \${total}';
+  String exerciseProgress({required Object current, required Object total}) => 'Exercise ${current} of ${total}';
   @override
-  String setProgress({required Object current, required Object total, required Object target}) => 'Set \${current} of \${total} · \${target}';
+  String setProgress({required Object current, required Object total, required Object target}) => 'Set ${current} of ${total} · ${target}';
   @override
   String get repsUnit => 'reps';
   @override
   String get durationUnit => 'sec';
   @override
-  String repsValue({required Object value}) => '\${value} reps';
+  String repsValue({required Object value}) => '${value} reps';
   @override
-  String durationValue({required Object value}) => '\${value} sec';
+  String durationValue({required Object value}) => '${value} sec';
   @override
   String get completeSet => 'Complete Set';
   @override
@@ -234,7 +234,7 @@ class _Translations$workoutSession$en extends Translations$workoutSession$id {
   @override
   String get sessionConflictTitle => 'You have an unfinished workout';
   @override
-  String sessionConflictMessage({required Object program, required Object day}) => 'You still have an active session for "\${program}" (Day \${day}). Resume that session first, or end it to start this workout.';
+  String sessionConflictMessage({required Object program, required Object day}) => 'You still have an active session for "${program}" (Day ${day}). Resume that session first, or end it to start this workout.';
   @override
   String get resumePreviousSession => 'Resume Previous Session';
   @override
@@ -248,11 +248,11 @@ class _Translations$workoutSession$en extends Translations$workoutSession$id {
   @override
   String get exerciseLabel => 'Exercises';
   @override
-  String exerciseCount({required Object count}) => '\${count} exercises';
+  String exerciseCount({required Object count}) => '${count} exercises';
   @override
   String get totalSetsLabel => 'Total Sets';
   @override
-  String totalSetsCount({required Object count}) => '\${count} sets';
+  String totalSetsCount({required Object count}) => '${count} sets';
   @override
   String get viewSummary => 'View Workout Summary ➔';
   @override
@@ -264,9 +264,9 @@ class _Translations$workoutSession$en extends Translations$workoutSession$id {
   @override
   String get restTitle => 'Rest';
   @override
-  String restNextExercise({required Object exercise}) => 'Next: \${exercise}';
+  String restNextExercise({required Object exercise}) => 'Next: ${exercise}';
   @override
-  String restSetProgress({required Object current, required Object total}) => 'Set \${current} of \${total}';
+  String restSetProgress({required Object current, required Object total}) => 'Set ${current} of ${total}';
   @override
   String get restPaused => 'PAUSED';
   @override
@@ -280,11 +280,11 @@ class _Translations$workoutSession$en extends Translations$workoutSession$id {
   @override
   String get skipRest => 'Skip Rest';
   @override
-  String setCompleteTitle({required Object current, required Object total}) => 'Set \${current} of \${total} Complete! 🎉';
+  String setCompleteTitle({required Object current, required Object total}) => 'Set ${current} of ${total} Complete! 🎉';
   @override
-  String targetDuration({required Object seconds}) => 'Target: \${seconds} sec';
+  String targetDuration({required Object seconds}) => 'Target: ${seconds} sec';
   @override
-  String targetReps({required Object reps}) => 'Target: \${reps} reps';
+  String targetReps({required Object reps}) => 'Target: ${reps} reps';
   @override
   String get durationCompleted => 'Duration Completed';
   @override
@@ -330,7 +330,9 @@ class _Translations$workoutSession$en extends Translations$workoutSession$id {
   @override
   String get saveAndStartRest => 'Save & Start Rest';
   @override
-  String restSecondsValue({required Object seconds}) => '\${seconds} s';
+  String restSecondsValue({required Object seconds}) => '${seconds} s';
+  @override
+  String durationMinutesValue({required Object value}) => '${value} min';
 }
 
 // Path: core.actions
@@ -1833,44 +1835,44 @@ extension on TranslationsEn {
       'workouts.categories.core' => 'Core',
       'workouts.categories.arms' => 'Arms',
       'workouts.categories.shoulders' => 'Shoulders',
-            'workoutSession.exerciseProgress' => ({required Object current, required Object total}) => 'Exercise \${current} of \${total}',
-      'workoutSession.setProgress' => ({required Object current, required Object total, required Object target}) => 'Set \${current} of \${total} · \${target}',
+            'workoutSession.exerciseProgress' => ({required Object current, required Object total}) => 'Exercise ${current} of ${total}',
+      'workoutSession.setProgress' => ({required Object current, required Object total, required Object target}) => 'Set ${current} of ${total} · ${target}',
       'workoutSession.repsUnit' => 'reps',
       'workoutSession.durationUnit' => 'sec',
-      'workoutSession.repsValue' => ({required Object value}) => '\${value} reps',
-      'workoutSession.durationValue' => ({required Object value}) => '\${value} sec',
+      'workoutSession.repsValue' => ({required Object value}) => '${value} reps',
+      'workoutSession.durationValue' => ({required Object value}) => '${value} sec',
       'workoutSession.completeSet' => 'Complete Set',
       'workoutSession.nextRest' => 'Next: Rest',
       'workoutSession.preparingSession' => 'Preparing your workout...',
       'workoutSession.retry' => 'Try Again',
       'workoutSession.saveSetFailed' => 'Failed to save the set. Check your connection and try again.',
       'workoutSession.sessionConflictTitle' => 'You have an unfinished workout',
-      'workoutSession.sessionConflictMessage' => ({required Object program, required Object day}) => 'You still have an active session for "\${program}" (Day \${day}). Resume that session first, or end it to start this workout.',
+      'workoutSession.sessionConflictMessage' => ({required Object program, required Object day}) => 'You still have an active session for "${program}" (Day ${day}). Resume that session first, or end it to start this workout.',
       'workoutSession.resumePreviousSession' => 'Resume Previous Session',
       'workoutSession.endPreviousSession' => 'End Previous Session',
       'workoutSession.completionTitle' => 'Workout Completed! 🎉',
       'workoutSession.completionDescription' => 'You completed all sets and exercises. Get some rest to help your muscles recover.',
       'workoutSession.durationLabel' => 'Duration',
       'workoutSession.exerciseLabel' => 'Exercises',
-      'workoutSession.exerciseCount' => ({required Object count}) => '\${count} exercises',
+      'workoutSession.exerciseCount' => ({required Object count}) => '${count} exercises',
       'workoutSession.totalSetsLabel' => 'Total Sets',
-      'workoutSession.totalSetsCount' => ({required Object count}) => '\${count} sets',
+      'workoutSession.totalSetsCount' => ({required Object count}) => '${count} sets',
       'workoutSession.viewSummary' => 'View Workout Summary ➔',
       'workoutSession.restartRestTimer' => 'Restart Rest Timer',
       'workoutSession.finishSessionNow' => 'Finish Workout Now',
       'workoutSession.exitWithoutSaving' => 'Exit Without Saving',
       'workoutSession.restTitle' => 'Rest',
-      'workoutSession.restNextExercise' => ({required Object exercise}) => 'Next: \${exercise}',
-      'workoutSession.restSetProgress' => ({required Object current, required Object total}) => 'Set \${current} of \${total}',
+      'workoutSession.restNextExercise' => ({required Object exercise}) => 'Next: ${exercise}',
+      'workoutSession.restSetProgress' => ({required Object current, required Object total}) => 'Set ${current} of ${total}',
       'workoutSession.restPaused' => 'PAUSED',
       'workoutSession.restMinusTenSeconds' => '-10s',
       'workoutSession.restPlusTenSeconds' => '+10s',
       'workoutSession.restTipTitle' => 'Tip',
       'workoutSession.restTipDescription' => 'Keep breathing and stay hydrated.',
       'workoutSession.skipRest' => 'Skip Rest',
-      'workoutSession.setCompleteTitle' => ({required Object current, required Object total}) => 'Set \${current} of \${total} Complete! 🎉',
-      'workoutSession.targetDuration' => ({required Object seconds}) => 'Target: \${seconds} sec',
-      'workoutSession.targetReps' => ({required Object reps}) => 'Target: \${reps} reps',
+      'workoutSession.setCompleteTitle' => ({required Object current, required Object total}) => 'Set ${current} of ${total} Complete! 🎉',
+      'workoutSession.targetDuration' => ({required Object seconds}) => 'Target: ${seconds} sec',
+      'workoutSession.targetReps' => ({required Object reps}) => 'Target: ${reps} reps',
       'workoutSession.durationCompleted' => 'Duration Completed',
       'workoutSession.repsCompleted' => 'Reps Completed',
       'workoutSession.durationQuestion' => 'How many seconds did you hold?',
@@ -1893,7 +1895,8 @@ extension on TranslationsEn {
       'workoutSession.rirBadgeModerate' => 'Moderate',
       'workoutSession.rirBadgeEasy' => 'Easy',
       'workoutSession.saveAndStartRest' => 'Save & Start Rest',
-      'workoutSession.restSecondsValue' => ({required Object seconds}) => '\${seconds} s',
+      'workoutSession.restSecondsValue' => ({required Object seconds}) => '${seconds} s',
+      'workoutSession.durationMinutesValue' => ({required Object value}) => '${value} min',
       _ => null,
     };
   }
