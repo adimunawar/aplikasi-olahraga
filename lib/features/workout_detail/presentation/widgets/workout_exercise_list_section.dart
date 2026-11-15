@@ -11,14 +11,9 @@ import 'workout_exercise_list_item.dart';
 /// - Jika memiliki warm-up/cool-down, dikelompokkan secara terstruktur dan informatif
 class WorkoutExerciseListSection extends StatelessWidget {
   final List<WorkoutDetailExerciseData> exercises;
-  final VoidCallback? onPreviewAll;
-  final void Function(int oldIndex, int newIndex) onReorder;
-
   const WorkoutExerciseListSection({
     super.key,
     required this.exercises,
-    this.onPreviewAll,
-    required this.onReorder,
   });
 
   @override
