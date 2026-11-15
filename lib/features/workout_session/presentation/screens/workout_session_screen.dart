@@ -798,7 +798,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
           if (sessionState.isPreparing)
             Container(
               color: Colors.white.withValues(alpha: 0.85),
-              child: const Center(
+              child: Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -857,7 +857,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
           if (sessionState.isSaving)
             Container(
               color: Colors.black.withValues(alpha: 0.4),
-              child: const Center(
+              child: Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
