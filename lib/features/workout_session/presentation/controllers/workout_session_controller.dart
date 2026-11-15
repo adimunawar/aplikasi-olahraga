@@ -265,6 +265,8 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
       currentSet: currentSet,
       totalSetsPerExercise: totalSets,
       defaultRestSeconds: rx.restSeconds,
+      remainingRestSeconds: rx.restSeconds,
+      restDurationSeconds: rx.restSeconds,
     );
   }
 
@@ -460,7 +462,7 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
 
     final newElapsed = state.elapsedWorkoutSeconds + 1;
     if (state.phase == WorkoutSessionPhase.resting) {
-      final remaining = (state.remainingRestSeconds - 1).clamp(0, 600);
+      final remaining = (state.remainingRestSeconds - 1).clamp(0, 600).toInt();
       state = state.copyWith(
         remainingRestSeconds: remaining,
         elapsedWorkoutSeconds: newElapsed,
