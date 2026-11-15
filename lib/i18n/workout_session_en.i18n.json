@@ -60,5 +60,6 @@
   "rirBadgeEasy": "Easy",
   "saveAndStartRest": "Save & Start Rest",
   "restSecondsValue": "$seconds s",
-  "durationMinutesValue": "$value min"
+  "durationMinutesValue": "$value min",
+  "savingSession": "Saving your workout..."
 }
