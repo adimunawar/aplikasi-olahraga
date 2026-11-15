@@ -19,7 +19,7 @@ class ActiveWorkoutHeader extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: LinearProgressIndicator(
-        value: ((currentExerciseIndex + 1) / safeTotal).clamp(0.0, 1.0),
+        value: ((currentExerciseIndex + 1) / safeTotal).clamp(0.0, 1.0).toDouble(),
         minHeight: 5,
         backgroundColor: const Color(0xFFE5E7EB),
         valueColor: const AlwaysStoppedAnimation<Color>(AppColors.limeAccent),
