@@ -31,51 +31,16 @@ class WorkoutExerciseListSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Header Section Utama
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              'Exercises (${exercises.length})',
-              style: AppTypography.headlineSmall.copyWith(
-                fontWeight: FontWeight.w800,
-                fontSize: 17,
-                color: const Color(0xFF141718),
-              ),
-            ),
-            GestureDetector(
-              onTap: onPreviewAll,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEDF8D6),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.play_circle_outline_rounded,
-                      size: 15,
-                      color: Color(0xFF141718),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Preview All',
-                      style: AppTypography.labelSmall.copyWith(
-                        color: const Color(0xFF141718),
-                        fontWeight: FontWeight.w800,
-                        fontSize: 11.5,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+        // Compact section title, matching the workout detail reference.
+        Text(
+          'Exercises (${exercises.length})',
+          style: AppTypography.headlineSmall.copyWith(
+            fontWeight: FontWeight.w800,
+            fontSize: 17,
+            color: const Color(0xFF141718),
+          ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 12),
 
         if (!hasMultiStage)
           // 1. Tampilan Standar Normal (Jika program hanya berisi latihan inti)
