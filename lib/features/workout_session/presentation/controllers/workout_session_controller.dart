@@ -407,7 +407,7 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
   /// Add or subtract rest time without affecting elapsed workout time.
   void adjustRestSeconds(int delta) {
     if (state.phase != WorkoutSessionPhase.resting) return;
-    final adjusted = (state.remainingRestSeconds + delta).clamp(0, 600);
+    final adjusted = (state.remainingRestSeconds + delta).clamp(0, 600).toInt();
     state = state.copyWith(
       remainingRestSeconds: adjusted,
       phase: adjusted == 0
