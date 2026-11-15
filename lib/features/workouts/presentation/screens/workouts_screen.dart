@@ -273,7 +273,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFD4F836) : Colors.transparent,
+          color: isSelected ? AppColors.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Center(
@@ -330,8 +330,8 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
     final totalProgramSessions = totalWeeks * _programSessions.length;
     final progressPercent = totalProgramSessions > 0
         ? (completedProgramSessions / totalProgramSessions)
-            .clamp(0.0, 1.0)
-            .toDouble()
+              .clamp(0.0, 1.0)
+              .toDouble()
         : 0.0;
     final percentInt = (progressPercent * 100).toInt();
 
@@ -351,10 +351,8 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
           ),
           const SizedBox(height: 12),
           InkWell(
-            onTap: () => context.push(
-              AppRoutes.programDetail,
-              extra: program.id,
-            ),
+            onTap: () =>
+                context.push(AppRoutes.programDetail, extra: program.id),
             borderRadius: BorderRadius.circular(20),
             child: Container(
               padding: const EdgeInsets.all(16),
@@ -533,8 +531,8 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                 final isCurrentSelectedWeek = selectedWeek == currentWeek;
                 final isActiveToday =
                     isCurrentSelectedWeek && isToday && !isCompleted;
-                final isMissed = !isCompleted &&
-                    scheduled.scheduledDate.isBefore(today);
+                final isMissed =
+                    !isCompleted && scheduled.scheduledDate.isBefore(today);
                 final isUpcoming = !isCompleted && !isMissed && !isActiveToday;
 
                 final title = session.focusLabel.isNotEmpty
@@ -560,11 +558,13 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                               dayNumber: session.dayNumber,
                               weekNumber: selectedWeek,
                               programId: program.id,
-                              weekDayText: 'Week $selectedWeek • Day ${session.dayNumber}',
+                              weekDayText:
+                                  'Week $selectedWeek • Day ${session.dayNumber}',
                               workoutTitle: title,
                               targetMusclesText: session.focusLabel,
                               durationText: '$duration min',
-                              levelText: _profile?.experienceLevel ?? 'Beginner',
+                              levelText:
+                                  _profile?.experienceLevel ?? 'Beginner',
                             ),
                           );
                         }
@@ -584,8 +584,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
   }) {
     final isCurrentWeek = selectedWeek == currentWeek;
     final badgeLabel = isCurrentWeek ? 'Current Week' : 'Previous Week';
-    final hasLockedFutureWeeks =
-        isCurrentWeek && currentWeek < totalWeeks;
+    final hasLockedFutureWeeks = isCurrentWeek && currentWeek < totalWeeks;
     final canNavigateForward = selectedWeek < currentWeek;
 
     return Container(
@@ -655,9 +654,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
               hasLockedFutureWeeks
                   ? Icons.lock_outline_rounded
                   : Icons.chevron_right_rounded,
-              color: hasLockedFutureWeeks
-                  ? const Color(0xFF9CA3AF)
-                  : null,
+              color: hasLockedFutureWeeks ? const Color(0xFF9CA3AF) : null,
             ),
           ),
         ],
@@ -745,34 +742,34 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
     final statusText = isCompleted
         ? 'Completed'
         : isActiveToday
-            ? 'Today • Ready to start'
-            : isMissed
-                ? 'Missed'
-                : isUpcoming
-                    ? 'Locked'
-                    : 'Scheduled';
+        ? 'Today • Ready to start'
+        : isMissed
+        ? 'Missed'
+        : isUpcoming
+        ? 'Locked'
+        : 'Scheduled';
 
     final statusColor = isCompleted
         ? const Color(0xFF16A34A)
         : isActiveToday
-            ? const Color(0xFF65A30D)
-            : const Color(0xFF9CA3AF);
+        ? const Color(0xFF65A30D)
+        : const Color(0xFF9CA3AF);
 
     final leadingIcon = isCompleted
         ? Icons.check_circle_rounded
         : isActiveToday
-            ? Icons.play_arrow_rounded
-            : isMissed
-                ? Icons.event_busy_rounded
-                : Icons.calendar_today_rounded;
+        ? Icons.play_arrow_rounded
+        : isMissed
+        ? Icons.event_busy_rounded
+        : Icons.calendar_today_rounded;
 
     final trailingIcon = isCompleted
         ? Icons.check_circle_rounded
         : isActiveToday
-            ? Icons.play_arrow_rounded
-            : isMissed
-                ? Icons.event_busy_rounded
-                : Icons.lock_outline_rounded;
+        ? Icons.play_arrow_rounded
+        : isMissed
+        ? Icons.event_busy_rounded
+        : Icons.lock_outline_rounded;
 
     return InkWell(
       onTap: onTap,
@@ -805,15 +802,11 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                 color: isCompleted
                     ? const Color(0xFFF0FDF4)
                     : (isActiveToday
-                        ? const Color(0xFFF9FED8)
-                        : const Color(0xFFF3F4F6)),
+                          ? const Color(0xFFF9FED8)
+                          : const Color(0xFFF3F4F6)),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                leadingIcon,
-                size: 20,
-                color: statusColor,
-              ),
+              child: Icon(leadingIcon, size: 20, color: statusColor),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -850,11 +843,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen> {
                 ],
               ),
             ),
-            Icon(
-              trailingIcon,
-              color: statusColor,
-              size: 22,
-            ),
+            Icon(trailingIcon, color: statusColor, size: 22),
           ],
         ),
       ),
