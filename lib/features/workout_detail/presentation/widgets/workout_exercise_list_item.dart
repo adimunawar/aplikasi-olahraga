@@ -6,47 +6,22 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_smart_image.dart';
 import '../../../exercises/domain/models/exercise.dart';
 
-/// Item Baris Gerakan Latihan pada Workout Detail (Mockup 1:1):
-/// - Thumbnail foto pose dengan overlay tombol play bulat di sisi kanan thumbnail
-/// - Nama gerakan bold (14px)
-/// - Tag pill hijau muda untuk otot target (Chest • Triceps • Shoulders)
-/// - Info set & reps di kanan ("3 sets", "8 – 12 reps")
-/// - Chevron icon (>) untuk membuka detail gerakan
+/// Compact exercise card used by the Workout Detail screen.
 class WorkoutExerciseListItem extends StatelessWidget {
-  final int? index;
   final String title;
-  final String categoryTag;
   final String thumbnailAsset;
   final int sets;
   final String reps;
-  final String rest;
   final Exercise exercise;
 
   const WorkoutExerciseListItem({
     super.key,
-    this.index,
     required this.title,
-    required this.categoryTag,
     required this.thumbnailAsset,
     this.sets = 3,
     this.reps = '8 – 12',
-    this.rest = '60 – 90s',
     required this.exercise,
   });
-
-  String get _muscleText {
-    final list = <String>[];
-    for (final m in exercise.primaryMuscles) {
-      if (!list.contains(m.en)) list.add(m.en);
-    }
-    for (final m in exercise.stabilizerMuscles) {
-      if (!list.contains(m.en)) list.add(m.en);
-    }
-    if (list.isNotEmpty) {
-      return list.take(3).join(' • ');
-    }
-    return categoryTag;
-  }
 
   String get _prescriptionLabel {
     final value = reps.trim();
