@@ -29,7 +29,7 @@ class WeeklyScheduleSelector extends StatefulWidget {
 class _WeeklyScheduleSelectorState extends State<WeeklyScheduleSelector> {
   final ScrollController _scrollController = ScrollController();
   bool _canScrollLeft = false;
-  bool _canScrollRight = true;
+  bool _canScrollRight = false;
 
   @override
   void initState() {
@@ -59,8 +59,10 @@ class _WeeklyScheduleSelectorState extends State<WeeklyScheduleSelector> {
   void _updateScrollButtons() {
     if (!_scrollController.hasClients) return;
     final pos = _scrollController.position;
-    final canLeft = pos.pixels > 4;
-    final canRight = pos.pixels < (pos.maxScrollExtent - 4);
+    if (!pos.hasContentDimensions) return;
+    final canLeft = pos.pixels > 2.0;
+    final canRight =
+        pos.maxScrollExtent > 2.0 && pos.pixels < (pos.maxScrollExtent - 2.0);
     if (canLeft != _canScrollLeft || canRight != _canScrollRight) {
       if (mounted) {
         setState(() {
@@ -158,24 +160,20 @@ class _WeeklyScheduleSelectorState extends State<WeeklyScheduleSelector> {
           // 2. Floating Left Arrow Button
           if (_canScrollLeft)
             Positioned(
-              left: 8,
+              left: 6,
               child: _buildNavArrow(
                 icon: Icons.chevron_left_rounded,
                 onTap: () {
-                  if (widget.selectedWeek > 1) {
-                    final prev = (widget.selectedWeek - 1).clamp(
-                      1,
-                      widget.totalWeeks,
-                    );
-                    widget.onWeekSelected(prev);
-                    _scrollToWeek(prev);
-                  } else {
-                    _scrollController.animateTo(
-                      0,
-                      duration: const Duration(milliseconds: 250),
-                      curve: Curves.easeInOut,
-                    );
-                  }
+                  if (!_scrollController.hasClients) return;
+                  final target = (_scrollController.offset - 140.0).clamp(
+                    0.0,
+                    _scrollController.position.maxScrollExtent,
+                  );
+                  _scrollController.animateTo(
+                    target,
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeInOut,
+                  );
                 },
               ),
             ),
@@ -183,24 +181,20 @@ class _WeeklyScheduleSelectorState extends State<WeeklyScheduleSelector> {
           // 3. Floating Right Arrow Button
           if (_canScrollRight)
             Positioned(
-              right: 8,
+              right: 6,
               child: _buildNavArrow(
                 icon: Icons.chevron_right_rounded,
                 onTap: () {
-                  if (widget.selectedWeek < widget.totalWeeks) {
-                    final next = (widget.selectedWeek + 1).clamp(
-                      1,
-                      widget.totalWeeks,
-                    );
-                    widget.onWeekSelected(next);
-                    _scrollToWeek(next);
-                  } else {
-                    _scrollController.animateTo(
-                      _scrollController.position.maxScrollExtent,
-                      duration: const Duration(milliseconds: 250),
-                      curve: Curves.easeInOut,
-                    );
-                  }
+                  if (!_scrollController.hasClients) return;
+                  final target = (_scrollController.offset + 140.0).clamp(
+                    0.0,
+                    _scrollController.position.maxScrollExtent,
+                  );
+                  _scrollController.animateTo(
+                    target,
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeInOut,
+                  );
                 },
               ),
             ),

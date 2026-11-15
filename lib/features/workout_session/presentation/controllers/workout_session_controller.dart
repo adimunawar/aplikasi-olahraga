@@ -278,8 +278,9 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
   Future<bool> recordSetPerformance({
     required String exerciseId,
     required int setNumber,
-    required int actualReps,
+    int? actualReps,
     int? targetReps,
+    int? durationSeconds,
     required int rir,
     double formScore = 1.0,
   }) async {
@@ -293,6 +294,7 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
       setNumber: setNumber,
       targetReps: targetReps,
       actualReps: actualReps,
+      durationSeconds: durationSeconds,
       rir: rir,
       formScore: formScore,
       status: WorkoutSetStatus.completed,
@@ -451,12 +453,18 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
     required int dayNumber,
     required String programTitle,
     required int totalExercises,
+    bool isEndingEarly = false,
   }) async {
     state = state.copyWith(isSaving: true);
     try {
       // Hitung dari catatan aktual, bukan posisi exercise/set saat ini.
       final totalCompletedSets = _recordedSets.length;
       final duration = state.elapsedWorkoutSeconds;
+
+      final targetSetsPerExercise = <String, int>{
+        for (final entry in _prescriptions.entries)
+          entry.key: entry.value.targetSets,
+      };
 
       final result = await _repository.completeWorkoutSession(
         programId: programId,
@@ -468,6 +476,8 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
         startedAt: _startedAt,
         setLogs: List<WorkoutSetEntity>.from(_recordedSets),
         sessionId: _sessionId,
+        isEndingEarly: isEndingEarly,
+        targetSetsPerExercise: targetSetsPerExercise,
       );
 
       // Record in_progress sudah di-update menjadi completed; jangan update

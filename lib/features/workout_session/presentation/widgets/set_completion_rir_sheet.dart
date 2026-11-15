@@ -4,7 +4,8 @@ import '../../../../core/theme/app_typography.dart';
 
 /// Callback ketika set selesai dicatat
 typedef OnSetCompletedCallback = void Function({
-  required int actualReps,
+  int? actualReps,
+  int? durationSeconds,
   required int rir,
   required double formScore,
 });
@@ -16,6 +17,8 @@ class SetCompletionRirSheet extends StatefulWidget {
   final int totalSets;
   final String exerciseName;
   final int targetReps;
+  final bool isDuration;
+  final int? targetDurationSeconds;
   final int restSeconds;
   final OnSetCompletedCallback onConfirm;
 
@@ -25,6 +28,8 @@ class SetCompletionRirSheet extends StatefulWidget {
     required this.totalSets,
     required this.exerciseName,
     required this.targetReps,
+    this.isDuration = false,
+    this.targetDurationSeconds,
     this.restSeconds = 60,
     required this.onConfirm,
   });
@@ -35,6 +40,8 @@ class SetCompletionRirSheet extends StatefulWidget {
     required int totalSets,
     required String exerciseName,
     required int targetReps,
+    bool isDuration = false,
+    int? targetDurationSeconds,
     int restSeconds = 60,
     required OnSetCompletedCallback onConfirm,
   }) {
@@ -49,6 +56,8 @@ class SetCompletionRirSheet extends StatefulWidget {
         totalSets: totalSets,
         exerciseName: exerciseName,
         targetReps: targetReps,
+        isDuration: isDuration,
+        targetDurationSeconds: targetDurationSeconds,
         restSeconds: restSeconds,
         onConfirm: onConfirm,
       ),
@@ -60,7 +69,7 @@ class SetCompletionRirSheet extends StatefulWidget {
 }
 
 class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
-  late int _reps;
+  late int _value;
   int _selectedRir = 2; // Default zona ideal (2 RIR)
 
   final List<_RirOption> _rirOptions = const [
@@ -104,13 +113,16 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
   @override
   void initState() {
     super.initState();
-    _reps = widget.targetReps;
+    _value = widget.isDuration
+        ? (widget.targetDurationSeconds ?? widget.targetReps)
+        : widget.targetReps;
   }
 
   void _submit() {
     Navigator.of(context).pop();
     widget.onConfirm(
-      actualReps: _reps,
+      actualReps: widget.isDuration ? null : _value,
+      durationSeconds: widget.isDuration ? _value : null,
       rir: _selectedRir,
       formScore: 1.0,
     );
@@ -179,7 +191,9 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
                   border: Border.all(color: const Color(0xFFB8E66B)),
                 ),
                 child: Text(
-                  'Target: ${widget.targetReps} reps',
+                  widget.isDuration
+                      ? 'Target: ${widget.targetDurationSeconds ?? widget.targetReps} dtk'
+                      : 'Target: ${widget.targetReps} reps',
                   style: AppTypography.labelSmall.copyWith(
                     color: const Color(0xFF558B0A),
                     fontWeight: FontWeight.w700,
@@ -190,7 +204,7 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
           ),
           const SizedBox(height: 20),
 
-          // Section 1: Actual Reps Counter
+          // Section 1: Actual Counter (Reps atau Durasi)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
@@ -205,7 +219,7 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Repetisi Selesai',
+                      widget.isDuration ? 'Durasi Selesai' : 'Repetisi Selesai',
                       style: AppTypography.titleMedium.copyWith(
                         fontWeight: FontWeight.w800,
                         fontSize: 14,
@@ -213,7 +227,9 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
                       ),
                     ),
                     Text(
-                      'Berapa kali kamu berhasil?',
+                      widget.isDuration
+                          ? 'Berapa detik kamu bertahan?'
+                          : 'Berapa kali kamu berhasil?',
                       style: AppTypography.bodySmall.copyWith(
                         color: const Color(0xFF64748B),
                         fontSize: 12,
@@ -226,22 +242,36 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
                     _buildStepButton(
                       icon: Icons.remove,
                       onTap: () {
-                        if (_reps > 1) setState(() => _reps--);
+                        if (widget.isDuration) {
+                          if (_value > 5) {
+                            setState(() => _value -= 5);
+                          } else if (_value > 1) {
+                            setState(() => _value = 1);
+                          }
+                        } else {
+                          if (_value > 1) setState(() => _value--);
+                        }
                       },
                     ),
                     const SizedBox(width: 14),
                     Text(
-                      '$_reps',
+                      widget.isDuration ? '$_value s' : '$_value',
                       style: AppTypography.headlineMedium.copyWith(
                         fontWeight: FontWeight.w900,
-                        fontSize: 24,
+                        fontSize: 22,
                         color: const Color(0xFF1A1D1E),
                       ),
                     ),
                     const SizedBox(width: 14),
                     _buildStepButton(
                       icon: Icons.add,
-                      onTap: () => setState(() => _reps++),
+                      onTap: () {
+                        if (widget.isDuration) {
+                          setState(() => _value += 5);
+                        } else {
+                          setState(() => _value++);
+                        }
+                      },
                     ),
                   ],
                 ),

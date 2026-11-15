@@ -14,6 +14,8 @@ abstract class WorkoutSessionRepository {
     required int totalExercises,
     required DateTime startedAt,
     List<WorkoutSetEntity> setLogs = const [],
+    bool isEndingEarly = false,
+    Map<String, int>? targetSetsPerExercise,
 
     /// Jika diisi, record in_progress yang sudah ada di-update menjadi
     /// completed (bukan membuat record baru).

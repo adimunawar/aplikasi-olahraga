@@ -32,6 +32,8 @@ class WorkoutSessionRepositoryImpl implements WorkoutSessionRepository {
     required int totalExercises,
     required DateTime startedAt,
     List<WorkoutSetEntity> setLogs = const [],
+    bool isEndingEarly = false,
+    Map<String, int>? targetSetsPerExercise,
     String? sessionId,
   }) async {
     final endedAt = DateTime.now();
@@ -64,7 +66,9 @@ class WorkoutSessionRepositoryImpl implements WorkoutSessionRepository {
       endedAt: endedAt,
       durationSeconds: durationSeconds,
       caloriesBurned: calories,
-      status: WorkoutSessionStatus.completed,
+      status: isEndingEarly
+          ? WorkoutSessionStatus.incomplete
+          : WorkoutSessionStatus.completed,
     );
 
     await localDatabase.saveWorkoutSession(sessionEntity);
@@ -121,7 +125,8 @@ class WorkoutSessionRepositoryImpl implements WorkoutSessionRepository {
         }
 
         final firstSet = exSets.first;
-        final targetSets = exSets.length;
+        final targetSets =
+            targetSetsPerExercise?[exerciseId] ?? exSets.length;
         final targetReps = firstSet.targetReps ?? 10;
         final prescription = ExercisePrescription(
           targetSets: targetSets,
@@ -132,7 +137,7 @@ class WorkoutSessionRepositoryImpl implements WorkoutSessionRepository {
 
         final performanceLogs = exSets.map((s) => SetPerformanceLog(
           setNumber: s.setNumber,
-          reps: s.actualReps ?? 0,
+          reps: s.actualReps ?? s.durationSeconds ?? 0,
           rir: s.rir,
           formScore: s.formScore,
           weightKg: s.actualLoadKg,

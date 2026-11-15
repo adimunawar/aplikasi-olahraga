@@ -141,6 +141,8 @@ class _FakeWorkoutSessionRepository implements WorkoutSessionRepository {
     required int totalExercises,
     required DateTime startedAt,
     List<WorkoutSetEntity> setLogs = const [],
+    bool isEndingEarly = false,
+    Map<String, int>? targetSetsPerExercise,
     String? sessionId,
   }) async {
     final result = WorkoutSessionResult(

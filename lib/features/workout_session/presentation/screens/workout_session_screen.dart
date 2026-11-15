@@ -80,13 +80,21 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
     }
   }
 
+  Exercise? _findExercise(String id) {
+    return widget.exercises.where((e) => e.id == id).firstOrNull;
+  }
+
   /// Preskripsi per exercise: mulai dari ProgramDay.items (sets/reps/rest),
   /// lalu timpa dengan preskripsi eksplisit dari args yang lebih akurat
   /// (punya rentang min/max reps).
   Map<String, WorkoutExercisePrescription> _buildPrescriptions() {
     final map = <String, WorkoutExercisePrescription>{
       for (final item in widget.day.items)
-        item.exerciseId: WorkoutExercisePrescription.fromWorkoutItem(item),
+        item.exerciseId: WorkoutExercisePrescription.fromWorkoutItem(
+          item,
+          trackingType:
+              _findExercise(item.exerciseId)?.trackingType ?? TrackingType.reps,
+        ),
     };
     map.addAll(widget.prescriptions);
     return map;
@@ -95,10 +103,16 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
   WorkoutExercisePrescription _prescriptionFor(String exerciseId) {
     return widget.prescriptions[exerciseId] ??
         (widget.day.items
-            .where((item) => item.exerciseId == exerciseId)
-            .map(WorkoutExercisePrescription.fromWorkoutItem)
-            .firstOrNull ??
-        const WorkoutExercisePrescription());
+                .where((item) => item.exerciseId == exerciseId)
+                .map(
+                  (item) => WorkoutExercisePrescription.fromWorkoutItem(
+                    item,
+                    trackingType: _findExercise(item.exerciseId)?.trackingType ??
+                        TrackingType.reps,
+                  ),
+                )
+                .firstOrNull ??
+            const WorkoutExercisePrescription());
   }
 
   /// Membuat record in_progress atau memulihkan sesi yang sudah berjalan,
@@ -206,6 +220,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    ref.read(workoutSessionControllerProvider.notifier).persistElapsedNow();
     _timer?.cancel();
     WakelockPlus.disable();
     super.dispose();
@@ -232,6 +247,9 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
     final state = ref.read(workoutSessionControllerProvider);
     final currentExercise = _getCurrentExercise(state.currentExerciseIndex);
     final prescription = _prescriptionFor(currentExercise.id);
+    final isDuration =
+        currentExercise.trackingType == TrackingType.duration ||
+        prescription.isDuration;
 
     // Buka Bottom Sheet pencatatan set & RIR (Fase 3: RIR & Performa Nyata)
     SetCompletionRirSheet.show(
@@ -243,17 +261,20 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
           : currentExercise.name.id,
       targetReps: prescription.maxReps,
       restSeconds: prescription.restSeconds,
-      onConfirm: ({required actualReps, required rir, required formScore}) async {
+      isDuration: isDuration,
+      targetDurationSeconds: prescription.targetDurationSeconds,
+      onConfirm: ({actualReps, durationSeconds, required rir, required formScore}) async {
         // 1. Catat performa set ke controller (di-await agar tersimpan ke
         //    database sebelum maju ke set berikutnya).
         final saved = await controller.recordSetPerformance(
-              exerciseId: currentExercise.id,
-              setNumber: state.currentSet,
-              actualReps: actualReps,
-              targetReps: prescription.maxReps,
-              rir: rir,
-              formScore: formScore,
-            );
+          exerciseId: currentExercise.id,
+          setNumber: state.currentSet,
+          actualReps: isDuration ? null : actualReps,
+          targetReps: isDuration ? null : prescription.maxReps,
+          durationSeconds: isDuration ? durationSeconds : null,
+          rir: rir,
+          formScore: formScore,
+        );
         if (!mounted) return;
 
         // Gagal tersimpan: posisi TIDAK maju supaya user bisa mencatat ulang
@@ -273,7 +294,9 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
         }
 
         // 2. Maju ke set berikutnya / gerakan berikutnya
-        final isFinished = controller.nextPressed(totalExercises: _totalExercises);
+        final isFinished = controller.nextPressed(
+          totalExercises: _totalExercises,
+        );
 
         if (isFinished) {
           _timer?.cancel();
@@ -393,7 +416,10 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
 
                 // Ringkasan Cepat Mini
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.neutral100,
                     borderRadius: BorderRadius.circular(16),
@@ -406,13 +432,21 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
                         label: 'Durasi',
                         value: '$durationMin min',
                       ),
-                      Container(width: 1, height: 24, color: AppColors.neutral200),
+                      Container(
+                        width: 1,
+                        height: 24,
+                        color: AppColors.neutral200,
+                      ),
                       _buildMiniStat(
                         icon: Icons.fitness_center_rounded,
                         label: 'Gerakan',
                         value: '$_totalExercises Gerakan',
                       ),
-                      Container(width: 1, height: 24, color: AppColors.neutral200),
+                      Container(
+                        width: 1,
+                        height: 24,
+                        color: AppColors.neutral200,
+                      ),
                       _buildMiniStat(
                         icon: Icons.check_circle_rounded,
                         label: 'Total Set',
@@ -496,12 +530,13 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
     return null;
   }
 
-  Future<void> _openSummaryScreen() async {
+  Future<void> _openSummaryScreen({bool isEndingEarly = false}) async {
     _timer?.cancel();
 
     final profile = await AppDatabase.instance.getUserProfile();
-    final userName =
-        profile.displayName.isNotEmpty ? profile.displayName : 'Adi';
+    final userName = profile.displayName.isNotEmpty
+        ? profile.displayName
+        : 'Adi';
     final programId = widget.programId ?? 'upper_body_strength';
     final programTitle = _programTitle;
 
@@ -513,6 +548,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
           dayNumber: widget.day.day,
           programTitle: programTitle,
           totalExercises: _totalExercises,
+          isEndingEarly: isEndingEarly,
         );
 
     if (!mounted) return;
@@ -524,7 +560,21 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
     final caloriesText = result != null
         ? '≈ ${result.caloriesBurned} kcal'
         : '≈ 0 kcal';
-    final completedSetsText = '${result?.completedSets ?? currentState.completedSets}';
+    final completedSetsText =
+        '${result?.completedSets ?? currentState.completedSets}';
+
+    // Hitung exercise unik yang benar-benar tercatat jika diselesaikan lebih awal
+    int completedExercisesCount = _totalExercises;
+    if (isEndingEarly && result != null) {
+      final sets = await AppDatabase.instance.getSetsForSession(
+        result.sessionId,
+      );
+      completedExercisesCount = sets.map((s) => s.exerciseId).toSet().length;
+    }
+
+    final exercisesCountText = isEndingEarly
+        ? '$completedExercisesCount / $_totalExercises'
+        : '$_totalExercises / $_totalExercises';
 
     context.pushReplacement(
       AppRoutes.workoutSummary,
@@ -533,7 +583,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
         workoutTitle: programTitle,
         weekDayText: 'Week ${widget.day.week} • Day ${widget.day.day}',
         durationText: durationText,
-        exercisesCountText: '$_totalExercises / $_totalExercises',
+        exercisesCountText: exercisesCountText,
         setsCountText: completedSetsText,
         caloriesText: caloriesText,
         progressionDecisions: result?.progressionDecisions ?? const [],
@@ -575,7 +625,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
               ),
               onTap: () {
                 Navigator.pop(ctx);
-                _openSummaryScreen();
+                _openSummaryScreen(isEndingEarly: true);
               },
             ),
             ListTile(
@@ -602,14 +652,15 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
     return Exercise(
       id: name.toLowerCase().replaceAll(' ', '_'),
       name: LocalizedString(id: name, en: name),
-      category: muscle.toLowerCase().contains('chest') ||
+      category:
+          muscle.toLowerCase().contains('chest') ||
               muscle.toLowerCase().contains('push')
           ? ExerciseCategory.push
           : muscle.toLowerCase().contains('leg')
-              ? ExerciseCategory.legs
-              : muscle.toLowerCase().contains('core')
-                  ? ExerciseCategory.core
-                  : ExerciseCategory.fullBody,
+          ? ExerciseCategory.legs
+          : muscle.toLowerCase().contains('core')
+          ? ExerciseCategory.core
+          : ExerciseCategory.fullBody,
       difficulty: ExerciseDifficulty.intermediate,
       trackingType: TrackingType.reps,
       primaryMuscles: [LocalizedString(id: muscle, en: muscle)],
@@ -723,12 +774,20 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
                 ),
                 const SizedBox(height: 16),
 
-                // 4. Strip Metrik: Sets (per preskripsi), Reps, Rest
+                // 4. Strip Metrik: Sets (per preskripsi), Reps / Durasi, Rest
                 ActiveWorkoutMetricsStrip(
                   setsText:
                       '${sessionState.currentSet} / ${sessionState.totalSetsPerExercise}',
+                  repsLabel:
+                      prescription.isDuration ||
+                          exercise.trackingType == TrackingType.duration
+                      ? 'Durasi'
+                      : 'Reps',
                   repsText:
-                      '${prescription.minReps} – ${prescription.maxReps}',
+                      prescription.isDuration ||
+                          exercise.trackingType == TrackingType.duration
+                      ? '${prescription.targetDurationSeconds ?? 45} sec'
+                      : '${prescription.minReps} – ${prescription.maxReps}',
                   restText: '${prescription.restSeconds} sec',
                 ),
                 const SizedBox(height: 24),
@@ -749,13 +808,17 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
 
                 // Tombol CTA Utama yang Jelas (AppButton.primary sesuai architecture.md)
                 AppButton.primary(
-                  text: sessionState.currentSet >= sessionState.totalSetsPerExercise
+                  text:
+                      sessionState.currentSet >=
+                          sessionState.totalSetsPerExercise
                       ? (next != null
-                          ? 'Selesai Set ${sessionState.currentSet} & Lanjut ${next.name.en.isNotEmpty ? next.name.en : next.name.id} ➔'
-                          : 'Selesaikan Latihan Hari Ini 🎉')
+                            ? 'Selesai Set ${sessionState.currentSet} & Lanjut ${next.name.en.isNotEmpty ? next.name.en : next.name.id} ➔'
+                            : 'Selesaikan Latihan Hari Ini 🎉')
                       : 'Selesaikan Set ${sessionState.currentSet} (Catat Reps) ➔',
                   size: AppButtonSize.large,
-                  onPressed: sessionState.isSessionReady ? _onNextPressed : null,
+                  onPressed: sessionState.isSessionReady
+                      ? _onNextPressed
+                      : null,
                 ),
                 const SizedBox(height: 20),
 

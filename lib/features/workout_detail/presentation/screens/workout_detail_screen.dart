@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
+import 'package:workout_app/core/database/models/dynamic_program_entity.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -84,18 +84,28 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
       final db = AppDatabase.instance;
       final profile = await db.getUserProfile();
       final userId = profile.id.isNotEmpty ? profile.id : 'default_user';
-      var activeProgram = await db.getActiveTrainingProgram(userId);
-      activeProgram ??= await db.getActiveTrainingProgram('default_user');
 
-      // Use the active program belonging to the current user.
-      if (widget.programId != null && activeProgram?.id != widget.programId) {
-        activeProgram = null;
+      // 1. Read the selected session from the dynamic program.
+      // If widget.programId is provided (e.g. resuming an old/archived program session,
+      // or opening a specific program), load sessions directly from that programId.
+      List<ProgramSessionEntity> sessions = [];
+      String? targetProgramId = widget.programId;
+
+      if (targetProgramId != null && targetProgramId.isNotEmpty) {
+        sessions = await db.getProgramSessions(targetProgramId);
       }
 
-      // 1. Read the selected session from the active dynamic program.
-      if (activeProgram != null) {
-        _resolvedProgramId = activeProgram.id;
-        final sessions = await db.getProgramSessions(activeProgram.id);
+      if (sessions.isEmpty) {
+        var activeProgram = await db.getActiveTrainingProgram(userId);
+        activeProgram ??= await db.getActiveTrainingProgram('default_user');
+        if (activeProgram != null) {
+          targetProgramId = activeProgram.id;
+          sessions = await db.getProgramSessions(activeProgram.id);
+        }
+      }
+
+      if (sessions.isNotEmpty) {
+        _resolvedProgramId = targetProgramId;
         final sessionIndex = sessions.indexWhere(
           (session) => session.dayNumber == widget.dayNumber,
         );
@@ -117,10 +127,13 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
               isRetestMilestone: false,
               items: detail.exercises.map((item) {
                 final prescription = item.prescription;
+                final isDuration =
+                    item.exercise.trackingType == TrackingType.duration;
                 return WorkoutItem(
                   exerciseId: item.exercise.id,
                   sets: prescription.targetSets,
-                  reps: prescription.minReps,
+                  reps: isDuration ? prescription.maxReps : prescription.minReps,
+                  durationSec: isDuration ? prescription.maxReps : null,
                   restSeconds: prescription.restSeconds,
                   isMain: prescription.stage == 'main',
                   stage: prescription.stage,
@@ -131,7 +144,10 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
             for (final item in detail.exercises) {
               final ex = item.exercise;
               final prescription = item.prescription;
-              final repsStr = '${prescription.minReps} – ${prescription.maxReps} Reps';
+              final isDuration = ex.trackingType == TrackingType.duration;
+              final repsStr = isDuration
+                  ? '${prescription.minReps} – ${prescription.maxReps} sec'
+                  : '${prescription.minReps} – ${prescription.maxReps} Reps';
               final restStr = '${prescription.restSeconds} sec';
 
               list.add(
@@ -150,6 +166,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                   stage: prescription.stage,
                   prescription: WorkoutExercisePrescription.fromProgramExercise(
                     prescription,
+                    trackingType: ex.trackingType,
                   ),
                 ),
               );
