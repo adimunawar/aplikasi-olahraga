@@ -178,17 +178,17 @@ class Translations$workoutSession$id {
   final Translations _root; // ignore: unused_field
 
   // Translations
-  String exerciseProgress({required Object current, required Object total}) => 'Latihan \${current} dari \${total}';
+  String exerciseProgress({required Object current, required Object total}) => 'Latihan ${current} dari ${total}';
 
-  String setProgress({required Object current, required Object total, required Object target}) => 'Set \${current} dari \${total} · \${target}';
+  String setProgress({required Object current, required Object total, required Object target}) => 'Set ${current} dari ${total} · ${target}';
 
   String get repsUnit => 'repetisi';
 
   String get durationUnit => 'detik';
 
-  String repsValue({required Object value}) => '\${value} repetisi';
+  String repsValue({required Object value}) => '${value} repetisi';
 
-  String durationValue({required Object value}) => '\${value} detik';
+  String durationValue({required Object value}) => '${value} detik';
 
   String get completeSet => 'Selesaikan Set';
 
@@ -202,7 +202,7 @@ class Translations$workoutSession$id {
 
   String get sessionConflictTitle => 'Ada latihan yang belum selesai';
 
-  String sessionConflictMessage({required Object program, required Object day}) => 'Kamu masih punya sesi "\${program}" (Hari \${day}) yang sedang berlangsung. Lanjutkan sesi itu dulu, atau akhiri untuk mulai latihan ini.';
+  String sessionConflictMessage({required Object program, required Object day}) => 'Kamu masih punya sesi "${program}" (Hari ${day}) yang sedang berlangsung. Lanjutkan sesi itu dulu, atau akhiri untuk mulai latihan ini.';
 
   String get resumePreviousSession => 'Lanjutkan Sesi Lama';
 
@@ -216,11 +216,11 @@ class Translations$workoutSession$id {
 
   String get exerciseLabel => 'Gerakan';
 
-  String exerciseCount({required Object count}) => '\${count} gerakan';
+  String exerciseCount({required Object count}) => '${count} gerakan';
 
   String get totalSetsLabel => 'Total Set';
 
-  String totalSetsCount({required Object count}) => '\${count} set';
+  String totalSetsCount({required Object count}) => '${count} set';
 
   String get viewSummary => 'Lihat Ringkasan & Evaluasi ➔';
 
@@ -232,9 +232,9 @@ class Translations$workoutSession$id {
 
   String get restTitle => 'Istirahat';
 
-  String restNextExercise({required Object exercise}) => 'Berikutnya: \${exercise}';
+  String restNextExercise({required Object exercise}) => 'Berikutnya: ${exercise}';
 
-  String restSetProgress({required Object current, required Object total}) => 'Set \${current} dari \${total}';
+  String restSetProgress({required Object current, required Object total}) => 'Set ${current} dari ${total}';
 
   String get restPaused => 'DIJEDA';
 
@@ -248,11 +248,11 @@ class Translations$workoutSession$id {
 
   String get skipRest => 'Lewati Istirahat';
 
-  String setCompleteTitle({required Object current, required Object total}) => 'Set \${current} dari \${total} selesai! 🎉';
+  String setCompleteTitle({required Object current, required Object total}) => 'Set ${current} dari ${total} selesai! 🎉';
 
-  String targetDuration({required Object seconds}) => 'Target: \${seconds} detik';
+  String targetDuration({required Object seconds}) => 'Target: ${seconds} detik';
 
-  String targetReps({required Object reps}) => 'Target: \${reps} repetisi';
+  String targetReps({required Object reps}) => 'Target: ${reps} repetisi';
 
   String get durationCompleted => 'Durasi Selesai';
 
@@ -298,7 +298,8 @@ class Translations$workoutSession$id {
 
   String get saveAndStartRest => 'Simpan & Mulai Istirahat';
 
-  String restSecondsValue({required Object seconds}) => '\${seconds} dtk';
+  String restSecondsValue({required Object seconds}) => '${seconds} dtk';
+  String durationMinutesValue({required Object value}) => '${value} menit';
 }
 
 // Path: core.actions
@@ -1881,44 +1882,44 @@ extension on Translations {
       'workouts.categories.core' => 'Perut',
       'workouts.categories.arms' => 'Lengan',
       'workouts.categories.shoulders' => 'Bahu',
-            'workoutSession.exerciseProgress' => ({required Object current, required Object total}) => 'Latihan \${current} dari \${total}',
-      'workoutSession.setProgress' => ({required Object current, required Object total, required Object target}) => 'Set \${current} dari \${total} · \${target}',
+            'workoutSession.exerciseProgress' => ({required Object current, required Object total}) => 'Latihan ${current} dari ${total}',
+      'workoutSession.setProgress' => ({required Object current, required Object total, required Object target}) => 'Set ${current} dari ${total} · ${target}',
       'workoutSession.repsUnit' => 'repetisi',
       'workoutSession.durationUnit' => 'detik',
-      'workoutSession.repsValue' => ({required Object value}) => '\${value} repetisi',
-      'workoutSession.durationValue' => ({required Object value}) => '\${value} detik',
+      'workoutSession.repsValue' => ({required Object value}) => '${value} repetisi',
+      'workoutSession.durationValue' => ({required Object value}) => '${value} detik',
       'workoutSession.completeSet' => 'Selesaikan Set',
       'workoutSession.nextRest' => 'Istirahat berikutnya',
       'workoutSession.preparingSession' => 'Menyiapkan sesi latihan...',
       'workoutSession.retry' => 'Coba Lagi',
       'workoutSession.saveSetFailed' => 'Gagal menyimpan set. Periksa koneksi lalu coba lagi.',
       'workoutSession.sessionConflictTitle' => 'Ada latihan yang belum selesai',
-      'workoutSession.sessionConflictMessage' => ({required Object program, required Object day}) => 'Kamu masih punya sesi "\${program}" (Hari \${day}) yang sedang berlangsung. Lanjutkan sesi itu dulu, atau akhiri untuk mulai latihan ini.',
+      'workoutSession.sessionConflictMessage' => ({required Object program, required Object day}) => 'Kamu masih punya sesi "${program}" (Hari ${day}) yang sedang berlangsung. Lanjutkan sesi itu dulu, atau akhiri untuk mulai latihan ini.',
       'workoutSession.resumePreviousSession' => 'Lanjutkan Sesi Lama',
       'workoutSession.endPreviousSession' => 'Akhiri Sesi Lama',
       'workoutSession.completionTitle' => 'Latihan Hari Ini Tuntas! 🎉',
       'workoutSession.completionDescription' => 'Semua set dan gerakan telah berhasil kamu selesaikan. Istirahatlah dengan baik untuk pemulihan otot.',
       'workoutSession.durationLabel' => 'Durasi',
       'workoutSession.exerciseLabel' => 'Gerakan',
-      'workoutSession.exerciseCount' => ({required Object count}) => '\${count} gerakan',
+      'workoutSession.exerciseCount' => ({required Object count}) => '${count} gerakan',
       'workoutSession.totalSetsLabel' => 'Total Set',
-      'workoutSession.totalSetsCount' => ({required Object count}) => '\${count} set',
+      'workoutSession.totalSetsCount' => ({required Object count}) => '${count} set',
       'workoutSession.viewSummary' => 'Lihat Ringkasan & Evaluasi ➔',
       'workoutSession.restartRestTimer' => 'Mulai Ulang Timer Istirahat',
       'workoutSession.finishSessionNow' => 'Selesaikan Sesi Sekarang',
       'workoutSession.exitWithoutSaving' => 'Keluar Tanpa Menyimpan',
       'workoutSession.restTitle' => 'Istirahat',
-      'workoutSession.restNextExercise' => ({required Object exercise}) => 'Berikutnya: \${exercise}',
-      'workoutSession.restSetProgress' => ({required Object current, required Object total}) => 'Set \${current} dari \${total}',
+      'workoutSession.restNextExercise' => ({required Object exercise}) => 'Berikutnya: ${exercise}',
+      'workoutSession.restSetProgress' => ({required Object current, required Object total}) => 'Set ${current} dari ${total}',
       'workoutSession.restPaused' => 'DIJEDA',
       'workoutSession.restMinusTenSeconds' => '-10 dtk',
       'workoutSession.restPlusTenSeconds' => '+10 dtk',
       'workoutSession.restTipTitle' => 'Tips',
       'workoutSession.restTipDescription' => 'Tetap bernapas dan jangan lupa minum air.',
       'workoutSession.skipRest' => 'Lewati Istirahat',
-      'workoutSession.setCompleteTitle' => ({required Object current, required Object total}) => 'Set \${current} dari \${total} selesai! 🎉',
-      'workoutSession.targetDuration' => ({required Object seconds}) => 'Target: \${seconds} detik',
-      'workoutSession.targetReps' => ({required Object reps}) => 'Target: \${reps} repetisi',
+      'workoutSession.setCompleteTitle' => ({required Object current, required Object total}) => 'Set ${current} dari ${total} selesai! 🎉',
+      'workoutSession.targetDuration' => ({required Object seconds}) => 'Target: ${seconds} detik',
+      'workoutSession.targetReps' => ({required Object reps}) => 'Target: ${reps} repetisi',
       'workoutSession.durationCompleted' => 'Durasi Selesai',
       'workoutSession.repsCompleted' => 'Repetisi Selesai',
       'workoutSession.durationQuestion' => 'Berapa detik kamu bertahan?',
@@ -1941,7 +1942,8 @@ extension on Translations {
       'workoutSession.rirBadgeModerate' => 'Sedang',
       'workoutSession.rirBadgeEasy' => 'Ringan',
       'workoutSession.saveAndStartRest' => 'Simpan & Mulai Istirahat',
-      'workoutSession.restSecondsValue' => ({required Object seconds}) => '\${seconds} dtk',
+      'workoutSession.restSecondsValue' => ({required Object seconds}) => '${seconds} dtk',
+      'workoutSession.durationMinutesValue' => ({required Object value}) => '${value} menit',
       _ => null,
     };
   }
