@@ -429,10 +429,13 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                               ),
                             ],
                           ),
-                          if (widget.description.trim().isNotEmpty) ...[
+                          final descriptionText = widget.description.trim().isNotEmpty
+                              ? widget.description
+                              : 'Build strength and stability with a focused mix of bodyweight exercises.';
+                          if (descriptionText.isNotEmpty) ...[
                             const SizedBox(height: 14),
                             Text(
-                              widget.description,
+                              descriptionText,
                               style: AppTypography.bodyMedium.copyWith(
                                 color: AppColors.neutral600,
                                 fontSize: 13,
@@ -516,6 +519,15 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
           ),
           Positioned(
             top: topInset + 8,
+            right: 66,
+            child: _buildHeroAction(
+              icon: Icons.ios_share_rounded,
+              tooltip: 'Copy workout details',
+              onPressed: _copyWorkoutDetails,
+            ),
+          ),
+          Positioned(
+            top: topInset + 8,
             right: 16,
             child: _buildHeroAction(
               icon: _isBookmarked
@@ -528,6 +540,28 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _copyWorkoutDetails() async {
+    final description = widget.description.trim();
+    final details = [
+      widget.workoutTitle,
+      '${widget.durationText} • ${_exercises.length} exercises • ${widget.levelText}',
+      if (description.isNotEmpty) description,
+    ].join('\n');
+
+    await Clipboard.setData(ClipboardData(text: details));
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(
+          content: Text('Workout details copied.'),
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 2),
+        ),
+      );
   }
 
   Widget _buildHeroFallback() {
