@@ -16,8 +16,6 @@ import '../../../workout_session/domain/models/exercise_prescription.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../../../core/widgets/app_smart_image.dart';
 import '../widgets/start_workout_bottom_bar.dart';
-import '../widgets/target_muscles_overview_section.dart';
-import '../widgets/workout_detail_hero_banner.dart';
 import '../widgets/workout_exercise_list_section.dart';
 
 /// Layar Workout Detail (Mockup 1:1 Resolusi Tinggi):
@@ -448,15 +446,6 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                           else
                             WorkoutExerciseListSection(
                               exercises: _exercises,
-                              onReorder: _onReorder,
-                              onPreviewAll: () {
-                                if (_exercises.isNotEmpty) {
-                                  context.push(
-                                    AppRoutes.exerciseDetail,
-                                    extra: _exercises.first.exercise,
-                                  );
-                                }
-                              },
                             ),
                         ],
                       ),
@@ -672,16 +661,6 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
         ],
       ),
     );
-  }
-
-  void _onReorder(int oldIndex, int newIndex) {
-    setState(() {
-      if (newIndex > oldIndex) {
-        newIndex -= 1;
-      }
-      final item = _exercises.removeAt(oldIndex);
-      _exercises.insert(newIndex, item);
-    });
   }
 
   void _startActiveWorkout() {
