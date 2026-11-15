@@ -11,6 +11,7 @@ class WorkoutSessionState {
   final int totalSetsPerExercise;
   final int remainingRestSeconds;
   final int defaultRestSeconds;
+  final int restDurationSeconds;
   final bool isTimerPaused;
   final int elapsedWorkoutSeconds;
   final bool isSaving;
@@ -34,6 +35,7 @@ class WorkoutSessionState {
     this.totalSetsPerExercise = 3,
     this.remainingRestSeconds = 60,
     this.defaultRestSeconds = 60,
+    this.restDurationSeconds = 60,
     this.isTimerPaused = false,
     this.elapsedWorkoutSeconds = 0,
     this.isSaving = false,
@@ -57,6 +59,7 @@ class WorkoutSessionState {
     int? totalSetsPerExercise,
     int? remainingRestSeconds,
     int? defaultRestSeconds,
+    int? restDurationSeconds,
     bool? isTimerPaused,
     int? elapsedWorkoutSeconds,
     bool? isSaving,
@@ -75,6 +78,7 @@ class WorkoutSessionState {
       totalSetsPerExercise: totalSetsPerExercise ?? this.totalSetsPerExercise,
       remainingRestSeconds: remainingRestSeconds ?? this.remainingRestSeconds,
       defaultRestSeconds: defaultRestSeconds ?? this.defaultRestSeconds,
+      restDurationSeconds: restDurationSeconds ?? this.restDurationSeconds,
       isTimerPaused: isTimerPaused ?? this.isTimerPaused,
       elapsedWorkoutSeconds: elapsedWorkoutSeconds ?? this.elapsedWorkoutSeconds,
       isSaving: isSaving ?? this.isSaving,
