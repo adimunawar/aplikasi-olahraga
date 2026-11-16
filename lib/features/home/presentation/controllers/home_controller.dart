@@ -8,6 +8,7 @@ import '../../../../core/database/models/dynamic_program_entity.dart';
 import '../../../../core/database/models/workout_session_entity.dart';
 import '../../../../core/services/app_data_sync.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
+import '../../../exercises/data/repositories/exercise_repository_impl.dart';
 import '../../../exercises/domain/models/exercise.dart';
 import '../../../program/domain/models/program_day.dart';
 import '../../../program/domain/services/dynamic_program_generator.dart';
@@ -45,6 +46,8 @@ final homeControllerProvider = StateNotifierProvider<HomeController, HomeState>(
 class HomeController extends StateNotifier<HomeState> {
   final AppDatabase _db;
   final ExerciseLocalDatasource _exerciseDatasource;
+  late final ExerciseRepositoryImpl _exerciseRepository =
+      ExerciseRepositoryImpl(_exerciseDatasource);
   final DynamicProgramGenerator _programGenerator;
   final AppDataSync _appDataSync;
 
@@ -137,6 +140,10 @@ class HomeController extends StateNotifier<HomeState> {
         state = state.copyWith(isLoading: true, errorType: HomeErrorType.none);
       }
 
+      // Refresh the catalog from Supabase; repository falls back to SQLite
+      // when the cloud is unavailable.
+      final exerciseCatalog = await _exerciseRepository.getExercises();
+
       try {
         var profile = await _db.getUserProfile();
 
@@ -204,7 +211,7 @@ class HomeController extends StateNotifier<HomeState> {
         // count/frequency no longer matches the user's profile.
         if (needsProgramRegeneration) {
           try {
-            final catalog = await _exerciseDatasource.loadExercises();
+            final catalog = exerciseCatalog;
             final startingPushId = profile.experienceLevel == 'advanced'
                 ? 'diamond_push_up'
                 : profile.experienceLevel == 'intermediate'
