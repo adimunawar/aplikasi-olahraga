@@ -57,4 +57,4 @@ class ExerciseLocalDatasource {
     await _db.toggleExerciseFavorite(exerciseId, isFavorite);
   }
 
-}}
+}
