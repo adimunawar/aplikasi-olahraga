@@ -46,7 +46,6 @@ flutter:
 
   assets:
     - assets/data/foods.json
-    - assets/data/program_30_days.json
     - assets/images/
     - assets/images/exercises/
     - assets/muscle/front/
