@@ -46,6 +46,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   final _exerciseRepo = ExerciseRepositoryImpl(ExerciseLocalDatasource());
 
   List<_CalendarDayData> _allDays = [];
+  int _leadingEmptyDays = 0;
   String? _activeProgramId;
   String? _activeProgramName;
   String? _loadError;
@@ -122,6 +123,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       final programStartDate = ProgramWeekSchedule.dateOnly(activeProgram.startDate);
       final today = ProgramWeekSchedule.dateOnly(DateTime.now());
       final days = <_CalendarDayData>[];
+      final leadingEmptyDays = today.weekday - 1;
 
       // The calendar is a rolling 30-day view built from the active program's
       // weekly sessions and the same availability rules used by Home and Plans.
@@ -249,6 +251,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       if (mounted) {
         setState(() {
           _allDays = days;
+          _leadingEmptyDays = leadingEmptyDays;
           _activeProgramId = activeProgram.id;
           _activeProgramName = activeProgram.name;
           _hasActiveProgram = true;
@@ -633,9 +636,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 crossAxisSpacing: 8,
                 childAspectRatio: 0.85,
               ),
-              itemCount: _allDays.length,
+              itemCount: _leadingEmptyDays + _allDays.length,
               itemBuilder: (context, index) {
-                final entry = _allDays[index];
+                if (index < _leadingEmptyDays) {
+                  return const SizedBox.shrink();
+                }
+                final entry = _allDays[index - _leadingEmptyDays];
                 final day = entry.day;
                 final isToday = _isSameDate(entry.date, DateTime.now());
                 final color = AppColors.forWorkoutCode(day.type.code);
