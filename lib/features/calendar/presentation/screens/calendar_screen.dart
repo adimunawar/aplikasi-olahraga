@@ -91,13 +91,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
         return;
       }
 
-      final sessions = await _db.getProgramSessions(program.id);
+      final activeProgram = program;
+      final sessions = await _db.getProgramSessions(activeProgram.id);
       if (sessions.isEmpty) {
         if (mounted) {
           setState(() {
             _allDays = [];
-            _activeProgramId = program!.id;
-            _activeProgramName = program.name;
+            _activeProgramId = activeProgram.id;
+            _activeProgramName = activeProgram.name;
             _hasActiveProgram = false;
             _loadError = 'Your active program does not have a workout schedule yet.';
             _isLoading = false;
@@ -114,11 +115,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
         }
       }
 
-      final workoutHistory = await _db.getWorkoutSessionsForProgram(program.id);
+      final workoutHistory = await _db.getWorkoutSessionsForProgram(activeProgram.id);
       final totalWeeks = profile.targetTimeframeWeeks > 0
           ? profile.targetTimeframeWeeks
-          : program.durationWeeks;
-      final programStartDate = ProgramWeekSchedule.dateOnly(program.startDate);
+          : activeProgram.durationWeeks;
+      final programStartDate = ProgramWeekSchedule.dateOnly(activeProgram.startDate);
       final today = ProgramWeekSchedule.dateOnly(DateTime.now());
       final days = <_CalendarDayData>[];
 
@@ -189,7 +190,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
         }
 
         final detail = detailsBySessionId[scheduled.session.id];
-        final detailItems = detail?.exercises ?? const <ProgramExerciseDetailItem>[];
+        final detailItems =
+            detail?.exercises ?? const <ProgramExerciseDetailItem>[];
         final exercises = detailItems.map((item) => item.exercise).toList();
         final prescriptions = <String, WorkoutExercisePrescription>{
           for (final item in detailItems)
@@ -247,8 +249,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
       if (mounted) {
         setState(() {
           _allDays = days;
-          _activeProgramId = program.id;
-          _activeProgramName = program.name;
+          _activeProgramId = activeProgram.id;
+          _activeProgramName = activeProgram.name;
           _hasActiveProgram = true;
           _isLoading = false;
         });
