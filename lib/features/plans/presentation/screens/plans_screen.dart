@@ -14,6 +14,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
+import '../../../exercises/data/repositories/exercise_repository_impl.dart';
 import '../../../exercises/domain/models/exercise.dart';
 import '../../../program/domain/models/program_day.dart';
 import '../../../program/domain/services/dynamic_program_generator.dart';
@@ -47,6 +48,8 @@ class PlansScreen extends ConsumerStatefulWidget {
 class _PlansScreenState extends ConsumerState<PlansScreen>
     with SingleTickerProviderStateMixin {
   final _db = AppDatabase.instance;
+  late final ExerciseLocalDatasource _exerciseDatasource;
+  late final ExerciseRepositoryImpl _exerciseRepository;
   late TabController _tabController;
 
   UserProfileEntity? _profile;
@@ -69,6 +72,8 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
       vsync: this,
       initialIndex: widget.initialTabIndex.clamp(0, 2),
     );
+    _exerciseDatasource = ExerciseLocalDatasource(db: _db);
+    _exerciseRepository = ExerciseRepositoryImpl(_exerciseDatasource);
     _loadPlanData();
     AppDataSync.instance.dataRevision.addListener(_onDataSync);
   }
@@ -91,6 +96,8 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
     _isFetching = true;
 
     try {
+      // Keep program details on the latest cloud catalog, with SQLite fallback.
+      final exerciseCatalog = await _exerciseRepository.getExercises();
       final profile = await _db.getUserProfile();
       final userId = profile.id.isNotEmpty ? profile.id : 'default_user';
 
@@ -116,8 +123,7 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
           sessionList.isEmpty ||
           sessionList.length != targetWeekly) {
         try {
-          final exerciseDatasource = ExerciseLocalDatasource(db: _db);
-          final catalog = await exerciseDatasource.loadExercises();
+          final catalog = exerciseCatalog;
           final startingPushId = profile.experienceLevel == 'advanced'
               ? 'diamond_push_up'
               : profile.experienceLevel == 'intermediate'
