@@ -1,47 +1,32 @@
-import 'dart:convert';
-import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/models/exercise_entity.dart';
 import '../../domain/models/exercise.dart';
 
-/// Datasource Offline-First untuk Gerakan Latihan (Exercises)
-/// - Membaca langsung dari SQLite Database lokal
-/// - Melakukan initial seeding otomatis dari exercises.json jika tabel kosong
-/// - Mendukung filter per stage ('warmup', 'main', 'cooldown') dan pencarian
+/// Datasource lokal untuk katalog gerakan.
+/// SQLite menjadi cache offline; pengisian awal katalog dilakukan melalui
+/// ExerciseRepositoryImpl (Supabase terlebih dahulu), bukan dari asset JSON.
 class ExerciseLocalDatasource {
-  static const String _assetPath = 'assets/data/exercises.json';
   final AppDatabase _db;
   List<Exercise>? _cachedExercises;
 
   ExerciseLocalDatasource({AppDatabase? db}) : _db = db ?? AppDatabase.instance;
 
   Future<List<Exercise>> loadExercises() async {
-    if (_cachedExercises != null && _cachedExercises!.isNotEmpty) {
+    if (_cachedExercises != null) {
       return _cachedExercises!;
     }
 
     try {
-      // 1. Cek jumlah data di SQLite
-      final count = await _db.getExerciseCount();
-
-      if (count >= 18) {
-        // Ambil data langsung dari SQLite
-        final entities = await _db.getAllExercises();
-        _cachedExercises = entities.map((e) => e.toDomain()).toList();
-        return _cachedExercises!;
-      }
-
-      // 2. Jika tabel masih kosong atau perlu pembaruan: Lakukan Seeding dari exercises.json
-      final initialExercises = await _loadFromJsonAsset();
-      final entities = initialExercises.map((e) => ExerciseEntity.fromDomain(e)).toList();
-
-      await _db.insertExercises(entities);
-      _cachedExercises = initialExercises;
+      final entities = await _db.getAllExercises();
+      _cachedExercises = entities.map((e) => e.toDomain()).toList();
+      debugPrint(
+        '[ExerciseLocalDatasource] Loaded ${_cachedExercises!.length} exercises from SQLite.',
+      );
       return _cachedExercises!;
-    } catch (_) {
-      // Fallback aman jika database belum siap: baca langsung dari JSON
-      final fallback = await _loadFromJsonAsset();
-      _cachedExercises = fallback;
+    } catch (e) {
+      debugPrint('[ExerciseLocalDatasource] Failed to load SQLite catalog: $e');
+      _cachedExercises = const [];
       return _cachedExercises!;
     }
   }
@@ -72,12 +57,4 @@ class ExerciseLocalDatasource {
     await _db.toggleExerciseFavorite(exerciseId, isFavorite);
   }
 
-  /// Helper untuk membaca file JSON bawaan
-  Future<List<Exercise>> _loadFromJsonAsset() async {
-    final jsonString = await rootBundle.loadString(_assetPath);
-    final List<dynamic> jsonList = jsonDecode(jsonString) as List<dynamic>;
-    return jsonList
-        .map((e) => Exercise.fromJson(e as Map<String, dynamic>))
-        .toList();
-  }
-}
+}}
