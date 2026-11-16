@@ -45,6 +45,8 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/data/foods.json
+    - assets/data/program_30_days.json
     - assets/images/
     - assets/images/exercises/
     - assets/muscle/front/
