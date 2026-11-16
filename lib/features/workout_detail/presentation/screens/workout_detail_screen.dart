@@ -19,7 +19,7 @@ import '../widgets/workout_exercise_list_section.dart';
 
 /// Workout Detail screen:
 /// - Menampilkan hero exercise, ringkasan program, dan daftar gerakan
-/// - Data tetap dimuat dari program dinamis atau program statis sebagai fallback
+/// - Mengambil jadwal hanya dari Dynamic Program yang aktif
 /// - Menjaga kontrak navigasi ke Active Workout
 class WorkoutDetailScreen extends StatefulWidget {
   final int dayNumber;
