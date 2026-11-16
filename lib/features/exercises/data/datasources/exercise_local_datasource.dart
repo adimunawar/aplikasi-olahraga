@@ -13,7 +13,7 @@ class ExerciseLocalDatasource {
   ExerciseLocalDatasource({AppDatabase? db}) : _db = db ?? AppDatabase.instance;
 
   Future<List<Exercise>> loadExercises() async {
-    if (_cachedExercises != null) {
+    if (_cachedExercises != null && _cachedExercises!.isNotEmpty) {
       return _cachedExercises!;
     }
 
