@@ -1,3 +1,5 @@
+> **Document status: Historical product baseline.** This PRD records the original product scope and decisions at the start of the project. The implementation has since evolved to include Supabase catalog data, SQLite caching, consent-controlled Cloud Sync, Firebase monitoring, and additional workout/progression capabilities. In case of conflict, use the current source code, AGENTS.md, ARCHITECTURE.md, and the current guides under docs/ as the implementation and engineering authority. Do not treat every original assumption in this document (for example, no backend or static exercise JSON) as current behavior.
+
 # PRD: Aplikasi Olahraga Rumah (Program 30 Hari)
 
 | | |
