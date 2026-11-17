@@ -24,6 +24,22 @@ void main() {
       expect(english.workoutSession.targetReps(reps: 12), 'Target: 12 reps');
       expect(english.workoutSession.rirIdealTitle, '2 — Ideal Zone (Target)');
       expect(english.workoutSession.durationMinutesValue(value: 25), '25 min');
+      expect(
+        english.workoutSession.targetReps(reps: 12),
+        'Target: 12 reps',
+      );
+      expect(
+        english.workoutSession.rirIdealTitle,
+        '2 — Ideal Zone (Target)',
+      );
+      expect(
+        english.workoutSession.durationMinutesValue(value: 25),
+        '25 min',
+      );
+      expect(
+        english.workoutSession.finishSessionFailed,
+        'We couldn\'t save your workout. Your recorded progress is still here. Please try again.',
+      );
 
       final indonesian = AppLocale.id.buildSync();
       expect(
@@ -41,6 +57,10 @@ void main() {
       expect(
         indonesian.workoutSession.durationMinutesValue(value: 25),
         '25 menit',
+      );
+      expect(
+        indonesian.workoutSession.finishSessionFailed,
+        'Sesi latihan gagal disimpan. Progres yang sudah tercatat tetap tersedia. Silakan coba lagi.',
       );
     });
   });

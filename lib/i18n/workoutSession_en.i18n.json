@@ -63,5 +63,6 @@
   "durationMinutesValue": "$value min",
   "savingSession": "Saving your workout...",
   "emptySessionDescription": "The exercise list for this session was not found. Please go back to reload your workout program.",
-  "backButtonLabel": "Go Back"
+  "backButtonLabel": "Go Back",
+  "finishSessionFailed": "We couldn\u0027t save your workout. Your recorded progress is still here. Please try again."
 }

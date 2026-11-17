@@ -64,8 +64,10 @@ class _FakeWorkoutSessionRepository implements WorkoutSessionRepository {
   final List<WorkoutSessionResult> completedResults = [];
   final List<int> progressUpdates = [];
 
-  /// Simulasi kegagalan database saat menyimpan set.
+  /// Simulasi kegagalan database saat menyimpan set atau sesi.
   bool failSaveSet = false;
+  bool failFinishSession = false;
+  final List<String?> completionAttemptSessionIds = [];
 
   int _idCounter = 0;
 
@@ -145,6 +147,11 @@ class _FakeWorkoutSessionRepository implements WorkoutSessionRepository {
     Map<String, int>? targetSetsPerExercise,
     String? sessionId,
   }) async {
+    completionAttemptSessionIds.add(sessionId);
+    if (failFinishSession) {
+      throw StateError('simulated session persistence failure');
+    }
+
     final result = WorkoutSessionResult(
       sessionId: sessionId ?? 'session_completed',
       programId: programId,
@@ -472,6 +479,64 @@ void main() {
         isNull,
       );
     });
+
+    test(
+      'failed session completion keeps the session and can be retried',
+      () async {
+        await controller().prepareSession(
+          programId: 'program_1',
+          dayNumber: 1,
+          programTitle: 'Upper Body',
+          scheduledDate: today,
+          exerciseIds: const ['a'],
+        );
+        final controller0 = controller();
+        final sessionId = controller0.sessionId;
+
+        await controller0.recordSetPerformance(
+          exerciseId: 'a',
+          setNumber: 1,
+          actualReps: 10,
+          rir: 2,
+        );
+
+        repository.failFinishSession = true;
+        final failedResult = await controller0.finishWorkoutSession(
+          programId: 'program_1',
+          dayNumber: 1,
+          programTitle: 'Upper Body',
+          totalExercises: 1,
+        );
+
+        final failedState = container.read(workoutSessionControllerProvider);
+        expect(failedResult, isNull);
+        expect(failedState.isSaving, isFalse);
+        expect(failedState.completionError, isNotNull);
+        expect(failedState.errorMessage, isNull);
+        expect(failedState.completedResult, isNull);
+        expect(failedState.completedSets, 1);
+        expect(controller0.sessionId, sessionId);
+
+        repository.failFinishSession = false;
+        final retriedResult = await controller0.finishWorkoutSession(
+          programId: 'program_1',
+          dayNumber: 1,
+          programTitle: 'Upper Body',
+          totalExercises: 1,
+        );
+
+        final retriedState = container.read(workoutSessionControllerProvider);
+        expect(retriedResult, isNotNull);
+        expect(
+          repository.completionAttemptSessionIds,
+          [sessionId, sessionId],
+        );
+        expect(controller0.sessionId, isNull);
+        expect(retriedState.completionError, isNull);
+        expect(retriedState.completedResult, same(retriedResult));
+        expect(retriedState.isSaving, isFalse);
+      },
+    );
 
     test('active phase does not consume the rest countdown', () async {
       await controller().prepareSession(

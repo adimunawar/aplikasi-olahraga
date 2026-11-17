@@ -345,6 +345,9 @@ class Translations$workoutSession$id {
 
   /// id: 'Kembali'
   String get backButtonLabel => 'Kembali';
+  /// id: 'Sesi latihan gagal disimpan. Progres yang sudah tercatat tetap tersedia. Silakan coba lagi.'
+  String get finishSessionFailed =>
+      'Sesi latihan gagal disimpan. Progres yang sudah tercatat tetap tersedia. Silakan coba lagi.';
 }
 
 // Path: workouts

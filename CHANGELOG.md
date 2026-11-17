@@ -6,6 +6,10 @@ This changelog starts with the documentation baseline for the current portfolio 
 
 ## Unreleased
 
+### Fixed
+
+- Keep the active workout screen open when session finalization fails, with a localized retry action that reuses the same session.
+
 ### Documentation
 
 - Added AGENTS.md as the mandatory engineering and contributor contract.
