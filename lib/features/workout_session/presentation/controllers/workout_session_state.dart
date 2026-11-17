@@ -23,6 +23,7 @@ class WorkoutSessionState {
   final int completedSets;
   final WorkoutSessionResult? completedResult;
   final String? errorMessage;
+  final String? completionError;
 
   /// Error khusus kegagalan menyimpan satu set. Tidak mengunci kontrol
   /// workout — user tinggal mencatat ulang set yang sama.
@@ -43,6 +44,7 @@ class WorkoutSessionState {
     this.completedSets = 0,
     this.completedResult,
     this.errorMessage,
+    this.completionError,
     this.setSaveError,
   });
 
@@ -67,8 +69,10 @@ class WorkoutSessionState {
     int? completedSets,
     WorkoutSessionResult? completedResult,
     String? errorMessage,
+    String? completionError,
     String? setSaveError,
     bool clearError = false,
+    bool clearCompletionError = false,
     bool clearSetSaveError = false,
   }) {
     return WorkoutSessionState(
@@ -86,6 +90,9 @@ class WorkoutSessionState {
       completedSets: completedSets ?? this.completedSets,
       completedResult: completedResult ?? this.completedResult,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      completionError: clearCompletionError
+          ? null
+          : (completionError ?? this.completionError),
       setSaveError: clearSetSaveError
           ? null
           : (setSaveError ?? this.setSaveError),

@@ -61,5 +61,6 @@
   "saveAndStartRest": "Save & Start Rest",
   "restSecondsValue": "$seconds s",
   "durationMinutesValue": "$value min",
-  "savingSession": "Saving your workout..."
+  "savingSession": "Saving your workout...",
+  "finishSessionFailed": "We couldn\u0027t save your workout. Your recorded progress is still here. Please try again."
 }

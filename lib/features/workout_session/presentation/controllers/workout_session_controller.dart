@@ -496,7 +496,7 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
     required int totalExercises,
     bool isEndingEarly = false,
   }) async {
-    state = state.copyWith(isSaving: true);
+    state = state.copyWith(isSaving: true, clearCompletionError: true);
     try {
       // Hitung dari catatan aktual, bukan posisi exercise/set saat ini.
       final totalCompletedSets = _recordedSets.length;
@@ -525,17 +525,21 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
       // ulang record yang sama pada sesi berikutnya.
       _sessionId = null;
       _recordedSets.clear();
-      state = state.copyWith(isSaving: false, completedResult: result);
+      state = state.copyWith(
+        isSaving: false,
+        completedResult: result,
+        clearCompletionError: true,
+      );
 
       // Otomatis refresh state Plans & Progress agar centang hijau ✓ langsung muncul
       _ref.read(plansControllerProvider.notifier).loadPrograms();
       _ref.read(progressControllerProvider.notifier).loadProgress();
 
       return result;
-    } catch (e) {
+    } catch (error) {
       state = state.copyWith(
         isSaving: false,
-        errorMessage: 'Gagal menyimpan sesi latihan: $e',
+        completionError: error.toString(),
       );
       return null;
     }

@@ -300,6 +300,9 @@ class _Translations$workoutSession$en extends Translations$workoutSession$id {
   String durationMinutesValue({required Object value}) => '${value} min';
   @override
   String get savingSession => 'Saving your workout...';
+  @override
+  String get finishSessionFailed =>
+      'We couldn\'t save your workout. Your recorded progress is still here. Please try again.';
 }
 
 // Path: workouts

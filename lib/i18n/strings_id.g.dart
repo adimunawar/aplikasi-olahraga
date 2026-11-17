@@ -338,6 +338,10 @@ class Translations$workoutSession$id {
 
   /// id: 'Menyimpan sesi latihan...'
   String get savingSession => 'Menyimpan sesi latihan...';
+
+  /// id: 'Sesi latihan gagal disimpan. Progres yang sudah tercatat tetap tersedia. Silakan coba lagi.'
+  String get finishSessionFailed =>
+      'Sesi latihan gagal disimpan. Progres yang sudah tercatat tetap tersedia. Silakan coba lagi.';
 }
 
 // Path: workouts
