@@ -338,6 +338,13 @@ class Translations$workoutSession$id {
 
   /// id: 'Menyimpan sesi latihan...'
   String get savingSession => 'Menyimpan sesi latihan...';
+
+  /// id: 'Daftar latihan untuk sesi ini tidak ditemukan. Silakan kembali untuk memuat ulang program latihan Anda.'
+  String get emptySessionDescription =>
+      'Daftar latihan untuk sesi ini tidak ditemukan. Silakan kembali untuk memuat ulang program latihan Anda.';
+
+  /// id: 'Kembali'
+  String get backButtonLabel => 'Kembali';
 }
 
 // Path: workouts
@@ -1978,6 +1985,8 @@ extension on Translations {
       'workoutSession.restSecondsValue' => ({required Object seconds}) => '${seconds} dtk',
       'workoutSession.durationMinutesValue' => ({required Object value}) => '${value} menit',
       'workoutSession.savingSession' => 'Menyimpan sesi latihan...',
+      'workoutSession.emptySessionDescription' => 'Daftar latihan untuk sesi ini tidak ditemukan. Silakan kembali untuk memuat ulang program latihan Anda.',
+      'workoutSession.backButtonLabel' => 'Kembali',
       'workouts.title' => 'Latihan',
       'workouts.searchHint' => 'Cari latihan & gerakan...',
       'workouts.tabs.myProgram' => 'Program Saya',

@@ -300,6 +300,11 @@ class _Translations$workoutSession$en extends Translations$workoutSession$id {
   String durationMinutesValue({required Object value}) => '${value} min';
   @override
   String get savingSession => 'Saving your workout...';
+  @override
+  String get emptySessionDescription =>
+      'The exercise list for this session was not found. Please go back to reload your workout program.';
+  @override
+  String get backButtonLabel => 'Go Back';
 }
 
 // Path: workouts
@@ -1861,6 +1866,8 @@ extension on TranslationsEn {
       'workoutSession.restSecondsValue' => ({required Object seconds}) => '${seconds} s',
       'workoutSession.durationMinutesValue' => ({required Object value}) => '${value} min',
       'workoutSession.savingSession' => 'Saving your workout...',
+      'workoutSession.emptySessionDescription' => 'The exercise list for this session was not found. Please go back to reload your workout program.',
+      'workoutSession.backButtonLabel' => 'Go Back',
       'workouts.title' => 'Workouts',
       'workouts.searchHint' => 'Search workouts & exercises...',
       'workouts.tabs.myProgram' => 'My Program',

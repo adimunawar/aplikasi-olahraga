@@ -61,5 +61,7 @@
   "saveAndStartRest": "Simpan & Mulai Istirahat",
   "restSecondsValue": "$seconds dtk",
   "durationMinutesValue": "$value menit",
-  "savingSession": "Menyimpan sesi latihan..."
+  "savingSession": "Menyimpan sesi latihan...",
+  "emptySessionDescription": "Daftar latihan untuk sesi ini tidak ditemukan. Silakan kembali untuk memuat ulang program latihan Anda.",
+  "backButtonLabel": "Kembali"
 }

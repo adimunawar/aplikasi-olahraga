@@ -14,7 +14,10 @@ class RestTimerScreen extends StatelessWidget {
   final int remainingSeconds;
   final int totalSeconds;
   final bool isPaused;
-  final VoidCallback onBack;
+
+  /// Keluar dari layar sesi (sesi tetam in_progress & bisa dilanjutkan).
+  /// Bukan skip rest — itu tugas [onSkipRest] di bawah.
+  final VoidCallback onExitSession;
   final ValueChanged<int> onAdjustTime;
   final VoidCallback onPauseToggle;
   final VoidCallback onSkipRest;
@@ -27,7 +30,7 @@ class RestTimerScreen extends StatelessWidget {
     required this.remainingSeconds,
     required this.totalSeconds,
     required this.isPaused,
-    required this.onBack,
+    required this.onExitSession,
     required this.onAdjustTime,
     required this.onPauseToggle,
     required this.onSkipRest,
@@ -54,7 +57,7 @@ class RestTimerScreen extends StatelessWidget {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          onPressed: onBack,
+          onPressed: onExitSession,
           icon: const Icon(
             Icons.arrow_back_rounded,
             color: AppColors.darkCharcoal,
@@ -68,158 +71,200 @@ class RestTimerScreen extends StatelessWidget {
           ),
         ),
       ),
+      // Scrollable saat layar pendek / text scaling besar: konten tetap bisa
+      // dijangkau tanpa overflow.
       body: SafeArea(
         top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(22, 10, 22, 18),
-          child: Column(
-            children: [
-              const SizedBox(height: 12),
-              Text(
-                t.workoutSession.restNextExercise(exercise: nextExerciseName),
-                textAlign: TextAlign.center,
-                style: AppTypography.titleMedium.copyWith(
-                  color: AppColors.darkCharcoal,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                t.workoutSession.restSetProgress(current: nextSet, total: totalSets),
-                style: AppTypography.bodySmall.copyWith(
-                  color: AppColors.neutral500,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const Spacer(),
-              SizedBox(
-                width: 238,
-                height: 238,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    CustomPaint(
-                      size: const Size(238, 238),
-                      painter: _RestProgressPainter(progress: progress),
-                    ),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // Ring menyesuaikan tinggi layar; minimal cukup lega untuk angka.
+            final ringSize = math
+                .min(238.0, math.max(170.0, constraints.maxHeight * 0.4))
+                .clamp(150.0, 238.0);
+
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: IntrinsicHeight(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(22, 10, 22, 18),
+                    child: Column(
                       children: [
+                        const SizedBox(height: 12),
                         Text(
-                          t.workoutSession.restTitle,
+                          t.workoutSession.restNextExercise(
+                            exercise: nextExerciseName,
+                          ),
+                          textAlign: TextAlign.center,
                           style: AppTypography.titleMedium.copyWith(
-                            color: AppColors.neutral600,
-                            fontWeight: FontWeight.w600,
+                            color: AppColors.darkCharcoal,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                         const SizedBox(height: 5),
                         Text(
-                          _formatTime(remainingSeconds),
-                          style: AppTypography.displayLarge.copyWith(
-                            color: AppColors.darkCharcoal,
-                            fontSize: 47,
-                            fontWeight: FontWeight.w900,
-                            fontFeatures: const [FontFeature.tabularFigures()],
+                          t.workoutSession.restSetProgress(
+                            current: nextSet,
+                            total: totalSets,
+                          ),
+                          style: AppTypography.bodySmall.copyWith(
+                            color: AppColors.neutral500,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                        if (isPaused) ...[
-                          const SizedBox(height: 5),
-                          Text(
-                            t.workoutSession.restPaused,
-                            style: AppTypography.labelSmall.copyWith(
-                              color: AppColors.greenDark,
+                        const Spacer(),
+                        SizedBox(
+                          width: ringSize,
+                          height: ringSize,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              CustomPaint(
+                                size: Size(ringSize, ringSize),
+                                painter: _RestProgressPainter(
+                                  progress: progress,
+                                ),
+                              ),
+                              // ScaleDown: angka & label ikut menyusut saat
+                              // text scaling besar, tanpa overflow.
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      t.workoutSession.restTitle,
+                                      style: AppTypography.titleMedium.copyWith(
+                                        color: AppColors.neutral600,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      _formatTime(remainingSeconds),
+                                      style: AppTypography.displayLarge
+                                          .copyWith(
+                                            color: AppColors.darkCharcoal,
+                                            fontSize: 47,
+                                            fontWeight: FontWeight.w900,
+                                            fontFeatures: const [
+                                              FontFeature.tabularFigures(),
+                                            ],
+                                          ),
+                                    ),
+                                    if (isPaused) ...[
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        t.workoutSession.restPaused,
+                                        style: AppTypography.labelSmall
+                                            .copyWith(
+                                              color: AppColors.greenDark,
+                                              fontWeight: FontWeight.w800,
+                                              letterSpacing: 1,
+                                            ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Spacer(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _RestControlButton(
+                              label: t.workoutSession.restMinusTenSeconds,
+                              onTap: () => onAdjustTime(-10),
+                            ),
+                            _RestPauseButton(
+                              isPaused: isPaused,
+                              onTap: onPauseToggle,
+                            ),
+                            _RestControlButton(
+                              label: t.workoutSession.restPlusTenSeconds,
+                              onTap: () => onAdjustTime(10),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        _RestTipCard(),
+                        const SizedBox(height: 18),
+                        TextButton.icon(
+                          onPressed: onSkipRest,
+                          icon: const Icon(
+                            Icons.skip_next_rounded,
+                            color: AppColors.darkCharcoal,
+                            size: 19,
+                          ),
+                          label: Text(
+                            t.workoutSession.skipRest,
+                            style: AppTypography.labelLarge.copyWith(
+                              color: AppColors.darkCharcoal,
                               fontWeight: FontWeight.w800,
-                              letterSpacing: 1,
                             ),
                           ),
-                        ],
+                        ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
               ),
-              const Spacer(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _RestControlButton(
-                    label: t.workoutSession.restMinusTenSeconds,
-                    onTap: () => onAdjustTime(-10),
-                  ),
-                  _RestPauseButton(
-                    isPaused: isPaused,
-                    onTap: onPauseToggle,
-                  ),
-                  _RestControlButton(
-                    label: t.workoutSession.restPlusTenSeconds,
-                    onTap: () => onAdjustTime(10),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF3FBE5),
-                  borderRadius: BorderRadius.circular(15),
-                  border: Border.all(color: const Color(0xFFE4F3C5)),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.lightbulb_outline_rounded,
-                      color: AppColors.greenDark,
-                      size: 22,
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            t.workoutSession.restTipTitle,
-                            style: AppTypography.labelLarge.copyWith(
-                              color: AppColors.greenDark,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            t.workoutSession.restTipDescription,
-                            style: AppTypography.bodySmall.copyWith(
-                              color: AppColors.neutral700,
-                              fontSize: 11.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 18),
-              TextButton.icon(
-                onPressed: onSkipRest,
-                icon: const Icon(
-                  Icons.skip_next_rounded,
-                  color: AppColors.darkCharcoal,
-                  size: 19,
-                ),
-                label: Text(
-                  t.workoutSession.skipRest,
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+/// Kartu tips istirahat.
+class _RestTipCard extends StatelessWidget {
+  const _RestTipCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Translations.of(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF3FBE5),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: const Color(0xFFE4F3C5)),
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.lightbulb_outline_rounded,
+            color: AppColors.greenDark,
+            size: 22,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  t.workoutSession.restTipTitle,
                   style: AppTypography.labelLarge.copyWith(
-                    color: AppColors.darkCharcoal,
+                    color: AppColors.greenDark,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 2),
+                Text(
+                  t.workoutSession.restTipDescription,
+                  style: AppTypography.bodySmall.copyWith(
+                    color: AppColors.neutral700,
+                    fontSize: 11.5,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -229,10 +274,7 @@ class _RestControlButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
-  const _RestControlButton({
-    required this.label,
-    required this.onTap,
-  });
+  const _RestControlButton({required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -264,10 +306,7 @@ class _RestPauseButton extends StatelessWidget {
   final bool isPaused;
   final VoidCallback onTap;
 
-  const _RestPauseButton({
-    required this.isPaused,
-    required this.onTap,
-  });
+  const _RestPauseButton({required this.isPaused, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

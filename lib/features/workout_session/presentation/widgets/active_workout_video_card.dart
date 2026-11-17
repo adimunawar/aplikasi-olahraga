@@ -49,13 +49,19 @@ class _ActiveWorkoutVideoCardState extends State<ActiveWorkoutVideoCard> {
   Future<void> _initializeVideo() async {
     final rawUrl = widget.videoUrl?.trim();
     final url = MediaUrlResolver.resolve(rawUrl);
-    debugPrint('[ActiveWorkoutVideoCard] 🎬 Inisialisasi video active workout:');
+    debugPrint(
+      '[ActiveWorkoutVideoCard] 🎬 Inisialisasi video active workout:',
+    );
     debugPrint('[ActiveWorkoutVideoCard] 👉 Raw URL: $rawUrl');
     debugPrint('[ActiveWorkoutVideoCard] 👉 Resolved URL: $url');
-    debugPrint('[ActiveWorkoutVideoCard] 👉 Poster Image: ${widget.imageAsset}');
+    debugPrint(
+      '[ActiveWorkoutVideoCard] 👉 Poster Image: ${widget.imageAsset}',
+    );
 
     if (url == null || url.isEmpty) {
-      debugPrint('[ActiveWorkoutVideoCard] ⚠️ Video URL kosong, menampilkan gambar poster.');
+      debugPrint(
+        '[ActiveWorkoutVideoCard] ⚠️ Video URL kosong, menampilkan gambar poster.',
+      );
       await _disposeController();
       if (mounted) setState(() {});
       return;
@@ -78,12 +84,16 @@ class _ActiveWorkoutVideoCardState extends State<ActiveWorkoutVideoCard> {
       if (!mounted) return;
 
       await controller.setLooping(true);
-      await controller.setVolume(0.0); // Muted agar tidak bentrok dengan audio pengguna
+      await controller.setVolume(
+        0.0,
+      ); // Muted agar tidak bentrok dengan audio pengguna
       if (widget.autoPlay) {
         await controller.play();
       }
 
-      debugPrint('[ActiveWorkoutVideoCard] ✅ Video BERHASIL diputar! Size: ${controller.value.size}');
+      debugPrint(
+        '[ActiveWorkoutVideoCard] ✅ Video BERHASIL diputar! Size: ${controller.value.size}',
+      );
 
       if (mounted) {
         setState(() {
@@ -217,18 +227,19 @@ class _ActiveWorkoutVideoCardState extends State<ActiveWorkoutVideoCard> {
                 child: GestureDetector(
                   onTap: _togglePlayPause,
                   child: Container(
-                    width: 36,
-                    height: 36,
+                    // 48x48: target sentuh minimal untuk penggunaan saat latihan.
+                    width: 48,
+                    height: 48,
                     decoration: BoxDecoration(
                       color: Colors.black.withValues(alpha: 0.65),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
                       _controller!.value.isPlaying
                           ? Icons.pause_rounded
                           : Icons.play_arrow_rounded,
                       color: Colors.white,
-                      size: 22,
+                      size: 24,
                     ),
                   ),
                 ),
@@ -241,16 +252,17 @@ class _ActiveWorkoutVideoCardState extends State<ActiveWorkoutVideoCard> {
               child: GestureDetector(
                 onTap: widget.onFullscreen,
                 child: Container(
-                  width: 36,
-                  height: 36,
+                  // 48x48: target sentuh minimal untuk penggunaan saat latihan.
+                  width: 48,
+                  height: 48,
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.65),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
                     Icons.fullscreen_rounded,
                     color: Colors.white,
-                    size: 22,
+                    size: 24,
                   ),
                 ),
               ),

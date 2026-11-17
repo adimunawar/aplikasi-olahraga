@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:workout_app/features/workout_session/presentation/screens/rest_timer_screen.dart';
 import 'package:workout_app/features/workout_session/presentation/widgets/active_workout_rep_counter.dart';
+import 'package:workout_app/features/workout_session/presentation/widgets/workout_session_empty_state.dart';
 import 'package:workout_app/i18n/strings.g.dart';
 
 Widget _localizedApp(Widget child) {
-  return TranslationProvider(
-    child: MaterialApp(home: child),
-  );
+  return TranslationProvider(child: MaterialApp(home: child));
 }
 
 void main() {
@@ -22,18 +21,9 @@ void main() {
         english.workoutSession.setCompleteTitle(current: 1, total: 3),
         'Set 1 of 3 Complete! 🎉',
       );
-      expect(
-        english.workoutSession.targetReps(reps: 12),
-        'Target: 12 reps',
-      );
-      expect(
-        english.workoutSession.rirIdealTitle,
-        '2 — Ideal Zone (Target)',
-      );
-      expect(
-        english.workoutSession.durationMinutesValue(value: 25),
-        '25 min',
-      );
+      expect(english.workoutSession.targetReps(reps: 12), 'Target: 12 reps');
+      expect(english.workoutSession.rirIdealTitle, '2 — Ideal Zone (Target)');
+      expect(english.workoutSession.durationMinutesValue(value: 25), '25 min');
 
       final indonesian = AppLocale.id.buildSync();
       expect(
@@ -162,7 +152,7 @@ void main() {
               remainingSeconds: 30,
               totalSeconds: 30,
               isPaused: false,
-              onBack: () {},
+              onExitSession: () {},
               onAdjustTime: (delta) => adjustedSeconds += delta,
               onPauseToggle: () => pauseToggled = true,
               onSkipRest: () => skipped = true,
@@ -196,39 +186,90 @@ void main() {
       expect(skipped, isTrue);
     });
 
-    testWidgets('renders Indonesian strings when Indonesian locale is selected', (
+    testWidgets(
+      'renders Indonesian strings when Indonesian locale is selected',
+      (tester) async {
+        LocaleSettings.setLocaleSync(AppLocale.id);
+
+        await tester.pumpWidget(
+          _localizedApp(
+            SizedBox(
+              width: 430,
+              height: 800,
+              child: RestTimerScreen(
+                nextExerciseName: 'Push Up',
+                nextSet: 2,
+                totalSets: 3,
+                remainingSeconds: 30,
+                totalSeconds: 30,
+                isPaused: true,
+                onExitSession: () {},
+                onAdjustTime: (_) {},
+                onPauseToggle: () {},
+                onSkipRest: () {},
+              ),
+            ),
+          ),
+        );
+
+        expect(find.text('Istirahat'), findsNWidgets(2));
+        expect(find.text('Berikutnya: Push Up'), findsOneWidget);
+        expect(find.text('Set 2 dari 3'), findsOneWidget);
+        expect(find.text('DIJEDA'), findsOneWidget);
+        expect(find.text('-10 dtk'), findsOneWidget);
+        expect(find.text('+10 dtk'), findsOneWidget);
+        expect(find.text('Lewati Istirahat'), findsOneWidget);
+      },
+    );
+  });
+
+  group('WorkoutSessionEmptyState', () {
+    testWidgets('renders recoverable empty state without fake exercises', (
       tester,
     ) async {
+      await tester.pumpWidget(
+        _localizedApp(
+          const WorkoutSessionEmptyState(programTitle: 'Upper Body Power'),
+        ),
+      );
+
+      // Verify program title and empty state messaging
+      expect(find.text('Upper Body Power'), findsOneWidget);
+      expect(find.text('No exercises found'), findsOneWidget);
+      expect(
+        find.text(
+          'The exercise list for this session was not found. Please go back to reload your workout program.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Go Back'), findsOneWidget);
+      expect(find.byIcon(Icons.fitness_center_rounded), findsOneWidget);
+
+      // Ensure no fake exercises (e.g. Push-up) are rendered
+      expect(find.text('Push-up'), findsNothing);
+      expect(find.text('Push Up'), findsNothing);
+    });
+
+    testWidgets('renders localized Indonesian empty state', (tester) async {
       LocaleSettings.setLocaleSync(AppLocale.id);
 
       await tester.pumpWidget(
         _localizedApp(
-          SizedBox(
-            width: 430,
-            height: 800,
-            child: RestTimerScreen(
-              nextExerciseName: 'Push Up',
-              nextSet: 2,
-              totalSets: 3,
-              remainingSeconds: 30,
-              totalSeconds: 30,
-              isPaused: true,
-              onBack: () {},
-              onAdjustTime: (_) {},
-              onPauseToggle: () {},
-              onSkipRest: () {},
-            ),
+          const WorkoutSessionEmptyState(
+            programTitle: 'Kekuatan Tubuh Bagian Atas',
           ),
         ),
       );
 
-      expect(find.text('Istirahat'), findsNWidgets(2));
-      expect(find.text('Berikutnya: Push Up'), findsOneWidget);
-      expect(find.text('Set 2 dari 3'), findsOneWidget);
-      expect(find.text('DIJEDA'), findsOneWidget);
-      expect(find.text('-10 dtk'), findsOneWidget);
-      expect(find.text('+10 dtk'), findsOneWidget);
-      expect(find.text('Lewati Istirahat'), findsOneWidget);
+      expect(find.text('Kekuatan Tubuh Bagian Atas'), findsOneWidget);
+      expect(find.text('Tidak ada latihan ditemukan'), findsOneWidget);
+      expect(
+        find.text(
+          'Daftar latihan untuk sesi ini tidak ditemukan. Silakan kembali untuk memuat ulang program latihan Anda.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Kembali'), findsOneWidget);
     });
   });
 }

@@ -61,5 +61,7 @@
   "saveAndStartRest": "Save & Start Rest",
   "restSecondsValue": "$seconds s",
   "durationMinutesValue": "$value min",
-  "savingSession": "Saving your workout..."
+  "savingSession": "Saving your workout...",
+  "emptySessionDescription": "The exercise list for this session was not found. Please go back to reload your workout program.",
+  "backButtonLabel": "Go Back"
 }

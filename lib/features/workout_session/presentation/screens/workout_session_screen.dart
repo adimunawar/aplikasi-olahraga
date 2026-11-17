@@ -5,27 +5,33 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
-import '../../../../core/widgets/app_button.dart';
-import '../../../../core/widgets/app_snack_bar.dart';
-import '../../../../core/database/app_database.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_snack_bar.dart';
 import '../../../../i18n/strings.g.dart';
+import '../../../exercises/domain/extensions/localized_string_extension.dart';
 import '../../../exercises/domain/models/exercise.dart';
+import '../../../profile/presentation/controllers/profile_controller.dart';
 import '../../../program/domain/models/program_day.dart';
 import '../controllers/workout_session_controller.dart';
 import '../controllers/workout_session_state.dart';
 import '../../domain/models/exercise_prescription.dart';
-import '../widgets/active_workout_header.dart';
-import '../widgets/active_workout_video_card.dart';
-import '../widgets/active_workout_rep_counter.dart';
+import '../../domain/services/workout_prescription_resolver.dart';
+import '../widgets/active_workout_content.dart';
+import '../widgets/conflict_session_dialog.dart';
 import '../widgets/set_completion_rir_sheet.dart';
+import '../widgets/workout_complete_celebration.dart';
+import '../widgets/workout_options_sheet.dart';
+import '../widgets/workout_session_empty_state.dart';
+import '../widgets/workout_session_overlay.dart';
 import 'rest_timer_screen.dart';
 
 /// Layar Active Workout (Mockup 1:1 Resolusi Tinggi):
 /// - Presentation Layer murni (ConsumerStatefulWidget) dengan Riverpod 2.x
 /// - Terhubung ke WorkoutSessionController untuk sinkronisasi SQLite lokal & Supabase Cloud
+/// - Komposisi UI dipecah ke widgets/ (overlay, selebrasi, opsi, dialog konflik)
 class WorkoutSessionScreen extends ConsumerStatefulWidget {
   final ProgramDay day;
   final List<Exercise> exercises;
@@ -63,6 +69,8 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
   @override
   void initState() {
     super.initState();
+    if (widget.exercises.isEmpty) return;
+
     // Persist waktu aktif saat aplikasi berpindah ke background/tertutup.
     WidgetsBinding.instance.addObserver(this);
     // Jaga layar tetap menyala saat latihan berlangsung
@@ -86,45 +94,49 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
     }
   }
 
-  Exercise? _findExercise(String id) {
-    return widget.exercises.where((e) => e.id == id).firstOrNull;
+  @override
+  void dispose() {
+    if (widget.exercises.isNotEmpty) {
+      WidgetsBinding.instance.removeObserver(this);
+      ref.read(workoutSessionControllerProvider.notifier).persistElapsedNow();
+      _timer?.cancel();
+      WakelockPlus.disable();
+    }
+    super.dispose();
   }
 
-  /// Preskripsi per exercise: mulai dari ProgramDay.items (sets/reps/rest),
-  /// lalu timpa dengan preskripsi eksplisit dari args yang lebih akurat
-  /// (punya rentang min/max reps).
-  Map<String, WorkoutExercisePrescription> _buildPrescriptions() {
-    final map = <String, WorkoutExercisePrescription>{
-      for (final item in widget.day.items)
-        item.exerciseId: WorkoutExercisePrescription.fromWorkoutItem(
-          item,
-          trackingType:
-              _findExercise(item.exerciseId)?.trackingType ?? TrackingType.reps,
-        ),
-    };
-    map.addAll(widget.prescriptions);
-    return map;
+  /// Resolver preskripsi per exercise (pure logic, bisa di-subclass di test).
+  WorkoutPrescriptionResolver get _resolver => WorkoutPrescriptionResolver(
+    day: widget.day,
+    exercises: widget.exercises,
+    explicitPrescriptions: widget.prescriptions,
+  );
+
+  /// Nama exercise sesuai bahasa aktif, dengan fallback bila terjemahan kosong.
+  String _exerciseName(Exercise exercise) =>
+      exercise.name.localized(LocaleSettings.currentLocale.languageCode);
+
+  String get _programTitle {
+    final focus = widget.day.focus;
+    return focus.en.isNotEmpty
+        ? focus.en
+        : (focus.id.isNotEmpty ? focus.id : 'Upper Body Strength');
   }
 
-  WorkoutExercisePrescription _prescriptionFor(String exerciseId) {
-    return widget.prescriptions[exerciseId] ??
-        (widget.day.items
-                .where((item) => item.exerciseId == exerciseId)
-                .map(
-                  (item) => WorkoutExercisePrescription.fromWorkoutItem(
-                    item,
-                    trackingType:
-                        _findExercise(item.exerciseId)?.trackingType ??
-                        TrackingType.reps,
-                  ),
-                )
-                .firstOrNull ??
-            const WorkoutExercisePrescription());
+  int get _totalExercises => widget.exercises.length;
+
+  Exercise _getCurrentExercise(int currentIndex) {
+    if (widget.exercises.isEmpty) {
+      throw StateError('Cannot get exercise from an empty exercise list.');
+    }
+    final clampedIndex = currentIndex.clamp(0, widget.exercises.length - 1);
+    return widget.exercises[clampedIndex];
   }
 
   /// Membuat record in_progress atau memulihkan sesi yang sudah berjalan,
   /// sehingga user tidak mengulang latihan dari awal setelah aplikasi tertutup.
   Future<void> _prepareSession() async {
+    if (widget.exercises.isEmpty) return;
     try {
       final notifier = ref.read(workoutSessionControllerProvider.notifier);
 
@@ -134,7 +146,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
         programTitle: _programTitle,
         scheduledDate: widget.scheduledDate ?? DateTime.now(),
         exerciseIds: widget.exercises.map((exercise) => exercise.id).toList(),
-        prescriptions: _buildPrescriptions(),
+        prescriptions: _resolver.buildAll(),
         resumeSessionId: widget.activeSessionId,
       );
 
@@ -153,41 +165,13 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
     }
   }
 
-  String get _programTitle {
-    final focus = widget.day.focus;
-    return focus.en.isNotEmpty
-        ? focus.en
-        : (focus.id.isNotEmpty ? focus.id : 'Upper Body Strength');
-  }
-
   /// Ada sesi in_progress lain (program/jadwal berbeda). Sesi lama TIDAK
   /// otomatis di-abandon: user memilih melanjutkan atau mengakhirinya.
   Future<void> _handleConflictingSession(SessionConflict conflict) async {
-    final t = Translations.of(context);
-    final choice = await showDialog<String>(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(t.workoutSession.sessionConflictTitle),
-        content: Text(
-          t.workoutSession.sessionConflictMessage(
-            program: conflict.existingProgramTitle,
-            day: conflict.existingDayNumber,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, 'resume'),
-            child: Text(t.workoutSession.resumePreviousSession),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, 'discard'),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(t.workoutSession.endPreviousSession),
-          ),
-        ],
-      ),
+    final choice = await ConflictSessionDialog.show(
+      context,
+      programTitle: conflict.existingProgramTitle,
+      dayNumber: conflict.existingDayNumber,
     );
 
     if (!mounted) return;
@@ -220,7 +204,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
         programTitle: _programTitle,
         scheduledDate: widget.scheduledDate ?? DateTime.now(),
         exerciseIds: widget.exercises.map((exercise) => exercise.id).toList(),
-        prescriptions: _buildPrescriptions(),
+        prescriptions: _resolver.buildAll(),
       );
       if (!mounted) return;
       if (result is SessionPrepared) {
@@ -232,15 +216,6 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
     // Jika user menutup dialog tanpa memilih opsi (misal back button Android),
     // kembali ke halaman sebelumnya agar tidak stuck di loading overlay.
     context.pop();
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    ref.read(workoutSessionControllerProvider.notifier).persistElapsedNow();
-    _timer?.cancel();
-    WakelockPlus.disable();
-    super.dispose();
   }
 
   void _startTimer() {
@@ -262,7 +237,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
 
     final state = ref.read(workoutSessionControllerProvider);
     final currentExercise = _getCurrentExercise(state.currentExerciseIndex);
-    final prescription = _prescriptionFor(currentExercise.id);
+    final prescription = _resolver.forExercise(currentExercise.id);
     final isDuration =
         currentExercise.trackingType == TrackingType.duration ||
         prescription.isDuration;
@@ -271,9 +246,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
       context: context,
       setNumber: state.currentSet,
       totalSets: state.totalSetsPerExercise,
-      exerciseName: currentExercise.name.en.isNotEmpty
-          ? currentExercise.name.en
-          : currentExercise.name.id,
+      exerciseName: _exerciseName(currentExercise),
       targetReps: prescription.maxReps,
       restSeconds: prescription.restSeconds,
       isDuration: isDuration,
@@ -316,197 +289,25 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
     );
   }
 
-  /// Modal Selebrasi saat semua latihan hari itu tuntas
+  /// Modal Selebrasi saat semua latihan hari itu tuntas.
   void _showWorkoutCompleteCelebrationModal() {
-    final t = Translations.of(context);
     _timer?.cancel();
     final sessionState = ref.read(workoutSessionControllerProvider);
-    final durationMin = (sessionState.elapsedWorkoutSeconds / 60).ceil();
-    final totalSetsDone = sessionState.completedSets;
-
-    showModalBottomSheet(
-      context: context,
-      isDismissible: false,
-      enableDrag: false,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) {
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 24),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
-            boxShadow: [
-              BoxShadow(
-                color: Color(0x1F000000),
-                blurRadius: 20,
-                offset: Offset(0, -4),
-              ),
-            ],
-          ),
-          child: SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Icon Trophy / Medali
-                Container(
-                  width: 64,
-                  height: 64,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF4F9ED),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.emoji_events_rounded,
-                      size: 34,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Judul Selebrasi
-                Text(
-                  t.workoutSession.completionTitle,
-                  style: AppTypography.headlineMedium.copyWith(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 20,
-                    color: AppColors.darkCharcoal,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-
-                // Deskripsi apresiasi
-                Text(
-                  t.workoutSession.completionDescription,
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.neutral600,
-                    fontSize: 13,
-                    height: 1.4,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 18),
-
-                // Ringkasan Cepat Mini
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.neutral100,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildMiniStat(
-                        icon: Icons.access_time_rounded,
-                        label: t.workoutSession.durationLabel,
-                        value: t.workoutSession.durationMinutesValue(
-                          value: durationMin,
-                        ),
-                      ),
-                      Container(
-                        width: 1,
-                        height: 24,
-                        color: AppColors.neutral200,
-                      ),
-                      _buildMiniStat(
-                        icon: Icons.fitness_center_rounded,
-                        label: t.workoutSession.exerciseLabel,
-                        value: t.workoutSession.exerciseCount(
-                          count: _totalExercises,
-                        ),
-                      ),
-                      Container(
-                        width: 1,
-                        height: 24,
-                        color: AppColors.neutral200,
-                      ),
-                      _buildMiniStat(
-                        icon: Icons.check_circle_rounded,
-                        label: t.workoutSession.totalSetsLabel,
-                        value: t.workoutSession.totalSetsCount(
-                          count: totalSetsDone,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 22),
-
-                // Tombol Lihat Ringkasan (AppButton.primary)
-                AppButton.primary(
-                  text: t.workoutSession.viewSummary,
-                  size: AppButtonSize.large,
-                  onPressed: () {
-                    Navigator.pop(ctx);
-                    _openSummaryScreen();
-                  },
-                ),
-              ],
-            ),
-          ),
-        );
+    WorkoutCompleteCelebration.show(
+      context,
+      durationMinutes: (sessionState.elapsedWorkoutSeconds / 60).ceil(),
+      totalSetsDone: sessionState.completedSets,
+      totalExercises: _totalExercises,
+      onViewSummary: () {
+        if (!mounted) return;
+        _openSummaryScreen();
       },
     );
-  }
-
-  Widget _buildMiniStat({
-    required IconData icon,
-    required String label,
-    required String value,
-  }) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 14, color: AppColors.greenDark),
-            const SizedBox(width: 4),
-            Text(
-              label,
-              style: AppTypography.labelSmall.copyWith(
-                color: AppColors.neutral500,
-                fontSize: 11,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: AppTypography.labelLarge.copyWith(
-            fontWeight: FontWeight.w800,
-            fontSize: 13,
-            color: AppColors.darkCharcoal,
-          ),
-        ),
-      ],
-    );
-  }
-
-  int get _totalExercises =>
-      widget.exercises.isNotEmpty ? widget.exercises.length : 5;
-
-  Exercise _getCurrentExercise(int currentIndex) {
-    if (widget.exercises.isNotEmpty && currentIndex < widget.exercises.length) {
-      return widget.exercises[currentIndex];
-    }
-    return _buildFallbackExercise('Push-up', 'Chest');
   }
 
   Future<void> _openSummaryScreen({bool isEndingEarly = false}) async {
     _timer?.cancel();
 
-    final profile = await AppDatabase.instance.getUserProfile();
-    final userName = profile.displayName.isNotEmpty
-        ? profile.displayName
-        : 'Adi';
     final programId = widget.programId ?? 'upper_body_strength';
     final programTitle = _programTitle;
 
@@ -536,9 +337,9 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
     // Hitung exercise unik yang benar-benar tercatat jika diselesaikan lebih awal
     int completedExercisesCount = _totalExercises;
     if (isEndingEarly && result != null) {
-      final sets = await AppDatabase.instance.getSetsForSession(
-        result.sessionId,
-      );
+      final sets = await ref
+          .read(workoutSessionRepositoryProvider)
+          .getSetsForSession(result.sessionId);
       if (!mounted) return;
       completedExercisesCount = sets.map((s) => s.exerciseId).toSet().length;
     }
@@ -547,7 +348,15 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
         ? '$completedExercisesCount / $_totalExercises'
         : '$_totalExercises / $_totalExercises';
 
+    // Nama user untuk sapaan di layar ringkasan (via repository profil).
+    final profile = await ref
+        .read(userProfileRepositoryProvider)
+        .getUserProfile();
     if (!mounted) return;
+    final userName = profile.displayName.isNotEmpty
+        ? profile.displayName
+        : 'Adi';
+
     context.pushReplacement(
       AppRoutes.workoutSummary,
       extra: WorkoutSummaryArgs(
@@ -564,134 +373,50 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
   }
 
   void _showOptionsSheet() {
-    final t = Translations.of(context);
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.refresh_rounded),
-              title: Text(t.workoutSession.restartRestTimer),
-              onTap: () {
-                ref
-                    .read(workoutSessionControllerProvider.notifier)
-                    .resetCurrentSetTimer();
-                Navigator.pop(ctx);
-              },
-            ),
-            ListTile(
-              leading: const Icon(
-                Icons.check_circle_outline_rounded,
-                color: Color(0xFF65A30D),
-              ),
-              title: Text(
-                t.workoutSession.finishSessionNow,
-                style: const TextStyle(
-                  color: Color(0xFF65A30D),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              onTap: () {
-                Navigator.pop(ctx);
-                _openSummaryScreen(isEndingEarly: true);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.exit_to_app_rounded, color: Colors.red),
-              title: Text(
-                t.workoutSession.exitWithoutSaving,
-                style: const TextStyle(color: Colors.red),
-              ),
-              onTap: () async {
-                Navigator.pop(ctx);
-                await ref
-                    .read(workoutSessionControllerProvider.notifier)
-                    .abandonActiveSession();
-                if (mounted) context.pop();
-              },
-            ),
-          ],
-        ),
-      ),
+    final notifier = ref.read(workoutSessionControllerProvider.notifier);
+    WorkoutOptionsSheet.show(
+      context,
+      onRestartRestTimer: notifier.resetCurrentSetTimer,
+      onFinishNow: () => _openSummaryScreen(isEndingEarly: true),
+      onExit: () async {
+        await notifier.abandonActiveSession();
+        if (mounted) context.pop();
+      },
     );
   }
 
-  Exercise _buildFallbackExercise(String name, String muscle) {
-    return Exercise(
-      id: name.toLowerCase().replaceAll(' ', '_'),
-      name: LocalizedString(id: name, en: name),
-      category:
-          muscle.toLowerCase().contains('chest') ||
-              muscle.toLowerCase().contains('push')
-          ? ExerciseCategory.push
-          : muscle.toLowerCase().contains('leg')
-          ? ExerciseCategory.legs
-          : muscle.toLowerCase().contains('core')
-          ? ExerciseCategory.core
-          : ExerciseCategory.fullBody,
-      difficulty: ExerciseDifficulty.intermediate,
-      trackingType: TrackingType.reps,
-      primaryMuscles: [LocalizedString(id: muscle, en: muscle)],
-      stabilizerMuscles: const [LocalizedString(id: 'Core', en: 'Core')],
-      steps: const LocalizedList(
-        id: [
-          'Posisikan tubuh dengan stabil dan rentang gerak penuh.',
-          'Lakukan gerakan secara terkontrol dengan ritme teratur.',
-        ],
-        en: [
-          'Maintain a stable posture and full range of motion.',
-          'Execute the movement with controlled tempo.',
-        ],
-      ),
-      commonMistakes: const LocalizedList(
-        id: ['Menggunakan momentum alih-alih kekuatan otot.'],
-        en: ['Using momentum instead of muscular control.'],
-      ),
-      breathing: const LocalizedString(
-        id: 'Tarik napas saat menurunkan, hembuskan saat mendorong/menarik.',
-        en: 'Inhale during lowering phase, exhale during exertion.',
-      ),
-      variations: const ExerciseVariationGroup(),
-      media: const ExerciseMedia(
-        startPose: 'assets/images/Detail Gerakan.png',
-        endPose: 'assets/images/Detail Gerakan.png',
-      ),
-    );
+  void _skipRest() {
+    ref.read(workoutSessionControllerProvider.notifier).skipRest();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (widget.exercises.isEmpty) {
+      return WorkoutSessionEmptyState(programTitle: _programTitle);
+    }
+
     final t = Translations.of(context);
     final sessionState = ref.watch(workoutSessionControllerProvider);
     final exercise = _getCurrentExercise(sessionState.currentExerciseIndex);
-    final prescription = _prescriptionFor(exercise.id);
+    final prescription = _resolver.forExercise(exercise.id);
     final isDuration =
         exercise.trackingType == TrackingType.duration ||
         prescription.isDuration;
     final targetValue = isDuration
         ? (prescription.targetDurationSeconds ?? 45)
         : prescription.maxReps;
-    final valueLabel = isDuration
-        ? t.workoutSession.durationValue(value: targetValue)
-        : t.workoutSession.repsValue(value: targetValue);
 
     if (sessionState.phase == WorkoutSessionPhase.resting) {
-      final nextExerciseName = exercise.name.en.isNotEmpty
-          ? exercise.name.en
-          : exercise.name.id;
       return RestTimerScreen(
-        nextExerciseName: nextExerciseName,
+        nextExerciseName: _exerciseName(exercise),
         nextSet: sessionState.currentSet,
         totalSets: sessionState.totalSetsPerExercise,
         remainingSeconds: sessionState.remainingRestSeconds,
         totalSeconds: sessionState.restDurationSeconds,
         isPaused: sessionState.isTimerPaused,
-        onBack: _skipRest,
+        // Back arrow KELUAR dari layar sesi (sesi tetap in_progress dan bisa
+        // dilanjutkan), bukan skip rest — itu tugas tombol Skip Rest.
+        onExitSession: () => context.pop(),
         onAdjustTime: ref
             .read(workoutSessionControllerProvider.notifier)
             .adjustRestSeconds,
@@ -740,157 +465,36 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
       ),
       body: Stack(
         children: [
-          Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: ActiveWorkoutHeader(
-                  currentExerciseIndex: sessionState.currentExerciseIndex,
-                  totalExercises: _totalExercises,
-                ),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        exercise.name.en.isNotEmpty
-                            ? exercise.name.en
-                            : exercise.name.id,
-                        textAlign: TextAlign.center,
-                        style: AppTypography.headlineMedium.copyWith(
-                          color: AppColors.darkCharcoal,
-                          fontSize: 23,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        t.workoutSession.setProgress(
-                          current: sessionState.currentSet,
-                          total: sessionState.totalSetsPerExercise,
-                          target: valueLabel,
-                        ),
-                        textAlign: TextAlign.center,
-                        style: AppTypography.bodySmall.copyWith(
-                          color: AppColors.neutral600,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 18),
-                      ActiveWorkoutVideoCard(
-                        videoUrl: exercise.resolvedVideoUrl,
-                        imageAsset: exercise.resolvedImageUrl,
-                        onFullscreen: () {
-                          context.push(
-                            AppRoutes.exerciseDetail,
-                            extra: exercise,
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 28),
-                      ActiveWorkoutRepCounter(
-                        key: ValueKey(
-                          '${exercise.id}_${sessionState.currentSet}',
-                        ),
-                        initialValue: targetValue,
-                        isDuration: isDuration,
-                        onChanged: (value) {
-                          _currentSetValue = value;
-                        },
-                      ),
-                      const SizedBox(height: 24),
-                      _buildNextRestCard(sessionState.defaultRestSeconds),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+          ActiveWorkoutContent(
+            sessionState: sessionState,
+            exercise: exercise,
+            prescription: prescription,
+            totalExercises: _totalExercises,
+            onRepCounterChanged: (value) => _currentSetValue = value,
+            onFullscreen: () {
+              context.push(AppRoutes.exerciseDetail, extra: exercise);
+            },
           ),
 
+          // Overlay persiapan / error / simpan (menutup kontrol sampai siap).
           if (sessionState.isPreparing)
-            Container(
-              color: Colors.white.withValues(alpha: 0.85),
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircularProgressIndicator(color: AppColors.limeAccent),
-                    SizedBox(height: 14),
-                    Text(
-                      t.workoutSession.preparingSession,
-                      style: TextStyle(
-                        color: AppColors.darkCharcoal,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-          if (!sessionState.isPreparing &&
-              sessionState.errorMessage != null &&
+            WorkoutSessionOverlay(
+              phase: WorkoutSessionOverlayPhase.preparing,
+              errorMessage: '',
+              onRetry: _prepareSession,
+            )
+          else if (sessionState.errorMessage != null &&
               sessionState.completedResult == null)
-            Container(
-              color: Colors.white.withValues(alpha: 0.92),
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.error_outline_rounded,
-                        size: 44,
-                        color: Color(0xFFDC2626),
-                      ),
-                      const SizedBox(height: 14),
-                      Text(
-                        sessionState.errorMessage!,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: AppColors.darkCharcoal,
-                          fontSize: 14,
-                          height: 1.4,
-                        ),
-                      ),
-                      const SizedBox(height: 18),
-                      AppButton.primary(
-                        text: t.workoutSession.retry,
-                        onPressed: _prepareSession,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-          if (sessionState.isSaving)
-            Container(
-              color: Colors.black.withValues(alpha: 0.4),
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircularProgressIndicator(color: AppColors.limeAccent),
-                    SizedBox(height: 14),
-                    Text(
-                      t.workoutSession.savingSession,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            WorkoutSessionOverlay(
+              phase: WorkoutSessionOverlayPhase.error,
+              errorMessage: sessionState.errorMessage!,
+              onRetry: _prepareSession,
+            )
+          else if (sessionState.isSaving)
+            WorkoutSessionOverlay(
+              phase: WorkoutSessionOverlayPhase.saving,
+              errorMessage: '',
+              onRetry: _prepareSession,
             ),
         ],
       ),
@@ -909,52 +513,6 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
                 : null,
           ),
         ),
-      ),
-    );
-  }
-
-  void _skipRest() {
-    ref.read(workoutSessionControllerProvider.notifier).skipRest();
-  }
-
-  Widget _buildNextRestCard(int restSeconds) {
-    final minutes = (restSeconds ~/ 60).toString().padLeft(2, '0');
-    final seconds = (restSeconds % 60).toString().padLeft(2, '0');
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.neutral50,
-        borderRadius: BorderRadius.circular(13),
-        border: Border.all(color: AppColors.cardBorder),
-      ),
-      child: Row(
-        children: [
-          const Icon(
-            Icons.access_time_rounded,
-            size: 18,
-            color: AppColors.neutral600,
-          ),
-          const SizedBox(width: 9),
-          Expanded(
-            child: Text(
-              Translations.of(context).workoutSession.nextRest,
-              style: AppTypography.labelLarge.copyWith(
-                color: AppColors.darkCharcoal,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-          Text(
-            '$minutes:$seconds',
-            style: AppTypography.labelLarge.copyWith(
-              color: AppColors.darkCharcoal,
-              fontWeight: FontWeight.w800,
-              fontFeatures: const [FontFeature.tabularFigures()],
-            ),
-          ),
-        ],
       ),
     );
   }

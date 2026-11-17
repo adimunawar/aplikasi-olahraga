@@ -1,7 +1,5 @@
 import 'dart:async';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/models/workout_session_entity.dart';
 import '../../../../core/database/models/workout_set_entity.dart';
