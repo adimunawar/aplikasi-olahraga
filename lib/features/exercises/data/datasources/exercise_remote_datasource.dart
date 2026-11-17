@@ -1,7 +1,5 @@
 import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
-
 import '../../../../core/config/supabase_config.dart';
 import '../../../../core/database/models/exercise_entity.dart';
 import 'exercise_local_datasource.dart';

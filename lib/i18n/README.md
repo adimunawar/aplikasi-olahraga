@@ -1,68 +1,59 @@
-# Terjemahan (slang)
+# Internationalization & Translations (slang)
 
-Semua teks UI aplikasi dikelola oleh [slang](https://pub.dev/packages/slang) di folder ini.
+All UI strings across the application are managed by [slang](https://pub.dev/packages/slang) inside this directory.
 
-## Aturan dasar
+## Core Rules
 
-- `base_locale` adalah **`id`** (Bahasa Indonesia). Copywriting asli ditulis di `*_id.i18n.json`,
-  lalu `*_en.i18n.json` mengikuti struktur yang sama.
-- Satu file per feature (namespace), mengikuti struktur `lib/features/`:
-  `home_id.i18n.json` + `home_en.i18n.json`, dan seterusnya.
-- File `strings*.g.dart` **generated** — jangan diedit manual, tapi **harus di-commit**
-  supaya build/CI tidak perlu menjalankan codegen.
-- String konten yang berasal dari JSON/DB (`exercises.json`, `foods.json`, Supabase)
-  **tidak** masuk ke sini. Itu tetap memakai model `LocalizedString`
-  (`lib/features/exercises/domain/models/exercise.dart`).
+- The `base_locale` is **`id`** (Indonesian). Original copywriting is written in `*_id.i18n.json`, and `*_en.i18n.json` mirrors the exact same structure.
+- One file per feature (namespace), following the `lib/features/` directory layout: `home_id.i18n.json` + `home_en.i18n.json`, and so forth.
+- `strings*.g.dart` files are **generated** — never edit them manually, but **always commit them** so builds and CI pipelines do not need to run codegen.
+- Content strings originating from JSON files or the database (`exercises.json`, `foods.json`, Supabase) are **not** stored here. Those continue to use the `LocalizedString` domain model (`lib/features/exercises/domain/models/exercise.dart`).
 
-## Menambah / mengubah teks
+## Adding / Updating Strings
 
-1. Edit `<namespace>_id.i18n.json`, lalu samakan strukturnya di `<namespace>_en.i18n.json`.
-2. Jalankan:
+1. Edit `<namespace>_id.i18n.json`, then replicate the matching structure in `<namespace>_en.i18n.json`.
+2. Run:
 
    ```bash
    dart run slang
    ```
 
-3. Pakai di widget:
+3. Consume in widgets:
 
    ```dart
-   final t = Translations.of(context); // rebuild otomatis saat bahasa berubah
+   final t = Translations.of(context); // Automatically rebuilds when locale changes
    Text(t.core.actions.save);
    ```
 
-   Atau lewat extension: `context.t.core.actions.save`.
+   Or via context extension: `context.t.core.actions.save`.
 
-## Perintah bantuan
+## Useful Commands
 
 ```bash
-dart run slang analyze --full   # cek key yang hilang / tidak terpakai
-dart run slang normalize        # urutkan key mengikuti base locale
-dart run slang edit move a b    # pindah/rename namespace
+dart run slang analyze --full   # Check for missing or unused translation keys
+dart run slang normalize        # Sort keys to match the base locale
+dart run slang edit move a b    # Move or rename a namespace
 ```
 
-## Ganti bahasa saat runtime
+## Changing Language at Runtime
 
-Gunakan provider, jangan panggil `LocaleSettings` langsung:
+Always use the Riverpod provider instead of calling `LocaleSettings` directly:
 
 ```dart
 ref.read(appLocaleProvider.notifier).setLocale(AppLocale.en);
 ```
 
-`AppLocaleController` menyimpan pilihan ke `SharedPreferences` (`app_locale`)
-sekaligus menyinkronkan `LocaleSettings` slang. Pilihan bahasa di
-Pengaturan → Bahasa sudah terhubung ke provider ini.
+`AppLocaleController` persists the selected language to `SharedPreferences` (`app_locale`) while simultaneously synchronizing slang's `LocaleSettings`. The language selector in **Settings → Language** is already wired to this provider.
 
-## Status migrasi
+## Migration Status
 
-| Namespace | Status |
-|---|---|
-| `core` | sebagian (actions, state, badge, language, units) |
-| `onboarding` | selesai (welcome, goal, about, body target, level, jadwal, alat, batasan, creating, ready, preview) |
-| fitur lain | belum — masih hardcoded |
+| Namespace      | Status                                                                                                           |
+| -------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `core`         | Partial (actions, state, badge, language, units)                                                                 |
+| `onboarding`   | Completed (welcome, goal, about, body target, level, schedule, equipment, limitations, creating, ready, preview) |
+| Other features | In progress / partially hardcoded                                                                                |
 
-## Catatan
+## Notes
 
-- `flutter_localizations` tetap dipakai untuk localization bawaan Material
-  (tooltip, date picker, dll). Slang hanya menggantikan teks milik aplikasi.
-- iOS: jalankan `dart run slang configure` bila menambah locale baru,
-  agar `CFBundleLocalizations` ikut terupdate.
+- `flutter_localizations` is still required for built-in Material widget localization (tooltips, date pickers, etc.). Slang only handles custom application text.
+- iOS: Run `dart run slang configure` when introducing a new locale so that `CFBundleLocalizations` in `Info.plist` is properly updated.

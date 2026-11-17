@@ -51,6 +51,12 @@ AppLocale loadStoredLocale(SharedPreferences prefs) {
 ///
 /// Dipanggil di `main()` setelah binding siap dan sebelum `runApp`.
 Future<void> applyInitialLocale(AppLocale locale) async {
+  // Indonesian has no grammatical plural inflections; configure resolver to silence slang warning
+  LocaleSettings.setPluralResolver(
+    language: 'id',
+    cardinalResolver: (n, {zero, one, two, few, many, other}) =>
+        other ?? n.toString(),
+  );
   await LocaleSettings.setLocale(locale);
 }
 

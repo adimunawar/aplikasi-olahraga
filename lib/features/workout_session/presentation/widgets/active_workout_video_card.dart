@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/media_url_resolver.dart';
 import '../../../../core/widgets/app_smart_image.dart';
 
@@ -144,13 +145,14 @@ class _ActiveWorkoutVideoCardState extends State<ActiveWorkoutVideoCard> {
       height: 215,
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
+        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x0C000000),
+            color: AppColors.neutral800.withValues(alpha: 0.05),
             blurRadius: 10,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
