@@ -527,14 +527,16 @@ void main() {
 
         final retriedState = container.read(workoutSessionControllerProvider);
         expect(retriedResult, isNotNull);
-        expect(repository.completionAttemptSessionIds, [sessionId, sessionId]);
+        expect(
+          repository.completionAttemptSessionIds,
+          [sessionId, sessionId],
+        );
         expect(controller0.sessionId, isNull);
         expect(retriedState.completionError, isNull);
         expect(retriedState.completedResult, same(retriedResult));
         expect(retriedState.isSaving, isFalse);
       },
     );
-
 
     test('active phase does not consume the rest countdown', () async {
       await controller().prepareSession(
