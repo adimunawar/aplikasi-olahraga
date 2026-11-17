@@ -1,162 +1,113 @@
-# Repository Security & Branch Protection
+# Repository Security and Branch Protection
 
-This document records the security expectations for the public
-`adimunawar/aplikasi-olahraga` repository.
+This document records the repository-level controls verified for the current portfolio hardening effort. Re-check GitHub settings before relying on them for a future release.
 
-## 1. Branch protection
+## 1. Protected branches
 
-Create two **Active** repository rulesets under
-**Settings → Rules → Rulesets**. Keep the bypass list empty.
+The following repository rulesets were observed as active on 17 November 2026:
 
-### Ruleset: Protect develop
+| Ruleset | Branch | Status |
+|---|---|---|
+| Develop | develop | Active |
+| Main | main | Active |
+| Stg | staging | Active |
 
-- Enforcement status: Active
-- Target: branch `develop`
-- Require a pull request before merging
-- Required approvals: 0 (single-maintainer workflow; PR and status checks are
-  still mandatory)
-- Require conversation resolution
-- Require status checks:
-  - `Analyze Dart & Flutter`
-  - `Run Flutter tests`
-- Require branches to be up to date before merging
-- Require linear history
-- Restrict deletions
-- Block force pushes
-- Do not add actors to the bypass list
+Each ruleset requires a pull request, conversation resolution, required status checks, linear history, and protection against deletion and force-push/non-fast-forward updates. The rulesets have no bypass actors.
 
-### Ruleset: Protect main
+Required status checks:
 
-Use the same rules, but target only branch `main`.
+- Analyze Dart & Flutter
+- Run Flutter tests
 
-The workflow runs Analyze and Tests for pull requests targeting both branches.
-Release APK build and Firebase App Distribution are intentionally limited to
-trusted pushes on `develop`; do not make those jobs required PR checks.
+The approval requirement is currently zero. This is consistent with a single-maintainer workflow: a pull request is still required, but an independent human approval is not enforced. Add a required approval if the project gains additional trusted reviewers.
 
-A required approval count of 0 is intentional for this single-maintainer
-repository. It prevents direct pushes while allowing the maintainer to merge
-their own PR after checks pass. Add at least one approval later if another
-trusted reviewer becomes available.
+The Develop ruleset also includes a code-quality rule with error severity.
 
-### Important current state
+These controls are GitHub repository configuration, not source files. Verify their current status in Settings → Rules → Rulesets.
 
-The existing ruleset named `Develop` was observed as **disabled** during the
-November 14, 2026 repository audit. The GitHub connection used for this change
-can read rulesets but does not expose a ruleset mutation action. Therefore,
-these rules must be activated manually in GitHub Settings; merging this PR
-will not activate them automatically.
+## 2. CI trigger and branch relationship
 
-After activation, verify both rulesets show **Active** and each targets only
-its intended branch.
+The repository contains two workflows:
 
-## 2. Cloud Sync authorization
+- .github/workflows/flutter-ci.yml
+  - Pull requests targeting develop, staging, and main run analysis and tests.
+  - Pushes to main run analysis and tests.
+  - Manual workflow dispatch on develop can run the configured signed APK path.
+- .github/workflows/build-staging.yml
+  - Pushes to staging build a signed Android APK and distribute it through Firebase App Distribution.
 
-Local SQLite remains the default source of truth.
+A feature branch does not receive a PR-triggered check until a pull request targets one of the configured branches.
 
-Cloud Sync is permitted only when both conditions are true:
+## 3. Personal-data authorization
+
+SQLite is the local persistence baseline.
+
+Remote personal-data synchronization is permitted only when:
 
 1. A non-anonymous Supabase Auth session exists.
-2. The user explicitly accepted Cloud Sync for that account.
+2. The user explicitly enabled Cloud Sync for that account.
 
-The preference is stored as the consented Supabase user ID, not as a global
-boolean. A different account on the same device does not inherit the previous
-account's consent.
+The consent is associated with the authenticated user ID rather than a global boolean. Signing in alone must never enable personal-data sync. Disabling Cloud Sync keeps local SQLite records.
 
-After a user accepts the Cloud Sync explanation in the UI, call:
+Remote personal-data operations must never use placeholder local identifiers such as default_user as a cloud owner ID.
 
-```dart
-await SupabaseConfig.enableCloudSync();
-```
+## 4. Supabase RLS and migrations
 
-To disable Cloud Sync:
+The repository includes these security-related migrations:
 
-```dart
-await SupabaseConfig.disableCloudSync();
-```
+- supabase/migrations/20261113_secure_rls_and_owner_isolation.sql
+- supabase/migrations/20261114_harden_rls_and_cloud_sync.sql
 
-Disabling Cloud Sync does not delete local SQLite data. The UI must not call
-`enableCloudSync()` merely because a user signs in; call it only after an
-explicit consent action.
+The 14 November migration:
 
-## 3. Supabase migration
+- Enables RLS on personal-data and catalog tables.
+- Defines owner-scoped policies for users, profiles, workout sessions, workout sets, progression decisions, training programs, settings, and measurements.
+- Allows public catalog reads subject to the published/standard-record policies in the migration.
+- Restricts client-side catalog writes; trusted CMS writes need a server-side path with server-only credentials.
 
-The new forward-only migration is:
+**A migration file in Git is not proof that it has been applied to the hosted Supabase project.** Before a production change:
 
-`supabase/migrations/20261114_harden_rls_and_cloud_sync.sql`
-
-It:
-- Replaces the permissive exercise policy so public readers see standard
-  exercises only, while authenticated owners can see their own custom rows.
-- Restricts mobile catalog reads to published program content.
-- Removes existing policies from the listed personal/catalog tables and
-  recreates owner-scoped policies.
-- Revokes inherited/public table privileges and grants only the required
-  roles.
-- Denies direct catalog writes from both `anon` and `authenticated`
-  client roles. If the separate Next.js CMS currently writes through a normal
-  browser Supabase session, those writes will stop after this migration.
-  Move catalog mutations behind a trusted server-side route using a
-  service-role credential stored only on the server (never in browser code),
-  or design a narrowly scoped admin-claim policy after reviewing the CMS auth
-  model.
-- Creates the `user_settings` and `body_measurements` tables used by the
-  current Flutter remote datasources.
-
-**Do not assume the migration has been applied just because the file exists
-in Git.** Before applying it to the hosted Supabase project:
-
-1. Inspect the live schema and existing rows, especially
-   `user_settings`, `body_measurements`, and `user_profiles`.
+1. Inspect the live schema, grants, policies, and existing rows.
 2. Back up the database.
-3. Review the migration and run it against a staging project first.
-4. Apply it to the intended project using the Supabase CLI or SQL Editor.
-5. Verify the active policies and grants in the hosted database.
-6. Test as `anon`, authenticated user A, and authenticated user B:
-   - anon can read standard exercises and published programs only;
-   - anon cannot read or write personal data or custom exercises;
-   - user A cannot read or modify user B's personal data;
-   - user A can read/write only their own personal rows;
-   - authenticated mobile clients cannot modify the published CMS catalog.
+3. Apply to staging first.
+4. Verify active policies and grants after application.
+5. Test as anon, authenticated user A, and authenticated user B.
+6. Confirm user A cannot read or modify user B's personal records.
+7. Confirm anon can read only intended public catalog content and cannot access personal records.
+8. Confirm mobile authenticated clients cannot mutate the published CMS catalog.
 
-Useful inspection query:
+Useful policy inspection query:
 
-```sql
-SELECT
-    schemaname,
-    tablename,
-    policyname,
-    roles,
-    cmd,
-    qual,
-    with_check
-FROM pg_policies
-WHERE schemaname = 'public'
-ORDER BY tablename, policyname;
-```
+    SELECT
+      schemaname,
+      tablename,
+      policyname,
+      roles,
+      cmd,
+      qual,
+      with_check
+    FROM pg_policies
+    WHERE schemaname = 'public'
+    ORDER BY tablename, policyname;
 
-The publishable Supabase key may be present in a public Flutter client. Never
-put a Supabase secret/service-role key in the app or repository.
+## 5. Secrets and configuration
 
-## 4. Firebase and GitHub Actions
+Never commit:
 
-- `google-services.json` is ignored locally and supplied to CI through the
-  `GOOGLE_SERVICES_JSON` repository secret.
-- Android keystore material is supplied only through the Android signing
-  GitHub Secrets.
-- `FIREBASE_SERVICE_ACCOUNT_JSON` remains a GitHub Secret and is exposed only
-  to the Firebase distribution steps.
-- `FIREBASE_APP_ID` and `FIREBASE_TESTER_GROUPS` are currently read from
-  GitHub Secrets/Variables according to the workflow configuration.
-- Firebase client config is not a service-account credential.
-- Pull requests to `main` and `develop` run Analyze and Tests.
-- Only pushes to `develop` that change app/build inputs create and distribute
-  a release APK. Manual workflow dispatch on `develop` forces a build.
+- Supabase secret/service-role keys.
+- Firebase service-account JSON.
+- Android keystores or signing passwords.
+- Local environment files containing secrets.
+- Private signed media URLs or authorization headers.
 
-## 5. Secret scanning limitations
+The Flutter client may contain a Supabase publishable/anon key. It is not a secret authorization mechanism; RLS and grants must enforce access.
 
-A repository filename scan found no tracked files with common credential
-extensions/names (for example `.env`, `.pem`, `.p12`, `.jks`,
-`google-services.json`, or service-account JSON) in the audited branch
-snapshot. This does not prove the complete Git history is free of secrets.
-Review GitHub Secret Scanning alerts and rotate any credential that was ever
-committed publicly.
+CI configuration is supplied through GitHub Actions secrets and variables. See docs/RELEASE.md, docs/FIREBASE_SETUP.md, and docs/android-release-signing.md.
+
+## 6. Secret-scanning limitations
+
+The repository ignore rules cover common local credential/configuration files. A filename scan or clean working tree does not prove that Git history is free of credentials.
+
+Maintainers should review GitHub secret-scanning alerts and rotate any credential that may have been committed. If a secret is exposed, revoke/rotate it first; deleting the current file is not sufficient.
+
+For vulnerability reporting, follow SECURITY.md.
