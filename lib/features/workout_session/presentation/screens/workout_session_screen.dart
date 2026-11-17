@@ -677,6 +677,8 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
   Widget build(BuildContext context) {
     final t = Translations.of(context);
     final sessionState = ref.watch(workoutSessionControllerProvider);
+    final isFinishingSession = sessionState.isSaving || _isFinishingSession;
+    final canCompleteSet = sessionState.isSessionReady && !isFinishingSession;
     final exercise = _getCurrentExercise(sessionState.currentExerciseIndex);
     final prescription = _prescriptionFor(exercise.id);
     final isDuration =
@@ -880,7 +882,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
               ),
             ),
 
-          if (sessionState.isSaving)
+          if (isFinishingSession)
             Container(
               color: Colors.black.withValues(alpha: 0.4),
               child: Center(
@@ -912,11 +914,8 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
                 child: AppButton.primary(
                   text: t.workoutSession.completeSet,
                   icon: Icons.check_rounded,
-                  isLoading: sessionState.isSaving || _isFinishingSession,
-                  onPressed:
-                      sessionState.isSessionReady &&
-                          !sessionState.isSaving &&
-                          !_isFinishingSession
+                  isLoading: isFinishingSession,
+                  onPressed: canCompleteSet
                       ? () => _onNextPressed(
                           _currentSetValue == 0 ? targetValue : _currentSetValue,
                         )
