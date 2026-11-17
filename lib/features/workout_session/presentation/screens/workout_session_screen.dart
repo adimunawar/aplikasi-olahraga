@@ -60,6 +60,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
   Timer? _timer;
   int _currentSetValue = 0;
   bool _pendingFinishIsEndingEarly = false;
+  bool _isFinishingSession = false;
 
   @override
   void initState() {
@@ -503,63 +504,72 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
 
   Future<void> _openSummaryScreen({bool isEndingEarly = false}) async {
     final sessionState = ref.read(workoutSessionControllerProvider);
-    if (sessionState.isSaving) return;
+    if (sessionState.isSaving || _isFinishingSession) return;
 
+    setState(() => _isFinishingSession = true);
     _pendingFinishIsEndingEarly = isEndingEarly;
     _timer?.cancel();
 
-    final profile = await AppDatabase.instance.getUserProfile();
-    final userName = profile.displayName.isNotEmpty
-        ? profile.displayName
-        : 'Adi';
-    final programId = widget.programId ?? 'upper_body_strength';
-    final programTitle = _programTitle;
+    try {
+      final profile = await AppDatabase.instance.getUserProfile();
+      final userName = profile.displayName.isNotEmpty
+          ? profile.displayName
+          : 'Adi';
+      final programId = widget.programId ?? 'upper_body_strength';
+      final programTitle = _programTitle;
 
-    // 1. Simpan sesi melalui Riverpod Controller (otomatis simpan SQLite & Supabase Sync)
-    final result = await ref
-        .read(workoutSessionControllerProvider.notifier)
-        .finishWorkoutSession(
-          programId: programId,
-          dayNumber: widget.day.day,
-          programTitle: programTitle,
-          totalExercises: _totalExercises,
-          isEndingEarly: isEndingEarly,
+      // Save the session before creating the summary route.
+      final result = await ref
+          .read(workoutSessionControllerProvider.notifier)
+          .finishWorkoutSession(
+            programId: programId,
+            dayNumber: widget.day.day,
+            programTitle: programTitle,
+            totalExercises: _totalExercises,
+            isEndingEarly: isEndingEarly,
+          );
+
+      // A failed save leaves the user on this screen. The controller exposes
+      // completionError so the bottom action can offer a retry.
+      if (!mounted || result == null) return;
+
+      final durationText = '${result.durationMinutes} min';
+      final caloriesText = '≈ ${result.caloriesBurned} kcal';
+      final completedSetsText = '${result.completedSets}';
+
+      // Count unique exercises with recorded sets when the workout ends early.
+      int completedExercisesCount = _totalExercises;
+      if (isEndingEarly) {
+        final sets = await AppDatabase.instance.getSetsForSession(
+          result.sessionId,
         );
+        if (!mounted) return;
+        completedExercisesCount = sets.map((s) => s.exerciseId).toSet().length;
+      }
 
-    if (!mounted || result == null) return;
+      final exercisesCountText = isEndingEarly
+          ? '$completedExercisesCount / $_totalExercises'
+          : '$_totalExercises / $_totalExercises';
 
-    final durationText = '${result.durationMinutes} min';
-    final caloriesText = '≈ ${result.caloriesBurned} kcal';
-    final completedSetsText = '${result.completedSets}';
-
-    // Hitung exercise unik yang benar-benar tercatat jika diselesaikan lebih awal
-    int completedExercisesCount = _totalExercises;
-    if (isEndingEarly) {
-      final sets = await AppDatabase.instance.getSetsForSession(
-        result.sessionId,
-      );
       if (!mounted) return;
-      completedExercisesCount = sets.map((s) => s.exerciseId).toSet().length;
+      context.pushReplacement(
+        AppRoutes.workoutSummary,
+        extra: WorkoutSummaryArgs(
+          userName: userName,
+          workoutTitle: programTitle,
+          weekDayText: 'Week ${widget.day.week} • Day ${widget.day.day}',
+          durationText: durationText,
+          exercisesCountText: exercisesCountText,
+          setsCountText: completedSetsText,
+          caloriesText: caloriesText,
+          progressionDecisions: result.progressionDecisions,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isFinishingSession = false);
+      }
     }
-
-    final exercisesCountText = isEndingEarly
-        ? '$completedExercisesCount / $_totalExercises'
-        : '$_totalExercises / $_totalExercises';
-
-    if (!mounted) return;
-    context.pushReplacement(
-      AppRoutes.workoutSummary,
-      extra: WorkoutSummaryArgs(
-        userName: userName,
-        workoutTitle: programTitle,
-        weekDayText: 'Week ${widget.day.week} • Day ${widget.day.day}',
-        durationText: durationText,
-        exercisesCountText: exercisesCountText,
-        setsCountText: completedSetsText,
-        caloriesText: caloriesText,
-        progressionDecisions: result.progressionDecisions,
-      ),
-    );
   }
 
   void _showOptionsSheet() {
@@ -902,8 +912,11 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
                 child: AppButton.primary(
                   text: t.workoutSession.completeSet,
                   icon: Icons.check_rounded,
-                  isLoading: sessionState.isSaving,
-                  onPressed: sessionState.isSessionReady && !sessionState.isSaving
+                  isLoading: sessionState.isSaving || _isFinishingSession,
+                  onPressed:
+                      sessionState.isSessionReady &&
+                          !sessionState.isSaving &&
+                          !_isFinishingSession
                       ? () => _onNextPressed(
                           _currentSetValue == 0 ? targetValue : _currentSetValue,
                         )
@@ -956,8 +969,8 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
             const SizedBox(height: 12),
             AppButton.primary(
               text: t.workoutSession.retry,
-              isLoading: sessionState.isSaving,
-              onPressed: sessionState.isSaving
+              isLoading: sessionState.isSaving || _isFinishingSession,
+              onPressed: sessionState.isSaving || _isFinishingSession
                   ? null
                   : () => _openSummaryScreen(
                       isEndingEarly: _pendingFinishIsEndingEarly,
