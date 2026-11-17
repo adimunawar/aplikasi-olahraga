@@ -1,6 +1,8 @@
+> **Document status: Implementation roadmap.** This document describes intended phases and acceptance criteria, not proof that each phase is complete. Verify current delivery in source code, tests, and CI. For mandatory engineering rules use the root AGENTS.md; for current architecture use ARCHITECTURE.md.
+
 # Roadmap Implementasi: Adaptive Home Fitness Coach
 
-Berdasarkan dokumen spesifikasi produk terbaru di [`docs/new_target.md`](file:///d:/ADI/aplikasi-olahraga/docs/new_target.md), aplikasi beralih dari *static calendar split* menjadi **Adaptive Fitness Coach berbasis performa nyata**. 
+Berdasarkan dokumen spesifikasi produk di [docs/new_target.md](new_target.md), aplikasi beralih dari *static calendar split* menjadi **Adaptive Fitness Coach berbasis performa nyata**. 
 
 Sistem dirancang **100% fleksibel** (tidak terkunci pada angka 3 hari atau format statis tertentu), di mana program di-generate secara dinamis berdasarkan data Onboarding dan dievaluasi terus-menerus oleh Progression Engine.
 
