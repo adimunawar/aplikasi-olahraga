@@ -176,6 +176,10 @@ Release signing and Firebase distribution require repository secrets. See [Relea
 | [Release](docs/RELEASE.md) | Android signing, staging, and distribution |
 | [ADRs](docs/adr/) | Records of important technical decisions |
 | [Firebase setup](docs/FIREBASE_SETUP.md) | Crashlytics and Analytics configuration |
+| [Product direction](docs/new_target.md) | Target product vision and requirements; not a claim of shipped behavior |
+| [Implementation roadmap](docs/adaptive_fitness_coach_roadmap.md) | Planned implementation phases and acceptance criteria |
+| [Initial PRD](PRD-Aplikasi-Olahraga-Rumah.md) | Historical product baseline; superseded where it conflicts with current architecture |
+| [Code of Conduct](CODE_OF_CONDUCT.md) | Collaboration and participation expectations |
 
 ## Known limitations and active hardening areas
 
