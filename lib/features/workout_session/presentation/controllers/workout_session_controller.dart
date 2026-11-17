@@ -496,7 +496,7 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
     required int totalExercises,
     bool isEndingEarly = false,
   }) async {
-    state = state.copyWith(isSaving: true, clearCompletionError: true);
+    state = state.copyWith(isSaving: true);
     try {
       // Hitung dari catatan aktual, bukan posisi exercise/set saat ini.
       final totalCompletedSets = _recordedSets.length;
