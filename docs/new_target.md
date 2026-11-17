@@ -1,3 +1,5 @@
+> **Document status: Product direction and target requirements.** This document captures the intended Adaptive Home Fitness Coach product. It is not a guarantee that every requirement has shipped. Use source code, tests, README.md, and ARCHITECTURE.md to determine current implementation status. Engineering changes MUST follow AGENTS.md.
+
 # PRODUCT REQUIREMENTS DOCUMENT
 
 ## Adaptive Home Fitness Coach
