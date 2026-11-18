@@ -8,8 +8,11 @@ Use the same Flutter version as CI unless a version upgrade is being proposed:
 
 | Tool | Repository baseline |
 |---|---|
-| Flutter | 3.47.9 (pinned in GitHub Actions) |
+| Flutter | 3.50.0 (pinned in GitHub Actions) |
 | Dart | Compatible with pubspec.yaml constraint ^3.13.7 |
+| Gradle Wrapper | 9.3.1 (minimum required by the Flutter 3.50 Gradle plugin) |
+| Android Gradle Plugin | 8.11.1 |
+| Kotlin Gradle Plugin | 2.4.0 |
 | Java | JDK 17 for Android Gradle builds |
 | Android | Android SDK / Android Studio |
 | Package manager | Flutter Pub |
