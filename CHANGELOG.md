@@ -22,6 +22,7 @@ This changelog starts with the documentation baseline for the current portfolio 
 - Added generation token guard to `ActiveWorkoutVideoCard` to prevent stale asynchronous video initializations from overwriting newer video state or leaking audio during rapid exercise transitions.
 - Resolved dynamic localization for workout session program titles (`_programTitle`), respecting the active user locale with domain and Slang translation fallbacks.
 - Keep the active workout screen open when session finalization fails, with a localized retry action that reuses the same session.
+- Prevent "Finish Workout Now" from finalizing a session until preparation succeeds and a real in-progress session ID is available; disable the options menu while preparation is pending or failed.
 - Keep profile lookup optional and time-bounded, snapshot early-finish counts before finalization, and prevent duplicate completion or session abandonment races.
 
 ### Documentation
