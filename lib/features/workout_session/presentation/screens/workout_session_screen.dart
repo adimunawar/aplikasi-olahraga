@@ -344,9 +344,9 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
       // Snapshot from the already-restored in-memory set log. Never query the
       // repository after completion, when the active session is already closed.
       final completedExercisesCount = controller.completedExerciseCount;
-      final userName = await _loadSummaryUserName();
       final programTitle = _programTitle;
 
+      // Complete the workout before attempting any optional profile read.
       final result = await controller.finishWorkoutSession(
         programId: widget.programId ?? 'upper_body_strength',
         dayNumber: widget.day.day,
@@ -362,6 +362,14 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
         _startTimer();
         return;
       }
+
+      // Profile is presentation-only. Bound the optional local/cloud lookup
+      // so it cannot hold the user on a completed workout indefinitely.
+      final userName = await _loadSummaryUserName().timeout(
+        const Duration(seconds: 2),
+        onTimeout: () => 'athlete',
+      );
+      if (!mounted) return;
 
       final exercisesCountText = isEndingEarly
           ? '$completedExercisesCount / $_totalExercises'
