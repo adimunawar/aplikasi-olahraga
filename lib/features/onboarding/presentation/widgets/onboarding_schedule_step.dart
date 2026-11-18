@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../../../../core/theme/app_typography.dart';
 import 'onboarding_cta_button.dart';
 import 'onboarding_dots_indicator.dart';

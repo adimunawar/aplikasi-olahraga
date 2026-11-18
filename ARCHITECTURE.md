@@ -68,7 +68,7 @@ Shared cross-feature concerns belong under lib/core/ only when they are genuinel
 | Firebase Analytics | Product analytics on supported native platforms |
 | slang | Indonesian/English localization resources |
 
-The dependency versions and SDK constraints are defined in pubspec.yaml. CI currently pins Flutter 3.47.9.
+The dependency versions and SDK constraints are defined in pubspec.yaml. CI currently pins Flutter 3.50.0.
 
 ## 5. Data ownership and flows
 

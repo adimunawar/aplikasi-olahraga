@@ -73,6 +73,17 @@ The application currently uses Riverpod 2.x (flutter_riverpod 2.6.1) and include
 - Split classes when they have multiple reasons to change; do not split solely to hit an arbitrary line count.
 - Avoid adding new responsibilities to large legacy files such as AppDatabase, WorkoutsScreen, PlansScreen, and WorkoutSessionScreen. Prefer extracting a cohesive component or service first.
 
+### 3.4 Import organization and barrel files
+
+- **Consistent import style:** Use absolute `package:workout_app/...` imports for cross-feature and cross-layer dependencies. Avoid fragile multi-level relative imports (`../../../../`).
+- **Standardized import grouping:** Organize import directives into 4 distinct blocks separated by an empty line:
+  1. Dart SDK (`dart:...`).
+  2. Flutter SDK and external packages (`package:flutter/...`, `package:flutter_riverpod/...`, etc.).
+  3. Internal project modules (`package:workout_app/...`).
+  4. Feature-local files (relative imports like `../controllers/...`, `rest_timer_screen.dart`).
+- **Barrel files for subcomponents:** When a feature directory contains multiple cohesive sub-widgets (e.g., `features/workout_session/presentation/widgets/`), expose them through a designated barrel file (e.g., `workout_session_widgets.dart`). Screens MUST import the barrel file rather than scattering dozens of individual sub-widget imports.
+- **Cleanliness:** Remove unused imports immediately. Never leave unused imports in application code or tests.
+
 ## 4. State, navigation, and UI requirements
 
 ### 4.1 State management
@@ -227,7 +238,7 @@ Before requesting review, run from the repository root:
 
 For coverage, run flutter test --coverage.
 
-The current GitHub Actions workflow pins Flutter 3.47.9 and runs:
+The current GitHub Actions workflow pins Flutter 3.50.0 and runs:
 
 - flutter analyze --no-pub --no-fatal-infos
 - flutter test --no-pub --coverage

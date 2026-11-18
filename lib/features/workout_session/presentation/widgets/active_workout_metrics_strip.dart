@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../../../../core/theme/app_typography.dart';
 
 /// Strip Metrik Sesi Aktif: Sets (1/3), Reps (8-12), Rest (60 sec)

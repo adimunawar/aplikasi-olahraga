@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../../../../core/theme/app_typography.dart';
 
 /// Card Statistik Sesi Selesai (Judul Sesi + 4 Metrik: Durasi, Gerakan, Sets, Kalori)

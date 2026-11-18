@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'core/config/firebase_config.dart';
 import 'core/config/supabase_config.dart';
 import 'core/localization/app_locale.dart';
@@ -24,7 +24,9 @@ void main() async {
     TranslationProvider(
       child: ProviderScope(
         overrides: [
-          hasCompletedOnboardingProvider.overrideWith((ref) => hasCompletedOnboarding),
+          hasCompletedOnboardingProvider.overrideWith(
+            (ref) => hasCompletedOnboarding,
+          ),
           appLocaleProvider.overrideWith(
             () => AppLocaleController(initial: initialLocale),
           ),
@@ -48,7 +50,8 @@ class WorkoutApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.lightTheme,
-      themeMode: ThemeMode.light, // Default Light Theme sesuai PRD v2 Section 12.1
+      themeMode:
+          ThemeMode.light, // Default Light Theme sesuai PRD v2 Section 12.1
       locale: locale.flutterLocale,
       supportedLocales: AppLocaleUtils.supportedLocales,
       localizationsDelegates: GlobalMaterialLocalizations.delegates,

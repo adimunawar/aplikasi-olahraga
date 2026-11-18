@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../../../../core/theme/app_typography.dart';
 
 /// Card Kutipan Motivasi Coach Adi pada Akhir Sesi (Mockup 1:1):

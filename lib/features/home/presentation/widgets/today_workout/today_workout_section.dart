@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'today_workout_active_card.dart';
 import 'today_workout_completed_view.dart';

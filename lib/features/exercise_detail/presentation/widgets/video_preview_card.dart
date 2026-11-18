@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Card Video Preview Latihan:
 /// Menampilkan preview video demonstrasi gerakan dengan kontrol play/pause, durasi, dan ikon fullscreen.

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:workout_app/core/theme/app_colors.dart';
 
 import '../../../exercises/domain/models/exercise.dart';
