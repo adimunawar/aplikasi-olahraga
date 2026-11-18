@@ -336,8 +336,11 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
 
   Future<void> _openSummaryScreen({bool isEndingEarly = false}) async {
     final sessionState = ref.read(workoutSessionControllerProvider);
+    final controller = ref.read(workoutSessionControllerProvider.notifier);
     if (sessionState.isSaving ||
         sessionState.completedResult != null ||
+        !sessionState.isSessionReady ||
+        controller.sessionId == null ||
         _isFinishingSession) {
       return;
     }
@@ -347,7 +350,6 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
     _timer?.cancel();
 
     try {
-      final controller = ref.read(workoutSessionControllerProvider.notifier);
       // Snapshot from the already-restored in-memory set log. Never query the
       // repository after completion, when the active session is already closed.
       final completedExercisesCount = controller.completedExerciseCount;
@@ -404,13 +406,14 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
 
   void _showOptionsSheet() {
     final sessionState = ref.read(workoutSessionControllerProvider);
+    final notifier = ref.read(workoutSessionControllerProvider.notifier);
     if (_isFinishingSession ||
         sessionState.isSaving ||
-        sessionState.completedResult != null) {
+        sessionState.completedResult != null ||
+        !sessionState.isSessionReady ||
+        notifier.sessionId == null) {
       return;
     }
-
-    final notifier = ref.read(workoutSessionControllerProvider.notifier);
     WorkoutOptionsSheet.show(
       context,
       onRestartRestTimer: notifier.resetCurrentSetTimer,
@@ -441,6 +444,11 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
     final t = Translations.of(context);
     final sessionState = ref.watch(workoutSessionControllerProvider);
     final isFinishingSession = sessionState.isSaving || _isFinishingSession;
+    final sessionController = ref.read(workoutSessionControllerProvider.notifier);
+    final canShowOptions =
+        sessionState.isSessionReady &&
+        sessionController.sessionId != null &&
+        !isFinishingSession;
     final canCompleteSet = sessionState.isSessionReady && !isFinishingSession;
     final exercise = _getCurrentExercise(sessionState.currentExerciseIndex);
     final prescription = _resolver.forExercise(exercise.id);
@@ -511,7 +519,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
                 color: AppColors.darkCharcoal,
                 size: 26,
               ),
-              onPressed: isFinishingSession ? null : _showOptionsSheet,
+              onPressed: canShowOptions ? _showOptionsSheet : null,
             ),
           ],
         ),
