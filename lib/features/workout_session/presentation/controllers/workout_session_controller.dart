@@ -138,10 +138,15 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
     required List<String> exerciseIds,
     Map<String, WorkoutExercisePrescription> prescriptions = const {},
   }) async {
+    state = state.copyWith(isPreparing: true, clearError: true);
     try {
       final session = await _repository.getActiveInProgressSession();
       if (!mounted) return const SessionPreparationFailed('unmounted');
       if (session == null || session.id != sessionId) {
+        state = state.copyWith(
+          isPreparing: false,
+          errorMessage: 'Sesi tidak ditemukan',
+        );
         return const SessionPreparationFailed('Sesi tidak ditemukan');
       }
       _exerciseIds = List.unmodifiable(exerciseIds);
@@ -168,6 +173,7 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
     required List<String> exerciseIds,
     Map<String, WorkoutExercisePrescription> prescriptions = const {},
   }) async {
+    state = state.copyWith(isPreparing: true, clearError: true);
     try {
       _exerciseIds = List.unmodifiable(exerciseIds);
       _prescriptions = prescriptions;
@@ -504,6 +510,10 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
     if (state.isSaving) return null;
     final completedResult = state.completedResult;
     if (completedResult != null) return completedResult;
+
+    // Never create a completed record before preparation has finished and
+    // supplied the real in-progress session ID.
+    if (!state.isSessionReady || _sessionId == null) return null;
 
     state = state.copyWith(isSaving: true);
     try {
