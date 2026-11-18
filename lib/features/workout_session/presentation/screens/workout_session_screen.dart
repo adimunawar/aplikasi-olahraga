@@ -5,27 +5,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
-import '../../../../core/router/app_router.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_typography.dart';
-import '../../../../core/widgets/app_button.dart';
-import '../../../../core/widgets/app_snack_bar.dart';
-import '../../../../i18n/strings.g.dart';
-import '../../../exercises/domain/extensions/localized_string_extension.dart';
-import '../../../exercises/domain/models/exercise.dart';
-import '../../../profile/presentation/controllers/profile_controller.dart';
-import '../../../program/domain/models/program_day.dart';
+import 'package:workout_app/core/router/app_router.dart';
+import 'package:workout_app/core/theme/app_colors.dart';
+import 'package:workout_app/core/theme/app_typography.dart';
+import 'package:workout_app/core/widgets/app_button.dart';
+import 'package:workout_app/core/widgets/app_snack_bar.dart';
+import 'package:workout_app/features/exercises/domain/extensions/localized_string_extension.dart';
+import 'package:workout_app/features/exercises/domain/models/exercise.dart';
+import 'package:workout_app/features/profile/presentation/controllers/profile_controller.dart';
+import 'package:workout_app/features/program/domain/models/program_day.dart';
+import 'package:workout_app/features/workout_session/domain/models/exercise_prescription.dart';
+import 'package:workout_app/features/workout_session/domain/services/workout_prescription_resolver.dart';
+import 'package:workout_app/i18n/strings.g.dart';
+
 import '../controllers/workout_session_controller.dart';
 import '../controllers/workout_session_state.dart';
-import '../../domain/models/exercise_prescription.dart';
-import '../../domain/services/workout_prescription_resolver.dart';
-import '../widgets/active_workout_content.dart';
-import '../widgets/conflict_session_dialog.dart';
-import '../widgets/set_completion_rir_sheet.dart';
-import '../widgets/workout_complete_celebration.dart';
-import '../widgets/workout_options_sheet.dart';
-import '../widgets/workout_session_empty_state.dart';
-import '../widgets/workout_session_overlay.dart';
+import '../widgets/workout_session_widgets.dart';
 import 'rest_timer_screen.dart';
 
 /// Layar Active Workout (Mockup 1:1 Resolusi Tinggi):

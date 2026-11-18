@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,7 +26,6 @@ import 'package:workout_app/features/progress/presentation/controllers/progress_
 import 'package:workout_app/features/workout_session/domain/models/workout_session_result.dart';
 import 'package:workout_app/features/workout_session/domain/repositories/workout_session_repository.dart';
 import 'package:workout_app/features/workout_session/presentation/controllers/workout_session_controller.dart';
-import 'package:workout_app/features/workout_session/presentation/controllers/workout_session_state.dart';
 import 'package:workout_app/features/workout_session/presentation/screens/workout_session_screen.dart';
 import 'package:workout_app/i18n/strings.g.dart';
 
