@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:workout_app/features/workout_session/presentation/screens/rest_timer_screen.dart';
 import 'package:workout_app/features/workout_session/presentation/widgets/active_workout_rep_counter.dart';

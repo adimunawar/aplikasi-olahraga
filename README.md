@@ -84,7 +84,7 @@ See [Data and synchronization](docs/DATA_AND_SYNC.md) and [Security](SECURITY.md
 
 ### Prerequisites
 
-- Flutter **3.47.9** (the version pinned in GitHub Actions).
+- Flutter **3.50.0** (the version pinned in GitHub Actions).
 - Dart SDK compatible with the constraint in pubspec.yaml (currently ^3.13.7).
 - Android Studio / Android SDK for Android development.
 - JDK 17 for Android Gradle builds.

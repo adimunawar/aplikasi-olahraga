@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// Loading Shimmer Skeleton dengan Animasi Halus untuk Home Screen (Mockup 1:1)
