@@ -11,7 +11,9 @@ class AppTheme {
   AppTheme._();
 
   static ThemeData get lightTheme {
-    final baseTextTheme = GoogleFonts.interTextTheme(ThemeData.light().textTheme);
+    final baseTextTheme = ThemeData.light().textTheme.apply(
+      fontFamily: GoogleFonts.inter().fontFamily,
+    );
 
     return ThemeData(
       useMaterial3: true,

@@ -55,8 +55,10 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
   /// Preskripsi per exerciseId (target set, reps, rest).
   Map<String, WorkoutExercisePrescription> _prescriptions = const {};
 
-  WorkoutSessionController({required this._repository, required this._ref})
-    : super(const WorkoutSessionState());
+  WorkoutSessionController({
+    required this._repository,
+    required this._ref,
+  }) : super(const WorkoutSessionState());
 
   String? get sessionId => _sessionId;
 
