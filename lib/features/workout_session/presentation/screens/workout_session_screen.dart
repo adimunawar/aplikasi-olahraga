@@ -440,24 +440,24 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
       return PopScope<Object?>(
         canPop: !isFinishingSession,
         child: RestTimerScreen(
-        nextExerciseName: _exerciseName(exercise),
-        nextSet: sessionState.currentSet,
-        totalSets: sessionState.totalSetsPerExercise,
-        remainingSeconds: sessionState.remainingRestSeconds,
-        totalSeconds: sessionState.restDurationSeconds,
-        isPaused: sessionState.isTimerPaused,
-        // Back arrow KELUAR dari layar sesi (sesi tetap in_progress dan bisa
-        // dilanjutkan), bukan skip rest — itu tugas tombol Skip Rest.
-        onExitSession: () {
-          if (!isFinishingSession) context.pop();
-        },
-        onAdjustTime: ref
-            .read(workoutSessionControllerProvider.notifier)
-            .adjustRestSeconds,
-        onPauseToggle: ref
-            .read(workoutSessionControllerProvider.notifier)
-            .togglePauseTimer,
-        onSkipRest: _skipRest,
+          nextExerciseName: _exerciseName(exercise),
+          nextSet: sessionState.currentSet,
+          totalSets: sessionState.totalSetsPerExercise,
+          remainingSeconds: sessionState.remainingRestSeconds,
+          totalSeconds: sessionState.restDurationSeconds,
+          isPaused: sessionState.isTimerPaused,
+          // Back arrow KELUAR dari layar sesi (sesi tetap in_progress dan bisa
+          // dilanjutkan), bukan skip rest — itu tugas tombol Skip Rest.
+          onExitSession: () {
+            if (!isFinishingSession) context.pop();
+          },
+          onAdjustTime: ref
+              .read(workoutSessionControllerProvider.notifier)
+              .adjustRestSeconds,
+          onPauseToggle: ref
+              .read(workoutSessionControllerProvider.notifier)
+              .togglePauseTimer,
+          onSkipRest: _skipRest,
         ),
       );
     }
@@ -465,96 +465,96 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
     return PopScope<Object?>(
       canPop: !isFinishingSession,
       child: Scaffold(
-      backgroundColor: AppColors.surface,
-      appBar: AppBar(
         backgroundColor: AppColors.surface,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_rounded,
-            color: AppColors.darkCharcoal,
-            size: 24,
-          ),
-          onPressed: isFinishingSession ? null : () => context.pop(),
-        ),
-        title: Text(
-          t.workoutSession.exerciseProgress(
-            current: sessionState.currentExerciseIndex + 1,
-            total: _totalExercises,
-          ),
-          style: AppTypography.labelLarge.copyWith(
-            color: AppColors.darkCharcoal,
-            fontWeight: FontWeight.w800,
-            fontFeatures: const [FontFeature.tabularFigures()],
-          ),
-        ),
-        actions: [
-          IconButton(
+        appBar: AppBar(
+          backgroundColor: AppColors.surface,
+          elevation: 0,
+          centerTitle: true,
+          leading: IconButton(
             icon: const Icon(
-              Icons.more_horiz_rounded,
+              Icons.arrow_back_rounded,
               color: AppColors.darkCharcoal,
-              size: 26,
+              size: 24,
             ),
-            onPressed: isFinishingSession ? null : _showOptionsSheet,
+            onPressed: isFinishingSession ? null : () => context.pop(),
           ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          ActiveWorkoutContent(
-            sessionState: sessionState,
-            exercise: exercise,
-            prescription: prescription,
-            totalExercises: _totalExercises,
-            onRepCounterChanged: (value) => _currentSetValue = value,
-            onFullscreen: () {
-              if (!isFinishingSession) {
-                context.push(AppRoutes.exerciseDetail, extra: exercise);
-              }
-            },
+          title: Text(
+            t.workoutSession.exerciseProgress(
+              current: sessionState.currentExerciseIndex + 1,
+              total: _totalExercises,
+            ),
+            style: AppTypography.labelLarge.copyWith(
+              color: AppColors.darkCharcoal,
+              fontWeight: FontWeight.w800,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
           ),
+          actions: [
+            IconButton(
+              icon: const Icon(
+                Icons.more_horiz_rounded,
+                color: AppColors.darkCharcoal,
+                size: 26,
+              ),
+              onPressed: isFinishingSession ? null : _showOptionsSheet,
+            ),
+          ],
+        ),
+        body: Stack(
+          children: [
+            ActiveWorkoutContent(
+              sessionState: sessionState,
+              exercise: exercise,
+              prescription: prescription,
+              totalExercises: _totalExercises,
+              onRepCounterChanged: (value) => _currentSetValue = value,
+              onFullscreen: () {
+                if (!isFinishingSession) {
+                  context.push(AppRoutes.exerciseDetail, extra: exercise);
+                }
+              },
+            ),
 
-          // Overlay persiapan / error / simpan (menutup kontrol sampai siap).
-          if (sessionState.isPreparing)
-            WorkoutSessionOverlay(
-              phase: WorkoutSessionOverlayPhase.preparing,
-              errorMessage: '',
-              onRetry: _prepareSession,
-            )
-          else if (sessionState.errorMessage != null &&
-              sessionState.completedResult == null)
-            WorkoutSessionOverlay(
-              phase: WorkoutSessionOverlayPhase.error,
-              errorMessage: sessionState.errorMessage!,
-              onRetry: _prepareSession,
-            )
-          else if (isFinishingSession)
-            WorkoutSessionOverlay(
-              phase: WorkoutSessionOverlayPhase.saving,
-              errorMessage: '',
-              onRetry: _prepareSession,
-            ),
-        ],
-      ),
-      bottomNavigationBar: sessionState.completionError != null
-          ? _buildFinishFailureActions(sessionState)
-          : SafeArea(
-              top: false,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 10, 20, 14),
-                child: AppButton.primary(
-                  text: t.workoutSession.completeSet,
-                  icon: Icons.check_rounded,
-                  isLoading: isFinishingSession,
-                  onPressed: canCompleteSet
-                      ? () => _onNextPressed(
-                          _currentSetValue == 0 ? targetValue : _currentSetValue,
-                        )
-                      : null,
+            // Overlay persiapan / error / simpan (menutup kontrol sampai siap).
+            if (sessionState.isPreparing)
+              WorkoutSessionOverlay(
+                phase: WorkoutSessionOverlayPhase.preparing,
+                errorMessage: '',
+                onRetry: _prepareSession,
+              )
+            else if (sessionState.errorMessage != null &&
+                sessionState.completedResult == null)
+              WorkoutSessionOverlay(
+                phase: WorkoutSessionOverlayPhase.error,
+                errorMessage: sessionState.errorMessage!,
+                onRetry: _prepareSession,
+              )
+            else if (isFinishingSession)
+              WorkoutSessionOverlay(
+                phase: WorkoutSessionOverlayPhase.saving,
+                errorMessage: '',
+                onRetry: _prepareSession,
+              ),
+          ],
+        ),
+        bottomNavigationBar: sessionState.completionError != null
+            ? _buildFinishFailureActions(sessionState)
+            : SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 14),
+                  child: AppButton.primary(
+                    text: t.workoutSession.completeSet,
+                    icon: Icons.check_rounded,
+                    isLoading: isFinishingSession,
+                    onPressed: canCompleteSet
+                        ? () => _onNextPressed(
+                            _currentSetValue == 0 ? targetValue : _currentSetValue,
+                          )
+                        : null,
+                  ),
                 ),
               ),
-            ),
       ),
     );
   }
