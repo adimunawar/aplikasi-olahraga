@@ -444,7 +444,9 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
     final t = Translations.of(context);
     final sessionState = ref.watch(workoutSessionControllerProvider);
     final isFinishingSession = sessionState.isSaving || _isFinishingSession;
-    final sessionController = ref.read(workoutSessionControllerProvider.notifier);
+    final sessionController = ref.read(
+      workoutSessionControllerProvider.notifier,
+    );
     final canShowOptions =
         sessionState.isSessionReady &&
         sessionController.sessionId != null &&
