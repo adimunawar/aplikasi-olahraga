@@ -1,5 +1,5 @@
 ﻿-- ==============================================================================
--- Seed: 17 Exercises from assets/data/exercises.json
+-- Seed: 17 standard exercise catalog records maintained as SQL seed data
 -- Database: Supabase (PostgreSQL)
 -- ==============================================================================
 

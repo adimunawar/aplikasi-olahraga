@@ -8,6 +8,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
+import '../../../exercises/data/repositories/exercise_repository_impl.dart';
 import '../../../program/domain/services/dynamic_program_generator.dart';
 import '../../../program/presentation/controllers/draft_program_provider.dart';
 
@@ -52,8 +53,9 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
       var profile = ref.read(onboardingProfileProvider);
       profile ??= await db.getUserProfile();
 
-      final exerciseDatasource = ExerciseLocalDatasource(db: db);
-      final catalog = await exerciseDatasource.loadExercises();
+      final exerciseRepo =
+          ExerciseRepositoryImpl(ExerciseLocalDatasource(db: db));
+      final catalog = await exerciseRepo.getExercises();
       if (catalog.isEmpty) {
         throw StateError('The exercise library is empty. Please try again.');
       }

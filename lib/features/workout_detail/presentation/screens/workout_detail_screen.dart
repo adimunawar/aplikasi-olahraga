@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:workout_app/core/database/models/dynamic_program_entity.dart';
+
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -9,8 +10,6 @@ import '../../../../core/database/app_database.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
 import '../../../exercises/data/repositories/exercise_repository_impl.dart';
 import '../../../exercises/domain/models/exercise.dart';
-import '../../../program/data/datasources/program_local_datasource.dart';
-import '../../../program/data/repositories/program_repository_impl.dart';
 import '../../../program/domain/models/program_day.dart';
 import '../../../workout_session/domain/models/exercise_prescription.dart';
 import '../../../../i18n/strings.g.dart';
@@ -20,7 +19,7 @@ import '../widgets/workout_exercise_list_section.dart';
 
 /// Workout Detail screen:
 /// - Menampilkan hero exercise, ringkasan program, dan daftar gerakan
-/// - Data tetap dimuat dari program dinamis atau program statis sebagai fallback
+/// - Mengambil jadwal hanya dari Dynamic Program yang aktif
 /// - Menjaga kontrak navigasi ke Active Workout
 class WorkoutDetailScreen extends StatefulWidget {
   final int dayNumber;
@@ -63,7 +62,6 @@ class WorkoutDetailScreen extends StatefulWidget {
 }
 
 class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
-  final _programRepo = ProgramRepositoryImpl(ProgramLocalDatasource());
   final _exerciseRepo = ExerciseRepositoryImpl(ExerciseLocalDatasource());
 
   List<WorkoutDetailExerciseData> _exercises = [];
@@ -81,6 +79,9 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
 
   Future<void> _loadWorkoutData() async {
     try {
+      // Ambil data exercise langsung dari Supabase
+      await _exerciseRepo.getExercises();
+
       final List<WorkoutDetailExerciseData> list = [];
       final db = AppDatabase.instance;
       final profile = await db.getUserProfile();
@@ -133,7 +134,9 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                 return WorkoutItem(
                   exerciseId: item.exercise.id,
                   sets: prescription.targetSets,
-                  reps: isDuration ? prescription.maxReps : prescription.minReps,
+                  reps: isDuration
+                      ? prescription.maxReps
+                      : prescription.minReps,
                   durationSec: isDuration ? prescription.maxReps : null,
                   restSeconds: prescription.restSeconds,
                   isMain: prescription.stage == 'main',
@@ -176,78 +179,9 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
         }
       }
 
-      // 2. Fallback ke program statis jika belum ada program dinamis
-      if (list.isEmpty) {
-        final programDay = await _programRepo.getDay(widget.dayNumber);
-        final allExercises = await _exerciseRepo.getExercises();
-        final exercisesMap = {for (final e in allExercises) e.id: e};
-
-        if (programDay != null && programDay.items.isNotEmpty) {
-          for (final item in programDay.items) {
-            final exercise =
-                exercisesMap[item.exerciseId] ??
-                _buildFallbackExercise(item.exerciseId);
-
-            final repsStr = item.durationSec != null && item.durationSec! > 0
-                ? '${item.durationSec}s'
-                : (item.reps != null ? '${item.reps} Reps' : '8 – 12 Reps');
-
-            final restStr = '${item.restSeconds} sec';
-
-            String stage = item.stage ?? 'main';
-            if (item.stage == null) {
-              if (exercise.category == ExerciseCategory.warmup ||
-                  exercise.id.toLowerCase().contains('warmup')) {
-                stage = 'warmup';
-              } else if (exercise.category == ExerciseCategory.cooldown ||
-                  exercise.id.toLowerCase().contains('cooldown')) {
-                stage = 'cooldown';
-              }
-            }
-
-            list.add(
-              WorkoutDetailExerciseData(
-                title: exercise.name.en.isNotEmpty
-                    ? exercise.name.en
-                    : exercise.name.id,
-                categoryTag: exercise.primaryMuscles.isNotEmpty
-                    ? exercise.primaryMuscles.first.en
-                    : 'Bodyweight',
-                thumbnailAsset: exercise.media.startPose.isNotEmpty
-                    ? exercise.media.startPose
-                    : 'assets/images/Detail Gerakan.png',
-                sets: item.sets,
-                reps: repsStr,
-                rest: restStr,
-                exercise: exercise,
-                stage: stage,
-              ),
-            );
-          }
-          _loadedProgramDay = programDay;
-        } else {
-          final fallbackList = allExercises.take(4).toList();
-          for (final exercise in fallbackList) {
-            list.add(
-              WorkoutDetailExerciseData(
-                title: exercise.name.en.isNotEmpty
-                    ? exercise.name.en
-                    : exercise.name.id,
-                categoryTag: exercise.primaryMuscles.isNotEmpty
-                    ? exercise.primaryMuscles.first.en
-                    : 'Bodyweight',
-                thumbnailAsset: exercise.media.startPose.isNotEmpty
-                    ? exercise.media.startPose
-                    : 'assets/images/Detail Gerakan.png',
-                sets: 3,
-                reps: '8 – 12 Reps',
-                rest: '60 sec',
-                exercise: exercise,
-              ),
-            );
-          }
-        }
-      }
+      // Dynamic Program is the single source of workout schedules.
+      // When a day has no session details, keep the empty state instead of
+      // silently substituting an unrelated 30-day static workout.
 
       if (mounted) {
         setState(() {
@@ -264,40 +198,6 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
         });
       }
     }
-  }
-
-  Exercise _buildFallbackExercise(String id) {
-    final title = id
-        .replaceAll('_', ' ')
-        .split(' ')
-        .map(
-          (w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '',
-        )
-        .join(' ');
-
-    return Exercise(
-      id: id,
-      name: LocalizedString(id: title, en: title),
-      category: ExerciseCategory.push,
-      difficulty: ExerciseDifficulty.intermediate,
-      trackingType: TrackingType.reps,
-      primaryMuscles: [LocalizedString(id: 'Dada', en: 'Chest')],
-      stabilizerMuscles: const [LocalizedString(id: 'Core', en: 'Core')],
-      steps: const LocalizedList(
-        id: ['Lakukan gerakan secara terkontrol dengan rentang penuh.'],
-        en: ['Perform movement with control through full range of motion.'],
-      ),
-      commonMistakes: const LocalizedList(
-        id: ['Menggunakan momentum alih-alih kontrol otot.'],
-        en: ['Using momentum instead of muscular control.'],
-      ),
-      breathing: const LocalizedString(
-        id: 'Tarik napas saat menurunkan, hembuskan saat mendorong.',
-        en: 'Inhale while lowering, exhale while pushing.',
-      ),
-      variations: const ExerciseVariationGroup(),
-      media: const ExerciseMedia(startPose: '', endPose: ''),
-    );
   }
 
   @override
@@ -448,9 +348,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                           if (_exercises.isEmpty)
                             _buildEmptyExercisesState()
                           else
-                            WorkoutExerciseListSection(
-                              exercises: _exercises,
-                            ),
+                            WorkoutExerciseListSection(exercises: _exercises),
                         ],
                       ),
                     ),
@@ -596,10 +494,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
     );
   }
 
-  Widget _buildWorkoutMeta({
-    required IconData icon,
-    required String label,
-  }) {
+  Widget _buildWorkoutMeta({required IconData icon, required String label}) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -701,7 +596,8 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
   }
 
   void _startActiveWorkout() {
-    final calculatedWeek = widget.weekNumber ?? ((widget.dayNumber - 1) ~/ 7 + 1);
+    final calculatedWeek =
+        widget.weekNumber ?? ((widget.dayNumber - 1) ~/ 7 + 1);
     final programDay =
         _loadedProgramDay?.copyWith(week: calculatedWeek) ??
         ProgramDay(
@@ -736,8 +632,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
         activeSessionId: widget.activeSessionId,
         prescriptions: {
           for (final data in _exercises)
-            if (data.prescription != null)
-              data.exercise.id: data.prescription!,
+            if (data.prescription != null) data.exercise.id: data.prescription!,
         },
       ),
     );

@@ -14,6 +14,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
+import '../../../exercises/data/repositories/exercise_repository_impl.dart';
 import '../../../exercises/domain/models/exercise.dart';
 import '../../../program/domain/models/program_lifecycle.dart';
 import '../../../program/domain/services/program_lifecycle_calculator.dart';
@@ -40,6 +41,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
     with WidgetsBindingObserver {
   final _db = AppDatabase.instance;
   late final ExerciseLocalDatasource _exerciseDatasource;
+  late final ExerciseRepositoryImpl _exerciseRepository;
 
   bool _isLoading = true;
   Object? _loadError;
@@ -68,6 +70,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
   void initState() {
     super.initState();
     _exerciseDatasource = ExerciseLocalDatasource(db: _db);
+    _exerciseRepository = ExerciseRepositoryImpl(_exerciseDatasource);
     WidgetsBinding.instance.addObserver(this);
     AppDataSync.instance.dataRevision.addListener(_onDataSync);
     _loadData();
@@ -123,7 +126,7 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
         ? await _db.getWorkoutSessionsForProgram(program.id)
         : <WorkoutSessionEntity>[];
     final activeSession = await _db.getActiveSession();
-    final exercises = await _exerciseDatasource.loadExercises();
+    final exercises = await _exerciseRepository.getExercises();
 
     return WorkoutsSnapshot(
       profile: profile,

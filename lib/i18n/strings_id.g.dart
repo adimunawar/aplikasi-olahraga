@@ -56,6 +56,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
   late final Translations$core$id core = Translations$core$id.internal(_root);
   late final Translations$home$id home = Translations$home$id.internal(_root);
   late final Translations$onboarding$id onboarding = Translations$onboarding$id.internal(_root);
+  late final Translations$workoutSession$id workoutSession =
+      Translations$workoutSession$id.internal(_root);
   late final Translations$workouts$id workouts = Translations$workouts$id.internal(_root);
 }
 
@@ -130,6 +132,226 @@ class Translations$onboarding$id {
   );
   late final Translations$onboarding$preview$id preview =
       Translations$onboarding$preview$id.internal(_root);
+}
+
+// Path: workoutSession
+class Translations$workoutSession$id {
+  Translations$workoutSession$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Latihan $current dari $total'
+  String exerciseProgress({required Object current, required Object total}) =>
+      'Latihan ${current} dari ${total}';
+
+  /// id: 'Set $current dari $total · $target'
+  String setProgress({required Object current, required Object total, required Object target}) =>
+      'Set ${current} dari ${total} · ${target}';
+
+  /// id: 'repetisi'
+  String get repsUnit => 'repetisi';
+
+  /// id: 'detik'
+  String get durationUnit => 'detik';
+
+  /// id: '$value repetisi'
+  String repsValue({required Object value}) => '${value} repetisi';
+
+  /// id: '$value detik'
+  String durationValue({required Object value}) => '${value} detik';
+
+  /// id: 'Selesaikan Set'
+  String get completeSet => 'Selesaikan Set';
+
+  /// id: 'Istirahat berikutnya'
+  String get nextRest => 'Istirahat berikutnya';
+
+  /// id: 'Menyiapkan sesi latihan...'
+  String get preparingSession => 'Menyiapkan sesi latihan...';
+
+  /// id: 'Coba Lagi'
+  String get retry => 'Coba Lagi';
+
+  /// id: 'Gagal menyimpan set. Periksa koneksi lalu coba lagi.'
+  String get saveSetFailed => 'Gagal menyimpan set. Periksa koneksi lalu coba lagi.';
+
+  /// id: 'Ada latihan yang belum selesai'
+  String get sessionConflictTitle => 'Ada latihan yang belum selesai';
+
+  /// id: 'Kamu masih punya sesi "$program" (Hari $day) yang sedang berlangsung. Lanjutkan sesi itu dulu, atau akhiri untuk mulai latihan ini.'
+  String sessionConflictMessage({required Object program, required Object day}) =>
+      'Kamu masih punya sesi "${program}" (Hari ${day}) yang sedang berlangsung. Lanjutkan sesi itu dulu, atau akhiri untuk mulai latihan ini.';
+
+  /// id: 'Lanjutkan Sesi Lama'
+  String get resumePreviousSession => 'Lanjutkan Sesi Lama';
+
+  /// id: 'Akhiri Sesi Lama'
+  String get endPreviousSession => 'Akhiri Sesi Lama';
+
+  /// id: 'Latihan Hari Ini Tuntas! 🎉'
+  String get completionTitle => 'Latihan Hari Ini Tuntas! 🎉';
+
+  /// id: 'Semua set dan gerakan telah berhasil kamu selesaikan. Istirahatlah dengan baik untuk pemulihan otot.'
+  String get completionDescription =>
+      'Semua set dan gerakan telah berhasil kamu selesaikan. Istirahatlah dengan baik untuk pemulihan otot.';
+
+  /// id: 'Durasi'
+  String get durationLabel => 'Durasi';
+
+  /// id: 'Gerakan'
+  String get exerciseLabel => 'Gerakan';
+
+  /// id: '$count gerakan'
+  String exerciseCount({required Object count}) => '${count} gerakan';
+
+  /// id: 'Total Set'
+  String get totalSetsLabel => 'Total Set';
+
+  /// id: '$count set'
+  String totalSetsCount({required Object count}) => '${count} set';
+
+  /// id: 'Lihat Ringkasan & Evaluasi ➔'
+  String get viewSummary => 'Lihat Ringkasan & Evaluasi ➔';
+
+  /// id: 'Mulai Ulang Timer Istirahat'
+  String get restartRestTimer => 'Mulai Ulang Timer Istirahat';
+
+  /// id: 'Selesaikan Sesi Sekarang'
+  String get finishSessionNow => 'Selesaikan Sesi Sekarang';
+
+  /// id: 'Keluar Tanpa Menyimpan'
+  String get exitWithoutSaving => 'Keluar Tanpa Menyimpan';
+
+  /// id: 'Istirahat'
+  String get restTitle => 'Istirahat';
+
+  /// id: 'Berikutnya: $exercise'
+  String restNextExercise({required Object exercise}) => 'Berikutnya: ${exercise}';
+
+  /// id: 'Set $current dari $total'
+  String restSetProgress({required Object current, required Object total}) =>
+      'Set ${current} dari ${total}';
+
+  /// id: 'DIJEDA'
+  String get restPaused => 'DIJEDA';
+
+  /// id: '-10 dtk'
+  String get restMinusTenSeconds => '-10 dtk';
+
+  /// id: '+10 dtk'
+  String get restPlusTenSeconds => '+10 dtk';
+
+  /// id: 'Tips'
+  String get restTipTitle => 'Tips';
+
+  /// id: 'Tetap bernapas dan jangan lupa minum air.'
+  String get restTipDescription => 'Tetap bernapas dan jangan lupa minum air.';
+
+  /// id: 'Lewati Istirahat'
+  String get skipRest => 'Lewati Istirahat';
+
+  /// id: 'Set $current dari $total selesai! 🎉'
+  String setCompleteTitle({required Object current, required Object total}) =>
+      'Set ${current} dari ${total} selesai! 🎉';
+
+  /// id: 'Target: $seconds detik'
+  String targetDuration({required Object seconds}) => 'Target: ${seconds} detik';
+
+  /// id: 'Target: $reps repetisi'
+  String targetReps({required Object reps}) => 'Target: ${reps} repetisi';
+
+  /// id: 'Durasi Selesai'
+  String get durationCompleted => 'Durasi Selesai';
+
+  /// id: 'Repetisi Selesai'
+  String get repsCompleted => 'Repetisi Selesai';
+
+  /// id: 'Berapa detik kamu bertahan?'
+  String get durationQuestion => 'Berapa detik kamu bertahan?';
+
+  /// id: 'Berapa kali kamu berhasil?'
+  String get repsQuestion => 'Berapa kali kamu berhasil?';
+
+  /// id: 'Sisa Tenaga Kamu (RIR - Reps in Reserve)'
+  String get rirTitle => 'Sisa Tenaga Kamu (RIR - Reps in Reserve)';
+
+  /// id: 'Berapa repetisi lagi yang sanggup kamu lakukan sebelum benar-benar gagal?'
+  String get rirQuestion =>
+      'Berapa repetisi lagi yang sanggup kamu lakukan sebelum benar-benar gagal?';
+
+  /// id: '0 — Habis Total (Max Failure)'
+  String get rirFailureTitle => '0 — Habis Total (Max Failure)';
+
+  /// id: 'Tenaga habis total, tidak sanggup menambah 1 repetisi lagi dengan teknik rapi.'
+  String get rirFailureDescription =>
+      'Tenaga habis total, tidak sanggup menambah 1 repetisi lagi dengan teknik rapi.';
+
+  /// id: '1 — Sangat Berat'
+  String get rirVeryHardTitle => '1 — Sangat Berat';
+
+  /// id: 'Hanya sanggup 1 repetisi lagi sebelum gagal.'
+  String get rirVeryHardDescription => 'Hanya sanggup 1 repetisi lagi sebelum gagal.';
+
+  /// id: '2 — Zona Ideal (Target)'
+  String get rirIdealTitle => '2 — Zona Ideal (Target)';
+
+  /// id: 'Cukup menantang, masih bisa 2 repetisi lagi jika dipaksa.'
+  String get rirIdealDescription => 'Cukup menantang, masih bisa 2 repetisi lagi jika dipaksa.';
+
+  /// id: '3 — Cukup Ringan'
+  String get rirModerateTitle => '3 — Cukup Ringan';
+
+  /// id: 'Masih tersisa 3 repetisi di dalam tangki tenaga.'
+  String get rirModerateDescription => 'Masih tersisa 3 repetisi di dalam tangki tenaga.';
+
+  /// id: '4+ — Terlalu Mudah'
+  String get rirEasyTitle => '4+ — Terlalu Mudah';
+
+  /// id: 'Sangat enteng, masih sanggup melakukan 4 repetisi atau lebih.'
+  String get rirEasyDescription => 'Sangat enteng, masih sanggup melakukan 4 repetisi atau lebih.';
+
+  /// id: 'Maksimal'
+  String get rirBadgeMax => 'Maksimal';
+
+  /// id: 'Tinggi'
+  String get rirBadgeHigh => 'Tinggi';
+
+  /// id: 'Optimal ⭐'
+  String get rirBadgeOptimal => 'Optimal ⭐';
+
+  /// id: 'Sedang'
+  String get rirBadgeModerate => 'Sedang';
+
+  /// id: 'Ringan'
+  String get rirBadgeEasy => 'Ringan';
+
+  /// id: 'Simpan & Mulai Istirahat'
+  String get saveAndStartRest => 'Simpan & Mulai Istirahat';
+
+  /// id: '$seconds dtk'
+  String restSecondsValue({required Object seconds}) => '${seconds} dtk';
+
+  /// id: '$value menit'
+  String durationMinutesValue({required Object value}) => '${value} menit';
+
+  /// id: 'Menyimpan sesi latihan...'
+  String get savingSession => 'Menyimpan sesi latihan...';
+
+  /// id: 'Daftar latihan untuk sesi ini tidak ditemukan. Silakan kembali untuk memuat ulang program latihan Anda.'
+  String get emptySessionDescription =>
+      'Daftar latihan untuk sesi ini tidak ditemukan. Silakan kembali untuk memuat ulang program latihan Anda.';
+
+  /// id: 'Kembali'
+  String get backButtonLabel => 'Kembali';
+
+  /// id: 'Sesi latihan gagal disimpan. Progres yang sudah tercatat tetap tersedia. Silakan coba lagi.'
+  String get finishSessionFailed =>
+      'Sesi latihan gagal disimpan. Progres yang sudah tercatat tetap tersedia. Silakan coba lagi.';
+
+  /// id: 'Latihan Kekuatan'
+  String get defaultProgramTitle => 'Latihan Kekuatan';
 }
 
 // Path: workouts
@@ -1685,6 +1907,95 @@ extension on Translations {
         required Object reps,
         required Object rests,
       }) => '${sets} set • ${reps} repetisi • istirahat ${rests} dtk',
+      'workoutSession.exerciseProgress' => ({
+        required Object current,
+        required Object total,
+      }) => 'Latihan ${current} dari ${total}',
+      'workoutSession.setProgress' => ({
+        required Object current,
+        required Object total,
+        required Object target,
+      }) => 'Set ${current} dari ${total} · ${target}',
+      'workoutSession.repsUnit' => 'repetisi',
+      'workoutSession.durationUnit' => 'detik',
+      'workoutSession.repsValue' => ({required Object value}) => '${value} repetisi',
+      'workoutSession.durationValue' => ({required Object value}) => '${value} detik',
+      'workoutSession.completeSet' => 'Selesaikan Set',
+      'workoutSession.nextRest' => 'Istirahat berikutnya',
+      'workoutSession.preparingSession' => 'Menyiapkan sesi latihan...',
+      'workoutSession.retry' => 'Coba Lagi',
+      'workoutSession.saveSetFailed' => 'Gagal menyimpan set. Periksa koneksi lalu coba lagi.',
+      'workoutSession.sessionConflictTitle' => 'Ada latihan yang belum selesai',
+      'workoutSession.sessionConflictMessage' => ({
+        required Object program,
+        required Object day,
+      }) => 'Kamu masih punya sesi "${program}" (Hari ${day}) yang sedang berlangsung. Lanjutkan sesi itu dulu, atau akhiri untuk mulai latihan ini.',
+      'workoutSession.resumePreviousSession' => 'Lanjutkan Sesi Lama',
+      'workoutSession.endPreviousSession' => 'Akhiri Sesi Lama',
+      'workoutSession.completionTitle' => 'Latihan Hari Ini Tuntas! 🎉',
+      'workoutSession.completionDescription' => 'Semua set dan gerakan telah berhasil kamu selesaikan. Istirahatlah dengan baik untuk pemulihan otot.',
+      'workoutSession.durationLabel' => 'Durasi',
+      'workoutSession.exerciseLabel' => 'Gerakan',
+      'workoutSession.exerciseCount' => ({required Object count}) => '${count} gerakan',
+      'workoutSession.totalSetsLabel' => 'Total Set',
+      'workoutSession.totalSetsCount' => ({required Object count}) => '${count} set',
+      'workoutSession.viewSummary' => 'Lihat Ringkasan & Evaluasi ➔',
+      'workoutSession.restartRestTimer' => 'Mulai Ulang Timer Istirahat',
+      'workoutSession.finishSessionNow' => 'Selesaikan Sesi Sekarang',
+      'workoutSession.exitWithoutSaving' => 'Keluar Tanpa Menyimpan',
+      'workoutSession.restTitle' => 'Istirahat',
+      'workoutSession.restNextExercise' => ({
+        required Object exercise,
+      }) => 'Berikutnya: ${exercise}',
+      'workoutSession.restSetProgress' => ({
+        required Object current,
+        required Object total,
+      }) => 'Set ${current} dari ${total}',
+      'workoutSession.restPaused' => 'DIJEDA',
+      'workoutSession.restMinusTenSeconds' => '-10 dtk',
+      'workoutSession.restPlusTenSeconds' => '+10 dtk',
+      'workoutSession.restTipTitle' => 'Tips',
+      'workoutSession.restTipDescription' => 'Tetap bernapas dan jangan lupa minum air.',
+      'workoutSession.skipRest' => 'Lewati Istirahat',
+      'workoutSession.setCompleteTitle' => ({
+        required Object current,
+        required Object total,
+      }) => 'Set ${current} dari ${total} selesai! 🎉',
+      'workoutSession.targetDuration' => ({required Object seconds}) => 'Target: ${seconds} detik',
+      'workoutSession.targetReps' => ({required Object reps}) => 'Target: ${reps} repetisi',
+      'workoutSession.durationCompleted' => 'Durasi Selesai',
+      'workoutSession.repsCompleted' => 'Repetisi Selesai',
+      'workoutSession.durationQuestion' => 'Berapa detik kamu bertahan?',
+      'workoutSession.repsQuestion' => 'Berapa kali kamu berhasil?',
+      'workoutSession.rirTitle' => 'Sisa Tenaga Kamu (RIR - Reps in Reserve)',
+      'workoutSession.rirQuestion' =>
+        'Berapa repetisi lagi yang sanggup kamu lakukan sebelum benar-benar gagal?',
+      'workoutSession.rirFailureTitle' => '0 — Habis Total (Max Failure)',
+      'workoutSession.rirFailureDescription' =>
+        'Tenaga habis total, tidak sanggup menambah 1 repetisi lagi dengan teknik rapi.',
+      'workoutSession.rirVeryHardTitle' => '1 — Sangat Berat',
+      'workoutSession.rirVeryHardDescription' => 'Hanya sanggup 1 repetisi lagi sebelum gagal.',
+      'workoutSession.rirIdealTitle' => '2 — Zona Ideal (Target)',
+      'workoutSession.rirIdealDescription' =>
+        'Cukup menantang, masih bisa 2 repetisi lagi jika dipaksa.',
+      'workoutSession.rirModerateTitle' => '3 — Cukup Ringan',
+      'workoutSession.rirModerateDescription' => 'Masih tersisa 3 repetisi di dalam tangki tenaga.',
+      'workoutSession.rirEasyTitle' => '4+ — Terlalu Mudah',
+      'workoutSession.rirEasyDescription' =>
+        'Sangat enteng, masih sanggup melakukan 4 repetisi atau lebih.',
+      'workoutSession.rirBadgeMax' => 'Maksimal',
+      'workoutSession.rirBadgeHigh' => 'Tinggi',
+      'workoutSession.rirBadgeOptimal' => 'Optimal ⭐',
+      'workoutSession.rirBadgeModerate' => 'Sedang',
+      'workoutSession.rirBadgeEasy' => 'Ringan',
+      'workoutSession.saveAndStartRest' => 'Simpan & Mulai Istirahat',
+      'workoutSession.restSecondsValue' => ({required Object seconds}) => '${seconds} dtk',
+      'workoutSession.durationMinutesValue' => ({required Object value}) => '${value} menit',
+      'workoutSession.savingSession' => 'Menyimpan sesi latihan...',
+      'workoutSession.emptySessionDescription' => 'Daftar latihan untuk sesi ini tidak ditemukan. Silakan kembali untuk memuat ulang program latihan Anda.',
+      'workoutSession.backButtonLabel' => 'Kembali',
+      'workoutSession.finishSessionFailed' => 'Sesi latihan gagal disimpan. Progres yang sudah tercatat tetap tersedia. Silakan coba lagi.',
+      'workoutSession.defaultProgramTitle' => 'Latihan Kekuatan',
       'workouts.title' => 'Latihan',
       'workouts.searchHint' => 'Cari latihan & gerakan...',
       'workouts.tabs.myProgram' => 'Program Saya',

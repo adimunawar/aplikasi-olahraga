@@ -30,6 +30,7 @@ class WorkoutSessionResult {
     this.progressionDecisions = const [],
   });
 
+  int get programDayId => dayNumber;
   int get durationMinutes => (durationSeconds / 60).round();
 }
 
