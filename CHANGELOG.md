@@ -9,7 +9,7 @@ This changelog starts with the documentation baseline for the current portfolio 
 ### Fixed
 
 - Keep the active workout screen open when session finalization fails, with a localized retry action that reuses the same session.
-- Prevent profile lookup and post-completion reads from blocking the workout summary; protect finalization against duplicate completion and session abandonment.
+- Keep profile lookup optional and time-bounded, snapshot early-finish counts before finalization, and prevent duplicate completion or session abandonment races.
 
 ### Documentation
 
