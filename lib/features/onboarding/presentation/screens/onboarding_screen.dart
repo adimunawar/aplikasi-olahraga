@@ -102,8 +102,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     try {
       // The first workout is scheduled on the day the user creates the plan.
       final programStartDate = DateTime.now();
-      final availableDays =
-          ProgramWeekSchedule.availableWeekdaysForFrequency(
+      final availableDays = ProgramWeekSchedule.availableWeekdaysForFrequency(
         startDate: programStartDate,
         frequency: _daysPerWeek,
       );
@@ -209,7 +208,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         setState(() => _targetWeightKg = val),
                   ),
 
-
                   // Step 4: Experience Level
                   StepExperience(
                     selectedLevel: _level,
@@ -313,9 +311,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         color: AppColors.surface,
         border: _currentStep == 0
             ? null
-            : const Border(
-                top: BorderSide(color: Color(0xFFE2E8F0), width: 1),
-              ),
+            : const Border(top: BorderSide(color: Color(0xFFE2E8F0), width: 1)),
         boxShadow: _currentStep == 0
             ? null
             : [
@@ -351,5 +347,4 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       ),
     );
   }
-
 }

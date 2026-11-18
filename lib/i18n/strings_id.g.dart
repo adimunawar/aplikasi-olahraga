@@ -49,16 +49,19 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
   late final Translations _root = this; // ignore: unused_field
 
-  Translations $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) =>
-      Translations(meta: meta ?? this.$meta);
+  Translations $copyWith({
+    TranslationMetadata<AppLocale, Translations>? meta,
+  }) => Translations(meta: meta ?? this.$meta);
 
   // Translations
   late final Translations$core$id core = Translations$core$id.internal(_root);
   late final Translations$home$id home = Translations$home$id.internal(_root);
-  late final Translations$onboarding$id onboarding = Translations$onboarding$id.internal(_root);
+  late final Translations$onboarding$id onboarding =
+      Translations$onboarding$id.internal(_root);
   late final Translations$workoutSession$id workoutSession =
       Translations$workoutSession$id.internal(_root);
-  late final Translations$workouts$id workouts = Translations$workouts$id.internal(_root);
+  late final Translations$workouts$id workouts =
+      Translations$workouts$id.internal(_root);
 }
 
 // Path: core
@@ -72,11 +75,16 @@ class Translations$core$id {
   /// id: 'Home Bulking Coach'
   String get appName => 'Home Bulking Coach';
 
-  late final Translations$core$actions$id actions = Translations$core$actions$id.internal(_root);
-  late final Translations$core$state$id state = Translations$core$state$id.internal(_root);
-  late final Translations$core$badge$id badge = Translations$core$badge$id.internal(_root);
-  late final Translations$core$language$id language = Translations$core$language$id.internal(_root);
-  late final Translations$core$units$id units = Translations$core$units$id.internal(_root);
+  late final Translations$core$actions$id actions =
+      Translations$core$actions$id.internal(_root);
+  late final Translations$core$state$id state =
+      Translations$core$state$id.internal(_root);
+  late final Translations$core$badge$id badge =
+      Translations$core$badge$id.internal(_root);
+  late final Translations$core$language$id language =
+      Translations$core$language$id.internal(_root);
+  late final Translations$core$units$id units =
+      Translations$core$units$id.internal(_root);
 }
 
 // Path: home
@@ -86,19 +94,22 @@ class Translations$home$id {
   final Translations _root; // ignore: unused_field
 
   // Translations
-  late final Translations$home$greeting$id greeting = Translations$home$greeting$id.internal(_root);
-  late final Translations$home$goalCard$id goalCard = Translations$home$goalCard$id.internal(_root);
+  late final Translations$home$greeting$id greeting =
+      Translations$home$greeting$id.internal(_root);
+  late final Translations$home$goalCard$id goalCard =
+      Translations$home$goalCard$id.internal(_root);
   late final Translations$home$todayWorkout$id todayWorkout =
       Translations$home$todayWorkout$id.internal(_root);
-  late final Translations$home$restDay$id restDay = Translations$home$restDay$id.internal(_root);
-  late final Translations$home$noProgram$id noProgram = Translations$home$noProgram$id.internal(
-    _root,
-  );
+  late final Translations$home$restDay$id restDay =
+      Translations$home$restDay$id.internal(_root);
+  late final Translations$home$noProgram$id noProgram =
+      Translations$home$noProgram$id.internal(_root);
   late final Translations$home$weeklyProgress$id weeklyProgress =
       Translations$home$weeklyProgress$id.internal(_root);
   late final Translations$home$supportGoal$id supportGoal =
       Translations$home$supportGoal$id.internal(_root);
-  late final Translations$home$error$id error = Translations$home$error$id.internal(_root);
+  late final Translations$home$error$id error =
+      Translations$home$error$id.internal(_root);
 }
 
 // Path: onboarding
@@ -108,13 +119,14 @@ class Translations$onboarding$id {
   final Translations _root; // ignore: unused_field
 
   // Translations
-  late final Translations$onboarding$nav$id nav = Translations$onboarding$nav$id.internal(_root);
+  late final Translations$onboarding$nav$id nav =
+      Translations$onboarding$nav$id.internal(_root);
   late final Translations$onboarding$welcome$id welcome =
       Translations$onboarding$welcome$id.internal(_root);
-  late final Translations$onboarding$goal$id goal = Translations$onboarding$goal$id.internal(_root);
-  late final Translations$onboarding$about$id about = Translations$onboarding$about$id.internal(
-    _root,
-  );
+  late final Translations$onboarding$goal$id goal =
+      Translations$onboarding$goal$id.internal(_root);
+  late final Translations$onboarding$about$id about =
+      Translations$onboarding$about$id.internal(_root);
   late final Translations$onboarding$bodyTarget$id bodyTarget =
       Translations$onboarding$bodyTarget$id.internal(_root);
   late final Translations$onboarding$experience$id experience =
@@ -127,9 +139,8 @@ class Translations$onboarding$id {
       Translations$onboarding$limitations$id.internal(_root);
   late final Translations$onboarding$creating$id creating =
       Translations$onboarding$creating$id.internal(_root);
-  late final Translations$onboarding$ready$id ready = Translations$onboarding$ready$id.internal(
-    _root,
-  );
+  late final Translations$onboarding$ready$id ready =
+      Translations$onboarding$ready$id.internal(_root);
   late final Translations$onboarding$preview$id preview =
       Translations$onboarding$preview$id.internal(_root);
 }
@@ -147,8 +158,11 @@ class Translations$workoutSession$id {
       'Latihan ${current} dari ${total}';
 
   /// id: 'Set $current dari $total · $target'
-  String setProgress({required Object current, required Object total, required Object target}) =>
-      'Set ${current} dari ${total} · ${target}';
+  String setProgress({
+    required Object current,
+    required Object total,
+    required Object target,
+  }) => 'Set ${current} dari ${total} · ${target}';
 
   /// id: 'repetisi'
   String get repsUnit => 'repetisi';
@@ -175,13 +189,17 @@ class Translations$workoutSession$id {
   String get retry => 'Coba Lagi';
 
   /// id: 'Gagal menyimpan set. Periksa koneksi lalu coba lagi.'
-  String get saveSetFailed => 'Gagal menyimpan set. Periksa koneksi lalu coba lagi.';
+  String get saveSetFailed =>
+      'Gagal menyimpan set. Periksa koneksi lalu coba lagi.';
 
   /// id: 'Ada latihan yang belum selesai'
   String get sessionConflictTitle => 'Ada latihan yang belum selesai';
 
   /// id: 'Kamu masih punya sesi "$program" (Hari $day) yang sedang berlangsung. Lanjutkan sesi itu dulu, atau akhiri untuk mulai latihan ini.'
-  String sessionConflictMessage({required Object program, required Object day}) =>
+  String sessionConflictMessage({
+    required Object program,
+    required Object day,
+  }) =>
       'Kamu masih punya sesi "${program}" (Hari ${day}) yang sedang berlangsung. Lanjutkan sesi itu dulu, atau akhiri untuk mulai latihan ini.';
 
   /// id: 'Lanjutkan Sesi Lama'
@@ -228,7 +246,8 @@ class Translations$workoutSession$id {
   String get restTitle => 'Istirahat';
 
   /// id: 'Berikutnya: $exercise'
-  String restNextExercise({required Object exercise}) => 'Berikutnya: ${exercise}';
+  String restNextExercise({required Object exercise}) =>
+      'Berikutnya: ${exercise}';
 
   /// id: 'Set $current dari $total'
   String restSetProgress({required Object current, required Object total}) =>
@@ -257,7 +276,8 @@ class Translations$workoutSession$id {
       'Set ${current} dari ${total} selesai! 🎉';
 
   /// id: 'Target: $seconds detik'
-  String targetDuration({required Object seconds}) => 'Target: ${seconds} detik';
+  String targetDuration({required Object seconds}) =>
+      'Target: ${seconds} detik';
 
   /// id: 'Target: $reps repetisi'
   String targetReps({required Object reps}) => 'Target: ${reps} repetisi';
@@ -292,25 +312,29 @@ class Translations$workoutSession$id {
   String get rirVeryHardTitle => '1 — Sangat Berat';
 
   /// id: 'Hanya sanggup 1 repetisi lagi sebelum gagal.'
-  String get rirVeryHardDescription => 'Hanya sanggup 1 repetisi lagi sebelum gagal.';
+  String get rirVeryHardDescription =>
+      'Hanya sanggup 1 repetisi lagi sebelum gagal.';
 
   /// id: '2 — Zona Ideal (Target)'
   String get rirIdealTitle => '2 — Zona Ideal (Target)';
 
   /// id: 'Cukup menantang, masih bisa 2 repetisi lagi jika dipaksa.'
-  String get rirIdealDescription => 'Cukup menantang, masih bisa 2 repetisi lagi jika dipaksa.';
+  String get rirIdealDescription =>
+      'Cukup menantang, masih bisa 2 repetisi lagi jika dipaksa.';
 
   /// id: '3 — Cukup Ringan'
   String get rirModerateTitle => '3 — Cukup Ringan';
 
   /// id: 'Masih tersisa 3 repetisi di dalam tangki tenaga.'
-  String get rirModerateDescription => 'Masih tersisa 3 repetisi di dalam tangki tenaga.';
+  String get rirModerateDescription =>
+      'Masih tersisa 3 repetisi di dalam tangki tenaga.';
 
   /// id: '4+ — Terlalu Mudah'
   String get rirEasyTitle => '4+ — Terlalu Mudah';
 
   /// id: 'Sangat enteng, masih sanggup melakukan 4 repetisi atau lebih.'
-  String get rirEasyDescription => 'Sangat enteng, masih sanggup melakukan 4 repetisi atau lebih.';
+  String get rirEasyDescription =>
+      'Sangat enteng, masih sanggup melakukan 4 repetisi atau lebih.';
 
   /// id: 'Maksimal'
   String get rirBadgeMax => 'Maksimal';
@@ -368,7 +392,8 @@ class Translations$workouts$id {
   /// id: 'Cari latihan & gerakan...'
   String get searchHint => 'Cari latihan & gerakan...';
 
-  late final Translations$workouts$tabs$id tabs = Translations$workouts$tabs$id.internal(_root);
+  late final Translations$workouts$tabs$id tabs =
+      Translations$workouts$tabs$id.internal(_root);
   late final Translations$workouts$activeProgram$id activeProgram =
       Translations$workouts$activeProgram$id.internal(_root);
   late final Translations$workouts$weeklySchedule$id weeklySchedule =
@@ -379,14 +404,12 @@ class Translations$workouts$id {
       Translations$workouts$allWorkouts$id.internal(_root);
   late final Translations$workouts$errorState$id errorState =
       Translations$workouts$errorState$id.internal(_root);
-  late final Translations$workouts$session$id session = Translations$workouts$session$id.internal(
-    _root,
-  );
+  late final Translations$workouts$session$id session =
+      Translations$workouts$session$id.internal(_root);
   late final Translations$workouts$workoutDetail$id workoutDetail =
       Translations$workouts$workoutDetail$id.internal(_root);
-  late final Translations$workouts$filter$id filter = Translations$workouts$filter$id.internal(
-    _root,
-  );
+  late final Translations$workouts$filter$id filter =
+      Translations$workouts$filter$id.internal(_root);
   late final Translations$workouts$categories$id categories =
       Translations$workouts$categories$id.internal(_root);
 }
@@ -590,7 +613,8 @@ class Translations$home$restDay$id {
   String get title => 'Hari Ini Istirahat';
 
   /// id: 'Waktunya pemulihan, biarkan ototmu pulih dan berkembang.'
-  String get subtitle => 'Waktunya pemulihan, biarkan ototmu pulih dan berkembang.';
+  String get subtitle =>
+      'Waktunya pemulihan, biarkan ototmu pulih dan berkembang.';
 
   /// id: 'Tips Pemulihan'
   String get recoveryTips => 'Tips Pemulihan';
@@ -654,13 +678,16 @@ class Translations$home$supportGoal$id {
   String get title => 'Dukung Targetmu';
 
   /// id: 'Dapatkan tips nutrisi sederhana untuk pembentukan otot.'
-  String get subtitleGain => 'Dapatkan tips nutrisi sederhana untuk pembentukan otot.';
+  String get subtitleGain =>
+      'Dapatkan tips nutrisi sederhana untuk pembentukan otot.';
 
   /// id: 'Dapatkan tips nutrisi sederhana untuk pembakaran lemak.'
-  String get subtitleLoss => 'Dapatkan tips nutrisi sederhana untuk pembakaran lemak.';
+  String get subtitleLoss =>
+      'Dapatkan tips nutrisi sederhana untuk pembakaran lemak.';
 
   /// id: 'Dapatkan tips pola makan sehat agar tetap fit.'
-  String get subtitleMaintain => 'Dapatkan tips pola makan sehat agar tetap fit.';
+  String get subtitleMaintain =>
+      'Dapatkan tips pola makan sehat agar tetap fit.';
 }
 
 // Path: home.error
@@ -694,7 +721,8 @@ class Translations$onboarding$nav$id {
   // Translations
 
   /// id: '$current dari $total'
-  String progress({required Object current, required Object total}) => '${current} dari ${total}';
+  String progress({required Object current, required Object total}) =>
+      '${current} dari ${total}';
 
   /// id: 'Mulai Sekarang ➔'
   String get getStarted => 'Mulai Sekarang ➔';
@@ -737,7 +765,8 @@ class Translations$onboarding$goal$id {
   String get title => 'Apa tujuan utama kamu?';
 
   /// id: 'Pilih tujuan yang paling sesuai dengan fokus kamu saat ini.'
-  String get subtitle => 'Pilih tujuan yang paling sesuai dengan fokus kamu saat ini.';
+  String get subtitle =>
+      'Pilih tujuan yang paling sesuai dengan fokus kamu saat ini.';
 
   List<GoalOption> get options => [
     Translations$onboarding$goal$options$0$id.internal(_root),
@@ -758,7 +787,8 @@ class Translations$onboarding$about$id {
   String get title => 'Kenalan dulu, yuk';
 
   /// id: 'Kami butuh info dasar untuk mempersonalisasi program kamu.'
-  String get subtitle => 'Kami butuh info dasar untuk mempersonalisasi program kamu.';
+  String get subtitle =>
+      'Kami butuh info dasar untuk mempersonalisasi program kamu.';
 
   /// id: 'Jenis Kelamin'
   String get gender => 'Jenis Kelamin';
@@ -842,7 +872,8 @@ class Translations$onboarding$schedule$id {
   String get title => 'Seberapa sering kamu bisa latihan?';
 
   /// id: 'Pilih jadwal latihan mingguan yang cocok dengan gaya hidup kamu.'
-  String get subtitle => 'Pilih jadwal latihan mingguan yang cocok dengan gaya hidup kamu.';
+  String get subtitle =>
+      'Pilih jadwal latihan mingguan yang cocok dengan gaya hidup kamu.';
 
   /// id: '(other) {$n hari / minggu}'
   String daysPerWeek({required num n}) =>
@@ -919,7 +950,8 @@ class Translations$onboarding$creating$id {
   String get title => 'Membuat\nprogram personal kamu...';
 
   /// id: 'Menganalisis tujuan, data tubuh, preferensi, dan ketersediaan kamu.'
-  String get subtitle => 'Menganalisis tujuan, data tubuh,\npreferensi, dan ketersediaan kamu.';
+  String get subtitle =>
+      'Menganalisis tujuan, data tubuh,\npreferensi, dan ketersediaan kamu.';
 
   List<String> get steps => [
     'Menganalisis profil kamu',
@@ -941,7 +973,8 @@ class Translations$onboarding$ready$id {
   String get title => 'Program kamu siap! 🎉';
 
   /// id: 'Program personal berdasarkan tujuan, profil, dan preferensi kamu.'
-  String get subtitle => 'Program personal berdasarkan\ntujuan, profil, dan preferensi kamu.';
+  String get subtitle =>
+      'Program personal berdasarkan\ntujuan, profil, dan preferensi kamu.';
 
   /// id: '⭐ $weeks Minggu'
   String weeksBadge({required Object weeks}) => '⭐ ${weeks} Minggu';
@@ -1002,11 +1035,15 @@ class Translations$onboarding$preview$id {
   String sessionDuration({required Object n}) => '${n} menit';
 
   /// id: 'LATIHAN DI SESI INI ($count)'
-  String exercisesInSession({required Object count}) => 'LATIHAN DI SESI INI (${count})';
+  String exercisesInSession({required Object count}) =>
+      'LATIHAN DI SESI INI (${count})';
 
   /// id: '$sets set • $reps repetisi • istirahat $rests dtk'
-  String prescription({required Object sets, required Object reps, required Object rests}) =>
-      '${sets} set • ${reps} repetisi • istirahat ${rests} dtk';
+  String prescription({
+    required Object sets,
+    required Object reps,
+    required Object rests,
+  }) => '${sets} set • ${reps} repetisi • istirahat ${rests} dtk';
 }
 
 // Path: workouts.tabs
@@ -1036,7 +1073,8 @@ class Translations$workouts$activeProgram$id {
   String get title => 'Program Aktif';
 
   /// id: '$weeks minggu • Latihan di rumah'
-  String weeksHomeWorkout({required Object weeks}) => '${weeks} minggu • Latihan di rumah';
+  String weeksHomeWorkout({required Object weeks}) =>
+      '${weeks} minggu • Latihan di rumah';
 
   /// id: 'Minggu $current dari $total'
   String weekOf({required Object current, required Object total}) =>
@@ -1068,7 +1106,8 @@ class Translations$workouts$weeklySchedule$id {
   String weekShort({required Object n}) => 'W${n}';
 
   /// id: 'Tidak ada sesi latihan yang dijadwalkan untuk minggu ini.'
-  String get empty => 'Tidak ada sesi latihan yang dijadwalkan untuk minggu ini.';
+  String get empty =>
+      'Tidak ada sesi latihan yang dijadwalkan untuk minggu ini.';
 
   /// id: 'Mode pratinjau'
   String get previewTitle => 'Mode pratinjau';
@@ -1080,7 +1119,8 @@ class Translations$workouts$weeklySchedule$id {
   /// id: 'Pratinjau minggu mendatang'
   String get previewTooltip => 'Pratinjau minggu mendatang';
 
-  late final Translations$workouts$weeklySchedule$statusTooltip$id statusTooltip =
+  late final Translations$workouts$weeklySchedule$statusTooltip$id
+  statusTooltip =
       Translations$workouts$weeklySchedule$statusTooltip$id.internal(_root);
 }
 
@@ -1096,7 +1136,8 @@ class Translations$workouts$emptyState$id {
   String get noProgramTitle => 'Belum ada program aktif';
 
   /// id: 'Buat program untuk melihat jadwal latihan mingguanmu di sini.'
-  String get noProgramSubtitle => 'Buat program untuk melihat jadwal latihan mingguanmu di sini.';
+  String get noProgramSubtitle =>
+      'Buat program untuk melihat jadwal latihan mingguanmu di sini.';
 }
 
 // Path: workouts.allWorkouts
@@ -1129,13 +1170,15 @@ class Translations$workouts$errorState$id {
   String get title => 'Gagal memuat data';
 
   /// id: 'Terjadi kesalahan saat membaca data latihan. Coba lagi.'
-  String get subtitle => 'Terjadi kesalahan saat membaca data latihan. Coba lagi.';
+  String get subtitle =>
+      'Terjadi kesalahan saat membaca data latihan. Coba lagi.';
 
   /// id: 'Coba Lagi'
   String get retry => 'Coba Lagi';
 
   /// id: 'Gagal memperbarui data. Menampilkan data terakhir.'
-  String get refreshFailed => 'Gagal memperbarui data. Menampilkan data terakhir.';
+  String get refreshFailed =>
+      'Gagal memperbarui data. Menampilkan data terakhir.';
 }
 
 // Path: workouts.session
@@ -1150,7 +1193,8 @@ class Translations$workouts$session$id {
   String day({required Object n}) => 'Hari ${n}';
 
   /// id: 'Hari $n • $date'
-  String date({required Object n, required Object date}) => 'Hari ${n} • ${date}';
+  String date({required Object n, required Object date}) =>
+      'Hari ${n} • ${date}';
 
   /// id: '$min mnt'
   String min({required Object min}) => '${min} mnt';
@@ -1259,7 +1303,8 @@ class Translations$onboarding$goal$options$0$id with GoalOption {
   String get title => 'Naikkan Berat & Bangun Otot';
 
   @override
-  String get description => 'Tambah berat badan sambil membangun massa otot (bulking).';
+  String get description =>
+      'Tambah berat badan sambil membangun massa otot (bulking).';
 }
 
 // Path: onboarding.goal.options.1
@@ -1277,7 +1322,8 @@ class Translations$onboarding$goal$options$1$id with GoalOption {
   String get title => 'Turunkan Berat & Kurangi Lemak';
 
   @override
-  String get description => 'Kurangi lemak tubuh tanpa kehilangan otot (cutting).';
+  String get description =>
+      'Kurangi lemak tubuh tanpa kehilangan otot (cutting).';
 }
 
 // Path: onboarding.goal.options.2
@@ -1295,7 +1341,8 @@ class Translations$onboarding$goal$options$2$id with GoalOption {
   String get title => 'Jaga Berat & Tetap Bugar';
 
   @override
-  String get description => 'Pertahankan berat badan dan kebugaran kamu saat ini.';
+  String get description =>
+      'Pertahankan berat badan dan kebugaran kamu saat ini.';
 }
 
 // Path: onboarding.bodyTarget.insight
@@ -1379,7 +1426,8 @@ class Translations$onboarding$experience$options$2$id with ExperienceOption {
   String get title => 'Lanjutan';
 
   @override
-  String get description => 'Latihan konsisten, form sudah bagus, dan ingin tantangan lebih besar.';
+  String get description =>
+      'Latihan konsisten, form sudah bagus, dan ingin tantangan lebih besar.';
 }
 
 // Path: onboarding.equipment.options.0
@@ -1712,9 +1760,15 @@ extension on Translations {
       'core.units.sets' => 'set',
       'core.units.seconds' => 'detik',
       'core.units.kg' => 'kg',
-      'home.greeting.goodMorning' => ({required Object name}) => 'Selamat Pagi, ${name} 👋',
-      'home.greeting.goodAfternoon' => ({required Object name}) => 'Selamat Siang, ${name} 👋',
-      'home.greeting.goodEvening' => ({required Object name}) => 'Selamat Malam, ${name} 👋',
+      'home.greeting.goodMorning' => ({
+        required Object name,
+      }) => 'Selamat Pagi, ${name} 👋',
+      'home.greeting.goodAfternoon' => ({
+        required Object name,
+      }) => 'Selamat Siang, ${name} 👋',
+      'home.greeting.goodEvening' => ({
+        required Object name,
+      }) => 'Selamat Malam, ${name} 👋',
       'home.greeting.subtitle' => 'Tetap konsisten dan capai targetmu!',
       'home.goalCard.goalPrefix' => 'Target:',
       'home.goalCard.gainWeight' => 'Naikkan Berat Badan & Bentuk Otot',
@@ -1722,7 +1776,9 @@ extension on Translations {
       'home.goalCard.maintain' => 'Jaga Berat Badan & Tetap Bugar',
       'home.goalCard.target' => 'Target',
       'home.goalCard.current' => 'Saat Ini',
-      'home.goalCard.programDuration' => ({required Object weeks}) => '${weeks} Minggu Program',
+      'home.goalCard.programDuration' => ({
+        required Object weeks,
+      }) => '${weeks} Minggu Program',
       'home.goalCard.weekOf' => ({
         required Object current,
         required Object total,
@@ -1730,17 +1786,21 @@ extension on Translations {
       'home.todayWorkout.title' => 'Latihan Hari Ini',
       'home.todayWorkout.viewPlan' => 'Lihat Jadwal →',
       'home.todayWorkout.startWorkout' => 'Mulai Latihan',
-      'home.todayWorkout.approxMin' => ({required Object min}) => '≈ ${min} mnt',
-      'home.todayWorkout.approxKcal' => ({required Object kcal}) => '≈ ${kcal} kkal',
+      'home.todayWorkout.approxMin' => ({
+        required Object min,
+      }) => '≈ ${min} mnt',
+      'home.todayWorkout.approxKcal' => ({
+        required Object kcal,
+      }) => '≈ ${kcal} kkal',
       'home.restDay.title' => 'Hari Ini Istirahat',
-      'home.restDay.subtitle' => 'Waktunya pemulihan, biarkan ototmu pulih dan berkembang.',
+      'home.restDay.subtitle' =>
+        'Waktunya pemulihan, biarkan ototmu pulih dan berkembang.',
       'home.restDay.recoveryTips' => 'Tips Pemulihan',
       'home.restDay.hydrate' => 'Cukupi kebutuhan cairan tubuh',
       'home.restDay.sleep' => 'Tidur cukup 7–9 jam',
       'home.restDay.stretch' => 'Lakukan peregangan ringan atau mobilitas',
       'home.noProgram.title' => 'Kamu belum memiliki program latihan',
-      'home.noProgram.subtitle' =>
-        'Buat rencana latihan personal berdasarkan target, profil, dan preferensimu.',
+      'home.noProgram.subtitle' => 'Buat rencana latihan personal berdasarkan target, profil, dan preferensimu.',
       'home.noProgram.createProgram' => 'Buat Program Saya',
       'home.weeklyProgress.title' => 'Kemajuan Minggu Ini',
       'home.weeklyProgress.seeDetails' => 'Lihat Detail →',
@@ -1750,13 +1810,17 @@ extension on Translations {
       'home.weeklyProgress.states.upcoming' => 'Mendatang (belum)',
       'home.weeklyProgress.states.missed' => 'Terlewat',
       'home.supportGoal.title' => 'Dukung Targetmu',
-      'home.supportGoal.subtitleGain' => 'Dapatkan tips nutrisi sederhana untuk pembentukan otot.',
-      'home.supportGoal.subtitleLoss' => 'Dapatkan tips nutrisi sederhana untuk pembakaran lemak.',
-      'home.supportGoal.subtitleMaintain' => 'Dapatkan tips pola makan sehat agar tetap fit.',
+      'home.supportGoal.subtitleGain' =>
+        'Dapatkan tips nutrisi sederhana untuk pembentukan otot.',
+      'home.supportGoal.subtitleLoss' =>
+        'Dapatkan tips nutrisi sederhana untuk pembakaran lemak.',
+      'home.supportGoal.subtitleMaintain' =>
+        'Dapatkan tips pola makan sehat agar tetap fit.',
       'home.error.connectionIssue' => 'Masalah koneksi',
-      'home.error.connectionDesc' =>
-        'Sebagian data tidak dapat dimuat ulang. Menampilkan data terakhir yang tersimpan.',
-      'home.error.lastSynced' => ({required Object time}) => 'Sinkronisasi terakhir: ${time}',
+      'home.error.connectionDesc' => 'Sebagian data tidak dapat dimuat ulang. Menampilkan data terakhir yang tersimpan.',
+      'home.error.lastSynced' => ({
+        required Object time,
+      }) => 'Sinkronisasi terakhir: ${time}',
       'home.error.retry' => 'Coba Lagi',
       'onboarding.nav.progress' => ({
         required Object current,
@@ -1767,10 +1831,10 @@ extension on Translations {
       'onboarding.nav.createMyPlan' => 'Buat Program Saya',
       'onboarding.welcome.brand' => 'Workout\nCoach',
       'onboarding.welcome.title' => 'Coach Latihan\nPribadi Kamu',
-      'onboarding.welcome.subtitle' =>
-        'Dapatkan program latihan sesuai\ntujuan, kondisi tubuh,\ndan gaya hidup kamu.',
+      'onboarding.welcome.subtitle' => 'Dapatkan program latihan sesuai\ntujuan, kondisi tubuh,\ndan gaya hidup kamu.',
       'onboarding.goal.title' => 'Apa tujuan utama kamu?',
-      'onboarding.goal.subtitle' => 'Pilih tujuan yang paling sesuai dengan fokus kamu saat ini.',
+      'onboarding.goal.subtitle' =>
+        'Pilih tujuan yang paling sesuai dengan fokus kamu saat ini.',
       'onboarding.goal.options.0.id' => 'muscle_gain',
       'onboarding.goal.options.0.title' => 'Naikkan Berat & Bangun Otot',
       'onboarding.goal.options.0.description' =>
@@ -1784,7 +1848,8 @@ extension on Translations {
       'onboarding.goal.options.2.description' =>
         'Pertahankan berat badan dan kebugaran kamu saat ini.',
       'onboarding.about.title' => 'Kenalan dulu, yuk',
-      'onboarding.about.subtitle' => 'Kami butuh info dasar untuk mempersonalisasi program kamu.',
+      'onboarding.about.subtitle' =>
+        'Kami butuh info dasar untuk mempersonalisasi program kamu.',
       'onboarding.about.gender' => 'Jenis Kelamin',
       'onboarding.about.male' => 'Pria',
       'onboarding.about.female' => 'Wanita',
@@ -1793,7 +1858,8 @@ extension on Translations {
       'onboarding.about.height' => 'Tinggi',
       'onboarding.about.heightUnit' => 'cm',
       'onboarding.bodyTarget.title' => 'Tubuh & target kamu',
-      'onboarding.bodyTarget.subtitle' => 'Atur berat badan saat ini dan target kamu.',
+      'onboarding.bodyTarget.subtitle' =>
+        'Atur berat badan saat ini dan target kamu.',
       'onboarding.bodyTarget.currentWeight' => 'Berat saat ini',
       'onboarding.bodyTarget.targetWeight' => 'Berat target',
       'onboarding.bodyTarget.unit' => 'kg',
@@ -1812,17 +1878,18 @@ extension on Translations {
         required Object minWeeks,
         required Object maxWeeks,
       }) => 'Penurunan yang sehat sekitar 0,5 - 1,0 kg per minggu (${minWeeks} - ${maxWeeks} minggu).',
-      'onboarding.bodyTarget.insight.maintainHint' =>
-        'Pertahankan berat badan kamu dan fokus pada kepadatan otot serta kekuatan.',
+      'onboarding.bodyTarget.insight.maintainHint' => 'Pertahankan berat badan kamu dan fokus pada kepadatan otot serta kekuatan.',
       'onboarding.experience.title' => 'Bagaimana level latihan kamu?',
-      'onboarding.experience.subtitle' => 'Pilih yang paling menggambarkan kondisi kamu.',
+      'onboarding.experience.subtitle' =>
+        'Pilih yang paling menggambarkan kondisi kamu.',
       'onboarding.experience.options.0.id' => 'beginner',
       'onboarding.experience.options.0.title' => 'Pemula',
       'onboarding.experience.options.0.description' =>
         'Baru mulai latihan atau masih belum konsisten.',
       'onboarding.experience.options.1.id' => 'intermediate',
       'onboarding.experience.options.1.title' => 'Menengah',
-      'onboarding.experience.options.1.description' => 'Sudah punya pengalaman dan rutin latihan.',
+      'onboarding.experience.options.1.description' =>
+        'Sudah punya pengalaman dan rutin latihan.',
       'onboarding.experience.options.2.id' => 'advanced',
       'onboarding.experience.options.2.title' => 'Lanjutan',
       'onboarding.experience.options.2.description' =>
@@ -1831,10 +1898,11 @@ extension on Translations {
       'onboarding.schedule.subtitle' =>
         'Pilih jadwal latihan mingguan yang cocok dengan gaya hidup kamu.',
       'onboarding.schedule.daysPerWeek' =>
-        ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('id'))(
-          n,
-          other: '${n} hari / minggu',
-        ),
+        ({required num n}) =>
+            (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('id'))(
+              n,
+              other: '${n} hari / minggu',
+            ),
       'onboarding.schedule.sessionDuration' => 'Durasi sesi',
       'onboarding.schedule.minutes' => ({required Object n}) => '${n} menit',
       'onboarding.equipment.title' => 'Peralatan apa yang kamu punya?',
@@ -1851,15 +1919,16 @@ extension on Translations {
       'onboarding.equipment.options.4.label' => 'Pull-up Bar',
       'onboarding.equipment.options.5.id' => 'barbell',
       'onboarding.equipment.options.5.label' => 'Barbell',
-      'onboarding.limitations.title' => 'Ada batasan atau hal yang perlu diperhatikan?',
-      'onboarding.limitations.subtitle' =>
-        'Beri tahu kami jika kamu punya kondisi kesehatan atau area yang perlu dihindari.',
+      'onboarding.limitations.title' =>
+        'Ada batasan atau hal yang perlu diperhatikan?',
+      'onboarding.limitations.subtitle' => 'Beri tahu kami jika kamu punya kondisi kesehatan atau area yang perlu dihindari.',
       'onboarding.limitations.options.0.id' => 'none',
       'onboarding.limitations.options.0.label' => 'Tanpa batasan',
       'onboarding.limitations.options.1.id' => 'knee',
       'onboarding.limitations.options.1.label' => 'Lutut (mis. nyeri, cedera)',
       'onboarding.limitations.options.2.id' => 'back',
-      'onboarding.limitations.options.2.label' => 'Punggung (mis. nyeri punggung bawah)',
+      'onboarding.limitations.options.2.label' =>
+        'Punggung (mis. nyeri punggung bawah)',
       'onboarding.limitations.options.3.id' => 'shoulder',
       'onboarding.limitations.options.3.label' => 'Bahu',
       'onboarding.limitations.options.4.id' => 'wrist',
@@ -1876,29 +1945,39 @@ extension on Translations {
       'onboarding.ready.title' => 'Program kamu siap! 🎉',
       'onboarding.ready.subtitle' =>
         'Program personal berdasarkan\ntujuan, profil, dan preferensi kamu.',
-      'onboarding.ready.weeksBadge' => ({required Object weeks}) => '⭐ ${weeks} Minggu',
+      'onboarding.ready.weeksBadge' => ({
+        required Object weeks,
+      }) => '⭐ ${weeks} Minggu',
       'onboarding.ready.daysPerWeek' => 'Hari / Minggu',
       'onboarding.ready.minutesPerSession' => 'Menit / Sesi',
       'onboarding.ready.level' => 'Level',
-      'onboarding.ready.features.0' => 'Membangun otot dan menambah berat badan',
-      'onboarding.ready.features.1' => 'Progressive overload (beban naik bertahap)',
+      'onboarding.ready.features.0' =>
+        'Membangun otot dan menambah berat badan',
+      'onboarding.ready.features.1' =>
+        'Progressive overload (beban naik bertahap)',
       'onboarding.ready.features.2' => 'Dirancang untuk latihan di rumah',
-      'onboarding.ready.features.3' => 'Disesuaikan dengan jadwal dan alat kamu',
+      'onboarding.ready.features.3' =>
+        'Disesuaikan dengan jadwal dan alat kamu',
       'onboarding.ready.viewMyPlan' => 'Lihat Program Saya',
       'onboarding.ready.program.bulking.title' => 'Program Bulking',
       'onboarding.ready.program.bulking.subtitle' => 'Massa Otot & Kekuatan',
       'onboarding.ready.program.cutting.title' => 'Program Turun Lemak',
       'onboarding.ready.program.cutting.subtitle' => 'Turun Lemak & Tonus',
       'onboarding.ready.program.maintain.title' => 'Program Jaga Bugar',
-      'onboarding.ready.program.maintain.subtitle' => 'Kekuatan & Kebugaran Umum',
+      'onboarding.ready.program.maintain.subtitle' =>
+        'Kekuatan & Kebugaran Umum',
       'onboarding.preview.title' => 'Program Latihan Kamu',
       'onboarding.preview.tabOverview' => 'Ringkasan',
       'onboarding.preview.tabWorkoutSplit' => 'Pembagian Latihan',
       'onboarding.preview.loading' => 'Memuat pratinjau program kamu...',
       'onboarding.preview.activateStart' => 'Aktifkan & Mulai Latihan ➔',
       'onboarding.preview.activateDashboard' => 'Aktifkan & Buka Dashboard',
-      'onboarding.preview.sessionFallbackName' => ({required Object n}) => 'Sesi ${n}',
-      'onboarding.preview.sessionDuration' => ({required Object n}) => '${n} menit',
+      'onboarding.preview.sessionFallbackName' => ({
+        required Object n,
+      }) => 'Sesi ${n}',
+      'onboarding.preview.sessionDuration' => ({
+        required Object n,
+      }) => '${n} menit',
       'onboarding.preview.exercisesInSession' => ({
         required Object count,
       }) => 'LATIHAN DI SESI INI (${count})',
@@ -1918,13 +1997,18 @@ extension on Translations {
       }) => 'Set ${current} dari ${total} · ${target}',
       'workoutSession.repsUnit' => 'repetisi',
       'workoutSession.durationUnit' => 'detik',
-      'workoutSession.repsValue' => ({required Object value}) => '${value} repetisi',
-      'workoutSession.durationValue' => ({required Object value}) => '${value} detik',
+      'workoutSession.repsValue' => ({
+        required Object value,
+      }) => '${value} repetisi',
+      'workoutSession.durationValue' => ({
+        required Object value,
+      }) => '${value} detik',
       'workoutSession.completeSet' => 'Selesaikan Set',
       'workoutSession.nextRest' => 'Istirahat berikutnya',
       'workoutSession.preparingSession' => 'Menyiapkan sesi latihan...',
       'workoutSession.retry' => 'Coba Lagi',
-      'workoutSession.saveSetFailed' => 'Gagal menyimpan set. Periksa koneksi lalu coba lagi.',
+      'workoutSession.saveSetFailed' =>
+        'Gagal menyimpan set. Periksa koneksi lalu coba lagi.',
       'workoutSession.sessionConflictTitle' => 'Ada latihan yang belum selesai',
       'workoutSession.sessionConflictMessage' => ({
         required Object program,
@@ -1936,9 +2020,13 @@ extension on Translations {
       'workoutSession.completionDescription' => 'Semua set dan gerakan telah berhasil kamu selesaikan. Istirahatlah dengan baik untuk pemulihan otot.',
       'workoutSession.durationLabel' => 'Durasi',
       'workoutSession.exerciseLabel' => 'Gerakan',
-      'workoutSession.exerciseCount' => ({required Object count}) => '${count} gerakan',
+      'workoutSession.exerciseCount' => ({
+        required Object count,
+      }) => '${count} gerakan',
       'workoutSession.totalSetsLabel' => 'Total Set',
-      'workoutSession.totalSetsCount' => ({required Object count}) => '${count} set',
+      'workoutSession.totalSetsCount' => ({
+        required Object count,
+      }) => '${count} set',
       'workoutSession.viewSummary' => 'Lihat Ringkasan & Evaluasi ➔',
       'workoutSession.restartRestTimer' => 'Mulai Ulang Timer Istirahat',
       'workoutSession.finishSessionNow' => 'Selesaikan Sesi Sekarang',
@@ -1955,31 +2043,36 @@ extension on Translations {
       'workoutSession.restMinusTenSeconds' => '-10 dtk',
       'workoutSession.restPlusTenSeconds' => '+10 dtk',
       'workoutSession.restTipTitle' => 'Tips',
-      'workoutSession.restTipDescription' => 'Tetap bernapas dan jangan lupa minum air.',
+      'workoutSession.restTipDescription' =>
+        'Tetap bernapas dan jangan lupa minum air.',
       'workoutSession.skipRest' => 'Lewati Istirahat',
       'workoutSession.setCompleteTitle' => ({
         required Object current,
         required Object total,
       }) => 'Set ${current} dari ${total} selesai! 🎉',
-      'workoutSession.targetDuration' => ({required Object seconds}) => 'Target: ${seconds} detik',
-      'workoutSession.targetReps' => ({required Object reps}) => 'Target: ${reps} repetisi',
+      'workoutSession.targetDuration' => ({
+        required Object seconds,
+      }) => 'Target: ${seconds} detik',
+      'workoutSession.targetReps' => ({
+        required Object reps,
+      }) => 'Target: ${reps} repetisi',
       'workoutSession.durationCompleted' => 'Durasi Selesai',
       'workoutSession.repsCompleted' => 'Repetisi Selesai',
       'workoutSession.durationQuestion' => 'Berapa detik kamu bertahan?',
       'workoutSession.repsQuestion' => 'Berapa kali kamu berhasil?',
       'workoutSession.rirTitle' => 'Sisa Tenaga Kamu (RIR - Reps in Reserve)',
-      'workoutSession.rirQuestion' =>
-        'Berapa repetisi lagi yang sanggup kamu lakukan sebelum benar-benar gagal?',
+      'workoutSession.rirQuestion' => 'Berapa repetisi lagi yang sanggup kamu lakukan sebelum benar-benar gagal?',
       'workoutSession.rirFailureTitle' => '0 — Habis Total (Max Failure)',
-      'workoutSession.rirFailureDescription' =>
-        'Tenaga habis total, tidak sanggup menambah 1 repetisi lagi dengan teknik rapi.',
+      'workoutSession.rirFailureDescription' => 'Tenaga habis total, tidak sanggup menambah 1 repetisi lagi dengan teknik rapi.',
       'workoutSession.rirVeryHardTitle' => '1 — Sangat Berat',
-      'workoutSession.rirVeryHardDescription' => 'Hanya sanggup 1 repetisi lagi sebelum gagal.',
+      'workoutSession.rirVeryHardDescription' =>
+        'Hanya sanggup 1 repetisi lagi sebelum gagal.',
       'workoutSession.rirIdealTitle' => '2 — Zona Ideal (Target)',
       'workoutSession.rirIdealDescription' =>
         'Cukup menantang, masih bisa 2 repetisi lagi jika dipaksa.',
       'workoutSession.rirModerateTitle' => '3 — Cukup Ringan',
-      'workoutSession.rirModerateDescription' => 'Masih tersisa 3 repetisi di dalam tangki tenaga.',
+      'workoutSession.rirModerateDescription' =>
+        'Masih tersisa 3 repetisi di dalam tangki tenaga.',
       'workoutSession.rirEasyTitle' => '4+ — Terlalu Mudah',
       'workoutSession.rirEasyDescription' =>
         'Sangat enteng, masih sanggup melakukan 4 repetisi atau lebih.',
@@ -1989,8 +2082,12 @@ extension on Translations {
       'workoutSession.rirBadgeModerate' => 'Sedang',
       'workoutSession.rirBadgeEasy' => 'Ringan',
       'workoutSession.saveAndStartRest' => 'Simpan & Mulai Istirahat',
-      'workoutSession.restSecondsValue' => ({required Object seconds}) => '${seconds} dtk',
-      'workoutSession.durationMinutesValue' => ({required Object value}) => '${value} menit',
+      'workoutSession.restSecondsValue' => ({
+        required Object seconds,
+      }) => '${seconds} dtk',
+      'workoutSession.durationMinutesValue' => ({
+        required Object value,
+      }) => '${value} menit',
       'workoutSession.savingSession' => 'Menyimpan sesi latihan...',
       'workoutSession.emptySessionDescription' => 'Daftar latihan untuk sesi ini tidak ditemukan. Silakan kembali untuk memuat ulang program latihan Anda.',
       'workoutSession.backButtonLabel' => 'Kembali',
@@ -2008,7 +2105,9 @@ extension on Translations {
         required Object current,
         required Object total,
       }) => 'Minggu ${current} dari ${total}',
-      'workouts.activeProgram.status.notStarted' => ({required Object date}) => 'Dimulai ${date}',
+      'workouts.activeProgram.status.notStarted' => ({
+        required Object date,
+      }) => 'Dimulai ${date}',
       'workouts.activeProgram.status.completed' => 'Program selesai',
       'workouts.activeProgram.status.expired' => 'Program berakhir',
       'workouts.weeklySchedule.title' => 'Jadwal Mingguan',
@@ -2021,22 +2120,27 @@ extension on Translations {
       'workouts.weeklySchedule.empty' =>
         'Tidak ada sesi latihan yang dijadwalkan untuk minggu ini.',
       'workouts.weeklySchedule.previewTitle' => 'Mode pratinjau',
-      'workouts.weeklySchedule.previewNotice' =>
-        'Kamu bisa melihat rencana minggu ini, tapi latihan baru bisa dimulai sesuai jadwalnya.',
+      'workouts.weeklySchedule.previewNotice' => 'Kamu bisa melihat rencana minggu ini, tapi latihan baru bisa dimulai sesuai jadwalnya.',
       'workouts.weeklySchedule.previewTooltip' => 'Pratinjau minggu mendatang',
-      'workouts.weeklySchedule.statusTooltip.completed' => 'Semua latihan selesai',
-      'workouts.weeklySchedule.statusTooltip.partial' => 'Sebagian latihan selesai',
-      'workouts.weeklySchedule.statusTooltip.missed' => 'Ada latihan yang terlewat',
+      'workouts.weeklySchedule.statusTooltip.completed' =>
+        'Semua latihan selesai',
+      'workouts.weeklySchedule.statusTooltip.partial' =>
+        'Sebagian latihan selesai',
+      'workouts.weeklySchedule.statusTooltip.missed' =>
+        'Ada latihan yang terlewat',
       'workouts.emptyState.noProgramTitle' => 'Belum ada program aktif',
       'workouts.emptyState.noProgramSubtitle' =>
         'Buat program untuk melihat jadwal latihan mingguanmu di sini.',
       'workouts.allWorkouts.emptyTitle' => 'Tidak ada latihan ditemukan',
-      'workouts.allWorkouts.emptySubtitle' => 'Coba kata kunci lain atau ubah filter otot.',
+      'workouts.allWorkouts.emptySubtitle' =>
+        'Coba kata kunci lain atau ubah filter otot.',
       'workouts.allWorkouts.clearFilters' => 'Hapus pencarian & filter',
       'workouts.errorState.title' => 'Gagal memuat data',
-      'workouts.errorState.subtitle' => 'Terjadi kesalahan saat membaca data latihan. Coba lagi.',
+      'workouts.errorState.subtitle' =>
+        'Terjadi kesalahan saat membaca data latihan. Coba lagi.',
       'workouts.errorState.retry' => 'Coba Lagi',
-      'workouts.errorState.refreshFailed' => 'Gagal memperbarui data. Menampilkan data terakhir.',
+      'workouts.errorState.refreshFailed' =>
+        'Gagal memperbarui data. Menampilkan data terakhir.',
       'workouts.session.day' => ({required Object n}) => 'Hari ${n}',
       'workouts.session.date' => ({
         required Object n,
@@ -2049,8 +2153,7 @@ extension on Translations {
       'workouts.session.status.missed' => 'Terlewat',
       'workouts.session.status.scheduled' => 'Terjadwal',
       'workouts.workoutDetail.readOnlyTitle' => 'Mode pratinjau',
-      'workouts.workoutDetail.readOnlyNotice' =>
-        'Rencana latihan ini hanya bisa dilihat. Tombol mulai aktif pada hari yang dijadwalkan.',
+      'workouts.workoutDetail.readOnlyNotice' => 'Rencana latihan ini hanya bisa dilihat. Tombol mulai aktif pada hari yang dijadwalkan.',
       'workouts.workoutDetail.resume' => 'Lanjutkan Latihan',
       'workouts.filter.title' => 'Filter Berdasarkan Otot',
       'workouts.categories.all' => 'Semua',
