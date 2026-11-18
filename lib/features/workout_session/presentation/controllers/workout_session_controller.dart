@@ -58,6 +58,11 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
 
   String? get sessionId => _sessionId;
 
+  /// Number of distinct exercises with at least one persisted completed set.
+  /// Read before finalization so summary navigation never needs another query.
+  int get completedExerciseCount =>
+      _recordedSets.map((set) => set.exerciseId).toSet().length;
+
   WorkoutExercisePrescription _prescriptionFor(String? exerciseId) {
     if (exerciseId == null) return _defaultPrescription;
     return _prescriptions[exerciseId] ?? _defaultPrescription;
@@ -494,6 +499,11 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
     required int totalExercises,
     bool isEndingEarly = false,
   }) async {
+    // Protect the repository operation even if a caller bypasses the screen.
+    if (state.isSaving) return null;
+    final completedResult = state.completedResult;
+    if (completedResult != null) return completedResult;
+
     state = state.copyWith(isSaving: true);
     try {
       // Hitung dari catatan aktual, bukan posisi exercise/set saat ini.
@@ -545,6 +555,9 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
 
   /// Menandai sesi aktif sebagai abandoned saat user keluar tanpa menyimpan.
   Future<void> abandonActiveSession() async {
+    // Abandon must never race with finalization or undo a completed session.
+    if (state.isSaving || state.completedResult != null) return;
+
     final id = _sessionId;
     _sessionId = null;
     if (id == null) return;
