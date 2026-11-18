@@ -582,12 +582,13 @@ void main() {
           container.read(workoutSessionControllerProvider).isSaving,
           isTrue,
         );
-        expect(await controller0.finishWorkoutSession(
+        final duplicateAttempt = await controller0.finishWorkoutSession(
           programId: 'program_1',
           dayNumber: 1,
           programTitle: 'Upper Body',
           totalExercises: 2,
-        ), isNull);
+        );
+        expect(duplicateAttempt, isNull);
 
         await controller0.abandonActiveSession();
         expect(repository.abandonedIds, isEmpty);
@@ -599,6 +600,20 @@ void main() {
         expect(result, isNotNull);
         expect(repository.completionAttemptSessionIds, [sessionId]);
         expect(controller0.sessionId, isNull);
+
+        // Completed sessions cannot be finalized or abandoned a second time.
+        expect(
+          await controller0.finishWorkoutSession(
+            programId: 'program_1',
+            dayNumber: 1,
+            programTitle: 'Upper Body',
+            totalExercises: 2,
+          ),
+          same(result),
+        );
+        await controller0.abandonActiveSession();
+        expect(repository.abandonedIds, isEmpty);
+        expect(repository.completionAttemptSessionIds, [sessionId]);
       },
     );
 
