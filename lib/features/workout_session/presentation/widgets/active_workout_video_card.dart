@@ -29,6 +29,7 @@ class ActiveWorkoutVideoCard extends StatefulWidget {
 
 class _ActiveWorkoutVideoCardState extends State<ActiveWorkoutVideoCard> {
   VideoPlayerController? _controller;
+  int _initGeneration = 0;
   bool _isLoading = false;
   bool _hasError = false;
 
@@ -47,41 +48,38 @@ class _ActiveWorkoutVideoCardState extends State<ActiveWorkoutVideoCard> {
   }
 
   Future<void> _initializeVideo() async {
+    final int currentGeneration = ++_initGeneration;
     final rawUrl = widget.videoUrl?.trim();
     final url = MediaUrlResolver.resolve(rawUrl);
-    debugPrint(
-      '[ActiveWorkoutVideoCard] 🎬 Inisialisasi video active workout:',
-    );
-    debugPrint('[ActiveWorkoutVideoCard] 👉 Raw URL: $rawUrl');
-    debugPrint('[ActiveWorkoutVideoCard] 👉 Resolved URL: $url');
-    debugPrint(
-      '[ActiveWorkoutVideoCard] 👉 Poster Image: ${widget.imageAsset}',
-    );
 
     if (url == null || url.isEmpty) {
-      debugPrint(
-        '[ActiveWorkoutVideoCard] ⚠️ Video URL kosong, menampilkan gambar poster.',
-      );
       await _disposeController();
-      if (mounted) setState(() {});
+      if (mounted && currentGeneration == _initGeneration) {
+        setState(() {
+          _isLoading = false;
+          _hasError = false;
+        });
+      }
       return;
     }
 
     await _disposeController();
 
-    if (!mounted) return;
+    if (!mounted || currentGeneration != _initGeneration) return;
+
     setState(() {
       _isLoading = true;
       _hasError = false;
     });
 
-    try {
-      final controller = _createController(url);
-      _controller = controller;
+    final controller = _createController(url);
 
-      debugPrint('[ActiveWorkoutVideoCard] ⏳ Menghubungi server media...');
+    try {
       await controller.initialize();
-      if (!mounted) return;
+      if (!mounted || currentGeneration != _initGeneration) {
+        await controller.dispose();
+        return;
+      }
 
       await controller.setLooping(true);
       await controller.setVolume(
@@ -91,19 +89,18 @@ class _ActiveWorkoutVideoCardState extends State<ActiveWorkoutVideoCard> {
         await controller.play();
       }
 
-      debugPrint(
-        '[ActiveWorkoutVideoCard] ✅ Video BERHASIL diputar! Size: ${controller.value.size}',
-      );
-
-      if (mounted) {
+      if (mounted && currentGeneration == _initGeneration) {
+        _controller = controller;
         setState(() {
           _isLoading = false;
           _hasError = false;
         });
+      } else {
+        await controller.dispose();
       }
     } catch (e) {
-      debugPrint('[ActiveWorkoutVideoCard] ❌ GAGAL memuat video ($url): $e');
-      if (mounted) {
+      await controller.dispose();
+      if (mounted && currentGeneration == _initGeneration) {
         setState(() {
           _isLoading = false;
           _hasError = true;
@@ -142,7 +139,8 @@ class _ActiveWorkoutVideoCardState extends State<ActiveWorkoutVideoCard> {
 
   @override
   void dispose() {
-    _controller?.dispose();
+    _initGeneration++;
+    _disposeController();
     super.dispose();
   }
 

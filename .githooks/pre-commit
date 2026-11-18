@@ -1,0 +1,17 @@
+#!/bin/sh
+echo "🔍 Running flutter analyze before commit..."
+
+# Run flutter analyze without fetching pub packages
+flutter analyze --no-pub
+
+RESULT=$?
+
+if [ $RESULT -ne 0 ]; then
+  echo ""
+  echo "❌ COMMIT ABORTED: Found warnings or errors in flutter analyze!"
+  echo "👉 Please resolve the issues above before committing."
+  exit 1
+fi
+
+echo "✅ flutter analyze passed, proceeding with commit..."
+exit 0
