@@ -14,7 +14,12 @@ class ExerciseRemoteDatasource {
   /// Mengambil semua latihan dari Supabase
   Future<List<ExerciseEntity>> fetchExercisesFromCloud() async {
     final client = SupabaseConfig.client;
-    if (client == null) return [];
+    if (client == null) {
+      debugPrint(
+        '[ExerciseRemoteDatasource] ⚠️ SupabaseConfig.client bernilai NULL! (isInitialized = ${SupabaseConfig.isInitialized})',
+      );
+      return [];
+    }
 
     try {
       final response = await client
@@ -23,8 +28,25 @@ class ExerciseRemoteDatasource {
           .order('id', ascending: true);
 
       final List<dynamic> data = response as List<dynamic>;
+      debugPrint(
+        '[ExerciseRemoteDatasource] ☁️ Berhasil fetch ${data.length} exercises dari Supabase Cloud.',
+      );
+      for (final item in data) {
+        final m = Map<String, dynamic>.from(item as Map);
+        final vUrl =
+            m['video_url'] ??
+            (m['media'] is Map ? m['media']['video_url'] : null);
+        if (vUrl != null) {
+          debugPrint('  👉 [Supabase Cloud] ${m['id']} video_url: $vUrl');
+        }
+      }
+
       return data.map((json) {
         final map = Map<String, dynamic>.from(json);
+        final vUrl =
+            (map['video_url'] ??
+                    (map['media'] is Map ? map['media']['video_url'] : null))
+                ?.toString();
         return ExerciseEntity(
           id: map['id']?.toString() ?? '',
           nameId: map['name_id']?.toString() ?? '',
@@ -51,29 +73,35 @@ class ExerciseRemoteDatasource {
               : jsonEncode(map['steps_en'] ?? []),
           commonMistakesIdJson: map['common_mistakes_id'] != null
               ? (map['common_mistakes_id'] is String
-                  ? map['common_mistakes_id'] as String
-                  : jsonEncode(map['common_mistakes_id']))
+                    ? map['common_mistakes_id'] as String
+                    : jsonEncode(map['common_mistakes_id']))
               : null,
           commonMistakesEnJson: map['common_mistakes_en'] != null
               ? (map['common_mistakes_en'] is String
-                  ? map['common_mistakes_en'] as String
-                  : jsonEncode(map['common_mistakes_en']))
+                    ? map['common_mistakes_en'] as String
+                    : jsonEncode(map['common_mistakes_en']))
               : null,
           breathingTipsId: map['breathing_tips_id']?.toString(),
           breathingTipsEn: map['breathing_tips_en']?.toString(),
           startPoseAsset: map['start_pose_asset']?.toString(),
           endPoseAsset: map['end_pose_asset']?.toString(),
           animationAsset: map['animation_asset']?.toString(),
-          videoUrl: map['video_url']?.toString(),
+          videoUrl: vUrl,
           isCustom: map['is_custom'] == true || map['is_custom'] == 1,
           isFavorite: map['is_favorite'] == true || map['is_favorite'] == 1,
           createdByUserId: map['created_by_user_id']?.toString(),
-          createdAt: DateTime.tryParse(map['created_at']?.toString() ?? '') ?? DateTime.now(),
-          updatedAt: DateTime.tryParse(map['updated_at']?.toString() ?? '') ?? DateTime.now(),
+          createdAt:
+              DateTime.tryParse(map['created_at']?.toString() ?? '') ??
+              DateTime.now(),
+          updatedAt:
+              DateTime.tryParse(map['updated_at']?.toString() ?? '') ??
+              DateTime.now(),
         );
       }).toList();
     } catch (e) {
-      debugPrint('[ExerciseRemoteDatasource] Gagal fetch exercises dari Supabase: $e');
+      debugPrint(
+        '[ExerciseRemoteDatasource] Gagal fetch exercises dari Supabase: $e',
+      );
       return [];
     }
   }
@@ -84,8 +112,9 @@ class ExerciseRemoteDatasource {
     if (cloudEntities.isEmpty) return false;
 
     await localDatasource.saveExercisesFromCloud(cloudEntities);
-    debugPrint('[ExerciseRemoteDatasource] Berhasil sync ${cloudEntities.length} exercises dari Cloud ke SQLite.');
+    debugPrint(
+      '[ExerciseRemoteDatasource] Berhasil sync ${cloudEntities.length} exercises dari Cloud ke SQLite.',
+    );
     return true;
   }
 }
-

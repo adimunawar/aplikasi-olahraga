@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -139,7 +139,7 @@ class WeeklyProgressCalendarCard extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: isToday ? 8 : 4,
+        horizontal: isToday ? 5 : 2,
         vertical: isToday ? 6 : 4,
       ),
       decoration: isToday
@@ -153,21 +153,27 @@ class WeeklyProgressCalendarCard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           // Nama Hari (Mon, Tue, Wed, ...)
-          Text(
-            day.dayName,
-            style: AppTypography.bodySmall.copyWith(
-              fontSize: 11,
-              fontWeight: isToday ? FontWeight.w800 : FontWeight.w600,
-              color: isToday ? AppColors.darkCharcoal : AppColors.neutral500,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              day.dayName,
+              style: AppTypography.bodySmall.copyWith(
+                fontSize: 11,
+                fontWeight: isToday ? FontWeight.w800 : FontWeight.w600,
+                color: isToday ? AppColors.darkCharcoal : AppColors.neutral500,
+              ),
             ),
           ),
           const SizedBox(height: 2),
-          Text(
-            DateFormat('d', locale).format(day.date),
-            style: AppTypography.bodySmall.copyWith(
-              fontSize: 10,
-              fontWeight: isToday ? FontWeight.w800 : FontWeight.w500,
-              color: isToday ? AppColors.darkCharcoal : AppColors.neutral500,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              DateFormat('d', locale).format(day.date),
+              style: AppTypography.bodySmall.copyWith(
+                fontSize: 10,
+                fontWeight: isToday ? FontWeight.w800 : FontWeight.w500,
+                color: isToday ? AppColors.darkCharcoal : AppColors.neutral500,
+              ),
             ),
           ),
           const SizedBox(height: 6),

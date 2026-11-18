@@ -1,12 +1,15 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../i18n/strings.g.dart';
 
+import 'user_avatar.dart';
+
 /// Header Sapaan Pengguna & Notifikasi (Mockup 1:1)
 class HomeGreetingHeader extends StatelessWidget {
   final String userName;
+  final String? avatarUrl;
   final VoidCallback? onNotificationTap;
   final VoidCallback? onProfileTap;
   final bool hasUnreadNotification;
@@ -14,6 +17,7 @@ class HomeGreetingHeader extends StatelessWidget {
   const HomeGreetingHeader({
     super.key,
     required this.userName,
+    this.avatarUrl,
     this.onNotificationTap,
     this.onProfileTap,
     this.hasUnreadNotification = true,
@@ -38,23 +42,12 @@ class HomeGreetingHeader extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: Row(
         children: [
-          // 1. Avatar Pengguna
-          // TODO: - Change to actual user image from API
-          GestureDetector(
+          // 1. Avatar Pengguna dengan Fallback Inisial Nama (Phase C Point 1)
+          UserAvatar(
+            displayName: userName,
+            avatarUrl: avatarUrl,
+            radius: 23,
             onTap: onProfileTap,
-            child: Container(
-              width: 46,
-              height: 46,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.neutral200, width: 1.5),
-                image: const DecorationImage(
-                  image: AssetImage('assets/images/coach_crossed_arms.png'),
-                  fit: BoxFit.cover,
-                  alignment: Alignment.topCenter,
-                ),
-              ),
-            ),
           ),
           const SizedBox(width: 12),
 

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../../../../core/theme/app_typography.dart';
 
 /// Hero Banner pada Layar Workout Detail (Mockup 1:1):
@@ -58,7 +58,7 @@ class WorkoutDetailHeroBanner extends StatelessWidget {
                 'assets/images/coach_crossed_arms.png',
                 fit: BoxFit.contain,
                 alignment: Alignment.bottomRight,
-                errorBuilder: (_, __, ___) => Image.asset(
+                errorBuilder: (_, _, _) => Image.asset(
                   'assets/images/coach_hero.png',
                   fit: BoxFit.contain,
                   alignment: Alignment.bottomRight,

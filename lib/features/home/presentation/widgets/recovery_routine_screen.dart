@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class _RecoveryMovement {
   final String title;
@@ -8,6 +8,8 @@ class _RecoveryMovement {
   final IconData icon;
   final int durationSeconds;
   final String instruction;
+  final String targetArea;
+  final List<String> tips;
 
   const _RecoveryMovement({
     required this.title,
@@ -15,6 +17,8 @@ class _RecoveryMovement {
     required this.icon,
     required this.durationSeconds,
     required this.instruction,
+    required this.targetArea,
+    required this.tips,
   });
 }
 
@@ -24,21 +28,39 @@ const _recoveryMovements = <_RecoveryMovement>[
     description: 'Gentle spine mobility',
     icon: Icons.accessibility_new_rounded,
     durationSeconds: 60,
-    instruction: 'Move slowly between a gentle arch and a rounded back. Keep the movement comfortable and pain-free.',
+    instruction:
+        'Lengkungkan tulang belakang ke atas saat menghembuskan napas, lalu turunkan perut dan angkat dagu saat menarik napas.',
+    targetArea: 'Spine & Lower Back',
+    tips: [
+      'Jaga ritme napas lambat & dalam',
+      'Jangan paksakan sudut lengkungan berlebih',
+    ],
   ),
   _RecoveryMovement(
     title: 'Shoulder Mobility',
     description: 'Gentle shoulder movement',
     icon: Icons.accessibility_rounded,
     durationSeconds: 60,
-    instruction: 'Make slow, controlled shoulder circles. Keep your range of motion comfortable.',
+    instruction:
+        'Putar kedua bahu ke belakang dalam lingkaran penuh secara perlahan. Rasakan otot belikat saling merapat.',
+    targetArea: 'Shoulders & Rotator Cuff',
+    tips: [
+      'Rilekskan rahang dan leher',
+      'Tarik napas saat bahu naik, buang saat turun',
+    ],
   ),
   _RecoveryMovement(
     title: 'Hip Flexor Stretch',
     description: 'Gentle hip mobility',
     icon: Icons.directions_walk_rounded,
     durationSeconds: 60,
-    instruction: 'Use a supported split stance, gently shift your hips forward, and avoid forcing the stretch.',
+    instruction:
+        'Ambil posisi lunge ringan, dorong panggul lembut ke depan hingga terasa regangan nyaman di pangkal paha.',
+    targetArea: 'Hip Flexors & Quads',
+    tips: [
+      'Jaga dada tetap tegak',
+      'Tahan posisi stabil tanpa memantul-mantul',
+    ],
   ),
 ];
 
@@ -80,7 +102,9 @@ class RecoveryRoutineScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    isIndonesian ? 'Peregangan ringan & mobilitas' : 'Light Stretching & Mobility',
+                    isIndonesian
+                        ? 'Peregangan ringan & mobilitas'
+                        : 'Light Stretching & Mobility',
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 20,
@@ -91,7 +115,7 @@ class RecoveryRoutineScreen extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     isIndonesian
-                        ? 'Gerakan ringan untuk membantu tubuh rileks pada hari pemulihan.'
+                        ? 'Gerakan ringan untuk membantu otot rileks & melancarkan sirkulasi pada hari pemulihan.'
                         : 'A gentle sequence to help you move comfortably on a recovery day.',
                     textAlign: TextAlign.center,
                     style: const TextStyle(
@@ -136,12 +160,12 @@ class RecoveryRoutineScreen extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             ..._recoveryMovements.asMap().entries.map(
-              (entry) => _MovementPreview(
-                index: entry.key + 1,
-                movement: entry.value,
-                isIndonesian: isIndonesian,
-              ),
-            ),
+                  (entry) => _MovementPreview(
+                    index: entry.key + 1,
+                    movement: entry.value,
+                    isIndonesian: isIndonesian,
+                  ),
+                ),
             const SizedBox(height: 18),
             SizedBox(
               height: 52,
@@ -200,8 +224,12 @@ class _RoutineMeta extends StatelessWidget {
           children: [
             Icon(icon, color: const Color(0xFF75A900), size: 19),
             const SizedBox(height: 5),
-            Text(value, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12)),
-            Text(label, style: const TextStyle(fontSize: 10, color: Color(0xFF687064))),
+            Text(value,
+                style:
+                    const TextStyle(fontWeight: FontWeight.w800, fontSize: 12)),
+            Text(label,
+                style:
+                    const TextStyle(fontSize: 10, color: Color(0xFF687064))),
           ],
         ),
       ),
@@ -239,7 +267,8 @@ class _MovementPreview extends StatelessWidget {
               color: const Color(0xFFF1F8E2),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(movement.icon, color: const Color(0xFF75A900), size: 24),
+            child:
+                Icon(movement.icon, color: const Color(0xFF75A900), size: 24),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -257,7 +286,8 @@ class _MovementPreview extends StatelessWidget {
                 const SizedBox(height: 3),
                 Text(
                   movement.description,
-                  style: const TextStyle(fontSize: 11, color: Color(0xFF687064)),
+                  style:
+                      const TextStyle(fontSize: 11, color: Color(0xFF687064)),
                 ),
               ],
             ),
@@ -273,31 +303,59 @@ class _MovementPreview extends StatelessWidget {
   }
 }
 
+/// Sesi Terpandu Rutinitas Pemulihan dengan Animasi & Ilustrasi Lengkap (Phase C Point 4)
 class RecoveryGuidedSessionScreen extends StatefulWidget {
   const RecoveryGuidedSessionScreen({super.key});
 
   @override
-  State<RecoveryGuidedSessionScreen> createState() => _RecoveryGuidedSessionScreenState();
+  State<RecoveryGuidedSessionScreen> createState() =>
+      _RecoveryGuidedSessionScreenState();
 }
 
-class _RecoveryGuidedSessionScreenState extends State<RecoveryGuidedSessionScreen> {
+class _RecoveryGuidedSessionScreenState
+    extends State<RecoveryGuidedSessionScreen>
+    with SingleTickerProviderStateMixin {
   Timer? _timer;
   int _currentIndex = 0;
   int _remainingSeconds = 60;
   bool _isPaused = false;
   bool _isCompleted = false;
 
+  late AnimationController _breathingController;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _glowAnimation;
+
   _RecoveryMovement get _currentMovement => _recoveryMovements[_currentIndex];
 
   @override
   void initState() {
     super.initState();
+    _breathingController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 4),
+    )..repeat(reverse: true);
+
+    _scaleAnimation = Tween<double>(begin: 0.94, end: 1.06).animate(
+      CurvedAnimation(
+        parent: _breathingController,
+        curve: Curves.easeInOutSine,
+      ),
+    );
+
+    _glowAnimation = Tween<double>(begin: 0.2, end: 0.7).animate(
+      CurvedAnimation(
+        parent: _breathingController,
+        curve: Curves.easeInOutSine,
+      ),
+    );
+
     _startTimer();
   }
 
   @override
   void dispose() {
     _timer?.cancel();
+    _breathingController.dispose();
     super.dispose();
   }
 
@@ -314,7 +372,14 @@ class _RecoveryGuidedSessionScreenState extends State<RecoveryGuidedSessionScree
   }
 
   void _togglePause() {
-    setState(() => _isPaused = !_isPaused);
+    setState(() {
+      _isPaused = !_isPaused;
+      if (_isPaused) {
+        _breathingController.stop();
+      } else {
+        _breathingController.repeat(reverse: true);
+      }
+    });
   }
 
   void _advanceMovement() {
@@ -325,6 +390,7 @@ class _RecoveryGuidedSessionScreenState extends State<RecoveryGuidedSessionScree
       });
     } else {
       _timer?.cancel();
+      _breathingController.stop();
       setState(() {
         _remainingSeconds = 0;
         _isCompleted = true;
@@ -346,7 +412,8 @@ class _RecoveryGuidedSessionScreenState extends State<RecoveryGuidedSessionScree
     final isIndonesian = Localizations.localeOf(context).languageCode == 'id';
     final progress = _isCompleted
         ? 1.0
-        : (_currentIndex + (1 - _remainingSeconds / _currentMovement.durationSeconds)) /
+        : (_currentIndex +
+                (1 - _remainingSeconds / _currentMovement.durationSeconds)) /
             _recoveryMovements.length;
 
     return Scaffold(
@@ -379,23 +446,26 @@ class _RecoveryGuidedSessionScreenState extends State<RecoveryGuidedSessionScree
       body: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
           child: _isCompleted
               ? _buildCompletion(context, isIndonesian)
               : Column(
                   children: [
+                    // Header Status Waktu & Index Gerakan
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           '${_remainingSeconds ~/ 60}:${(_remainingSeconds % 60).toString().padLeft(2, '0')}',
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w900),
                         ),
                         Text(
                           isIndonesian
                               ? 'Gerakan ${_currentIndex + 1} dari ${_recoveryMovements.length}'
                               : 'Movement ${_currentIndex + 1} of ${_recoveryMovements.length}',
-                          style: const TextStyle(fontSize: 12, color: Color(0xFF687064)),
+                          style: const TextStyle(
+                              fontSize: 12, color: Color(0xFF687064)),
                         ),
                       ],
                     ),
@@ -405,23 +475,152 @@ class _RecoveryGuidedSessionScreenState extends State<RecoveryGuidedSessionScree
                       minHeight: 7,
                       borderRadius: BorderRadius.circular(8),
                       backgroundColor: const Color(0xFFE8ECE4),
-                      valueColor: const AlwaysStoppedAnimation(Color(0xFFB1E623)),
+                      valueColor:
+                          const AlwaysStoppedAnimation(Color(0xFFB1E623)),
                     ),
+
                     const Spacer(),
-                    Container(
-                      width: 220,
-                      height: 180,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF5FBDD),
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      child: Icon(
-                        _currentMovement.icon,
-                        size: 86,
-                        color: const Color(0xFF75A900),
+
+                    // Ilustrasi Visual Gerakan dengan Breathing Animation Ring
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 350),
+                      transitionBuilder: (child, animation) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: ScaleTransition(scale: animation, child: child),
+                        );
+                      },
+                      child: AnimatedBuilder(
+                        key: ValueKey(_currentIndex),
+                        animation: _breathingController,
+                        builder: (context, child) {
+                          return Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              // Breathing Glow Outer Circle
+                              Container(
+                                width: 220 * _scaleAnimation.value,
+                                height: 220 * _scaleAnimation.value,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: const Color(0xFFC7F135).withValues(
+                                    alpha: _isPaused
+                                        ? 0.1
+                                        : _glowAnimation.value * 0.35,
+                                  ),
+                                ),
+                              ),
+
+                              // Inner Movement Illustration Box
+                              Container(
+                                width: 190,
+                                height: 190,
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      Color(0xFFF9FDEE),
+                                      Color(0xFFF0F9D8),
+                                    ],
+                                  ),
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: const Color(0xFFD4EBA8),
+                                    width: 2.0,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(0xFF65A30D).withValues(
+                                        alpha: 0.12,
+                                      ),
+                                      blurRadius: 16,
+                                      offset: const Offset(0, 6),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      _currentMovement.icon,
+                                      size: 72,
+                                      color: const Color(0xFF65A30D),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 3),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color: const Color(0xFFE2EAD6),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        _currentMovement.targetArea,
+                                        style: const TextStyle(
+                                          fontSize: 9.5,
+                                          fontWeight: FontWeight.w800,
+                                          color: Color(0xFF4D7C0F),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ),
-                    const SizedBox(height: 24),
+
+                    const SizedBox(height: 18),
+
+                    // Breathing Rhythm Indicator
+                    AnimatedBuilder(
+                      animation: _breathingController,
+                      builder: (context, _) {
+                        final isInhaling =
+                            _breathingController.status == AnimationStatus.forward;
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              isInhaling
+                                  ? Icons.air_rounded
+                                  : Icons.compress_rounded,
+                              size: 16,
+                              color: const Color(0xFF65A30D),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              _isPaused
+                                  ? (isIndonesian
+                                      ? 'Sesi dijeda'
+                                      : 'Session paused')
+                                  : (isInhaling
+                                      ? (isIndonesian
+                                          ? 'Tarik napas perlahan...'
+                                          : 'Inhale slowly...')
+                                      : (isIndonesian
+                                          ? 'Hembuskan perlahan...'
+                                          : 'Exhale gently...')),
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF65A30D),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+
+                    const SizedBox(height: 18),
+
+                    // Title & Description
                     Text(
                       _currentMovement.title,
                       textAlign: TextAlign.center,
@@ -431,23 +630,28 @@ class _RecoveryGuidedSessionScreenState extends State<RecoveryGuidedSessionScree
                         color: Color(0xFF171B15),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 8),
                     Text(
                       _currentMovement.instruction,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
-                        fontSize: 14,
+                        fontSize: 13.5,
                         height: 1.45,
                         color: Color(0xFF687064),
                       ),
                     ),
+
                     const Spacer(),
+
+                    // Action Buttons (Pause / Resume & Skip)
                     SizedBox(
                       width: double.infinity,
-                      height: 54,
+                      height: 52,
                       child: ElevatedButton.icon(
                         onPressed: _togglePause,
-                        icon: Icon(_isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded),
+                        icon: Icon(_isPaused
+                            ? Icons.play_arrow_rounded
+                            : Icons.pause_rounded),
                         label: Text(
                           _isPaused
                               ? (isIndonesian ? 'Lanjutkan' : 'Resume')
@@ -464,10 +668,16 @@ class _RecoveryGuidedSessionScreenState extends State<RecoveryGuidedSessionScree
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 8),
                     TextButton(
                       onPressed: _skipMovement,
-                      child: Text(isIndonesian ? 'Lewati gerakan' : 'Skip movement'),
+                      child: Text(
+                        isIndonesian ? 'Lewati gerakan' : 'Skip movement',
+                        style: const TextStyle(
+                          color: Color(0xFF687064),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -480,22 +690,34 @@ class _RecoveryGuidedSessionScreenState extends State<RecoveryGuidedSessionScree
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(Icons.check_circle_rounded, size: 76, color: Color(0xFF84B900)),
-        const SizedBox(height: 18),
+        Container(
+          width: 90,
+          height: 90,
+          decoration: const BoxDecoration(
+            color: Color(0xFFF3F9EA),
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(
+            Icons.check_circle_rounded,
+            size: 64,
+            color: Color(0xFF65A30D),
+          ),
+        ),
+        const SizedBox(height: 20),
         Text(
-          isIndonesian ? 'Rutinitas selesai!' : 'Recovery complete!',
-          style: const TextStyle(fontSize: 23, fontWeight: FontWeight.w900),
+          isIndonesian ? 'Rutinitas Selesai!' : 'Recovery Complete!',
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 8),
         Text(
           isIndonesian
-              ? 'Kamu sudah menyelesaikan semua gerakan pemulihan.'
+              ? 'Ototmu telah rileks dan siap menjalani proses pemulihan optimal.'
               : 'You have completed all movements in this recovery routine.',
           style: const TextStyle(fontSize: 14, color: Color(0xFF687064)),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 28),
+        const SizedBox(height: 32),
         SizedBox(
           width: double.infinity,
           height: 52,

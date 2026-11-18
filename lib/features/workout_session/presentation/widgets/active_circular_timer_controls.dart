@@ -1,5 +1,5 @@
 import 'dart:math' as math;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 
@@ -51,7 +51,7 @@ class ActiveCircularTimerControls extends StatelessWidget {
               boxShadow: isTimeUp
                   ? [
                       BoxShadow(
-                        color: AppColors.limeAccent.withOpacity(0.4),
+                        color: AppColors.limeAccent.withValues(alpha: 0.4),
                         blurRadius: 18,
                         spreadRadius: 2,
                       ),

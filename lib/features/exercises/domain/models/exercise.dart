@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../../../core/utils/media_url_resolver.dart';
 
 enum ExerciseCategory {
   push,
@@ -92,7 +93,12 @@ enum TrackingType {
   duration;
 
   static TrackingType fromString(String val) {
-    return val.toLowerCase() == 'duration' || val.toLowerCase() == 'seconds'
+    final lower = val.toLowerCase().trim();
+    return lower == 'duration' ||
+            lower == 'duration_sec' ||
+            lower == 'duration_seconds' ||
+            lower == 'seconds' ||
+            lower == 'time'
         ? TrackingType.duration
         : TrackingType.reps;
   }
@@ -179,16 +185,19 @@ class ExerciseVariationGroup {
 class ExerciseMedia {
   final String startPose;
   final String endPose;
+  final String? videoUrl;
 
   const ExerciseMedia({
     required this.startPose,
     required this.endPose,
+    this.videoUrl,
   });
 
   factory ExerciseMedia.fromJson(Map<String, dynamic>? json) {
     return ExerciseMedia(
-      startPose: json?['start_pose']?.toString() ?? '',
-      endPose: json?['end_pose']?.toString() ?? '',
+      startPose: MediaUrlResolver.resolve(json?['start_pose']?.toString()) ?? '',
+      endPose: MediaUrlResolver.resolve(json?['end_pose']?.toString()) ?? '',
+      videoUrl: MediaUrlResolver.resolve(json?['video_url']?.toString()),
     );
   }
 }
@@ -209,6 +218,7 @@ class Exercise {
   final LocalizedString breathing;
   final ExerciseVariationGroup variations;
   final ExerciseMedia media;
+  final String? videoUrl;
 
   const Exercise({
     required this.id,
@@ -225,7 +235,24 @@ class Exercise {
     required this.breathing,
     required this.variations,
     required this.media,
+    this.videoUrl,
   });
+
+  /// URL video demonstrasi (di-resolve dari R2 ke Vercel proxy jika ada)
+  String? get resolvedVideoUrl {
+    final raw = videoUrl ?? media.videoUrl;
+    if (raw == null || raw.trim().isEmpty) return null;
+    return MediaUrlResolver.resolve(raw);
+  }
+
+  /// URL gambar poster (di-resolve dari R2 ke Vercel proxy jika ada)
+  String get resolvedImageUrl {
+    if (media.startPose.isNotEmpty) {
+      final resolved = MediaUrlResolver.resolve(media.startPose);
+      if (resolved != null && resolved.isNotEmpty) return resolved;
+    }
+    return media.startPose;
+  }
 
   factory Exercise.fromJson(Map<String, dynamic> json) {
     final rawEquipments = json['equipments'];
@@ -233,6 +260,10 @@ class Exercise {
     if (rawEquipments is List) {
       parsedEquipments = rawEquipments.map((e) => e.toString()).toList();
     }
+
+    final parsedMedia = ExerciseMedia.fromJson(json['media'] as Map<String, dynamic>?);
+    final rawVideoUrl = json['video_url']?.toString() ?? parsedMedia.videoUrl;
+    final videoUrl = MediaUrlResolver.resolve(rawVideoUrl);
 
     return Exercise(
       id: json['id'] as String,
@@ -254,7 +285,12 @@ class Exercise {
       commonMistakes: LocalizedList.fromJson(json['common_mistakes']),
       breathing: LocalizedString.fromJson(json['breathing']),
       variations: ExerciseVariationGroup.fromJson(json['variations']),
-      media: ExerciseMedia.fromJson(json['media'] as Map<String, dynamic>?),
+      media: ExerciseMedia(
+        startPose: parsedMedia.startPose,
+        endPose: parsedMedia.endPose,
+        videoUrl: videoUrl,
+      ),
+      videoUrl: videoUrl,
     );
   }
 }

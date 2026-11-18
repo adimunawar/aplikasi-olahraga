@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -497,7 +497,7 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
           ),
           Switch(
             value: value,
-            activeColor: Colors.white,
+            activeThumbColor: Colors.white,
             activeTrackColor: AppColors.primary,
             inactiveThumbColor: Colors.white,
             inactiveTrackColor: const Color(0xFFE2E8F0),

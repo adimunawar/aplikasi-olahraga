@@ -25,12 +25,13 @@ class DynamicProgramGenerator {
     required UserProfileEntity userProfile,
     required List<Exercise> catalogExercises,
     String? startingPushExerciseId,
+    DateTime? startDate,
   }) {
     if (catalogExercises.isEmpty) {
       throw StateError('Cannot generate a workout plan because the exercise catalog is empty.');
     }
 
-    final now = DateTime.now();
+    final now = startDate ?? DateTime.now();
     final programId = 'prog_${userProfile.id}_${now.millisecondsSinceEpoch}';
 
     // 1. Tentukan latihan dorong awal (Primary Horizontal Push) sesuai hasil Onboarding
@@ -320,7 +321,7 @@ class DynamicProgramGenerator {
     final list = [
       _ExerciseBlueprint(exerciseId: pushId, stage: 'main', targetSets: 3, minReps: 8, maxReps: 12),
       _ExerciseBlueprint(exerciseId: 'squat', stage: 'main', targetSets: 3, minReps: 10, maxReps: 15),
-      _ExerciseBlueprint(exerciseId: 'plank', stage: 'main', targetSets: 3, minReps: 30, maxReps: 45),
+      _ExerciseBlueprint(exerciseId: 'plank', stage: 'main', targetSets: 3, minReps: 30, maxReps: 45, targetDurationSeconds: 45),
     ];
 
     // Jika durasi >= 30 menit, tambahkan latihan pendukung
@@ -370,6 +371,7 @@ class DynamicProgramGenerator {
         targetSets: 3,
         minReps: 30,
         maxReps: 45,
+        targetDurationSeconds: 45,
       ));
     }
     return list;
@@ -379,7 +381,7 @@ class DynamicProgramGenerator {
     final list = [
       _ExerciseBlueprint(exerciseId: pushId, stage: 'main', targetSets: 3, minReps: 8, maxReps: 12),
       _ExerciseBlueprint(exerciseId: 'squat', stage: 'main', targetSets: 3, minReps: 10, maxReps: 15),
-      _ExerciseBlueprint(exerciseId: 'plank', stage: 'main', targetSets: 3, minReps: 30, maxReps: 45),
+      _ExerciseBlueprint(exerciseId: 'plank', stage: 'main', targetSets: 3, minReps: 30, maxReps: 45, targetDurationSeconds: 45),
     ];
     if (user.preferredDurationMin >= 30) {
       list.add(_ExerciseBlueprint(exerciseId: 'calf_raise', stage: 'main', targetSets: 3, minReps: 15, maxReps: 20));
@@ -466,6 +468,7 @@ class _ExerciseBlueprint {
   final int targetSets;
   final int minReps;
   final int maxReps;
+  final int? targetDurationSeconds;
 
   const _ExerciseBlueprint({
     required this.exerciseId,
@@ -473,6 +476,7 @@ class _ExerciseBlueprint {
     required this.targetSets,
     required this.minReps,
     required this.maxReps,
+    this.targetDurationSeconds,
   });
 }
 

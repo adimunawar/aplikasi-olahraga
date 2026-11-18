@@ -5,6 +5,7 @@ Exercise createMockExercise({
   required String name,
   ExerciseCategory category = ExerciseCategory.core,
   ExerciseDifficulty difficulty = ExerciseDifficulty.beginner,
+  TrackingType trackingType = TrackingType.reps,
   String movementPattern = 'horizontal_push',
   List<String> equipments = const ['none', 'bodyweight'],
 }) {
@@ -13,7 +14,7 @@ Exercise createMockExercise({
     name: LocalizedString(id: name, en: name),
     category: category,
     difficulty: difficulty,
-    trackingType: TrackingType.reps,
+    trackingType: trackingType,
     movementPattern: movementPattern,
     equipments: equipments,
     primaryMuscles: [LocalizedString(id: 'Dada', en: 'Chest')],

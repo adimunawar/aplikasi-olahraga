@@ -1,15 +1,38 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/database/app_database.dart';
+import '../../../../core/database/models/dynamic_program_entity.dart';
+import '../../../../core/database/models/workout_session_entity.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../program/domain/models/program_day.dart';
-import '../../../program/data/datasources/program_local_datasource.dart';
-import '../../../program/data/repositories/program_repository_impl.dart';
-import '../../../exercises/domain/models/exercise.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
 import '../../../exercises/data/repositories/exercise_repository_impl.dart';
+import '../../../exercises/domain/models/exercise.dart';
+import '../../../program/domain/models/program_day.dart';
+import '../../../program/domain/services/program_week_schedule.dart';
+import '../../../workout_session/domain/models/exercise_prescription.dart';
+
+class _CalendarDayData {
+  final int sequenceDay;
+  final DateTime date;
+  final ProgramDay day;
+  final List<Exercise> exercises;
+  final Map<String, WorkoutExercisePrescription> prescriptions;
+  final bool isCompleted;
+  final String? activeSessionId;
+
+  const _CalendarDayData({
+    required this.sequenceDay,
+    required this.date,
+    required this.day,
+    required this.exercises,
+    required this.prescriptions,
+    required this.isCompleted,
+    this.activeSessionId,
+  });
+}
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
@@ -19,13 +42,15 @@ class CalendarScreen extends StatefulWidget {
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
-  final _programRepo = ProgramRepositoryImpl(ProgramLocalDatasource());
+  final _db = AppDatabase.instance;
   final _exerciseRepo = ExerciseRepositoryImpl(ExerciseLocalDatasource());
 
-  List<ProgramDay> _allDays = [];
-  Map<String, Exercise> _exercisesMap = {};
-  Set<int> _completedDayNumbers = {};
-  int _currentDay = 1;
+  List<_CalendarDayData> _allDays = [];
+  int _leadingEmptyDays = 0;
+  String? _activeProgramId;
+  String? _activeProgramName;
+  String? _loadError;
+  bool _hasActiveProgram = false;
   bool _isLoading = true;
 
   @override
@@ -35,169 +60,439 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Future<void> _loadProgram() async {
-    final days = await _programRepo.get30DaysProgram();
-    final exercises = await _exerciseRepo.getExercises();
-    final curDay = await _programRepo.getCurrentProgramDay();
-    final completedDays = await AppDatabase.instance.getCompletedDayNumbers();
-
     if (mounted) {
       setState(() {
-        _allDays = days;
-        _exercisesMap = {for (final e in exercises) e.id: e};
-        _completedDayNumbers = completedDays;
-        _currentDay = curDay;
-        _isLoading = false;
+        _isLoading = true;
+        _loadError = null;
       });
+    }
+
+    try {
+      // Refresh the cloud-first exercise catalog before reading session details.
+      // The repository stores successful cloud results in SQLite and falls back
+      // to the local catalog when Supabase is unavailable.
+      await _exerciseRepo.getExercises();
+
+      final profile = await _db.getUserProfile();
+      final userId = profile.id.isNotEmpty ? profile.id : 'default_user';
+
+      var program = await _db.getActiveTrainingProgram(userId);
+      program ??= await _db.getActiveTrainingProgram('default_user');
+
+      if (program == null) {
+        if (mounted) {
+          setState(() {
+            _allDays = [];
+            _activeProgramId = null;
+            _activeProgramName = null;
+            _hasActiveProgram = false;
+            _isLoading = false;
+          });
+        }
+        return;
+      }
+
+      final activeProgram = program;
+      final sessions = await _db.getProgramSessions(activeProgram.id);
+      if (sessions.isEmpty) {
+        if (mounted) {
+          setState(() {
+            _allDays = [];
+            _activeProgramId = activeProgram.id;
+            _activeProgramName = activeProgram.name;
+            _hasActiveProgram = false;
+            _loadError =
+                'Your active program does not have a workout schedule yet.';
+            _isLoading = false;
+          });
+        }
+        return;
+      }
+
+      final detailsBySessionId = <String, ProgramSessionDetail>{};
+      for (final session in sessions) {
+        final detail = await _db.getProgramSessionDetail(session.id);
+        if (detail != null) {
+          detailsBySessionId[session.id] = detail;
+        }
+      }
+
+      final workoutHistory = await _db.getWorkoutSessionsForProgram(
+        activeProgram.id,
+      );
+      final totalWeeks = profile.targetTimeframeWeeks > 0
+          ? profile.targetTimeframeWeeks
+          : activeProgram.durationWeeks;
+      final programStartDate = ProgramWeekSchedule.dateOnly(
+        activeProgram.startDate,
+      );
+      final today = ProgramWeekSchedule.dateOnly(DateTime.now());
+      final days = <_CalendarDayData>[];
+      final leadingEmptyDays = today.weekday - 1;
+
+      // The calendar is a rolling 30-day view built from the active program's
+      // weekly sessions and the same availability rules used by Home and Plans.
+      for (var offset = 0; offset < 30; offset++) {
+        final date = today.add(Duration(days: offset));
+        final sequenceDay = offset + 1;
+        final week = ProgramWeekSchedule.currentWeek(
+          programStartDate: programStartDate,
+          today: date,
+          totalWeeks: totalWeeks,
+        );
+        final daysFromProgramStart = date.difference(programStartDate).inDays;
+        final isInsideProgram =
+            daysFromProgramStart >= 0 && daysFromProgramStart < totalWeeks * 7;
+
+        final scheduled = isInsideProgram
+            ? ProgramWeekSchedule.sessionForDate(
+                programStartDate: programStartDate,
+                date: date,
+                availableDays: profile.availableDays,
+                sessions: sessions,
+                totalWeeks: totalWeeks,
+              )
+            : null;
+
+        final dayHistory = workoutHistory
+            .where(
+              (record) =>
+                  ProgramWeekSchedule.dateOnly(record.scheduledDate) == date,
+            )
+            .toList();
+        final isCompleted = dayHistory.any(
+          (record) => record.status == WorkoutSessionStatus.completed,
+        );
+        final inProgressRecords = dayHistory
+            .where((record) => record.status == WorkoutSessionStatus.inProgress)
+            .toList();
+
+        if (scheduled == null) {
+          final restDay = ProgramDay(
+            day: sequenceDay,
+            week: week,
+            type: WorkoutTypeCode.r,
+            focus: const LocalizedString(
+              id: 'Istirahat & Pemulihan',
+              en: 'Rest & Recovery',
+            ),
+            isRest: true,
+            isRetestMilestone: false,
+            items: const [],
+          );
+
+          days.add(
+            _CalendarDayData(
+              sequenceDay: sequenceDay,
+              date: date,
+              day: restDay,
+              exercises: const [],
+              prescriptions: const {},
+              isCompleted: isCompleted,
+            ),
+          );
+          continue;
+        }
+
+        final detail = detailsBySessionId[scheduled.session.id];
+        final detailItems =
+            detail?.exercises ?? const <ProgramExerciseDetailItem>[];
+        final exercises = detailItems.map((item) => item.exercise).toList();
+        final prescriptions = <String, WorkoutExercisePrescription>{
+          for (final item in detailItems)
+            item.exercise.id: WorkoutExercisePrescription.fromProgramExercise(
+              item.prescription,
+              trackingType: item.exercise.trackingType,
+            ),
+        };
+        final workoutItems = detailItems.map((item) {
+          final exercise = item.exercise;
+          final prescription = item.prescription;
+          final isDuration = exercise.trackingType == TrackingType.duration;
+
+          return WorkoutItem(
+            exerciseId: exercise.id,
+            sets: prescription.targetSets,
+            reps: isDuration ? null : prescription.minReps,
+            durationSec: isDuration ? prescription.maxReps : null,
+            restSeconds: prescription.restSeconds,
+            isMain: prescription.stage == 'main',
+            stage: prescription.stage,
+          );
+        }).toList();
+
+        final workoutDay = ProgramDay(
+          day: scheduled.session.dayNumber,
+          week: week,
+          type: _resolveWorkoutType(scheduled.session.focusLabel),
+          focus: LocalizedString(
+            id: scheduled.session.focusLabel,
+            en: scheduled.session.focusLabel,
+          ),
+          isRest: false,
+          isRetestMilestone: false,
+          items: workoutItems,
+          title: scheduled.session.name,
+          estimatedDurationMinutes: scheduled.session.targetDurationMinutes,
+        );
+
+        days.add(
+          _CalendarDayData(
+            sequenceDay: sequenceDay,
+            date: date,
+            day: workoutDay,
+            exercises: exercises,
+            prescriptions: prescriptions,
+            isCompleted: isCompleted,
+            activeSessionId: inProgressRecords.isEmpty
+                ? null
+                : inProgressRecords.first.id,
+          ),
+        );
+      }
+
+      if (mounted) {
+        setState(() {
+          _allDays = days;
+          _leadingEmptyDays = leadingEmptyDays;
+          _activeProgramId = activeProgram.id;
+          _activeProgramName = activeProgram.name;
+          _hasActiveProgram = true;
+          _isLoading = false;
+        });
+      }
+    } catch (error) {
+      if (mounted) {
+        setState(() {
+          _allDays = [];
+          _hasActiveProgram = false;
+          _loadError = 'Could not load your workout schedule: $error';
+          _isLoading = false;
+        });
+      }
     }
   }
 
-  void _showDayDetailsSheet(ProgramDay day) {
-    final isToday = day.day == _currentDay;
+  WorkoutTypeCode _resolveWorkoutType(String focusLabel) {
+    final label = focusLabel.toLowerCase();
+
+    if (label.contains('leg') ||
+        label.contains('lower') ||
+        label.contains('quad') ||
+        label.contains('glute') ||
+        label.contains('hamstring') ||
+        label.contains('calf') ||
+        label.contains('lunge') ||
+        label.contains('squat')) {
+      return WorkoutTypeCode.k;
+    }
+
+    if (label.contains('push') ||
+        label.contains('chest') ||
+        label.contains('shoulder') ||
+        label.contains('triceps')) {
+      return WorkoutTypeCode.p;
+    }
+
+    if (label.contains('core') || label.contains('ab')) {
+      return WorkoutTypeCode.c;
+    }
+
+    return WorkoutTypeCode.f;
+  }
+
+  bool _isSameDate(DateTime first, DateTime second) {
+    return first.year == second.year &&
+        first.month == second.month &&
+        first.day == second.day;
+  }
+
+  void _showDayDetailsSheet(_CalendarDayData entry) {
+    final day = entry.day;
+    final isToday = _isSameDate(entry.date, DateTime.now());
     final color = AppColors.forWorkoutCode(day.type.code);
+    final exerciseNames = {
+      for (final exercise in entry.exercises) exercise.id: exercise.name.id,
+    };
 
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.surface,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: color.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: color),
-                        ),
-                        child: Text(
-                          day.type.code,
-                          style: AppTypography.labelLarge.copyWith(
-                            color: color,
-                            fontWeight: FontWeight.bold,
+      builder: (sheetContext) {
+        return SafeArea(
+          top: false,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: color.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: color),
+                          ),
+                          child: Text(
+                            day.type.code,
+                            style: AppTypography.labelLarge.copyWith(
+                              color: color,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        'HARI ${day.day} / 30',
-                        style: AppTypography.headlineSmall.copyWith(
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (isToday)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: AppColors.electricLime.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        'HARI INI',
-                        style: AppTypography.labelSmall.copyWith(
-                          color: AppColors.electricLime,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-
-              const SizedBox(height: 12),
-
-              Text(
-                day.focus.id,
-                style: AppTypography.headlineMedium.copyWith(color: AppColors.textPrimary),
-              ),
-
-              const SizedBox(height: 16),
-
-              if (day.isRest)
-                Text(
-                  'Hari istirahat pemulihan. Tubuh Anda beradaptasi dan membangun kekuatan di saat istirahat.',
-                  style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
-                )
-              else ...[
-                Text(
-                  'Daftar Gerakan Target:',
-                  style: AppTypography.labelSmall.copyWith(color: AppColors.textDim),
-                ),
-                const SizedBox(height: 8),
-                ...day.items.map((item) {
-                  final ex = _exercisesMap[item.exerciseId];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
+                        const SizedBox(width: 10),
                         Text(
-                          ex?.name.id ?? item.exerciseId,
-                          style: AppTypography.bodyMedium.copyWith(color: AppColors.textPrimary),
-                        ),
-                        Text(
-                          item.isDurationBased
-                              ? '${item.sets} x ${item.durationSec}s'
-                              : '${item.sets} x ${item.reps}',
-                          style: AppTypography.tabularMetricSmall.copyWith(
-                            color: AppColors.electricLime,
+                          'DAY ${entry.sequenceDay} / 30',
+                          style: AppTypography.headlineSmall.copyWith(
+                            color: AppColors.textPrimary,
                           ),
                         ),
                       ],
                     ),
-                  );
-                }),
-              ],
-
-              const SizedBox(height: 24),
-
-              if (!day.isRest)
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.electricLime,
-                      foregroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    if (isToday)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.electricLime.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          'TODAY',
+                          style: AppTypography.labelSmall.copyWith(
+                            color: AppColors.electricLime,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  MaterialLocalizations.of(context)
+                      .formatMediumDate(entry.date),
+                  style: AppTypography.bodySmall.copyWith(
+                    color: AppColors.textDim,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  day.focus.id,
+                  style: AppTypography.headlineMedium.copyWith(
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                if (day.isRest)
+                  Text(
+                    'No workout is scheduled for this day. Use it to recover and prepare for your next session.',
+                    style: AppTypography.bodyMedium.copyWith(
+                      color: AppColors.textSecondary,
                     ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      final resolvedExercises = day.items
-                          .map((i) => _exercisesMap[i.exerciseId])
-                          .whereType<Exercise>()
-                          .toList();
+                  )
+                else ...[
+                  Text(
+                    'TARGET EXERCISES',
+                    style: AppTypography.labelSmall.copyWith(
+                      color: AppColors.textDim,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  if (day.items.isEmpty)
+                    Text(
+                      'Exercise details are not available for this session yet.',
+                      style: AppTypography.bodySmall.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    )
+                  else
+                    ...day.items.map((item) {
+                      final repsText = item.isDurationBased
+                          ? '${item.sets} x ${item.durationSec}s'
+                          : '${item.sets} x ${item.reps ?? '—'} reps';
 
-                      context.push(
-                        AppRoutes.workoutSession,
-                        extra: WorkoutSessionArgs(
-                          day: day,
-                          exercises: resolvedExercises,
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                exerciseNames[item.exerciseId] ??
+                                    item.exerciseId,
+                                style: AppTypography.bodyMedium.copyWith(
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              repsText,
+                              style: AppTypography.tabularMetricSmall.copyWith(
+                                color: AppColors.electricLime,
+                              ),
+                            ),
+                          ],
                         ),
                       );
-                    },
-                    child: Text(
-                      'MULAI SESI HARI ${day.day}',
-                      style: AppTypography.labelLarge.copyWith(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
+                    }),
+                ],
+                const SizedBox(height: 24),
+                if (!day.isRest && entry.exercises.isNotEmpty)
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.electricLime,
+                        foregroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(sheetContext);
+                        context.push(
+                          AppRoutes.workoutSession,
+                          extra: WorkoutSessionArgs(
+                            day: day,
+                            exercises: entry.exercises,
+                            programId: _activeProgramId,
+                            scheduledDate: entry.date,
+                            activeSessionId: entry.activeSessionId,
+                            prescriptions: entry.prescriptions,
+                          ),
+                        );
+                      },
+                      child: Text(
+                        entry.activeSessionId != null
+                            ? 'RESUME WORKOUT'
+                            : 'START WORKOUT',
+                        style: AppTypography.labelLarge.copyWith(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -215,13 +510,75 @@ class _CalendarScreenState extends State<CalendarScreen> {
       );
     }
 
+    if (!_hasActiveProgram) {
+      final hasError = _loadError != null;
+      return Scaffold(
+        backgroundColor: AppColors.canvas,
+        appBar: AppBar(
+          backgroundColor: AppColors.canvas,
+          elevation: 0,
+          title: Text(
+            'WORKOUT SCHEDULE',
+            style: AppTypography.headlineSmall.copyWith(
+              color: AppColors.textPrimary,
+              letterSpacing: 1.0,
+            ),
+          ),
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  hasError
+                      ? Icons.event_busy_rounded
+                      : Icons.calendar_month_rounded,
+                  size: 48,
+                  color: AppColors.textDim,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  hasError ? 'Schedule unavailable' : 'No active workout plan',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.headlineSmall.copyWith(
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  _loadError ?? 'Create or activate a workout plan to see your personalized schedule here.',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.electricLime,
+                    foregroundColor: Colors.black,
+                  ),
+                  onPressed: hasError
+                      ? _loadProgram
+                      : () => context.go(AppRoutes.plans),
+                  child: Text(hasError ? 'TRY AGAIN' : 'OPEN MY PLAN'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.canvas,
       appBar: AppBar(
         backgroundColor: AppColors.canvas,
         elevation: 0,
         title: Text(
-          'PROGRAM 30 HARI',
+          'NEXT 30 DAYS',
           style: AppTypography.headlineSmall.copyWith(
             color: AppColors.textPrimary,
             letterSpacing: 1.0,
@@ -234,33 +591,38 @@ class _CalendarScreenState extends State<CalendarScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Split Pattern Legend
+            if (_activeProgramName != null) ...[
+              Text(
+                _activeProgramName!,
+                style: AppTypography.titleMedium.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
             _buildLegend(),
-
             const SizedBox(height: 20),
-
-            // 7-Column Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: const ['SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB', 'MIN'].map((dayName) {
-                return SizedBox(
-                  width: 44,
-                  child: Center(
-                    child: Text(
-                      dayName,
-                      style: AppTypography.labelSmall.copyWith(
-                        color: AppColors.textDim,
-                        fontWeight: FontWeight.bold,
+              children: const ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+                  .map(
+                    (dayName) => SizedBox(
+                      width: 44,
+                      child: Center(
+                        child: Text(
+                          dayName,
+                          style: AppTypography.labelSmall.copyWith(
+                            color: AppColors.textDim,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                );
-              }).toList(),
+                  )
+                  .toList(),
             ),
-
             const SizedBox(height: 10),
-
-            // 30 Days Grid
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -270,15 +632,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 crossAxisSpacing: 8,
                 childAspectRatio: 0.85,
               ),
-              itemCount: _allDays.length,
+              itemCount: _leadingEmptyDays + _allDays.length,
               itemBuilder: (context, index) {
-                final day = _allDays[index];
-                final isToday = day.day == _currentDay;
-                final isCompleted = _completedDayNumbers.contains(day.day);
+                if (index < _leadingEmptyDays) {
+                  return const SizedBox.shrink();
+                }
+                final entry = _allDays[index - _leadingEmptyDays];
+                final day = entry.day;
+                final isToday = _isSameDate(entry.date, DateTime.now());
                 final color = AppColors.forWorkoutCode(day.type.code);
 
                 return GestureDetector(
-                  onTap: () => _showDayDetailsSheet(day),
+                  onTap: () => _showDayDetailsSheet(entry),
                   child: Container(
                     decoration: BoxDecoration(
                       color: isToday
@@ -296,9 +661,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          '${day.day}',
+                          entry.sequenceDay.toString(),
                           style: AppTypography.bodySmall.copyWith(
-                            color: isToday ? AppColors.electricLime : AppColors.textPrimary,
+                            color: isToday
+                                ? AppColors.electricLime
+                                : AppColors.textPrimary,
                             fontWeight: FontWeight.bold,
                             fontSize: 11,
                           ),
@@ -308,14 +675,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           width: 26,
                           height: 26,
                           decoration: BoxDecoration(
-                            color: isCompleted
+                            color: entry.isCompleted
                                 ? AppColors.electricLime.withValues(alpha: 0.25)
                                 : color.withValues(alpha: 0.2),
                             shape: BoxShape.circle,
                           ),
                           child: Center(
-                            child: isCompleted
-                                ? const Icon(Icons.check, size: 14, color: AppColors.electricLime)
+                            child: entry.isCompleted
+                                ? const Icon(
+                                    Icons.check,
+                                    size: 14,
+                                    color: AppColors.electricLime,
+                                  )
                                 : Text(
                                     day.type.code,
                                     style: AppTypography.labelSmall.copyWith(
@@ -332,44 +703,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 );
               },
             ),
-
-            const SizedBox(height: 30),
-
-            // Milestone Banner (Day 15 & Day 30 Re-test)
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.iceCyan.withValues(alpha: 0.3)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.flag_circle_outlined, color: AppColors.iceCyan, size: 32),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'TES EVALUASI BERKALA',
-                          style: AppTypography.labelCaps.copyWith(
-                            color: AppColors.iceCyan,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Hari ke-15 dan ke-30 akan menawarkan tes ulang kemampuan fisik untuk mengkalibrasi target beban Anda.',
-                          style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+            const SizedBox(height: 24),
+            Text(
+              'Your schedule follows the active program and selected training days. Rest days are calculated automatically.',
+              style: AppTypography.bodySmall.copyWith(
+                color: AppColors.textSecondary,
               ),
             ),
-
             const SizedBox(height: 40),
           ],
         ),
@@ -388,8 +728,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _legendItem('P', 'Dorong', AppColors.pushWorkout),
-          _legendItem('K', 'Kaki', AppColors.legsWorkout),
+          _legendItem('P', 'Push', AppColors.pushWorkout),
+          _legendItem('K', 'Legs', AppColors.legsWorkout),
           _legendItem('C', 'Core', AppColors.coreWorkout),
           _legendItem('F', 'Full', AppColors.fullBodyWorkout),
           _legendItem('R', 'Rest', AppColors.restDay),
@@ -409,10 +749,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
         const SizedBox(width: 5),
         Text(
           '$code:$name',
-          style: AppTypography.bodySmall.copyWith(fontSize: 10, color: AppColors.textDim),
+          style: AppTypography.bodySmall.copyWith(
+            fontSize: 10,
+            color: AppColors.textDim,
+          ),
         ),
       ],
     );
   }
 }
-

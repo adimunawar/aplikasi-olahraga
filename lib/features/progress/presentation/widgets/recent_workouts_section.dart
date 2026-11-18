@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/core_widgets.dart';
@@ -69,7 +69,7 @@ class RecentWorkoutsSection extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: items.length,
-            separatorBuilder: (_, __) => const Padding(
+            separatorBuilder: (_, _) => const Padding(
               padding: EdgeInsets.symmetric(vertical: 4),
               child: Divider(color: AppColors.cardBorder, height: 1),
             ),

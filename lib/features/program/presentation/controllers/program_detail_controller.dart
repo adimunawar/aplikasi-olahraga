@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
+import '../../../exercises/data/repositories/exercise_repository_impl.dart';
 import '../../data/datasources/programs_mock_datasource.dart';
 import '../../domain/services/dynamic_program_generator.dart';
 import 'program_detail_state.dart';
@@ -22,10 +23,9 @@ class ProgramDetailController extends StateNotifier<ProgramDetailState> {
 
   ProgramDetailController({
     required String programId,
-    required AppDatabase database,
+    required this._database,
     required ProgramsMockDatasource mockDatasource,
   })  : _programId = programId,
-        _database = database,
         _mockDatasource = mockDatasource,
         super(
           ProgramDetailState(
@@ -89,8 +89,9 @@ class ProgramDetailController extends StateNotifier<ProgramDetailState> {
       await _database.saveUserProfile(updatedProfile);
 
       // 3. Sinkronkan kurikulum dinamis ke database
-      final exerciseDatasource = ExerciseLocalDatasource(db: _database);
-      final catalog = await exerciseDatasource.loadExercises();
+      final catalog = await ExerciseRepositoryImpl(
+        ExerciseLocalDatasource(db: _database),
+      ).getExercises();
       final startingPushId = updatedProfile.experienceLevel == 'advanced'
           ? 'diamond_push_up'
           : updatedProfile.experienceLevel == 'intermediate'

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../../../../core/theme/app_typography.dart';
 
 /// Strip Metrik Sesi Aktif: Sets (1/3), Reps (8-12), Rest (60 sec)
@@ -6,12 +6,14 @@ class ActiveWorkoutMetricsStrip extends StatelessWidget {
   final String setsText;
   final String repsText;
   final String restText;
+  final String repsLabel;
 
   const ActiveWorkoutMetricsStrip({
     super.key,
     required this.setsText,
     required this.repsText,
     required this.restText,
+    this.repsLabel = 'Reps',
   });
 
   @override
@@ -46,11 +48,13 @@ class ActiveWorkoutMetricsStrip extends StatelessWidget {
             color: const Color(0xFFF1F5F9),
           ),
 
-          // Kolom 2: Reps
+          // Kolom 2: Reps / Durasi
           Expanded(
             child: _buildMetricItem(
-              icon: Icons.cached_rounded,
-              label: 'Reps',
+              icon: repsLabel == 'Durasi'
+                  ? Icons.timer_outlined
+                  : Icons.cached_rounded,
+              label: repsLabel,
               value: repsText,
             ),
           ),

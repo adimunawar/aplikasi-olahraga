@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../../../../core/theme/app_typography.dart';
 
 /// Banner Quick Access ke Perpustakaan 18 Gerakan Biomekanika (1:1 Sesuai Referensi Desain)
@@ -82,7 +82,7 @@ class ExerciseLibraryBanner extends StatelessWidget {
 
           // Tombol Buka → di Kanan
           Material(
-            color: Colors.white.withOpacity(0.12),
+            color: Colors.white.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(16),
             child: InkWell(
               onTap: onOpenLibrary,
@@ -92,7 +92,7 @@ class ExerciseLibraryBanner extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.15),
+                    color: Colors.white.withValues(alpha: 0.15),
                     width: 1,
                   ),
                 ),

@@ -29,13 +29,10 @@ class PlansController extends StateNotifier<PlansState> {
   final AppDatabase _database;
 
   PlansController({
-    required ProgramsRepositoryImpl programsRepo,
-    required UserSupabaseDatasource userDatasource,
-    required AppDatabase database,
-  })  : _programsRepo = programsRepo,
-        _userDatasource = userDatasource,
-        _database = database,
-        super(const PlansState()) {
+    required this._programsRepo,
+    required this._userDatasource,
+    required this._database,
+  })  : super(const PlansState()) {
     loadPrograms();
   }
 

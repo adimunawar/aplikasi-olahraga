@@ -107,7 +107,8 @@ class DatabaseTables {
       duration_seconds INTEGER NOT NULL DEFAULT 0,
       calories_burned INTEGER NOT NULL DEFAULT 0,
       status TEXT NOT NULL, -- 'in_progress', 'completed', 'incomplete', 'abandoned'
-      notes TEXT
+      notes TEXT,
+      elapsed_seconds INTEGER NOT NULL DEFAULT 0
     );
   ''';
 

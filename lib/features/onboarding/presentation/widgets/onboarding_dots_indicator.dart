@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Komponen indikator titik (dots indicator) onboarding reusable:
 /// Menampilkan pill aktif memanjang dan lingkaran inaktif sesuai mockup 1:1.

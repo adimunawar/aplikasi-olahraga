@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,11 +8,13 @@ import '../../../../core/database/models/body_measurement_entity.dart';
 import '../../../../core/database/models/dynamic_program_entity.dart';
 import '../../../../core/database/models/user_profile_entity.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../features/workout_session/domain/models/exercise_prescription.dart';
 import '../../../../core/services/app_data_sync.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
+import '../../../exercises/data/repositories/exercise_repository_impl.dart';
 import '../../../exercises/domain/models/exercise.dart';
 import '../../../program/domain/models/program_day.dart';
 import '../../../program/domain/services/dynamic_program_generator.dart';
@@ -46,6 +48,8 @@ class PlansScreen extends ConsumerStatefulWidget {
 class _PlansScreenState extends ConsumerState<PlansScreen>
     with SingleTickerProviderStateMixin {
   final _db = AppDatabase.instance;
+  late final ExerciseLocalDatasource _exerciseDatasource;
+  late final ExerciseRepositoryImpl _exerciseRepository;
   late TabController _tabController;
 
   UserProfileEntity? _profile;
@@ -68,6 +72,8 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
       vsync: this,
       initialIndex: widget.initialTabIndex.clamp(0, 2),
     );
+    _exerciseDatasource = ExerciseLocalDatasource(db: _db);
+    _exerciseRepository = ExerciseRepositoryImpl(_exerciseDatasource);
     _loadPlanData();
     AppDataSync.instance.dataRevision.addListener(_onDataSync);
   }
@@ -90,6 +96,8 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
     _isFetching = true;
 
     try {
+      // Keep program details on the latest cloud catalog, with SQLite fallback.
+      final exerciseCatalog = await _exerciseRepository.getExercises();
       final profile = await _db.getUserProfile();
       final userId = profile.id.isNotEmpty ? profile.id : 'default_user';
 
@@ -115,8 +123,7 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
           sessionList.isEmpty ||
           sessionList.length != targetWeekly) {
         try {
-          final exerciseDatasource = ExerciseLocalDatasource(db: _db);
-          final catalog = await exerciseDatasource.loadExercises();
+          final catalog = exerciseCatalog;
           final startingPushId = profile.experienceLevel == 'advanced'
               ? 'diamond_push_up'
               : profile.experienceLevel == 'intermediate'
@@ -393,7 +400,7 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
       isScrollControlled: true,
       builder: (ctx) {
         return StatefulBuilder(
-          builder: (context, setModalState) {
+          builder: (modalCtx, setModalState) {
             return Container(
               decoration: const BoxDecoration(
                 color: Colors.white,
@@ -552,7 +559,7 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
       isScrollControlled: true,
       builder: (ctx) {
         return StatefulBuilder(
-          builder: (context, setModalState) {
+          builder: (modalCtx, setModalState) {
             return Container(
               decoration: const BoxDecoration(
                 color: Colors.white,
@@ -714,7 +721,16 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
 
     await context.push(
       AppRoutes.workoutSession,
-      extra: WorkoutSessionArgs(day: programDay, exercises: exercises),
+      extra: WorkoutSessionArgs(
+        day: programDay,
+        exercises: exercises,
+        prescriptions: {
+          for (final e in s.detail.exercises)
+            e.exercise.id: WorkoutExercisePrescription.fromProgramExercise(
+              e.prescription,
+            ),
+        },
+      ),
     );
     if (mounted) {
       _loadPlanData();
@@ -850,7 +866,7 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
+                    color: Colors.black.withValues(alpha: 0.06),
                     blurRadius: 10,
                     offset: const Offset(0, -4),
                   ),

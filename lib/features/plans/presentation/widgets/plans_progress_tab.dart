@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../../../../core/database/models/body_measurement_entity.dart';
 import '../../../../core/database/models/user_profile_entity.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -714,8 +714,8 @@ class _LineChartPainter extends CustomPainter {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          const Color(0xFF84CC16).withOpacity(0.25),
-          const Color(0xFF84CC16).withOpacity(0.0),
+          const Color(0xFF84CC16).withValues(alpha: 0.25),
+          const Color(0xFF84CC16).withValues(alpha: 0.0),
         ],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height))
       ..style = PaintingStyle.fill;

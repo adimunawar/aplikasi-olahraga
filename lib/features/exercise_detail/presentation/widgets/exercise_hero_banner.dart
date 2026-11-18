@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../exercises/domain/models/exercise.dart';
 
@@ -144,7 +144,7 @@ class ExerciseHeroBanner extends StatelessWidget {
                       child: Image.asset(
                         'assets/images/coach_character.png',
                         fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => Image.asset(
+                        errorBuilder: (_, _, _) => Image.asset(
                           'assets/images/main-caracter.png',
                           fit: BoxFit.contain,
                         ),

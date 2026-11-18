@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 
@@ -24,8 +24,8 @@ class ProgressHeader extends StatelessWidget {
               shape: BoxShape.circle,
               gradient: RadialGradient(
                 colors: [
-                  AppColors.limeAccent.withOpacity(0.35),
-                  AppColors.limeAccent.withOpacity(0.0),
+                  AppColors.limeAccent.withValues(alpha: 0.35),
+                  AppColors.limeAccent.withValues(alpha: 0.0),
                 ],
               ),
             ),

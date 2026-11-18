@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_typography.dart';
@@ -244,7 +244,7 @@ class AppButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: _backgroundColor,
           foregroundColor: _foregroundColor,
-          disabledBackgroundColor: _backgroundColor.withOpacity(0.5),
+          disabledBackgroundColor: _backgroundColor.withValues(alpha: 0.5),
           elevation: 0,
           shape: shape,
           padding: const EdgeInsets.symmetric(horizontal: 16),

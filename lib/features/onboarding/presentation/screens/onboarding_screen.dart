@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -9,6 +9,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../../program/presentation/controllers/draft_program_provider.dart';
+import '../../../program/domain/services/program_week_schedule.dart';
 import '../widgets/onboarding_dots_indicator.dart';
 import '../widgets/step_about.dart';
 import '../widgets/step_body_target.dart';
@@ -99,39 +100,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     setState(() => _isCreatingPlan = true);
 
     try {
-      // 1. Petakan hari latihan sesuai pilihan frekuensi
-      List<String> availableDays;
-      switch (_daysPerWeek) {
-        case 2:
-          availableDays = ['tuesday', 'thursday'];
-          break;
-        case 4:
-          availableDays = ['monday', 'tuesday', 'thursday', 'friday'];
-          break;
-        case 5:
-          availableDays = [
-            'monday',
-            'tuesday',
-            'wednesday',
-            'thursday',
-            'friday',
-          ];
-          break;
-        case 6:
-          availableDays = [
-            'monday',
-            'tuesday',
-            'wednesday',
-            'thursday',
-            'friday',
-            'saturday',
-          ];
-          break;
-        case 3:
-        default:
-          availableDays = ['monday', 'wednesday', 'friday'];
-          break;
-      }
+      // The first workout is scheduled on the day the user creates the plan.
+      final programStartDate = DateTime.now();
+      final availableDays = ProgramWeekSchedule.availableWeekdaysForFrequency(
+        startDate: programStartDate,
+        frequency: _daysPerWeek,
+      );
 
       // 2. Simpan Profil Pengguna Lengkap ke SQLite Database (Audit Finding P0)
       final db = AppDatabase.instance;
@@ -151,6 +125,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         availableDays: availableDays,
         equipments: _equipments,
         trainingLimitations: _limitations,
+        updatedAt: programStartDate,
       );
       await db.saveUserProfile(updatedProfile);
 
@@ -232,7 +207,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     onTargetWeightChanged: (val) =>
                         setState(() => _targetWeightKg = val),
                   ),
-
 
                   // Step 4: Experience Level
                   StepExperience(
@@ -337,14 +311,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         color: AppColors.surface,
         border: _currentStep == 0
             ? null
-            : const Border(
-                top: BorderSide(color: Color(0xFFE2E8F0), width: 1),
-              ),
+            : const Border(top: BorderSide(color: Color(0xFFE2E8F0), width: 1)),
         boxShadow: _currentStep == 0
             ? null
             : [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: Colors.black.withValues(alpha: 0.04),
                   blurRadius: 10,
                   offset: const Offset(0, -4),
                 ),
@@ -375,5 +347,4 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       ),
     );
   }
-
 }

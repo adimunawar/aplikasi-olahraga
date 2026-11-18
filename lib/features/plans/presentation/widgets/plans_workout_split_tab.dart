@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../../../../core/database/models/dynamic_program_entity.dart';
 import '../../../../core/database/models/user_profile_entity.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../program/domain/services/program_week_schedule.dart';
 import '../screens/plans_screen.dart';
 
 class DayScheduleItem {
@@ -44,9 +45,6 @@ class PlansWorkoutSplitTab extends StatelessWidget {
   });
 
   List<DayScheduleItem> _buildSchedule() {
-    final availableDays = profile?.availableDays.map((d) => d.toLowerCase()).toList() ??
-        ['monday', 'wednesday', 'thursday', 'saturday'];
-
     final weekDays = [
       {'abbr': 'Mon', 'key': 'monday', 'name': 'Monday'},
       {'abbr': 'Tue', 'key': 'tuesday', 'name': 'Tuesday'},
@@ -57,65 +55,71 @@ class PlansWorkoutSplitTab extends StatelessWidget {
       {'abbr': 'Sun', 'key': 'sunday', 'name': 'Sunday'},
     ];
 
-    int sessionIndex = 0;
-    final List<DayScheduleItem> items = [];
+    final activeProgram = program;
+    final profileDays = profile?.availableDays ?? const <String>[];
+    final scheduledSessions = activeProgram == null
+        ? const <ProgramWeekSession>[]
+        : ProgramWeekSchedule.build(
+            programStartDate: activeProgram.startDate,
+            weekNumber: 1,
+            availableDays: profileDays,
+            sessions: sessions.map((item) => item.session).toList(),
+          );
 
-    for (final wd in weekDays) {
-      final key = wd['key']!;
-      final abbr = wd['abbr']!;
-      final name = wd['name']!;
-      final isWorkoutDay = availableDays.contains(key);
+    final detailsBySessionId = {
+      for (final item in sessions) item.session.id: item,
+    };
+    final sessionsByWeekday = <int, SessionWithDetail>{};
+    for (final scheduled in scheduledSessions) {
+      final detail = detailsBySessionId[scheduled.session.id];
+      if (detail != null) {
+        sessionsByWeekday[scheduled.scheduledDate.weekday] = detail;
+      }
+    }
 
-      if (isWorkoutDay && sessions.isNotEmpty) {
-        final session = sessions[sessionIndex % sessions.length];
-        sessionIndex++;
+    return weekDays.map((weekday) {
+      final weekdayIndex = weekDays.indexOf(weekday) + 1;
+      final scheduledSession = sessionsByWeekday[weekdayIndex];
 
-        final focus = session.session.focusLabel.isNotEmpty
-            ? session.session.focusLabel
+      if (scheduledSession != null) {
+        final focus = scheduledSession.session.focusLabel.isNotEmpty
+            ? scheduledSession.session.focusLabel
             : 'Full Body Workout';
 
         IconData icon = Icons.fitness_center_rounded;
-        Color iconColor = const Color(0xFF141718);
-        Color iconBg = const Color(0xFFD4F836);
+        const iconColor = Color(0xFF141718);
+        const iconBg = Color(0xFFD4F836);
 
         final lowerFocus = focus.toLowerCase();
-        if (lowerFocus.contains('push') || lowerFocus.contains('chest')) {
-          icon = Icons.fitness_center_rounded;
-        } else if (lowerFocus.contains('pull') || lowerFocus.contains('back')) {
-          icon = Icons.fitness_center_rounded;
-        } else if (lowerFocus.contains('lower') || lowerFocus.contains('leg')) {
+        if (lowerFocus.contains('lower') || lowerFocus.contains('leg')) {
           icon = Icons.directions_run_rounded;
         } else if (lowerFocus.contains('full')) {
           icon = Icons.sports_gymnastics_rounded;
         }
 
-        items.add(DayScheduleItem(
-          dayAbbr: abbr,
-          dayName: name,
+        return DayScheduleItem(
+          dayAbbr: weekday['abbr']!,
+          dayName: weekday['name']!,
           isRest: false,
           title: focus,
           icon: icon,
           iconColor: iconColor,
           iconBgColor: iconBg,
-          session: session,
-        ));
-      } else {
-        // Rest / Recovery Day
-        final isSunday = key == 'sunday';
-        items.add(DayScheduleItem(
-          dayAbbr: abbr,
-          dayName: name,
-          isRest: true,
-          title: isSunday ? 'Rest' : 'Rest / Recovery',
-          icon: Icons.coffee_rounded,
-          iconColor: const Color(0xFF6B7280),
-          iconBgColor: const Color(0xFFF3F4F6),
-          session: null,
-        ));
+          session: scheduledSession,
+        );
       }
-    }
 
-    return items;
+      return DayScheduleItem(
+        dayAbbr: weekday['abbr']!,
+        dayName: weekday['name']!,
+        isRest: true,
+        title: weekday['key'] == 'sunday' ? 'Rest' : 'Rest / Recovery',
+        icon: Icons.coffee_rounded,
+        iconColor: const Color(0xFF6B7280),
+        iconBgColor: const Color(0xFFF3F4F6),
+        session: null,
+      );
+    }).toList(growable: false);
   }
 
   void _showRestDayDialog(BuildContext context, String dayName) {

@@ -154,6 +154,7 @@ class ExerciseEntity {
       startPoseAsset: exercise.media.startPose,
       endPoseAsset: exercise.media.endPose,
       animationAsset: 'assets/images/exercises/${exercise.id}.webp',
+      videoUrl: exercise.videoUrl ?? exercise.media.videoUrl,
       isCustom: false,
       isFavorite: false,
       createdAt: timestamp,
@@ -232,7 +233,9 @@ class ExerciseEntity {
       media: ExerciseMedia(
         startPose: startPoseAsset ?? '',
         endPose: endPoseAsset ?? '',
+        videoUrl: videoUrl,
       ),
+      videoUrl: videoUrl,
     );
   }
 }

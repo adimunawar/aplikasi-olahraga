@@ -1,0 +1,77 @@
+{
+  "title": "Latihan",
+  "searchHint": "Cari latihan & gerakan...",
+  "tabs": {
+    "myProgram": "Program Saya",
+    "allWorkouts": "Semua Latihan"
+  },
+  "activeProgram": {
+    "title": "Program Aktif",
+    "weeksHomeWorkout": "$weeks minggu • Latihan di rumah",
+    "weekOf": "Minggu $current dari $total",
+    "status": {
+      "notStarted": "Dimulai $date",
+      "completed": "Program selesai",
+      "expired": "Program berakhir"
+    }
+  },
+  "weeklySchedule": {
+    "title": "Jadwal Mingguan",
+    "workoutCount": "$completed/$total latihan",
+    "current": "Saat Ini",
+    "weekShort": "W$n",
+    "empty": "Tidak ada sesi latihan yang dijadwalkan untuk minggu ini.",
+    "previewTitle": "Mode pratinjau",
+    "previewNotice": "Kamu bisa melihat rencana minggu ini, tapi latihan baru bisa dimulai sesuai jadwalnya.",
+    "previewTooltip": "Pratinjau minggu mendatang",
+    "statusTooltip": {
+      "completed": "Semua latihan selesai",
+      "partial": "Sebagian latihan selesai",
+      "missed": "Ada latihan yang terlewat"
+    }
+  },
+  "emptyState": {
+    "noProgramTitle": "Belum ada program aktif",
+    "noProgramSubtitle": "Buat program untuk melihat jadwal latihan mingguanmu di sini."
+  },
+  "allWorkouts": {
+    "emptyTitle": "Tidak ada latihan ditemukan",
+    "emptySubtitle": "Coba kata kunci lain atau ubah filter otot.",
+    "clearFilters": "Hapus pencarian & filter"
+  },
+  "errorState": {
+    "title": "Gagal memuat data",
+    "subtitle": "Terjadi kesalahan saat membaca data latihan. Coba lagi.",
+    "retry": "Coba Lagi",
+    "refreshFailed": "Gagal memperbarui data. Menampilkan data terakhir."
+  },
+  "session": {
+    "day": "Hari $n",
+    "date": "Hari $n • $date",
+    "min": "$min mnt",
+    "status": {
+      "completed": "Selesai",
+      "inProgress": "Sedang berlangsung",
+      "readyToStart": "Hari Ini • Siap dimulai",
+      "missed": "Terlewat",
+      "scheduled": "Terjadwal"
+    }
+  },
+  "workoutDetail": {
+    "readOnlyTitle": "Mode pratinjau",
+    "readOnlyNotice": "Rencana latihan ini hanya bisa dilihat. Tombol mulai aktif pada hari yang dijadwalkan.",
+    "resume": "Lanjutkan Latihan"
+  },
+  "filter": {
+    "title": "Filter Berdasarkan Otot"
+  },
+  "categories": {
+    "all": "Semua",
+    "chest": "Dada",
+    "back": "Punggung",
+    "legs": "Kaki",
+    "core": "Perut",
+    "arms": "Lengan",
+    "shoulders": "Bahu"
+  }
+}
