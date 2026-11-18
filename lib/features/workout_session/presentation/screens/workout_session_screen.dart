@@ -119,10 +119,13 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
       exercise.name.localized(LocaleSettings.currentLocale.languageCode);
 
   String get _programTitle {
-    final focus = widget.day.focus;
-    return focus.en.isNotEmpty
-        ? focus.en
-        : (focus.id.isNotEmpty ? focus.id : 'Upper Body Strength');
+    final title = widget.day.focus.localized(
+      LocaleSettings.currentLocale.languageCode,
+    );
+    if (title.isNotEmpty) return title;
+    return LocaleSettings.currentLocale.languageCode.startsWith('id')
+        ? 'Latihan Kekuatan'
+        : 'Upper Body Strength';
   }
 
   int get _totalExercises => widget.exercises.length;
