@@ -1,0 +1,17 @@
+#!/bin/sh
+echo "🔍 Running flutter analyze before push..."
+
+# Run flutter analyze without fetching pub packages
+flutter analyze --no-pub
+
+RESULT=$?
+
+if [ $RESULT -ne 0 ]; then
+  echo ""
+  echo "❌ PUSH ABORTED: Found warnings or errors in flutter analyze!"
+  echo "👉 Please resolve the issues above before pushing to remote."
+  exit 1
+fi
+
+echo "✅ flutter analyze passed, proceeding with push..."
+exit 0

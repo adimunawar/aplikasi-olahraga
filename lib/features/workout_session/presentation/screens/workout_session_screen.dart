@@ -100,7 +100,6 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
   void dispose() {
     if (widget.exercises.isNotEmpty) {
       WidgetsBinding.instance.removeObserver(this);
-      ref.read(workoutSessionControllerProvider.notifier).persistElapsedNow();
       _timer?.cancel();
       WakelockPlus.disable();
     }
