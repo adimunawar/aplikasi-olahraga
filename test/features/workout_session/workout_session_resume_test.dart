@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:workout_app/core/database/app_database.dart';
@@ -67,6 +69,7 @@ class _FakeWorkoutSessionRepository implements WorkoutSessionRepository {
   /// Simulasi kegagalan database saat menyimpan set atau sesi.
   bool failSaveSet = false;
   bool failFinishSession = false;
+  Completer<void>? finishGate;
   final List<String?> completionAttemptSessionIds = [];
 
   int _idCounter = 0;
@@ -148,6 +151,7 @@ class _FakeWorkoutSessionRepository implements WorkoutSessionRepository {
     String? sessionId,
   }) async {
     completionAttemptSessionIds.add(sessionId);
+    await finishGate?.future;
     if (failFinishSession) {
       throw StateError('simulated session persistence failure');
     }
@@ -535,6 +539,66 @@ void main() {
         expect(retriedState.completionError, isNull);
         expect(retriedState.completedResult, same(retriedResult));
         expect(retriedState.isSaving, isFalse);
+      },
+    );
+
+    test(
+      'completion cannot race with another completion or session abandonment',
+      () async {
+        await controller().prepareSession(
+          programId: 'program_1',
+          dayNumber: 1,
+          programTitle: 'Upper Body',
+          scheduledDate: today,
+          exerciseIds: const ['a', 'b'],
+        );
+        final controller0 = controller();
+        final sessionId = controller0.sessionId!;
+
+        await controller0.recordSetPerformance(
+          exerciseId: 'a',
+          setNumber: 1,
+          actualReps: 10,
+          rir: 2,
+        );
+        await controller0.recordSetPerformance(
+          exerciseId: 'b',
+          setNumber: 1,
+          actualReps: 8,
+          rir: 2,
+        );
+        expect(controller0.completedExerciseCount, 2);
+
+        final gate = Completer<void>();
+        repository.finishGate = gate;
+        final firstAttempt = controller0.finishWorkoutSession(
+          programId: 'program_1',
+          dayNumber: 1,
+          programTitle: 'Upper Body',
+          totalExercises: 2,
+        );
+
+        expect(
+          container.read(workoutSessionControllerProvider).isSaving,
+          isTrue,
+        );
+        expect(await controller0.finishWorkoutSession(
+          programId: 'program_1',
+          dayNumber: 1,
+          programTitle: 'Upper Body',
+          totalExercises: 2,
+        ), isNull);
+
+        await controller0.abandonActiveSession();
+        expect(repository.abandonedIds, isEmpty);
+        expect(repository.completionAttemptSessionIds, [sessionId]);
+
+        gate.complete();
+        final result = await firstAttempt;
+
+        expect(result, isNotNull);
+        expect(repository.completionAttemptSessionIds, [sessionId]);
+        expect(controller0.sessionId, isNull);
       },
     );
 
