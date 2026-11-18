@@ -232,9 +232,10 @@ void main() {
     ],
   );
 
-
   group('WorkoutSessionController finalization readiness', () {
-    test('rejects finalization while an in-progress session is still restoring', () async {
+    test(
+      'rejects finalization while an in-progress session is still restoring',
+      () async {
       final repository = _FakeWorkoutSessionRepository()
         ..pendingSetRestore = Completer<List<WorkoutSetEntity>>()
         ..onSetRestoreStarted = Completer<void>();
@@ -247,10 +248,14 @@ void main() {
         workoutSessionControllerProvider,
         (previous, next) {},
       );
-      addTearDown(subscription.close);
-      addTearDown(container.dispose);
+      addTearDown(() {
+        subscription.close();
+        container.dispose();
+      });
 
-      final controller = container.read(workoutSessionControllerProvider.notifier);
+      final controller = container.read(
+        workoutSessionControllerProvider.notifier,
+      );
       final preparation = controller.prepareSession(
         programId: 'program_1',
         dayNumber: 1,
@@ -261,7 +266,10 @@ void main() {
 
       await repository.onSetRestoreStarted!.future;
       expect(controller.sessionId, 'session_test_1');
-      expect(container.read(workoutSessionControllerProvider).isPreparing, isTrue);
+      expect(
+        container.read(workoutSessionControllerProvider).isPreparing,
+        isTrue,
+      );
 
       final result = await controller.finishWorkoutSession(
         programId: 'program_1',
@@ -275,7 +283,10 @@ void main() {
 
       repository.pendingSetRestore!.complete([]);
       await preparation;
-      expect(container.read(workoutSessionControllerProvider).isSessionReady, isTrue);
+      expect(
+        container.read(workoutSessionControllerProvider).isSessionReady,
+        isTrue,
+      );
     });
 
     test('rejects finalization after session preparation fails', () async {
@@ -290,10 +301,14 @@ void main() {
         workoutSessionControllerProvider,
         (previous, next) {},
       );
-      addTearDown(subscription.close);
-      addTearDown(container.dispose);
+      addTearDown(() {
+        subscription.close();
+        container.dispose();
+      });
 
-      final controller = container.read(workoutSessionControllerProvider.notifier);
+      final controller = container.read(
+        workoutSessionControllerProvider.notifier,
+      );
       await controller.prepareSession(
         programId: 'program_1',
         dayNumber: 1,
@@ -302,7 +317,10 @@ void main() {
         exerciseIds: const ['push_up'],
       );
 
-      expect(container.read(workoutSessionControllerProvider).isSessionReady, isFalse);
+      expect(
+        container.read(workoutSessionControllerProvider).isSessionReady,
+        isFalse,
+      );
       final result = await controller.finishWorkoutSession(
         programId: 'program_1',
         dayNumber: 1,
@@ -334,10 +352,14 @@ void main() {
         workoutSessionControllerProvider,
         (previous, next) {},
       );
-      addTearDown(subscription.close);
-      addTearDown(container.dispose);
+      addTearDown(() {
+        subscription.close();
+        container.dispose();
+      });
 
-      final controller = container.read(workoutSessionControllerProvider.notifier);
+      final controller = container.read(
+        workoutSessionControllerProvider.notifier,
+      );
       await controller.prepareSession(
         programId: 'program_1',
         dayNumber: 1,
@@ -346,7 +368,10 @@ void main() {
         exerciseIds: const ['push_up'],
       );
 
-      expect(container.read(workoutSessionControllerProvider).isSessionReady, isTrue);
+      expect(
+        container.read(workoutSessionControllerProvider).isSessionReady,
+        isTrue,
+      );
       expect(controller.sessionId, isNull);
       final result = await controller.finishWorkoutSession(
         programId: 'program_1',
@@ -361,7 +386,6 @@ void main() {
   });
 
   group('WorkoutSessionScreen finalization failure & retry widget test', () {
-
     testWidgets(
       'keeps the options menu disabled when session preparation fails',
       (tester) async {
