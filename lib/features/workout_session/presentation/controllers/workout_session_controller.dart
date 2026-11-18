@@ -1,5 +1,7 @@
 import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/models/workout_session_entity.dart';
 import '../../../../core/database/models/workout_set_entity.dart';
@@ -42,7 +44,8 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
   /// Interval persistensi waktu aktif saat sesi berjalan.
   static const int _elapsedPersistEverySeconds = 30;
 
-  static const WorkoutExercisePrescription _defaultPrescription = WorkoutExercisePrescription();
+  static const WorkoutExercisePrescription _defaultPrescription =
+      WorkoutExercisePrescription();
 
   DateTime _startedAt = DateTime.now();
   String? _sessionId;
@@ -211,7 +214,7 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
     final restoredElapsed = session.elapsedSeconds > 0
         ? session.elapsedSeconds
         : (wallClockSeconds >= 0 &&
-              wallClockSeconds <= _maxRecentSessionFallbackSeconds
+                  wallClockSeconds <= _maxRecentSessionFallbackSeconds
               ? wallClockSeconds
               : 0);
 
@@ -441,9 +444,7 @@ class WorkoutSessionController extends StateNotifier<WorkoutSessionState> {
       // Pindah ke gerakan berikutnya
       final nextIndex = state.currentExerciseIndex + 1;
       if (state.currentExerciseIndex < total - 1) {
-        final nextRx = _prescriptionFor(
-          ids.isNotEmpty ? ids[nextIndex] : null,
-        );
+        final nextRx = _prescriptionFor(ids.isNotEmpty ? ids[nextIndex] : null);
         state = state.copyWith(
           currentExerciseIndex: nextIndex,
           currentSet: 1,

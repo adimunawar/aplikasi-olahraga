@@ -64,5 +64,6 @@
   "savingSession": "Menyimpan sesi latihan...",
   "emptySessionDescription": "Daftar latihan untuk sesi ini tidak ditemukan. Silakan kembali untuk memuat ulang program latihan Anda.",
   "backButtonLabel": "Kembali",
-  "finishSessionFailed": "Sesi latihan gagal disimpan. Progres yang sudah tercatat tetap tersedia. Silakan coba lagi."
+  "finishSessionFailed": "Sesi latihan gagal disimpan. Progres yang sudah tercatat tetap tersedia. Silakan coba lagi.",
+  "defaultProgramTitle": "Latihan Kekuatan"
 }

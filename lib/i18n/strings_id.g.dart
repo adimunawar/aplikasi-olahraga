@@ -345,9 +345,13 @@ class Translations$workoutSession$id {
 
   /// id: 'Kembali'
   String get backButtonLabel => 'Kembali';
+
   /// id: 'Sesi latihan gagal disimpan. Progres yang sudah tercatat tetap tersedia. Silakan coba lagi.'
   String get finishSessionFailed =>
       'Sesi latihan gagal disimpan. Progres yang sudah tercatat tetap tersedia. Silakan coba lagi.';
+
+  /// id: 'Latihan Kekuatan'
+  String get defaultProgramTitle => 'Latihan Kekuatan';
 }
 
 // Path: workouts
@@ -1990,6 +1994,8 @@ extension on Translations {
       'workoutSession.savingSession' => 'Menyimpan sesi latihan...',
       'workoutSession.emptySessionDescription' => 'Daftar latihan untuk sesi ini tidak ditemukan. Silakan kembali untuk memuat ulang program latihan Anda.',
       'workoutSession.backButtonLabel' => 'Kembali',
+      'workoutSession.finishSessionFailed' => 'Sesi latihan gagal disimpan. Progres yang sudah tercatat tetap tersedia. Silakan coba lagi.',
+      'workoutSession.defaultProgramTitle' => 'Latihan Kekuatan',
       'workouts.title' => 'Latihan',
       'workouts.searchHint' => 'Cari latihan & gerakan...',
       'workouts.tabs.myProgram' => 'Program Saya',

@@ -278,28 +278,28 @@ void main() {
       expect(repository.savedSets, hasLength(1));
       expect(repository.savedSets.single.id, '${sessionId}_a_1');
       expect(repository.savedSets.single.sessionId, sessionId);
-      expect(
-        container.read(workoutSessionControllerProvider).completedSets,
-        1,
-      );
+      expect(container.read(workoutSessionControllerProvider).completedSets, 1);
     });
 
-    test('abandonActiveSession marks the running session as abandoned', () async {
-      await controller().prepareSession(
-        programId: 'program_1',
-        dayNumber: 1,
-        programTitle: 'Upper Body',
-        scheduledDate: today,
-        exerciseIds: const ['a'],
-      );
-      final sessionId = controller().sessionId;
+    test(
+      'abandonActiveSession marks the running session as abandoned',
+      () async {
+        await controller().prepareSession(
+          programId: 'program_1',
+          dayNumber: 1,
+          programTitle: 'Upper Body',
+          scheduledDate: today,
+          exerciseIds: const ['a'],
+        );
+        final sessionId = controller().sessionId;
 
-      await controller().abandonActiveSession();
+        await controller().abandonActiveSession();
 
-      expect(repository.abandonedIds, contains(sessionId));
-      expect(repository.active?.status, WorkoutSessionStatus.abandoned);
-      expect(controller().sessionId, isNull);
-    });
+        expect(repository.abandonedIds, contains(sessionId));
+        expect(repository.active?.status, WorkoutSessionStatus.abandoned);
+        expect(controller().sessionId, isNull);
+      },
+    );
   });
 
   group('WorkoutSessionController conflict handling', () {
@@ -333,42 +333,45 @@ void main() {
       );
     }
 
-    test('P1: reports a conflict for another program on the same day & date', () async {
-      // Program berbeda, Day 1, tanggal sama persis.
-      repository.active = sessionFor(programId: 'program_old', dayNumber: 1);
+    test(
+      'P1: reports a conflict for another program on the same day & date',
+      () async {
+        // Program berbeda, Day 1, tanggal sama persis.
+        repository.active = sessionFor(programId: 'program_old', dayNumber: 1);
 
-      final result = await controller().prepareSession(
-        programId: 'program_new',
-        dayNumber: 1,
-        programTitle: 'Upper Body',
-        scheduledDate: today,
-        exerciseIds: const ['a'],
-      );
+        final result = await controller().prepareSession(
+          programId: 'program_new',
+          dayNumber: 1,
+          programTitle: 'Upper Body',
+          scheduledDate: today,
+          exerciseIds: const ['a'],
+        );
 
-      expect(result, isA<SessionConflict>());
-      expect(
-        (result as SessionConflict).existingProgramId,
-        'program_old',
-      );
-      // Sesi lama TIDAK boleh di-abandon secara otomatis.
-      expect(repository.abandonedIds, isEmpty);
-      expect(repository.active?.status, WorkoutSessionStatus.inProgress);
-    });
+        expect(result, isA<SessionConflict>());
+        expect((result as SessionConflict).existingProgramId, 'program_old');
+        // Sesi lama TIDAK boleh di-abandon secara otomatis.
+        expect(repository.abandonedIds, isEmpty);
+        expect(repository.active?.status, WorkoutSessionStatus.inProgress);
+      },
+    );
 
-    test('P1: reports a conflict for another day of the same program', () async {
-      repository.active = sessionFor(programId: 'program_1', dayNumber: 2);
+    test(
+      'P1: reports a conflict for another day of the same program',
+      () async {
+        repository.active = sessionFor(programId: 'program_1', dayNumber: 2);
 
-      final result = await controller().prepareSession(
-        programId: 'program_1',
-        dayNumber: 3,
-        programTitle: 'Upper Body',
-        scheduledDate: today,
-        exerciseIds: const ['a'],
-      );
+        final result = await controller().prepareSession(
+          programId: 'program_1',
+          dayNumber: 3,
+          programTitle: 'Upper Body',
+          scheduledDate: today,
+          exerciseIds: const ['a'],
+        );
 
-      expect(result, isA<SessionConflict>());
-      expect(repository.abandonedIds, isEmpty);
-    });
+        expect(result, isA<SessionConflict>());
+        expect(repository.abandonedIds, isEmpty);
+      },
+    );
 
     test('P1: resuming the conflicting session keeps it intact', () async {
       repository.active = sessionFor(programId: 'program_old', dayNumber: 1);
@@ -383,106 +386,115 @@ void main() {
       expect(repository.active?.status, WorkoutSessionStatus.inProgress);
     });
 
-    test('P1: discard option abandons the old session then starts a new one', () async {
-      repository.active = sessionFor(programId: 'program_old', dayNumber: 1);
+    test(
+      'P1: discard option abandons the old session then starts a new one',
+      () async {
+        repository.active = sessionFor(programId: 'program_old', dayNumber: 1);
 
-      final result = await controller().discardConflictingAndStart(
-        conflictingSessionId: 'session_conflict',
-        programId: 'program_new',
-        dayNumber: 1,
-        programTitle: 'Upper Body',
-        scheduledDate: today,
-        exerciseIds: const ['a'],
-      );
+        final result = await controller().discardConflictingAndStart(
+          conflictingSessionId: 'session_conflict',
+          programId: 'program_new',
+          dayNumber: 1,
+          programTitle: 'Upper Body',
+          scheduledDate: today,
+          exerciseIds: const ['a'],
+        );
 
-      expect(result, isA<SessionPrepared>());
-      expect(repository.abandonedIds, contains('session_conflict'));
-      expect(repository.active?.programId, 'program_new');
-      expect(repository.active?.status, WorkoutSessionStatus.inProgress);
-      expect(controller().sessionId, isNot('session_conflict'));
-    });
+        expect(result, isA<SessionPrepared>());
+        expect(repository.abandonedIds, contains('session_conflict'));
+        expect(repository.active?.programId, 'program_new');
+        expect(repository.active?.status, WorkoutSessionStatus.inProgress);
+        expect(controller().sessionId, isNot('session_conflict'));
+      },
+    );
 
-    test('P1: recording a set before preparation finishes is ignored', () async {
-      // Simulasi: user sempat menekan Complete Set sebelum prepareSession
-      // selesai (sessionId belum ada). Tidak boleh ada set yatim.
-      await controller().recordSetPerformance(
-        exerciseId: 'a',
-        setNumber: 1,
-        actualReps: 10,
-        rir: 2,
-      );
-
-      expect(repository.savedSets, isEmpty);
-      expect(
-        container.read(workoutSessionControllerProvider).completedSets,
-        0,
-      );
-
-      // Setelah siap, pencatatan normal kembali bekerja.
-      await controller().prepareSession(
-        programId: 'program_1',
-        dayNumber: 1,
-        programTitle: 'Upper Body',
-        scheduledDate: today,
-        exerciseIds: const ['a'],
-      );
-      await controller().recordSetPerformance(
-        exerciseId: 'a',
-        setNumber: 1,
-        actualReps: 10,
-        rir: 2,
-      );
-
-      expect(repository.savedSets, hasLength(1));
-      expect(
-        container.read(workoutSessionControllerProvider).completedSets,
-        1,
-      );
-    });
-
-    test('finish computes completed sets from actual logs, not position', () async {
-      await controller().prepareSession(
-        programId: 'program_1',
-        dayNumber: 1,
-        programTitle: 'Upper Body',
-        scheduledDate: today,
-        exerciseIds: const ['a', 'b'],
-      );
-      final controller0 = controller();
-      // Exercise 1 tuntas (3 set), exercise 2 baru 1 set; posisi berada di
-      // exercise 2 set 2 — rumus posisi lama akan menghasilkan 5.
-      for (var i = 1; i <= 3; i++) {
-        await controller0.recordSetPerformance(
+    test(
+      'P1: recording a set before preparation finishes is ignored',
+      () async {
+        // Simulasi: user sempat menekan Complete Set sebelum prepareSession
+        // selesai (sessionId belum ada). Tidak boleh ada set yatim.
+        await controller().recordSetPerformance(
           exerciseId: 'a',
-          setNumber: i,
+          setNumber: 1,
           actualReps: 10,
           rir: 2,
         );
-      }
-      await controller0.recordSetPerformance(
-        exerciseId: 'b',
-        setNumber: 1,
-        actualReps: 8,
-        rir: 3,
-      );
-      controller0.nextPressed(totalExercises: 2); // pindah ke set b/2
 
-      final result = await controller0.finishWorkoutSession(
-        programId: 'program_1',
-        dayNumber: 1,
-        programTitle: 'Upper Body',
-        totalExercises: 2,
-      );
+        expect(repository.savedSets, isEmpty);
+        expect(
+          container.read(workoutSessionControllerProvider).completedSets,
+          0,
+        );
 
-      expect(result?.completedSets, 4);
-      expect(result?.progressionDecisions, isEmpty);
-      // Tidak ada lagi baseline set palsu.
-      expect(repository.completedResults.single.completedSets, 4);
-      expect(
-        container.read(workoutSessionControllerProvider).errorMessage,
-        isNull,
-      );
-    });
+        // Setelah siap, pencatatan normal kembali bekerja.
+        await controller().prepareSession(
+          programId: 'program_1',
+          dayNumber: 1,
+          programTitle: 'Upper Body',
+          scheduledDate: today,
+          exerciseIds: const ['a'],
+        );
+        await controller().recordSetPerformance(
+          exerciseId: 'a',
+          setNumber: 1,
+          actualReps: 10,
+          rir: 2,
+        );
+
+        expect(repository.savedSets, hasLength(1));
+        expect(
+          container.read(workoutSessionControllerProvider).completedSets,
+          1,
+        );
+      },
+    );
+
+    test(
+      'finish computes completed sets from actual logs, not position',
+      () async {
+        await controller().prepareSession(
+          programId: 'program_1',
+          dayNumber: 1,
+          programTitle: 'Upper Body',
+          scheduledDate: today,
+          exerciseIds: const ['a', 'b'],
+        );
+        final controller0 = controller();
+        // Exercise 1 tuntas (3 set), exercise 2 baru 1 set; posisi berada di
+        // exercise 2 set 2 — rumus posisi lama akan menghasilkan 5.
+        for (var i = 1; i <= 3; i++) {
+          await controller0.recordSetPerformance(
+            exerciseId: 'a',
+            setNumber: i,
+            actualReps: 10,
+            rir: 2,
+          );
+        }
+        await controller0.recordSetPerformance(
+          exerciseId: 'b',
+          setNumber: 1,
+          actualReps: 8,
+          rir: 3,
+        );
+        controller0.nextPressed(totalExercises: 2); // pindah ke set b/2
+
+        final result = await controller0.finishWorkoutSession(
+          programId: 'program_1',
+          dayNumber: 1,
+          programTitle: 'Upper Body',
+          totalExercises: 2,
+        );
+
+        expect(result?.completedSets, 4);
+        expect(result?.progressionDecisions, isEmpty);
+        // Tidak ada lagi baseline set palsu.
+        expect(repository.completedResults.single.completedSets, 4);
+        expect(
+          container.read(workoutSessionControllerProvider).errorMessage,
+          isNull,
+        );
+      },
+    );
 
     test(
       'failed session completion keeps the session and can be retried',
@@ -531,10 +543,7 @@ void main() {
 
         final retriedState = container.read(workoutSessionControllerProvider);
         expect(retriedResult, isNotNull);
-        expect(
-          repository.completionAttemptSessionIds,
-          [sessionId, sessionId],
-        );
+        expect(repository.completionAttemptSessionIds, [sessionId, sessionId]);
         expect(controller0.sessionId, isNull);
         expect(retriedState.completionError, isNull);
         expect(retriedState.completedResult, same(retriedResult));
@@ -644,9 +653,7 @@ void main() {
         programTitle: 'Upper Body',
         scheduledDate: today,
         exerciseIds: const ['a'],
-        prescriptions: const {
-          'a': WorkoutExercisePrescription(restSeconds: 2),
-        },
+        prescriptions: const {'a': WorkoutExercisePrescription(restSeconds: 2)},
       );
 
       controller().startRest();
@@ -729,60 +736,63 @@ void main() {
       expect(repository.active?.elapsedSeconds, 30);
     });
 
-    test('P1: prescriptions drive total sets, rest, and resume position', () async {
-      repository.active = WorkoutSessionEntity(
-        id: 's1',
-        programId: 'program_1',
-        programDayId: 1,
-        programTitle: 'Upper Body',
-        scheduledDate: today,
-        startedAt: today,
-        elapsedSeconds: 100,
-        status: WorkoutSessionStatus.inProgress,
-      );
-      // Exercise 'a' hanya 2 set; 'b' 4 set dengan rest 90s.
-      repository.setsBySession['s1'] = [
-        completedSet('a', 1),
-        completedSet('a', 2),
-        completedSet('b', 1),
-      ];
+    test(
+      'P1: prescriptions drive total sets, rest, and resume position',
+      () async {
+        repository.active = WorkoutSessionEntity(
+          id: 's1',
+          programId: 'program_1',
+          programDayId: 1,
+          programTitle: 'Upper Body',
+          scheduledDate: today,
+          startedAt: today,
+          elapsedSeconds: 100,
+          status: WorkoutSessionStatus.inProgress,
+        );
+        // Exercise 'a' hanya 2 set; 'b' 4 set dengan rest 90s.
+        repository.setsBySession['s1'] = [
+          completedSet('a', 1),
+          completedSet('a', 2),
+          completedSet('b', 1),
+        ];
 
-      final result = await controller().prepareSession(
-        programId: 'program_1',
-        dayNumber: 1,
-        programTitle: 'Upper Body',
-        scheduledDate: today,
-        exerciseIds: const ['a', 'b'],
-        prescriptions: const {
-          'a': WorkoutExercisePrescription(
-            targetSets: 2,
-            minReps: 8,
-            maxReps: 12,
-            restSeconds: 60,
-          ),
-          'b': WorkoutExercisePrescription(
-            targetSets: 4,
-            minReps: 10,
-            maxReps: 15,
-            restSeconds: 90,
-          ),
-        },
-      );
+        final result = await controller().prepareSession(
+          programId: 'program_1',
+          dayNumber: 1,
+          programTitle: 'Upper Body',
+          scheduledDate: today,
+          exerciseIds: const ['a', 'b'],
+          prescriptions: const {
+            'a': WorkoutExercisePrescription(
+              targetSets: 2,
+              minReps: 8,
+              maxReps: 12,
+              restSeconds: 60,
+            ),
+            'b': WorkoutExercisePrescription(
+              targetSets: 4,
+              minReps: 10,
+              maxReps: 15,
+              restSeconds: 90,
+            ),
+          },
+        );
 
-      final state = container.read(workoutSessionControllerProvider);
-      expect(result, isA<SessionPrepared>());
-      // Posisi resume mengikuti target set per exercise, bukan asumsi 3.
-      expect(state.currentExerciseIndex, 1);
-      expect(state.currentSet, 2);
-      expect(state.totalSetsPerExercise, 4);
-      expect(state.defaultRestSeconds, 90);
+        final state = container.read(workoutSessionControllerProvider);
+        expect(result, isA<SessionPrepared>());
+        // Posisi resume mengikuti target set per exercise, bukan asumsi 3.
+        expect(state.currentExerciseIndex, 1);
+        expect(state.currentSet, 2);
+        expect(state.totalSetsPerExercise, 4);
+        expect(state.defaultRestSeconds, 90);
 
-      // Maju ke exercise berikutnya memakai preskripsi exercise itu.
-      controller().nextPressed(totalExercises: 2);
-      final after = container.read(workoutSessionControllerProvider);
-      expect(after.currentExerciseIndex, 1);
-      expect(after.remainingRestSeconds, 90);
-    });
+        // Maju ke exercise berikutnya memakai preskripsi exercise itu.
+        controller().nextPressed(totalExercises: 2);
+        final after = container.read(workoutSessionControllerProvider);
+        expect(after.currentExerciseIndex, 1);
+        expect(after.remainingRestSeconds, 90);
+      },
+    );
 
     test('P2: failed set save returns false and rolls the set back', () async {
       await controller().prepareSession(
@@ -799,10 +809,7 @@ void main() {
         actualReps: 10,
         rir: 2,
       );
-      expect(
-        container.read(workoutSessionControllerProvider).completedSets,
-        1,
-      );
+      expect(container.read(workoutSessionControllerProvider).completedSets, 1);
 
       repository.failSaveSet = true;
       final saved = await controller0.recordSetPerformance(
@@ -815,10 +822,7 @@ void main() {
       // Penyimpanan gagal: caller tidak boleh memajukan posisi.
       expect(saved, isFalse);
       expect(repository.savedSets, hasLength(1));
-      expect(
-        container.read(workoutSessionControllerProvider).completedSets,
-        1,
-      );
+      expect(container.read(workoutSessionControllerProvider).completedSets, 1);
       // Error set disimpan terpisah supaya kontrol workout tidak terkunci.
       expect(
         container.read(workoutSessionControllerProvider).setSaveError,
@@ -841,90 +845,100 @@ void main() {
 
       expect(retried, isTrue);
       expect(repository.savedSets, hasLength(2));
-      expect(
-        container.read(workoutSessionControllerProvider).completedSets,
-        2,
-      );
+      expect(container.read(workoutSessionControllerProvider).completedSets, 2);
       expect(
         container.read(workoutSessionControllerProvider).setSaveError,
         isNull,
       );
     });
 
-    test('P2: short-lived sessions no longer inherit closed-app wall time', () async {
-      // Sesi dibuat 2 jam lalu tanpa waktu aktif tersimpan (mis. aplikasi
-      // tewas beberapa detik setelah mulai). Resume TIDAK boleh menghitung
-      // 2 jam sebagai durasi latihan.
-      repository.active = WorkoutSessionEntity(
-        id: 's_short',
-        programId: 'program_1',
-        programDayId: 1,
-        programTitle: 'Upper Body',
-        scheduledDate: today,
-        startedAt: DateTime.now().subtract(const Duration(hours: 2)),
-        elapsedSeconds: 0,
-        status: WorkoutSessionStatus.inProgress,
-      );
+    test(
+      'P2: short-lived sessions no longer inherit closed-app wall time',
+      () async {
+        // Sesi dibuat 2 jam lalu tanpa waktu aktif tersimpan (mis. aplikasi
+        // tewas beberapa detik setelah mulai). Resume TIDAK boleh menghitung
+        // 2 jam sebagai durasi latihan.
+        repository.active = WorkoutSessionEntity(
+          id: 's_short',
+          programId: 'program_1',
+          programDayId: 1,
+          programTitle: 'Upper Body',
+          scheduledDate: today,
+          startedAt: DateTime.now().subtract(const Duration(hours: 2)),
+          elapsedSeconds: 0,
+          status: WorkoutSessionStatus.inProgress,
+        );
 
-      await controller().resumeExistingSession(
-        sessionId: 's_short',
-        exerciseIds: const ['a'],
-      );
+        await controller().resumeExistingSession(
+          sessionId: 's_short',
+          exerciseIds: const ['a'],
+        );
 
-      expect(
-        container.read(workoutSessionControllerProvider).elapsedWorkoutSeconds,
-        0,
-      );
-    });
+        expect(
+          container
+              .read(workoutSessionControllerProvider)
+              .elapsedWorkoutSeconds,
+          0,
+        );
+      },
+    );
 
-    test('P2: recently-interrupted session keeps its wall-clock estimate', () async {
-      // Sesi baru dibuat 20 detik lalu lalu aplikasi tewas: wall-clock masih
-      // akurat sebagai estimasi waktu aktif.
-      repository.active = WorkoutSessionEntity(
-        id: 's_recent',
-        programId: 'program_1',
-        programDayId: 1,
-        programTitle: 'Upper Body',
-        scheduledDate: today,
-        startedAt: DateTime.now().subtract(const Duration(seconds: 20)),
-        elapsedSeconds: 0,
-        status: WorkoutSessionStatus.inProgress,
-      );
+    test(
+      'P2: recently-interrupted session keeps its wall-clock estimate',
+      () async {
+        // Sesi baru dibuat 20 detik lalu lalu aplikasi tewas: wall-clock masih
+        // akurat sebagai estimasi waktu aktif.
+        repository.active = WorkoutSessionEntity(
+          id: 's_recent',
+          programId: 'program_1',
+          programDayId: 1,
+          programTitle: 'Upper Body',
+          scheduledDate: today,
+          startedAt: DateTime.now().subtract(const Duration(seconds: 20)),
+          elapsedSeconds: 0,
+          status: WorkoutSessionStatus.inProgress,
+        );
 
-      await controller().resumeExistingSession(
-        sessionId: 's_recent',
-        exerciseIds: const ['a'],
-      );
+        await controller().resumeExistingSession(
+          sessionId: 's_recent',
+          exerciseIds: const ['a'],
+        );
 
-      expect(
-        container.read(workoutSessionControllerProvider).elapsedWorkoutSeconds,
-        inExclusiveRange(15, 40),
-      );
-    });
+        expect(
+          container
+              .read(workoutSessionControllerProvider)
+              .elapsedWorkoutSeconds,
+          inExclusiveRange(15, 40),
+        );
+      },
+    );
 
-    test('P1: conflict carries the old session schedule for navigation', () async {
-      final oldDate = today.subtract(const Duration(days: 2));
-      repository.active = WorkoutSessionEntity(
-        id: 'session_conflict',
-        programId: 'program_old',
-        programDayId: 1,
-        programTitle: 'Old Program',
-        scheduledDate: oldDate,
-        startedAt: oldDate,
-        status: WorkoutSessionStatus.inProgress,
-      );
+    test(
+      'P1: conflict carries the old session schedule for navigation',
+      () async {
+        final oldDate = today.subtract(const Duration(days: 2));
+        repository.active = WorkoutSessionEntity(
+          id: 'session_conflict',
+          programId: 'program_old',
+          programDayId: 1,
+          programTitle: 'Old Program',
+          scheduledDate: oldDate,
+          startedAt: oldDate,
+          status: WorkoutSessionStatus.inProgress,
+        );
 
-      final result = await controller().prepareSession(
-        programId: 'program_1',
-        dayNumber: 1,
-        programTitle: 'Upper Body',
-        scheduledDate: today,
-        exerciseIds: const ['a'],
-      );
+        final result = await controller().prepareSession(
+          programId: 'program_1',
+          dayNumber: 1,
+          programTitle: 'Upper Body',
+          scheduledDate: today,
+          exerciseIds: const ['a'],
+        );
 
-      final conflict = result as SessionConflict;
-      expect(conflict.existingSessionId, 'session_conflict');
-      expect(conflict.existingScheduledDate, oldDate);
-    });
+        final conflict = result as SessionConflict;
+        expect(conflict.existingSessionId, 'session_conflict');
+        expect(conflict.existingScheduledDate, oldDate);
+      },
+    );
   });
 }

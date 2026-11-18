@@ -58,11 +58,6 @@ class AppSmartImage extends StatelessWidget {
     );
   }
 
-  bool get _isNetwork =>
-      imagePathOrUrl != null &&
-      (imagePathOrUrl!.startsWith('http://') ||
-          imagePathOrUrl!.startsWith('https://'));
-
   @override
   Widget build(BuildContext context) {
     Widget content;

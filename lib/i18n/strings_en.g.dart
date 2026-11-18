@@ -301,13 +301,15 @@ class _Translations$workoutSession$en extends Translations$workoutSession$id {
   @override
   String get savingSession => 'Saving your workout...';
   @override
-  String get finishSessionFailed =>
-      'We couldn\'t save your workout. Your recorded progress is still here. Please try again.';
-  @override
   String get emptySessionDescription =>
       'The exercise list for this session was not found. Please go back to reload your workout program.';
   @override
   String get backButtonLabel => 'Go Back';
+  @override
+  String get finishSessionFailed =>
+      'We couldn\'t save your workout. Your recorded progress is still here. Please try again.';
+  @override
+  String get defaultProgramTitle => 'Strength Training';
 }
 
 // Path: workouts
@@ -1871,6 +1873,9 @@ extension on TranslationsEn {
       'workoutSession.savingSession' => 'Saving your workout...',
       'workoutSession.emptySessionDescription' => 'The exercise list for this session was not found. Please go back to reload your workout program.',
       'workoutSession.backButtonLabel' => 'Go Back',
+      'workoutSession.finishSessionFailed' =>
+        'We couldn\'t save your workout. Your recorded progress is still here. Please try again.',
+      'workoutSession.defaultProgramTitle' => 'Strength Training',
       'workouts.title' => 'Workouts',
       'workouts.searchHint' => 'Search workouts & exercises...',
       'workouts.tabs.myProgram' => 'My Program',

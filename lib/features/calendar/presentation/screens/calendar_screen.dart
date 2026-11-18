@@ -101,7 +101,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
             _activeProgramId = activeProgram.id;
             _activeProgramName = activeProgram.name;
             _hasActiveProgram = false;
-            _loadError = 'Your active program does not have a workout schedule yet.';
+            _loadError =
+                'Your active program does not have a workout schedule yet.';
             _isLoading = false;
           });
         }
@@ -116,11 +117,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
         }
       }
 
-      final workoutHistory = await _db.getWorkoutSessionsForProgram(activeProgram.id);
+      final workoutHistory = await _db.getWorkoutSessionsForProgram(
+        activeProgram.id,
+      );
       final totalWeeks = profile.targetTimeframeWeeks > 0
           ? profile.targetTimeframeWeeks
           : activeProgram.durationWeeks;
-      final programStartDate = ProgramWeekSchedule.dateOnly(activeProgram.startDate);
+      final programStartDate = ProgramWeekSchedule.dateOnly(
+        activeProgram.startDate,
+      );
       final today = ProgramWeekSchedule.dateOnly(DateTime.now());
       final days = <_CalendarDayData>[];
       final leadingEmptyDays = today.weekday - 1;
@@ -159,9 +164,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           (record) => record.status == WorkoutSessionStatus.completed,
         );
         final inProgressRecords = dayHistory
-            .where(
-              (record) => record.status == WorkoutSessionStatus.inProgress,
-            )
+            .where((record) => record.status == WorkoutSessionStatus.inProgress)
             .toList();
 
         if (scheduled == null) {
@@ -309,8 +312,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final isToday = _isSameDate(entry.date, DateTime.now());
     final color = AppColors.forWorkoutCode(day.type.code);
     final exerciseNames = {
-      for (final exercise in entry.exercises)
-        exercise.id: exercise.name.id,
+      for (final exercise in entry.exercises) exercise.id: exercise.name.id,
     };
 
     showModalBottomSheet(
@@ -354,7 +356,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         ),
                         const SizedBox(width: 10),
                         Text(
-                          'DAY ' + entry.sequenceDay.toString() + ' / 30',
+                          'DAY ${entry.sequenceDay} / 30',
                           style: AppTypography.headlineSmall.copyWith(
                             color: AppColors.textPrimary,
                           ),
@@ -383,7 +385,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  MaterialLocalizations.of(context).formatMediumDate(entry.date),
+                  MaterialLocalizations.of(context)
+                      .formatMediumDate(entry.date),
                   style: AppTypography.bodySmall.copyWith(
                     color: AppColors.textDim,
                   ),
@@ -421,14 +424,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   else
                     ...day.items.map((item) {
                       final repsText = item.isDurationBased
-                          ? item.sets.toString() +
-                              ' x ' +
-                              item.durationSec.toString() +
-                              's'
-                          : item.sets.toString() +
-                              ' x ' +
-                              (item.reps?.toString() ?? '—') +
-                              ' reps';
+                          ? '${item.sets} x ${item.durationSec}s'
+                          : '${item.sets} x ${item.reps ?? '—'} reps';
 
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 4),
@@ -551,8 +548,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  _loadError ??
-                      'Create or activate a workout plan to see your personalized schedule here.',
+                  _loadError ?? 'Create or activate a workout plan to see your personalized schedule here.',
                   textAlign: TextAlign.center,
                   style: AppTypography.bodyMedium.copyWith(
                     color: AppColors.textSecondary,
@@ -752,7 +748,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         ),
         const SizedBox(width: 5),
         Text(
-          code + ':' + name,
+          '$code:$name',
           style: AppTypography.bodySmall.copyWith(
             fontSize: 10,
             color: AppColors.textDim,

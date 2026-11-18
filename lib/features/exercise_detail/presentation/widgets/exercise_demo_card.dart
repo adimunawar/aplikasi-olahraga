@@ -3,7 +3,6 @@ import 'package:video_player/video_player.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../core/utils/media_url_resolver.dart';
 import '../../../../core/widgets/app_smart_image.dart';
 import '../../../exercises/domain/models/exercise.dart';
 

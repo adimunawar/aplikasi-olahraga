@@ -123,9 +123,13 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
       LocaleSettings.currentLocale.languageCode,
     );
     if (title.isNotEmpty) return title;
-    return LocaleSettings.currentLocale.languageCode.startsWith('id')
-        ? 'Latihan Kekuatan'
-        : 'Upper Body Strength';
+
+    final typeTitle = widget.day.type.localizedTitle(
+      LocaleSettings.currentLocale.languageCode,
+    );
+    if (typeTitle.isNotEmpty) return typeTitle;
+
+    return t.workoutSession.defaultProgramTitle;
   }
 
   int get _totalExercises => widget.exercises.length;
@@ -323,7 +327,8 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
       // Profile data is optional for a completed workout; keep the summary
       // available with a generic greeting when the profile cannot be loaded.
       debugPrintStack(
-        label: '[WorkoutSessionScreen] Profile unavailable for summary greeting',
+        label:
+            '[WorkoutSessionScreen] Profile unavailable for summary greeting',
         stackTrace: stackTrace,
       );
       return 'athlete';
@@ -560,7 +565,9 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
                     isLoading: isFinishingSession,
                     onPressed: canCompleteSet
                         ? () => _onNextPressed(
-                            _currentSetValue == 0 ? targetValue : _currentSetValue,
+                            _currentSetValue == 0
+                                ? targetValue
+                                : _currentSetValue,
                           )
                         : null,
                   ),
