@@ -236,153 +236,161 @@ void main() {
     test(
       'rejects finalization while an in-progress session is still restoring',
       () async {
-      final repository = _FakeWorkoutSessionRepository()
-        ..pendingSetRestore = Completer<List<WorkoutSetEntity>>()
-        ..onSetRestoreStarted = Completer<void>();
-      final container = ProviderContainer(
-        overrides: [
-          workoutSessionRepositoryProvider.overrideWithValue(repository),
-        ],
-      );
-      final subscription = container.listen(
-        workoutSessionControllerProvider,
-        (previous, next) {},
-      );
-      addTearDown(() {
-        subscription.close();
-        container.dispose();
-      });
-
-      final controller = container.read(
-        workoutSessionControllerProvider.notifier,
-      );
-      final preparation = controller.prepareSession(
-        programId: 'program_1',
-        dayNumber: 1,
-        programTitle: 'Chest Focus',
-        scheduledDate: DateTime(2026, 11, 18),
-        exerciseIds: const ['push_up'],
-      );
-
-      await repository.onSetRestoreStarted!.future;
-      expect(controller.sessionId, 'session_test_1');
-      expect(
-        container.read(workoutSessionControllerProvider).isPreparing,
-        isTrue,
-      );
-
-      final result = await controller.finishWorkoutSession(
-        programId: 'program_1',
-        dayNumber: 1,
-        programTitle: 'Chest Focus',
-        totalExercises: 1,
-      );
-
-      expect(result, isNull);
-      expect(repository.finishAttemptCount, 0);
-
-      repository.pendingSetRestore!.complete([]);
-      await preparation;
-      expect(
-        container.read(workoutSessionControllerProvider).isSessionReady,
-        isTrue,
-      );
-    });
-
-    test('rejects finalization after session preparation fails', () async {
-      final repository = _FakeWorkoutSessionRepository()
-        ..failPrepareSession = true;
-      final container = ProviderContainer(
-        overrides: [
-          workoutSessionRepositoryProvider.overrideWithValue(repository),
-        ],
-      );
-      final subscription = container.listen(
-        workoutSessionControllerProvider,
-        (previous, next) {},
-      );
-      addTearDown(() {
-        subscription.close();
-        container.dispose();
-      });
-
-      final controller = container.read(
-        workoutSessionControllerProvider.notifier,
-      );
-      await controller.prepareSession(
-        programId: 'program_1',
-        dayNumber: 1,
-        programTitle: 'Chest Focus',
-        scheduledDate: DateTime(2026, 11, 18),
-        exerciseIds: const ['push_up'],
-      );
-
-      expect(
-        container.read(workoutSessionControllerProvider).isSessionReady,
-        isFalse,
-      );
-      final result = await controller.finishWorkoutSession(
-        programId: 'program_1',
-        dayNumber: 1,
-        programTitle: 'Chest Focus',
-        totalExercises: 1,
-      );
-
-      expect(result, isNull);
-      expect(repository.finishAttemptCount, 0);
-    });
-
-    test('rejects finalization when no active session ID was prepared', () async {
-      final repository = _FakeWorkoutSessionRepository()
-        ..active = WorkoutSessionEntity(
-          id: 'another_session',
-          programId: 'another_program',
-          programDayId: 2,
-          programTitle: 'Another workout',
-          scheduledDate: DateTime(2026, 11, 18),
-          startedAt: DateTime(2026, 11, 18, 8),
-          status: WorkoutSessionStatus.inProgress,
+        final repository = _FakeWorkoutSessionRepository()
+          ..pendingSetRestore = Completer<List<WorkoutSetEntity>>()
+          ..onSetRestoreStarted = Completer<void>();
+        final container = ProviderContainer(
+          overrides: [
+            workoutSessionRepositoryProvider.overrideWithValue(repository),
+          ],
         );
-      final container = ProviderContainer(
-        overrides: [
-          workoutSessionRepositoryProvider.overrideWithValue(repository),
-        ],
-      );
-      final subscription = container.listen(
-        workoutSessionControllerProvider,
-        (previous, next) {},
-      );
-      addTearDown(() {
-        subscription.close();
-        container.dispose();
-      });
+        final subscription = container.listen(
+          workoutSessionControllerProvider,
+          (previous, next) {},
+        );
+        addTearDown(() {
+          subscription.close();
+          container.dispose();
+        });
 
-      final controller = container.read(
-        workoutSessionControllerProvider.notifier,
-      );
-      await controller.prepareSession(
-        programId: 'program_1',
-        dayNumber: 1,
-        programTitle: 'Chest Focus',
-        scheduledDate: DateTime(2026, 11, 18),
-        exerciseIds: const ['push_up'],
-      );
+        final controller = container.read(
+          workoutSessionControllerProvider.notifier,
+        );
+        final preparation = controller.prepareSession(
+          programId: 'program_1',
+          dayNumber: 1,
+          programTitle: 'Chest Focus',
+          scheduledDate: DateTime(2026, 11, 18),
+          exerciseIds: const ['push_up'],
+        );
 
-      expect(
-        container.read(workoutSessionControllerProvider).isSessionReady,
-        isTrue,
-      );
-      expect(controller.sessionId, isNull);
-      final result = await controller.finishWorkoutSession(
-        programId: 'program_1',
-        dayNumber: 1,
-        programTitle: 'Chest Focus',
-        totalExercises: 1,
-      );
+        await repository.onSetRestoreStarted!.future;
+        expect(controller.sessionId, 'session_test_1');
+        expect(
+          container.read(workoutSessionControllerProvider).isPreparing,
+          isTrue,
+        );
 
-      expect(result, isNull);
-      expect(repository.finishAttemptCount, 0);
-    });
+        final result = await controller.finishWorkoutSession(
+          programId: 'program_1',
+          dayNumber: 1,
+          programTitle: 'Chest Focus',
+          totalExercises: 1,
+        );
+
+        expect(result, isNull);
+        expect(repository.finishAttemptCount, 0);
+
+        repository.pendingSetRestore!.complete([]);
+        await preparation;
+        expect(
+          container.read(workoutSessionControllerProvider).isSessionReady,
+          isTrue,
+        );
+      },
+    );
+
+    test(
+      'rejects finalization after session preparation fails',
+      () async {
+        final repository = _FakeWorkoutSessionRepository()
+          ..failPrepareSession = true;
+        final container = ProviderContainer(
+          overrides: [
+            workoutSessionRepositoryProvider.overrideWithValue(repository),
+          ],
+        );
+        final subscription = container.listen(
+          workoutSessionControllerProvider,
+          (previous, next) {},
+        );
+        addTearDown(() {
+          subscription.close();
+          container.dispose();
+        });
+
+        final controller = container.read(
+          workoutSessionControllerProvider.notifier,
+        );
+        await controller.prepareSession(
+          programId: 'program_1',
+          dayNumber: 1,
+          programTitle: 'Chest Focus',
+          scheduledDate: DateTime(2026, 11, 18),
+          exerciseIds: const ['push_up'],
+        );
+
+        expect(
+          container.read(workoutSessionControllerProvider).isSessionReady,
+          isFalse,
+        );
+        final result = await controller.finishWorkoutSession(
+          programId: 'program_1',
+          dayNumber: 1,
+          programTitle: 'Chest Focus',
+          totalExercises: 1,
+        );
+
+        expect(result, isNull);
+        expect(repository.finishAttemptCount, 0);
+      },
+    );
+
+    test(
+      'rejects finalization when no active session ID was prepared',
+      () async {
+        final repository = _FakeWorkoutSessionRepository()
+          ..active = WorkoutSessionEntity(
+            id: 'another_session',
+            programId: 'another_program',
+            programDayId: 2,
+            programTitle: 'Another workout',
+            scheduledDate: DateTime(2026, 11, 18),
+            startedAt: DateTime(2026, 11, 18, 8),
+            status: WorkoutSessionStatus.inProgress,
+          );
+        final container = ProviderContainer(
+          overrides: [
+            workoutSessionRepositoryProvider.overrideWithValue(repository),
+          ],
+        );
+        final subscription = container.listen(
+          workoutSessionControllerProvider,
+          (previous, next) {},
+        );
+        addTearDown(() {
+          subscription.close();
+          container.dispose();
+        });
+
+        final controller = container.read(
+          workoutSessionControllerProvider.notifier,
+        );
+        await controller.prepareSession(
+          programId: 'program_1',
+          dayNumber: 1,
+          programTitle: 'Chest Focus',
+          scheduledDate: DateTime(2026, 11, 18),
+          exerciseIds: const ['push_up'],
+        );
+
+        expect(
+          container.read(workoutSessionControllerProvider).isSessionReady,
+          isTrue,
+        );
+        expect(controller.sessionId, isNull);
+
+        final result = await controller.finishWorkoutSession(
+          programId: 'program_1',
+          dayNumber: 1,
+          programTitle: 'Chest Focus',
+          totalExercises: 1,
+        );
+
+        expect(result, isNull);
+        expect(repository.finishAttemptCount, 0);
+      },
+    );
   });
 
   group('WorkoutSessionScreen finalization failure & retry widget test', () {
