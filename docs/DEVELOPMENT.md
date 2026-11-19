@@ -14,13 +14,17 @@ Use the same Flutter version as CI unless a version upgrade is being proposed:
 | Android Gradle Plugin | 9.3.1 |
 | Kotlin Gradle Plugin | 2.4.20 (legacy compatibility path) |
 | Java | JDK 17 for Android Gradle builds |
+| Android supported OS APIs | 24–37 |
 | Android min SDK | API 24 |
 | Android compile SDK | API 36 |
 | Android target SDK | API 36 |
+| Android ABIs | armeabi-v7a, arm64-v8a, x86_64 |
 | Package manager | Flutter Pub |
 | Git | Required |
 
 The app module uses Flutter-provided SDK values (flutter.minSdkVersion, flutter.compileSdkVersion, and flutter.targetSdkVersion) instead of hard-coded API numbers. With Flutter 3.50.0, these resolve to min SDK 24, compile SDK 36, and target SDK 36.
+
+Flutter's Gradle plugin supplies the standard Android ABIs for release builds: armeabi-v7a (ARM 32-bit), arm64-v8a (ARM 64-bit), and x86_64. The app does not override the default ABI filters.
 
 ### AGP 9 and Kotlin compatibility
 
@@ -68,7 +72,7 @@ The Android project applies Google Services and Crashlytics Gradle plugins. The 
 
 Obtain it from the Firebase Console for the Android application configured in the project. The file is ignored by Git and MUST NOT be committed.
 
-See Firebase setup (FIREBASE_SETUP.md) for collection defaults, local debug flags, CI configuration, and troubleshooting.
+See [Firebase setup](FIREBASE_SETUP.md) for collection defaults, local debug flags, CI configuration, and troubleshooting.
 
 FirebaseConfig is guarded at runtime: a Firebase initialization failure is logged and must not prevent local-first startup. The Android Gradle build still needs its native Google Services configuration when the plugin is applied.
 
@@ -76,7 +80,7 @@ FirebaseConfig is guarded at runtime: a Firebase initialization failure is logge
 
 A distributable release APK must use the persistent release keystore. Never use the Android debug signing key for release distribution.
 
-See Android release signing (android-release-signing.md). Do not put keystore files or passwords in the repository.
+See [Android release signing](android-release-signing.md). Do not put keystore files or passwords in the repository.
 
 ## 4. Run the app
 
