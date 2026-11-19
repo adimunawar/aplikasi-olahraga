@@ -11,7 +11,8 @@ import 'package:slang/generated.dart';
 import 'strings.g.dart';
 
 // Path: <root>
-class TranslationsEn extends Translations with BaseTranslations<AppLocale, Translations> {
+class TranslationsEn extends Translations
+    with BaseTranslations<AppLocale, Translations> {
   /// You can call this constructor and build your own translation instance of this locale.
   /// Constructing via the enum [AppLocale.build] is preferred.
   TranslationsEn({
@@ -31,7 +32,10 @@ class TranslationsEn extends Translations with BaseTranslations<AppLocale, Trans
              cardinalResolver: cardinalResolver,
              ordinalResolver: ordinalResolver,
            ),
-       super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
+       super(
+         cardinalResolver: cardinalResolver,
+         ordinalResolver: ordinalResolver,
+       ) {
     _meta.setFlatMapFunction(_flatMapFunction);
   }
 
@@ -47,8 +51,9 @@ class TranslationsEn extends Translations with BaseTranslations<AppLocale, Trans
   late final TranslationsEn _root = this; // ignore: unused_field
 
   @override
-  TranslationsEn $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) =>
-      TranslationsEn(meta: meta ?? this.$meta);
+  TranslationsEn $copyWith({
+    TranslationMetadata<AppLocale, Translations>? meta,
+  }) => TranslationsEn(meta: meta ?? this.$meta);
 
   // Translations
   @override
@@ -67,7 +72,9 @@ class TranslationsEn extends Translations with BaseTranslations<AppLocale, Trans
 
 // Path: core
 class _Translations$core$en extends Translations$core$id {
-  _Translations$core$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$core$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
@@ -75,15 +82,23 @@ class _Translations$core$en extends Translations$core$id {
   @override
   String get appName => 'Home Bulking Coach';
   @override
-  late final _Translations$core$actions$en actions = _Translations$core$actions$en._(_root);
+  late final _Translations$core$actions$en actions =
+      _Translations$core$actions$en._(_root);
   @override
-  late final _Translations$core$state$en state = _Translations$core$state$en._(_root);
+  late final _Translations$core$state$en state = _Translations$core$state$en._(
+    _root,
+  );
   @override
-  late final _Translations$core$badge$en badge = _Translations$core$badge$en._(_root);
+  late final _Translations$core$badge$en badge = _Translations$core$badge$en._(
+    _root,
+  );
   @override
-  late final _Translations$core$language$en language = _Translations$core$language$en._(_root);
+  late final _Translations$core$language$en language =
+      _Translations$core$language$en._(_root);
   @override
-  late final _Translations$core$units$en units = _Translations$core$units$en._(_root);
+  late final _Translations$core$units$en units = _Translations$core$units$en._(
+    _root,
+  );
 }
 
 // Path: home
@@ -124,15 +139,53 @@ class _Translations$onboarding$en extends Translations$onboarding$id {
 
   // Translations
   @override
-  late final _Translations$onboarding$nav$en nav = _Translations$onboarding$nav$en._(_root);
+  late final _Translations$home$greeting$en greeting =
+      _Translations$home$greeting$en._(_root);
   @override
-  late final _Translations$onboarding$welcome$en welcome = _Translations$onboarding$welcome$en._(
+  late final _Translations$home$goalCard$en goalCard =
+      _Translations$home$goalCard$en._(_root);
+  @override
+  late final _Translations$home$todayWorkout$en todayWorkout =
+      _Translations$home$todayWorkout$en._(_root);
+  @override
+  late final _Translations$home$restDay$en restDay =
+      _Translations$home$restDay$en._(_root);
+  @override
+  late final _Translations$home$noProgram$en noProgram =
+      _Translations$home$noProgram$en._(_root);
+  @override
+  late final _Translations$home$weeklyProgress$en weeklyProgress =
+      _Translations$home$weeklyProgress$en._(_root);
+  @override
+  late final _Translations$home$supportGoal$en supportGoal =
+      _Translations$home$supportGoal$en._(_root);
+  @override
+  late final _Translations$home$error$en error = _Translations$home$error$en._(
     _root,
   );
+}
+
+// Path: onboarding
+class _Translations$onboarding$en extends Translations$onboarding$id {
+  _Translations$onboarding$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
   @override
-  late final _Translations$onboarding$goal$en goal = _Translations$onboarding$goal$en._(_root);
+  late final _Translations$onboarding$nav$en nav =
+      _Translations$onboarding$nav$en._(_root);
   @override
-  late final _Translations$onboarding$about$en about = _Translations$onboarding$about$en._(_root);
+  late final _Translations$onboarding$welcome$en welcome =
+      _Translations$onboarding$welcome$en._(_root);
+  @override
+  late final _Translations$onboarding$goal$en goal =
+      _Translations$onboarding$goal$en._(_root);
+  @override
+  late final _Translations$onboarding$about$en about =
+      _Translations$onboarding$about$en._(_root);
   @override
   late final _Translations$onboarding$bodyTarget$en bodyTarget =
       _Translations$onboarding$bodyTarget$en._(_root);
@@ -140,9 +193,8 @@ class _Translations$onboarding$en extends Translations$onboarding$id {
   late final _Translations$onboarding$experience$en experience =
       _Translations$onboarding$experience$en._(_root);
   @override
-  late final _Translations$onboarding$schedule$en schedule = _Translations$onboarding$schedule$en._(
-    _root,
-  );
+  late final _Translations$onboarding$schedule$en schedule =
+      _Translations$onboarding$schedule$en._(_root);
   @override
   late final _Translations$onboarding$equipment$en equipment =
       _Translations$onboarding$equipment$en._(_root);
@@ -150,15 +202,224 @@ class _Translations$onboarding$en extends Translations$onboarding$id {
   late final _Translations$onboarding$limitations$en limitations =
       _Translations$onboarding$limitations$en._(_root);
   @override
-  late final _Translations$onboarding$creating$en creating = _Translations$onboarding$creating$en._(
-    _root,
-  );
+  late final _Translations$onboarding$creating$en creating =
+      _Translations$onboarding$creating$en._(_root);
   @override
-  late final _Translations$onboarding$ready$en ready = _Translations$onboarding$ready$en._(_root);
+  late final _Translations$onboarding$ready$en ready =
+      _Translations$onboarding$ready$en._(_root);
   @override
-  late final _Translations$onboarding$preview$en preview = _Translations$onboarding$preview$en._(
-    _root,
-  );
+  late final _Translations$onboarding$preview$en preview =
+      _Translations$onboarding$preview$en._(_root);
+}
+
+// Path: workoutSession
+class _Translations$workoutSession$en extends Translations$workoutSession$id {
+  _Translations$workoutSession$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String exerciseProgress({required Object current, required Object total}) =>
+      'Exercise ${current} of ${total}';
+  @override
+  String setProgress({
+    required Object current,
+    required Object total,
+    required Object target,
+  }) => 'Set ${current} of ${total} · ${target}';
+  @override
+  String get repsUnit => 'reps';
+  @override
+  String get durationUnit => 'sec';
+  @override
+  String repsValue({required Object value}) => '${value} reps';
+  @override
+  String durationValue({required Object value}) => '${value} sec';
+  @override
+  String get completeSet => 'Complete Set';
+  @override
+  String get nextRest => 'Next: Rest';
+  @override
+  String get preparingSession => 'Preparing your workout...';
+  @override
+  String get retry => 'Try Again';
+  @override
+  String get saveSetFailed =>
+      'Failed to save the set. Check your connection and try again.';
+  @override
+  String get sessionConflictTitle => 'You have an unfinished workout';
+  @override
+  String sessionConflictMessage({
+    required Object program,
+    required Object day,
+  }) =>
+      'You still have an active session for "${program}" (Day ${day}). Resume that session first, or end it to start this workout.';
+  @override
+  String get resumePreviousSession => 'Resume Previous Session';
+  @override
+  String get endPreviousSession => 'End Previous Session';
+  @override
+  String get completionTitle => 'Workout Completed! 🎉';
+  @override
+  String get completionDescription =>
+      'You completed all sets and exercises. Get some rest to help your muscles recover.';
+  @override
+  String get durationLabel => 'Duration';
+  @override
+  String get exerciseLabel => 'Exercises';
+  @override
+  String exerciseCount({required Object count}) => '${count} exercises';
+  @override
+  String get totalSetsLabel => 'Total Sets';
+  @override
+  String totalSetsCount({required Object count}) => '${count} sets';
+  @override
+  String get viewSummary => 'View Workout Summary ➔';
+  @override
+  String get restartRestTimer => 'Restart Rest Timer';
+  @override
+  String get finishSessionNow => 'Finish Workout Now';
+  @override
+  String get exitWithoutSaving => 'Exit Without Saving';
+  @override
+  String get restTitle => 'Rest';
+  @override
+  String restNextExercise({required Object exercise}) => 'Next: ${exercise}';
+  @override
+  String restSetProgress({required Object current, required Object total}) =>
+      'Set ${current} of ${total}';
+  @override
+  String get restPaused => 'PAUSED';
+  @override
+  String get restMinusTenSeconds => '-10s';
+  @override
+  String get restPlusTenSeconds => '+10s';
+  @override
+  String get restTipTitle => 'Tip';
+  @override
+  String get restTipDescription => 'Keep breathing and stay hydrated.';
+  @override
+  String get skipRest => 'Skip Rest';
+  @override
+  String setCompleteTitle({required Object current, required Object total}) =>
+      'Set ${current} of ${total} Complete! 🎉';
+  @override
+  String targetDuration({required Object seconds}) => 'Target: ${seconds} sec';
+  @override
+  String targetReps({required Object reps}) => 'Target: ${reps} reps';
+  @override
+  String get durationCompleted => 'Duration Completed';
+  @override
+  String get repsCompleted => 'Reps Completed';
+  @override
+  String get durationQuestion => 'How many seconds did you hold?';
+  @override
+  String get repsQuestion => 'How many reps did you complete?';
+  @override
+  String get rirTitle => 'Remaining Strength (RIR - Reps in Reserve)';
+  @override
+  String get rirQuestion =>
+      'How many more reps could you do before reaching failure?';
+  @override
+  String get rirFailureTitle => '0 — Absolute Failure';
+  @override
+  String get rirFailureDescription => 'You had no reps left with proper form.';
+  @override
+  String get rirVeryHardTitle => '1 — Very Hard';
+  @override
+  String get rirVeryHardDescription =>
+      'You could only complete one more rep before failure.';
+  @override
+  String get rirIdealTitle => '2 — Ideal Zone (Target)';
+  @override
+  String get rirIdealDescription =>
+      'Challenging, with about two reps still in reserve.';
+  @override
+  String get rirModerateTitle => '3 — Moderate';
+  @override
+  String get rirModerateDescription =>
+      'You still had about three reps in reserve.';
+  @override
+  String get rirEasyTitle => '4+ — Too Easy';
+  @override
+  String get rirEasyDescription =>
+      'Very easy, with four or more reps still in reserve.';
+  @override
+  String get rirBadgeMax => 'Maximum';
+  @override
+  String get rirBadgeHigh => 'High';
+  @override
+  String get rirBadgeOptimal => 'Optimal ⭐';
+  @override
+  String get rirBadgeModerate => 'Moderate';
+  @override
+  String get rirBadgeEasy => 'Easy';
+  @override
+  String get saveAndStartRest => 'Save & Start Rest';
+  @override
+  String restSecondsValue({required Object seconds}) => '${seconds} s';
+  @override
+  String durationMinutesValue({required Object value}) => '${value} min';
+  @override
+  String get savingSession => 'Saving your workout...';
+  @override
+  String get emptySessionDescription =>
+      'The exercise list for this session was not found. Please go back to reload your workout program.';
+  @override
+  String get backButtonLabel => 'Go Back';
+  @override
+  String get finishSessionFailed =>
+      'We couldn\'t save your workout. Your recorded progress is still here. Please try again.';
+  @override
+  String get defaultProgramTitle => 'Strength Training';
+}
+
+// Path: workouts
+class _Translations$workouts$en extends Translations$workouts$id {
+  _Translations$workouts$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Workouts';
+  @override
+  String get searchHint => 'Search workouts & exercises...';
+  @override
+  late final _Translations$workouts$tabs$en tabs =
+      _Translations$workouts$tabs$en._(_root);
+  @override
+  late final _Translations$workouts$activeProgram$en activeProgram =
+      _Translations$workouts$activeProgram$en._(_root);
+  @override
+  late final _Translations$workouts$weeklySchedule$en weeklySchedule =
+      _Translations$workouts$weeklySchedule$en._(_root);
+  @override
+  late final _Translations$workouts$emptyState$en emptyState =
+      _Translations$workouts$emptyState$en._(_root);
+  @override
+  late final _Translations$workouts$allWorkouts$en allWorkouts =
+      _Translations$workouts$allWorkouts$en._(_root);
+  @override
+  late final _Translations$workouts$errorState$en errorState =
+      _Translations$workouts$errorState$en._(_root);
+  @override
+  late final _Translations$workouts$session$en session =
+      _Translations$workouts$session$en._(_root);
+  @override
+  late final _Translations$workouts$workoutDetail$en workoutDetail =
+      _Translations$workouts$workoutDetail$en._(_root);
+  @override
+  late final _Translations$workouts$filter$en filter =
+      _Translations$workouts$filter$en._(_root);
+  @override
+  late final _Translations$workouts$categories$en categories =
+      _Translations$workouts$categories$en._(_root);
 }
 
 // Path: workoutSession
@@ -354,7 +615,9 @@ class _Translations$workouts$en extends Translations$workouts$id {
 
 // Path: core.actions
 class _Translations$core$actions$en extends Translations$core$actions$id {
-  _Translations$core$actions$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$core$actions$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
@@ -383,7 +646,9 @@ class _Translations$core$actions$en extends Translations$core$actions$id {
 
 // Path: core.state
 class _Translations$core$state$en extends Translations$core$state$id {
-  _Translations$core$state$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$core$state$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
@@ -398,7 +663,9 @@ class _Translations$core$state$en extends Translations$core$state$id {
 
 // Path: core.badge
 class _Translations$core$badge$en extends Translations$core$badge$id {
-  _Translations$core$badge$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$core$badge$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
@@ -409,7 +676,9 @@ class _Translations$core$badge$en extends Translations$core$badge$id {
 
 // Path: core.language
 class _Translations$core$language$en extends Translations$core$language$id {
-  _Translations$core$language$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$core$language$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
@@ -424,7 +693,9 @@ class _Translations$core$language$en extends Translations$core$language$id {
 
 // Path: core.units
 class _Translations$core$units$en extends Translations$core$units$id {
-  _Translations$core$units$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$core$units$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
@@ -602,7 +873,177 @@ class _Translations$onboarding$nav$en extends Translations$onboarding$nav$id {
 
   // Translations
   @override
-  String progress({required Object current, required Object total}) => '${current} of ${total}';
+  String goodMorning({required Object name}) => 'Good Morning, ${name} 👋';
+  @override
+  String goodAfternoon({required Object name}) => 'Good Afternoon, ${name} 👋';
+  @override
+  String goodEvening({required Object name}) => 'Good Evening, ${name} 👋';
+  @override
+  String get subtitle => 'Stay consistent and reach your goal!';
+}
+
+// Path: home.goalCard
+class _Translations$home$goalCard$en extends Translations$home$goalCard$id {
+  _Translations$home$goalCard$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get goalPrefix => 'Goal:';
+  @override
+  String get gainWeight => 'Gain Weight & Build Muscle';
+  @override
+  String get fatLoss => 'Fat Loss & Build Lean Body';
+  @override
+  String get maintain => 'Maintain & Stay Fit';
+  @override
+  String get target => 'Target';
+  @override
+  String get current => 'Current';
+  @override
+  String programDuration({required Object weeks}) => '${weeks} Weeks Program';
+  @override
+  String weekOf({required Object current, required Object total}) =>
+      'Week ${current} of ${total}';
+}
+
+// Path: home.todayWorkout
+class _Translations$home$todayWorkout$en
+    extends Translations$home$todayWorkout$id {
+  _Translations$home$todayWorkout$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Today\'s Workout';
+  @override
+  String get viewPlan => 'View Plan →';
+  @override
+  String get startWorkout => 'Start Workout';
+  @override
+  String approxMin({required Object min}) => '≈ ${min} min';
+  @override
+  String approxKcal({required Object kcal}) => '≈ ${kcal} kcal';
+}
+
+// Path: home.restDay
+class _Translations$home$restDay$en extends Translations$home$restDay$id {
+  _Translations$home$restDay$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Today is a Rest Day';
+  @override
+  String get subtitle => 'Time to recover, let your muscles repair and grow.';
+  @override
+  String get recoveryTips => 'Recovery Tips';
+  @override
+  String get hydrate => 'Stay hydrated';
+  @override
+  String get sleep => 'Get 7–9 hours of sleep';
+  @override
+  String get stretch => 'Do light stretching or mobility';
+}
+
+// Path: home.noProgram
+class _Translations$home$noProgram$en extends Translations$home$noProgram$id {
+  _Translations$home$noProgram$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'You don\'t have a training program yet';
+  @override
+  String get subtitle =>
+      'Create a personalized training plan based on your goal, profile, and preference.';
+  @override
+  String get createProgram => 'Create My Program';
+}
+
+// Path: home.weeklyProgress
+class _Translations$home$weeklyProgress$en
+    extends Translations$home$weeklyProgress$id {
+  _Translations$home$weeklyProgress$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'This Week Progress';
+  @override
+  String get seeDetails => 'See Details →';
+  @override
+  late final _Translations$home$weeklyProgress$states$en states =
+      _Translations$home$weeklyProgress$states$en._(_root);
+}
+
+// Path: home.supportGoal
+class _Translations$home$supportGoal$en
+    extends Translations$home$supportGoal$id {
+  _Translations$home$supportGoal$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Support Your Goal';
+  @override
+  String get subtitleGain => 'Get simple nutrition tips for muscle gain.';
+  @override
+  String get subtitleLoss => 'Get simple nutrition tips for fat loss.';
+  @override
+  String get subtitleMaintain => 'Get simple nutrition tips to stay fit.';
+}
+
+// Path: home.error
+class _Translations$home$error$en extends Translations$home$error$id {
+  _Translations$home$error$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get connectionIssue => 'Connection issue';
+  @override
+  String get connectionDesc =>
+      'Some information couldn\'t be refreshed. Showing your last available data.';
+  @override
+  String lastSynced({required Object time}) => 'Last synced: ${time}';
+  @override
+  String get retry => 'Retry';
+}
+
+// Path: onboarding.nav
+class _Translations$onboarding$nav$en extends Translations$onboarding$nav$id {
+  _Translations$onboarding$nav$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String progress({required Object current, required Object total}) =>
+      '${current} of ${total}';
   @override
   String get getStarted => 'Get Started ➔';
   @override
@@ -612,7 +1053,8 @@ class _Translations$onboarding$nav$en extends Translations$onboarding$nav$id {
 }
 
 // Path: onboarding.welcome
-class _Translations$onboarding$welcome$en extends Translations$onboarding$welcome$id {
+class _Translations$onboarding$welcome$en
+    extends Translations$onboarding$welcome$id {
   _Translations$onboarding$welcome$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -631,7 +1073,9 @@ class _Translations$onboarding$welcome$en extends Translations$onboarding$welcom
 
 // Path: onboarding.goal
 class _Translations$onboarding$goal$en extends Translations$onboarding$goal$id {
-  _Translations$onboarding$goal$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$onboarding$goal$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
@@ -649,7 +1093,8 @@ class _Translations$onboarding$goal$en extends Translations$onboarding$goal$id {
 }
 
 // Path: onboarding.about
-class _Translations$onboarding$about$en extends Translations$onboarding$about$id {
+class _Translations$onboarding$about$en
+    extends Translations$onboarding$about$id {
   _Translations$onboarding$about$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -678,7 +1123,8 @@ class _Translations$onboarding$about$en extends Translations$onboarding$about$id
 }
 
 // Path: onboarding.bodyTarget
-class _Translations$onboarding$bodyTarget$en extends Translations$onboarding$bodyTarget$id {
+class _Translations$onboarding$bodyTarget$en
+    extends Translations$onboarding$bodyTarget$id {
   _Translations$onboarding$bodyTarget$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -702,7 +1148,8 @@ class _Translations$onboarding$bodyTarget$en extends Translations$onboarding$bod
 }
 
 // Path: onboarding.experience
-class _Translations$onboarding$experience$en extends Translations$onboarding$experience$id {
+class _Translations$onboarding$experience$en
+    extends Translations$onboarding$experience$id {
   _Translations$onboarding$experience$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -723,7 +1170,8 @@ class _Translations$onboarding$experience$en extends Translations$onboarding$exp
 }
 
 // Path: onboarding.schedule
-class _Translations$onboarding$schedule$en extends Translations$onboarding$schedule$id {
+class _Translations$onboarding$schedule$en
+    extends Translations$onboarding$schedule$id {
   _Translations$onboarding$schedule$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -734,7 +1182,8 @@ class _Translations$onboarding$schedule$en extends Translations$onboarding$sched
   @override
   String get title => 'How often can you work out?';
   @override
-  String get subtitle => 'Choose a weekly workout schedule that fits your lifestyle.';
+  String get subtitle =>
+      'Choose a weekly workout schedule that fits your lifestyle.';
   @override
   String daysPerWeek({required num n}) =>
       (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(
@@ -749,7 +1198,8 @@ class _Translations$onboarding$schedule$en extends Translations$onboarding$sched
 }
 
 // Path: onboarding.equipment
-class _Translations$onboarding$equipment$en extends Translations$onboarding$equipment$id {
+class _Translations$onboarding$equipment$en
+    extends Translations$onboarding$equipment$id {
   _Translations$onboarding$equipment$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -773,7 +1223,8 @@ class _Translations$onboarding$equipment$en extends Translations$onboarding$equi
 }
 
 // Path: onboarding.limitations
-class _Translations$onboarding$limitations$en extends Translations$onboarding$limitations$id {
+class _Translations$onboarding$limitations$en
+    extends Translations$onboarding$limitations$id {
   _Translations$onboarding$limitations$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -784,7 +1235,8 @@ class _Translations$onboarding$limitations$en extends Translations$onboarding$li
   @override
   String get title => 'Any limitations or considerations?';
   @override
-  String get subtitle => 'Let us know if you have any health conditions or areas to avoid.';
+  String get subtitle =>
+      'Let us know if you have any health conditions or areas to avoid.';
   @override
   List<LimitationOption> get options => [
     _Translations$onboarding$limitations$options$0$en._(_root),
@@ -797,7 +1249,8 @@ class _Translations$onboarding$limitations$en extends Translations$onboarding$li
 }
 
 // Path: onboarding.creating
-class _Translations$onboarding$creating$en extends Translations$onboarding$creating$id {
+class _Translations$onboarding$creating$en
+    extends Translations$onboarding$creating$id {
   _Translations$onboarding$creating$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -808,7 +1261,8 @@ class _Translations$onboarding$creating$en extends Translations$onboarding$creat
   @override
   String get title => 'Creating your\npersonal plan...';
   @override
-  String get subtitle => 'Analyzing your goal, body data,\npreferences, and availability.';
+  String get subtitle =>
+      'Analyzing your goal, body data,\npreferences, and availability.';
   @override
   List<String> get steps => [
     'Analyzing your profile',
@@ -819,7 +1273,8 @@ class _Translations$onboarding$creating$en extends Translations$onboarding$creat
 }
 
 // Path: onboarding.ready
-class _Translations$onboarding$ready$en extends Translations$onboarding$ready$id {
+class _Translations$onboarding$ready$en
+    extends Translations$onboarding$ready$id {
   _Translations$onboarding$ready$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -830,7 +1285,8 @@ class _Translations$onboarding$ready$en extends Translations$onboarding$ready$id
   @override
   String get title => 'Your plan is ready! 🎉';
   @override
-  String get subtitle => 'A personalized program based on\nyour goal, profile, and preferences.';
+  String get subtitle =>
+      'A personalized program based on\nyour goal, profile, and preferences.';
   @override
   String weeksBadge({required Object weeks}) => '⭐ ${weeks} Weeks';
   @override
@@ -854,7 +1310,8 @@ class _Translations$onboarding$ready$en extends Translations$onboarding$ready$id
 }
 
 // Path: onboarding.preview
-class _Translations$onboarding$preview$en extends Translations$onboarding$preview$id {
+class _Translations$onboarding$preview$en
+    extends Translations$onboarding$preview$id {
   _Translations$onboarding$preview$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -879,10 +1336,247 @@ class _Translations$onboarding$preview$en extends Translations$onboarding$previe
   @override
   String sessionDuration({required Object n}) => '${n} min';
   @override
-  String exercisesInSession({required Object count}) => 'EXERCISES IN THIS SESSION (${count})';
+  String exercisesInSession({required Object count}) =>
+      'EXERCISES IN THIS SESSION (${count})';
   @override
-  String prescription({required Object sets, required Object reps, required Object rests}) =>
-      '${sets} sets • ${reps} reps • ${rests} rest';
+  String prescription({
+    required Object sets,
+    required Object reps,
+    required Object rests,
+  }) => '${sets} sets • ${reps} reps • ${rests} rest';
+}
+
+// Path: workouts.tabs
+class _Translations$workouts$tabs$en extends Translations$workouts$tabs$id {
+  _Translations$workouts$tabs$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get myProgram => 'My Program';
+  @override
+  String get allWorkouts => 'All Workouts';
+}
+
+// Path: workouts.activeProgram
+class _Translations$workouts$activeProgram$en
+    extends Translations$workouts$activeProgram$id {
+  _Translations$workouts$activeProgram$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Active Program';
+  @override
+  String weeksHomeWorkout({required Object weeks}) =>
+      '${weeks} weeks • Home workout';
+  @override
+  String weekOf({required Object current, required Object total}) =>
+      'Week ${current} of ${total}';
+  @override
+  late final _Translations$workouts$activeProgram$status$en status =
+      _Translations$workouts$activeProgram$status$en._(_root);
+}
+
+// Path: workouts.weeklySchedule
+class _Translations$workouts$weeklySchedule$en
+    extends Translations$workouts$weeklySchedule$id {
+  _Translations$workouts$weeklySchedule$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Weekly Schedule';
+  @override
+  String workoutCount({required Object completed, required Object total}) =>
+      '${completed}/${total} workouts';
+  @override
+  String get current => 'Current';
+  @override
+  String weekShort({required Object n}) => 'W${n}';
+  @override
+  String get empty => 'No workout sessions are scheduled for this week.';
+  @override
+  String get previewTitle => 'Preview mode';
+  @override
+  String get previewNotice =>
+      'You can review this week\'s plan, but workouts can only be started on their scheduled day.';
+  @override
+  String get previewTooltip => 'Preview upcoming week';
+  @override
+  late final _Translations$workouts$weeklySchedule$statusTooltip$en
+  statusTooltip = _Translations$workouts$weeklySchedule$statusTooltip$en._(
+    _root,
+  );
+}
+
+// Path: workouts.emptyState
+class _Translations$workouts$emptyState$en
+    extends Translations$workouts$emptyState$id {
+  _Translations$workouts$emptyState$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get noProgramTitle => 'No active program yet';
+  @override
+  String get noProgramSubtitle =>
+      'Create a program to see your weekly workouts here.';
+}
+
+// Path: workouts.allWorkouts
+class _Translations$workouts$allWorkouts$en
+    extends Translations$workouts$allWorkouts$id {
+  _Translations$workouts$allWorkouts$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get emptyTitle => 'No exercises found';
+  @override
+  String get emptySubtitle =>
+      'Try another search or adjust your muscle filters.';
+  @override
+  String get clearFilters => 'Clear search & filters';
+}
+
+// Path: workouts.errorState
+class _Translations$workouts$errorState$en
+    extends Translations$workouts$errorState$id {
+  _Translations$workouts$errorState$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Failed to load data';
+  @override
+  String get subtitle =>
+      'Something went wrong while reading your workout data. Please try again.';
+  @override
+  String get retry => 'Retry';
+  @override
+  String get refreshFailed =>
+      'Failed to refresh. Showing the last loaded data.';
+}
+
+// Path: workouts.session
+class _Translations$workouts$session$en
+    extends Translations$workouts$session$id {
+  _Translations$workouts$session$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String day({required Object n}) => 'Day ${n}';
+  @override
+  String date({required Object n, required Object date}) =>
+      'Day ${n} • ${date}';
+  @override
+  String min({required Object min}) => '${min} min';
+  @override
+  late final _Translations$workouts$session$status$en status =
+      _Translations$workouts$session$status$en._(_root);
+}
+
+// Path: workouts.workoutDetail
+class _Translations$workouts$workoutDetail$en
+    extends Translations$workouts$workoutDetail$id {
+  _Translations$workouts$workoutDetail$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get readOnlyTitle => 'Preview mode';
+  @override
+  String get readOnlyNotice =>
+      'You can review this workout plan. The start button unlocks on its scheduled day.';
+  @override
+  String get resume => 'Resume Workout';
+}
+
+// Path: workouts.filter
+class _Translations$workouts$filter$en extends Translations$workouts$filter$id {
+  _Translations$workouts$filter$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Filter by Muscle Group';
+}
+
+// Path: workouts.categories
+class _Translations$workouts$categories$en
+    extends Translations$workouts$categories$id {
+  _Translations$workouts$categories$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get all => 'All';
+  @override
+  String get chest => 'Chest';
+  @override
+  String get back => 'Back';
+  @override
+  String get legs => 'Legs';
+  @override
+  String get core => 'Core';
+  @override
+  String get arms => 'Arms';
+  @override
+  String get shoulders => 'Shoulders';
+}
+
+// Path: home.weeklyProgress.states
+class _Translations$home$weeklyProgress$states$en
+    extends Translations$home$weeklyProgress$states$id {
+  _Translations$home$weeklyProgress$states$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get completed => 'Completed (workout done)';
+  @override
+  String get today => 'Today (scheduled workout)';
+  @override
+  String get rest => 'Rest day';
+  @override
+  String get upcoming => 'Upcoming (not yet)';
+  @override
+  String get missed => 'Missed';
 }
 
 // Path: workouts.tabs
@@ -1098,7 +1792,8 @@ class _Translations$home$weeklyProgress$states$en
 }
 
 // Path: onboarding.goal.options.0
-class _Translations$onboarding$goal$options$0$en extends Translations$onboarding$goal$options$0$id
+class _Translations$onboarding$goal$options$0$en
+    extends Translations$onboarding$goal$options$0$id
     with GoalOption {
   _Translations$onboarding$goal$options$0$en._(TranslationsEn root)
     : this._root = root,
@@ -1112,11 +1807,13 @@ class _Translations$onboarding$goal$options$0$en extends Translations$onboarding
   @override
   String get title => 'Gain Weight & Build Muscle';
   @override
-  String get description => 'Increase body weight while building muscle mass (bulking).';
+  String get description =>
+      'Increase body weight while building muscle mass (bulking).';
 }
 
 // Path: onboarding.goal.options.1
-class _Translations$onboarding$goal$options$1$en extends Translations$onboarding$goal$options$1$id
+class _Translations$onboarding$goal$options$1$en
+    extends Translations$onboarding$goal$options$1$id
     with GoalOption {
   _Translations$onboarding$goal$options$1$en._(TranslationsEn root)
     : this._root = root,
@@ -1130,11 +1827,13 @@ class _Translations$onboarding$goal$options$1$en extends Translations$onboarding
   @override
   String get title => 'Lose Weight & Reduce Fat';
   @override
-  String get description => 'Reduce body fat while maintaining muscle (cutting).';
+  String get description =>
+      'Reduce body fat while maintaining muscle (cutting).';
 }
 
 // Path: onboarding.goal.options.2
-class _Translations$onboarding$goal$options$2$en extends Translations$onboarding$goal$options$2$id
+class _Translations$onboarding$goal$options$2$en
+    extends Translations$onboarding$goal$options$2$id
     with GoalOption {
   _Translations$onboarding$goal$options$2$en._(TranslationsEn root)
     : this._root = root,
@@ -1232,7 +1931,8 @@ class _Translations$onboarding$experience$options$2$en
   @override
   String get title => 'Advanced';
   @override
-  String get description => 'Train consistently, have good form, and want a bigger challenge.';
+  String get description =>
+      'Train consistently, have good form, and want a bigger challenge.';
 }
 
 // Path: onboarding.equipment.options.0
@@ -1440,7 +2140,8 @@ class _Translations$onboarding$limitations$options$5$en
 }
 
 // Path: onboarding.ready.program
-class _Translations$onboarding$ready$program$en extends Translations$onboarding$ready$program$id {
+class _Translations$onboarding$ready$program$en
+    extends Translations$onboarding$ready$program$id {
   _Translations$onboarding$ready$program$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -1649,10 +2350,10 @@ extension on TranslationsEn {
       'onboarding.nav.createMyPlan' => 'Create My Plan',
       'onboarding.welcome.brand' => 'Workout\nCoach',
       'onboarding.welcome.title' => 'Your Personal\nWorkout Coach',
-      'onboarding.welcome.subtitle' =>
-        'Get a workout program based\non your goal, body condition,\nand lifestyle.',
+      'onboarding.welcome.subtitle' => 'Get a workout program based\non your goal, body condition,\nand lifestyle.',
       'onboarding.goal.title' => 'What\'s your main goal?',
-      'onboarding.goal.subtitle' => 'Choose the goal that fits your current focus.',
+      'onboarding.goal.subtitle' =>
+        'Choose the goal that fits your current focus.',
       'onboarding.goal.options.0.id' => 'muscle_gain',
       'onboarding.goal.options.0.title' => 'Gain Weight & Build Muscle',
       'onboarding.goal.options.0.description' =>
@@ -1663,9 +2364,11 @@ extension on TranslationsEn {
         'Reduce body fat while maintaining muscle (cutting).',
       'onboarding.goal.options.2.id' => 'maintenance',
       'onboarding.goal.options.2.title' => 'Maintain & Stay Fit',
-      'onboarding.goal.options.2.description' => 'Keep your current weight and overall fitness.',
+      'onboarding.goal.options.2.description' =>
+        'Keep your current weight and overall fitness.',
       'onboarding.about.title' => 'Tell us about you',
-      'onboarding.about.subtitle' => 'We need some basic info to personalize your program.',
+      'onboarding.about.subtitle' =>
+        'We need some basic info to personalize your program.',
       'onboarding.about.gender' => 'Gender',
       'onboarding.about.male' => 'Male',
       'onboarding.about.female' => 'Female',
@@ -1693,17 +2396,18 @@ extension on TranslationsEn {
         required Object minWeeks,
         required Object maxWeeks,
       }) => 'A healthy loss is around 0.5 - 1.0 kg per week (${minWeeks} - ${maxWeeks} weeks).',
-      'onboarding.bodyTarget.insight.maintainHint' =>
-        'Keep your current body weight and focus on building muscle density and strength.',
+      'onboarding.bodyTarget.insight.maintainHint' => 'Keep your current body weight and focus on building muscle density and strength.',
       'onboarding.experience.title' => 'What\'s your experience level?',
-      'onboarding.experience.subtitle' => 'Choose an option that best describes you.',
+      'onboarding.experience.subtitle' =>
+        'Choose an option that best describes you.',
       'onboarding.experience.options.0.id' => 'beginner',
       'onboarding.experience.options.0.title' => 'Beginner',
       'onboarding.experience.options.0.description' =>
         'New to training or exercising inconsistently.',
       'onboarding.experience.options.1.id' => 'intermediate',
       'onboarding.experience.options.1.title' => 'Intermediate',
-      'onboarding.experience.options.1.description' => 'Have some experience and train regularly.',
+      'onboarding.experience.options.1.description' =>
+        'Have some experience and train regularly.',
       'onboarding.experience.options.2.id' => 'advanced',
       'onboarding.experience.options.2.title' => 'Advanced',
       'onboarding.experience.options.2.description' =>
@@ -1712,11 +2416,12 @@ extension on TranslationsEn {
       'onboarding.schedule.subtitle' =>
         'Choose a weekly workout schedule that fits your lifestyle.',
       'onboarding.schedule.daysPerWeek' =>
-        ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(
-          n,
-          one: '${n} day / week',
-          other: '${n} days / week',
-        ),
+        ({required num n}) =>
+            (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(
+              n,
+              one: '${n} day / week',
+              other: '${n} days / week',
+            ),
       'onboarding.schedule.sessionDuration' => 'Session duration',
       'onboarding.schedule.minutes' => ({required Object n}) => '${n} min',
       'onboarding.equipment.title' => 'What equipment do you have?',
@@ -1758,12 +2463,15 @@ extension on TranslationsEn {
       'onboarding.ready.title' => 'Your plan is ready! 🎉',
       'onboarding.ready.subtitle' =>
         'A personalized program based on\nyour goal, profile, and preferences.',
-      'onboarding.ready.weeksBadge' => ({required Object weeks}) => '⭐ ${weeks} Weeks',
+      'onboarding.ready.weeksBadge' => ({
+        required Object weeks,
+      }) => '⭐ ${weeks} Weeks',
       'onboarding.ready.daysPerWeek' => 'Days / Week',
       'onboarding.ready.minutesPerSession' => 'Minutes / Session',
       'onboarding.ready.level' => 'Level',
       'onboarding.ready.features.0' => 'Build muscle and increase body weight',
-      'onboarding.ready.features.1' => 'Progressive overload (gradual increase)',
+      'onboarding.ready.features.1' =>
+        'Progressive overload (gradual increase)',
       'onboarding.ready.features.2' => 'Designed for home training',
       'onboarding.ready.features.3' => 'Adapted to your schedule and equipment',
       'onboarding.ready.viewMyPlan' => 'View My Plan',
@@ -1772,15 +2480,20 @@ extension on TranslationsEn {
       'onboarding.ready.program.cutting.title' => 'Fat Loss & Conditioning',
       'onboarding.ready.program.cutting.subtitle' => 'Fat Loss & Tone',
       'onboarding.ready.program.maintain.title' => 'Maintain & Stay Fit',
-      'onboarding.ready.program.maintain.subtitle' => 'Strength & General Fitness',
+      'onboarding.ready.program.maintain.subtitle' =>
+        'Strength & General Fitness',
       'onboarding.preview.title' => 'Your Training Plan',
       'onboarding.preview.tabOverview' => 'Overview',
       'onboarding.preview.tabWorkoutSplit' => 'Workout Split',
       'onboarding.preview.loading' => 'Loading your plan preview...',
       'onboarding.preview.activateStart' => 'Activate & Start Workout ➔',
       'onboarding.preview.activateDashboard' => 'Activate & Go to Dashboard',
-      'onboarding.preview.sessionFallbackName' => ({required Object n}) => 'Session ${n}',
-      'onboarding.preview.sessionDuration' => ({required Object n}) => '${n} min',
+      'onboarding.preview.sessionFallbackName' => ({
+        required Object n,
+      }) => 'Session ${n}',
+      'onboarding.preview.sessionDuration' => ({
+        required Object n,
+      }) => '${n} min',
       'onboarding.preview.exercisesInSession' => ({
         required Object count,
       }) => 'EXERCISES IN THIS SESSION (${count})',
