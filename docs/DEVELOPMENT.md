@@ -80,7 +80,9 @@ FirebaseConfig is guarded at runtime: a Firebase initialization failure is logge
 
 A distributable release APK must use the persistent release keystore. Never use the Android debug signing key for release distribution.
 
-See [Android release signing](android-release-signing.md). Do not put keystore files or passwords in the repository.
+For local release signing, copy `android/key.properties.example` to `android/key.properties` and provide your keystore credentials. The file `android/key.properties` and all keystore files are strictly ignored by `.gitignore`.
+
+See [Android release signing](android-release-signing.md) for full instructions on key generation, CI secrets, and local builds. Do not put keystore files or passwords in the repository.
 
 ## 4. Run the app
 
