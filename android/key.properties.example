@@ -1,0 +1,12 @@
+# Example Android signing configuration for local release builds.
+# Copy this file to 'android/key.properties' and fill in your local keystore credentials.
+#
+# IMPORTANT:
+# - 'android/key.properties' is ignored by Git and MUST NEVER be committed.
+# - Do not commit real keystore files (*.jks, *.p12, *.keystore) into version control.
+# - See 'docs/android-release-signing.md' for key generation instructions.
+
+storeFile=C:/path/to/upload-keystore.p12
+storePassword=YOUR_KEYSTORE_PASSWORD
+keyAlias=home-bulking-coach
+keyPassword=YOUR_KEY_PASSWORD

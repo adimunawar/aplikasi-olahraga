@@ -44,7 +44,7 @@ The workflow validates the keystore and alias before Gradle builds the APK. It w
 
 ## 3. Local release builds (optional)
 
-For local release builds, place the keystore somewhere outside the repository and create `android/key.properties`:
+For local release builds, place the keystore somewhere outside the repository, copy `android/key.properties.example` to `android/key.properties`, and fill in your credentials:
 
 ```properties
 storeFile=C:/secure/path/upload-keystore.p12
@@ -53,7 +53,7 @@ keyAlias=home-bulking-coach
 keyPassword=YOUR_KEY_PASSWORD
 ```
 
-The `android/key.properties` file and keystore files are ignored by Git. Never force-add them.
+The `android/key.properties` file and keystore files are strictly ignored by Git (`.gitignore`). Never force-add them. An example template is provided at `android/key.properties.example`.
 
 Then build with:
 
