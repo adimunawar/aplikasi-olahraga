@@ -1,9 +1,9 @@
 import 'package:material_ui/material_ui.dart';
 
-import 'package:workout_app/core/theme/app_colors.dart';
-import 'package:workout_app/core/theme/app_typography.dart';
-import 'package:workout_app/core/widgets/app_stepper_input.dart';
-import 'package:workout_app/i18n/strings.g.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/app_stepper_input.dart';
+import '../../../../i18n/strings.g.dart';
 
 /// Step 2 of 7: Tell us about you (Gender, Age) (Mockup 1:1)
 class StepAbout extends StatelessWidget {

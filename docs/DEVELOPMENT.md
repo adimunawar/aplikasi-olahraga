@@ -8,12 +8,33 @@ Use the same Flutter version as CI unless a version upgrade is being proposed:
 
 | Tool | Repository baseline |
 |---|---|
-| Flutter | 3.47.9 (pinned in GitHub Actions) |
+| Flutter | 3.50.0 (pinned in GitHub Actions) |
 | Dart | Compatible with pubspec.yaml constraint ^3.13.7 |
+| Gradle Wrapper | 9.5.0 |
+| Android Gradle Plugin | 9.3.1 |
+| Kotlin Gradle Plugin | 2.4.20 (legacy compatibility path) |
 | Java | JDK 17 for Android Gradle builds |
-| Android | Android SDK / Android Studio |
+| Android supported OS APIs | 24–37 |
+| Android min SDK | API 24 |
+| Android compile SDK | API 36 |
+| Android target SDK | API 36 |
+| Android ABIs | armeabi-v7a, arm64-v8a, x86_64 |
 | Package manager | Flutter Pub |
 | Git | Required |
+
+The app module uses Flutter-provided SDK values (flutter.minSdkVersion, flutter.compileSdkVersion, and flutter.targetSdkVersion) instead of hard-coded API numbers. With Flutter 3.50.0, these resolve to min SDK 24, compile SDK 36, and target SDK 36.
+
+Flutter's Gradle plugin supplies the standard Android ABIs for release builds: armeabi-v7a (ARM 32-bit), arm64-v8a (ARM 64-bit), and x86_64. The app does not override the default ABI filters.
+
+### AGP 9 and Kotlin compatibility
+
+This existing project currently keeps Flutter's transitional compatibility flags in android/gradle.properties:
+
+- android.newDsl=false keeps the legacy AGP DSL compatibility path.
+- android.builtInKotlin=false keeps the legacy Kotlin Gradle Plugin (KGP) path.
+- KGP 2.4.20 is declared in android/settings.gradle for that compatibility path.
+
+Do not enable built-in Kotlin or the new AGP DSL as an isolated version change. First verify that the app and every resolved Android plugin support those modes, then migrate and build the Android app. Flutter 3.50 supports the AGP 9 APIs, but the project intentionally retains the compatibility flags until that plugin-graph validation is complete.
 
 If your local Flutter version differs from CI, resolve the version mismatch before debugging dependency or analyzer failures.
 
@@ -59,7 +80,9 @@ FirebaseConfig is guarded at runtime: a Firebase initialization failure is logge
 
 A distributable release APK must use the persistent release keystore. Never use the Android debug signing key for release distribution.
 
-See [Android release signing](android-release-signing.md). Do not put keystore files or passwords in the repository.
+For local release signing, copy `android/key.properties.example` to `android/key.properties` and provide your keystore credentials. The file `android/key.properties` and all keystore files are strictly ignored by `.gitignore`.
+
+See [Android release signing](android-release-signing.md) for full instructions on key generation, CI secrets, and local builds. Do not put keystore files or passwords in the repository.
 
 ## 4. Run the app
 

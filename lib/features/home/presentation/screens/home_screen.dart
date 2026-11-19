@@ -1,7 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../controllers/home_controller.dart';
@@ -40,7 +39,9 @@ class HomeScreen extends ConsumerWidget {
     if (state.isLoading) {
       return const Scaffold(
         backgroundColor: Color(0xFFF9FAFB),
-        body: SafeArea(child: HomeLoadingSkeleton()),
+        body: SafeArea(
+          child: HomeLoadingSkeleton(),
+        ),
       );
     }
 
@@ -57,7 +58,9 @@ class HomeScreen extends ConsumerWidget {
 
     void openRecoveryRoutine() {
       Navigator.of(context, rootNavigator: true).push(
-        MaterialPageRoute<void>(builder: (_) => const RecoveryRoutineScreen()),
+        MaterialPageRoute<void>(
+          builder: (_) => const RecoveryRoutineScreen(),
+        ),
       );
     }
 
