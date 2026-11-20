@@ -22,7 +22,11 @@ class AppDatabase {
 
   static Database? _database;
 
-  // --- Web In-Memory Fallback State ---
+  // Legacy in-memory state is retained only as a disabled fallback while all
+  // platforms use the same SQLite API. Web SQLite is persisted in IndexedDB.
+  bool get _useInMemoryFallback => false;
+
+  // --- Legacy in-memory fallback state ---
   UserProfileEntity? _webProfile;
   UserSettingsEntity? _webSettings;
   final List<WorkoutSessionEntity> _webSessions = [];
@@ -34,15 +38,15 @@ class AppDatabase {
   final List<ProgramSessionDetail> _webProgramSessionDetails = [];
 
   Future<Database?> get database async {
-    if (kIsWeb) return null; // Web tidak menggunakan native SQLite driver
     if (_database != null) return _database!;
     _database = await _initDatabase();
     return _database;
   }
 
   Future<Database> _initDatabase() async {
-    final dbPath = await getDatabasesPath();
-    final path = p.join(dbPath, 'home_bulking_coach.db');
+    final path = kIsWeb
+        ? 'home_bulking_coach.db'
+        : p.join(await getDatabasesPath(), 'home_bulking_coach.db');
 
     final db = await openDatabase(
       path,
@@ -211,7 +215,7 @@ class AppDatabase {
   // ==========================================
 
   Future<UserProfileEntity> getUserProfile() async {
-    if (kIsWeb) {
+    if (_useInMemoryFallback) {
       _webProfile ??= _createDefaultUser(DateTime.now());
       return _webProfile!;
     }
