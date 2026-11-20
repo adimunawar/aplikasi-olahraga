@@ -332,7 +332,12 @@ class RecentWorkoutsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (workouts.isEmpty) {
-      return Container(width: double.infinity, padding: const EdgeInsets.all(20), decoration: _cardDecoration(), child: Text('No completed workouts yet.', textAlign: TextAlign.center, style: AppTypography.bodySmall.copyWith(color: AppColors.neutral500)));
+      return const ProgressEmptyState(
+        icon: Icons.fitness_center_rounded,
+        title: 'No recent workouts',
+        message: 'Your completed sessions will show up here.',
+        compact: true,
+      );
     }
     final items = expanded ? workouts : workouts.take(3).toList();
     return Container(
@@ -385,3 +390,52 @@ BoxDecoration _cardDecoration() => BoxDecoration(
   border: Border.all(color: AppColors.neutral200, width: 0.8),
   boxShadow: AppColors.cardShadow,
 );
+
+
+class ProgressEmptyState extends StatelessWidget {
+  const ProgressEmptyState({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.message,
+    this.compact = false,
+  });
+
+  final IconData icon;
+  final String title;
+  final String message;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: double.infinity,
+    padding: EdgeInsets.symmetric(horizontal: 20, vertical: compact ? 18 : 26),
+    decoration: _cardDecoration(),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: compact ? 40 : 48,
+          height: compact ? 40 : 48,
+          decoration: const BoxDecoration(
+            color: AppColors.limeSurface,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, size: compact ? 19 : 22, color: AppColors.greenDark),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          title,
+          textAlign: TextAlign.center,
+          style: AppTypography.titleSmall.copyWith(color: AppColors.darkCharcoal),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          message,
+          textAlign: TextAlign.center,
+          style: AppTypography.bodySmall.copyWith(color: AppColors.neutral500),
+        ),
+      ],
+    ),
+  );
+}
