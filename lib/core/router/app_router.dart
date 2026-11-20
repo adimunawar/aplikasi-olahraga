@@ -189,11 +189,36 @@ final hasCompletedOnboardingProvider = StateProvider<bool>((ref) => false);
 final appRouterProvider = Provider<GoRouter>((ref) {
   final hasCompletedOnboarding = ref.watch(hasCompletedOnboardingProvider);
 
+  const onboardingFlowPaths = {
+    AppRoutes.onboarding,
+    AppRoutes.creatingPlan,
+    AppRoutes.planReady,
+    AppRoutes.onboardingPlan,
+  };
+
   return GoRouter(
     navigatorKey: rootNavigatorKey,
     initialLocation: hasCompletedOnboarding
         ? AppRoutes.home
         : AppRoutes.onboarding,
+    // Initial location alone does not protect against platform deep links.
+    // Keep the onboarding flow accessible until the user activates a plan,
+    // and prevent completed users from re-entering the onboarding flow.
+    redirect: (context, state) {
+      final isOnboardingFlow = onboardingFlowPaths.contains(
+        state.matchedLocation,
+      );
+
+      if (!hasCompletedOnboarding && !isOnboardingFlow) {
+        return AppRoutes.onboarding;
+      }
+
+      if (hasCompletedOnboarding && isOnboardingFlow) {
+        return AppRoutes.home;
+      }
+
+      return null;
+    },
     routes: [
       // 1. Stateful Shell Route untuk Bottom Navigation (Home, Plans, Progress, Profile)
       StatefulShellRoute.indexedStack(
