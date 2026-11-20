@@ -1029,6 +1029,25 @@ class AppDatabase {
     AppDataSync.instance.notifyDataChanged();
   }
 
+  /// Onboarding dianggap selesai setelah pengguna mengaktifkan program.
+  /// SQLite menjadi sumber kebenaran; tidak bergantung pada preference flag.
+  Future<bool> hasCompletedOnboarding() async {
+    if (kIsWeb) return _webActiveProgram?.status == 'active';
+
+    final db = await database;
+    if (db == null) return false;
+
+    final result = await db.query(
+      DatabaseTables.trainingPrograms,
+      columns: ['id'],
+      where: 'user_id = ? AND status = ?',
+      whereArgs: ['default_user', 'active'],
+      limit: 1,
+    );
+
+    return result.isNotEmpty;
+  }
+
   /// Mengambil program yang sedang aktif untuk user
   Future<TrainingProgramEntity?> getActiveTrainingProgram(String userId) async {
     if (kIsWeb) {
