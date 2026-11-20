@@ -1,9 +1,11 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:math' as math;
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../domain/models/workout_history_item.dart';
+import '../../application/weight_chart_series.dart';
 import '../controllers/progress_controller.dart';
 import '../controllers/progress_state.dart';
 
@@ -16,6 +18,8 @@ class ProgressScreen extends ConsumerStatefulWidget {
 
 class _ProgressScreenState extends ConsumerState<ProgressScreen> {
   int _selectedTab = 0;
+  int _bodyRangeWeeks = 8;
+  String _bodyMetric = 'Weight';
   static const _tabs = ['Overview', 'Body', 'Workout', 'History'];
 
   @override
@@ -55,16 +59,25 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
   Widget _header() => Row(
     children: [
       Expanded(child: Text('Progress', style: AppTypography.headlineLarge.copyWith(fontSize: 26, fontWeight: FontWeight.w700, letterSpacing: -0.7, color: AppColors.darkCharcoal))),
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.neutral200)),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          const Icon(Icons.calendar_today_outlined, size: 13, color: AppColors.neutral600),
-          const SizedBox(width: 7),
-          Text('Last 4 Weeks', style: AppTypography.labelSmall.copyWith(color: AppColors.darkCharcoal, fontWeight: FontWeight.w600)),
-          const SizedBox(width: 5),
-          const Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: AppColors.neutral600),
-        ]),
+      PopupMenuButton<int>(
+        initialValue: _bodyRangeWeeks,
+        onSelected: (value) => setState(() => _bodyRangeWeeks = value),
+        itemBuilder: (context) => const [
+          PopupMenuItem(value: 4, child: Text('Last 4 Weeks')),
+          PopupMenuItem(value: 8, child: Text('Last 8 Weeks')),
+          PopupMenuItem(value: 12, child: Text('Last 12 Weeks')),
+        ],
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.neutral200)),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            const Icon(Icons.calendar_today_outlined, size: 13, color: AppColors.neutral600),
+            const SizedBox(width: 7),
+            Text('Last $_bodyRangeWeeks Weeks', style: AppTypography.labelSmall.copyWith(color: AppColors.darkCharcoal, fontWeight: FontWeight.w600)),
+            const SizedBox(width: 5),
+            const Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: AppColors.neutral600),
+          ]),
+        ),
       ),
     ],
   );
@@ -127,15 +140,78 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
     ]);
   }
 
-  Widget _bodyTab(ProgressState state) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-    _heading('Body Progress', subtitle: 'Track your weight and body metrics.'),
-    const SizedBox(height: 10),
-    _MetricCard(icon: Icons.monitor_weight_outlined, value: '${state.currentWeight.toStringAsFixed(1)} kg', label: 'Current Weight', fullWidth: true, onTap: () => _recordWeight(state.currentWeight)),
-    const SizedBox(height: 10),
-    _MetricCard(icon: Icons.favorite_border_rounded, value: state.bmiValue.toStringAsFixed(1), label: 'BMI · ${state.bmiStatus}', fullWidth: true),
-    const SizedBox(height: 10),
-    _WeightChangeCard(change: state.weightChange, onTap: () => _recordWeight(state.currentWeight)),
-  ]);
+  Widget _bodyTab(ProgressState state) {
+    final chartPoints = const WeightChartSeries().build(
+      state.weightHistory,
+      weeks: _bodyRangeWeeks,
+      now: DateTime.now(),
+    );
+    final hasWeightData = chartPoints.isNotEmpty;
+
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      _heading('Body Progress', subtitle: 'Track changes in your body over time.'),
+      const SizedBox(height: 10),
+      _bodyMetricSelector(),
+      const SizedBox(height: 10),
+      if (_bodyMetric == 'Weight') ...[
+        _WeightTrendCard(
+          points: chartPoints,
+          weeks: _bodyRangeWeeks,
+          currentWeight: state.currentWeight,
+          hasData: hasWeightData,
+        ),
+        const SizedBox(height: 10),
+        _CurrentWeightSummary(
+          currentWeight: state.currentWeight,
+          change: state.weightChange,
+          rangeWeeks: _bodyRangeWeeks,
+        ),
+        const SizedBox(height: 20),
+        SizedBox(
+          width: double.infinity,
+          height: 42,
+          child: ElevatedButton.icon(
+            onPressed: () => _recordWeight(state.currentWeight),
+            icon: const Icon(Icons.add_rounded, size: 18),
+            label: const Text('Log Measurement'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.limeAccent,
+              foregroundColor: AppColors.darkCharcoal,
+              elevation: 0,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              textStyle: AppTypography.labelMedium.copyWith(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ),
+      ] else
+        _MetricNotTrackedCard(metric: _bodyMetric),
+    ]);
+  }
+
+  Widget _bodyMetricSelector() {
+    const metrics = ['Weight', 'Muscle Mass', 'Body Fat'];
+    return Row(children: metrics.map((metric) {
+      final selected = _bodyMetric == metric;
+      return Padding(
+        padding: const EdgeInsets.only(right: 7),
+        child: GestureDetector(
+          onTap: () => setState(() => _bodyMetric = metric),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 160),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+            decoration: BoxDecoration(
+              color: selected ? AppColors.limeAccent : const Color(0xFFEFF1F3),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(metric, style: AppTypography.labelSmall.copyWith(
+              color: AppColors.darkCharcoal,
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+            )),
+          ),
+        ),
+      );
+    }).toList());
+  }
 
   Widget _workoutTab(ProgressState state) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
     _heading('Workout Activity', subtitle: 'Your recent training consistency.'),
@@ -195,6 +271,198 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
     controller.dispose();
     if (value != null) await ref.read(progressControllerProvider.notifier).recordWeight(value);
   }
+}
+
+class _WeightTrendCard extends StatelessWidget {
+  const _WeightTrendCard({
+    required this.points,
+    required this.weeks,
+    required this.currentWeight,
+    required this.hasData,
+  });
+
+  final List<WeightChartPoint> points;
+  final int weeks;
+  final double currentWeight;
+  final bool hasData;
+
+  @override
+  Widget build(BuildContext context) {
+    final latest = points.isEmpty ? null : points.last;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 14, 12, 10),
+      decoration: _cardDecoration(),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Text('Weight (kg)', style: AppTypography.labelMedium.copyWith(
+            color: AppColors.darkCharcoal, fontWeight: FontWeight.w700,
+          )),
+          const Spacer(),
+          if (latest != null)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(color: AppColors.limeSurface, borderRadius: BorderRadius.circular(12)),
+              child: Text('W${latest.weekNumber} · ${latest.weightKg.toStringAsFixed(1)} kg',
+                style: AppTypography.labelSmall.copyWith(color: AppColors.greenDark, fontSize: 9, fontWeight: FontWeight.w700)),
+            ),
+        ]),
+        const SizedBox(height: 8),
+        if (hasData)
+          SizedBox(
+            height: 188,
+            width: double.infinity,
+            child: CustomPaint(painter: _WeightTrendPainter(points: points, weeks: weeks)),
+          )
+        else
+          SizedBox(
+            height: 188,
+            child: Center(child: Text('No weight measurements in this period yet.',
+              textAlign: TextAlign.center,
+              style: AppTypography.bodySmall.copyWith(color: AppColors.neutral500))),
+          ),
+      ]),
+    );
+  }
+}
+
+class _WeightTrendPainter extends CustomPainter {
+  const _WeightTrendPainter({required this.points, required this.weeks});
+  final List<WeightChartPoint> points;
+  final int weeks;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (points.isEmpty || weeks <= 0) return;
+    const left = 30.0;
+    const right = 8.0;
+    const top = 12.0;
+    const bottom = 27.0;
+    final plotWidth = size.width - left - right;
+    final plotHeight = size.height - top - bottom;
+    final values = points.map((point) => point.weightKg);
+    final minValue = values.reduce(math.min);
+    final maxValue = values.reduce(math.max);
+    final spread = (maxValue - minValue).abs();
+    final padding = spread < 0.1 ? 1.0 : spread * 0.25;
+    final minY = (minValue - padding).floorToDouble();
+    final maxY = (maxValue + padding).ceilToDouble();
+    final yRange = (maxY - minY).clamp(1.0, double.infinity);
+
+    Offset position(WeightChartPoint point) {
+      final x = left + ((point.weekNumber - 1) / math.max(weeks - 1, 1)) * plotWidth;
+      final y = top + ((maxY - point.weightKg) / yRange) * plotHeight;
+      return Offset(x, y);
+    }
+
+    final gridPaint = Paint()..color = AppColors.neutral200..strokeWidth = 0.8;
+    final labelStyle = AppTypography.labelSmall.copyWith(color: AppColors.neutral600, fontSize: 9);
+    for (var i = 0; i <= 4; i++) {
+      final y = top + (plotHeight * i / 4);
+      canvas.drawLine(Offset(left, y), Offset(size.width - right, y), gridPaint);
+      final value = maxY - (yRange * i / 4);
+      final text = TextPainter(
+        text: TextSpan(text: value.toStringAsFixed(0), style: labelStyle),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      text.paint(canvas, Offset(0, y - text.height / 2));
+    }
+
+    final path = Path();
+    final first = position(points.first);
+    path.moveTo(first.dx, first.dy);
+    for (final point in points.skip(1)) {
+      final p = position(point);
+      path.lineTo(p.dx, p.dy);
+    }
+
+    final fill = Path.from(path)
+      ..lineTo(position(points.last).dx, top + plotHeight)
+      ..lineTo(first.dx, top + plotHeight)
+      ..close();
+    final fillPaint = Paint()
+      ..shader = LinearGradient(
+        colors: [AppColors.limeAccent.withValues(alpha: 0.24), AppColors.limeAccent.withValues(alpha: 0.01)],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ).createShader(Rect.fromLTWH(left, top, plotWidth, plotHeight));
+    canvas.drawPath(fill, fillPaint);
+
+    final linePaint = Paint()
+      ..color = AppColors.greenBrand
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    canvas.drawPath(path, linePaint);
+
+    for (final point in points) {
+      final p = position(point);
+      canvas.drawCircle(p, 3.2, Paint()..color = AppColors.limeAccent);
+      canvas.drawCircle(p, 3.2, Paint()..color = AppColors.greenBrand..style = PaintingStyle.stroke..strokeWidth = 1);
+    }
+
+    for (var week = 1; week <= weeks; week++) {
+      final x = left + ((week - 1) / math.max(weeks - 1, 1)) * plotWidth;
+      final text = TextPainter(
+        text: TextSpan(text: 'W$week', style: labelStyle.copyWith(fontSize: 8)),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      text.paint(canvas, Offset(x - text.width / 2, top + plotHeight + 8));
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _WeightTrendPainter oldDelegate) =>
+      oldDelegate.points != points || oldDelegate.weeks != weeks;
+}
+
+class _CurrentWeightSummary extends StatelessWidget {
+  const _CurrentWeightSummary({required this.currentWeight, required this.change, required this.rangeWeeks});
+  final double currentWeight;
+  final double change;
+  final int rangeWeeks;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
+    decoration: _cardDecoration(),
+    child: Row(children: [
+      Container(width: 37, height: 37, decoration: BoxDecoration(color: AppColors.limeSurface, borderRadius: BorderRadius.circular(10)),
+        child: const Icon(Icons.monitor_weight_outlined, size: 19, color: AppColors.greenDark)),
+      const SizedBox(width: 10),
+      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text('${currentWeight.toStringAsFixed(1)} kg', style: AppTypography.titleLarge.copyWith(fontSize: 18, fontWeight: FontWeight.w700)),
+        Text('vs. $rangeWeeks weeks ago', style: AppTypography.labelSmall.copyWith(color: AppColors.neutral500, fontSize: 9)),
+      ])),
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+        decoration: BoxDecoration(color: AppColors.limeSurface, borderRadius: BorderRadius.circular(15)),
+        child: Text('${change >= 0 ? '↑ +' : '↓ '}${change.abs().toStringAsFixed(1)} kg',
+          style: AppTypography.labelSmall.copyWith(color: AppColors.greenDark, fontSize: 10, fontWeight: FontWeight.w700)),
+      ),
+    ]),
+  );
+}
+
+class _MetricNotTrackedCard extends StatelessWidget {
+  const _MetricNotTrackedCard({required this.metric});
+  final String metric;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: double.infinity,
+    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 34),
+    decoration: _cardDecoration(),
+    child: Column(children: [
+      const Icon(Icons.insights_outlined, size: 30, color: AppColors.neutral400),
+      const SizedBox(height: 10),
+      Text('$metric tracking is not available yet', style: AppTypography.titleSmall, textAlign: TextAlign.center),
+      const SizedBox(height: 5),
+      Text('This metric is not stored in your measurements yet.',
+        style: AppTypography.bodySmall.copyWith(color: AppColors.neutral500),
+        textAlign: TextAlign.center),
+    ]),
+  );
 }
 
 class _MetricCard extends StatelessWidget {
