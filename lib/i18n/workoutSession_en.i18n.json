@@ -65,5 +65,21 @@
   "emptySessionDescription": "The exercise list for this session was not found. Please go back to reload your workout program.",
   "backButtonLabel": "Go Back",
   "finishSessionFailed": "We couldn\u0027t save your workout. Your recorded progress is still here. Please try again.",
-  "defaultProgramTitle": "Strength Training"
+  "defaultProgramTitle": "Strength Training",
+  "completedScreen": {
+    "title": "Workout Completed! 🎉",
+    "subtitle": "Great job! You've finished $focus.",
+    "duration": "Duration",
+    "exercises": "Exercises",
+    "estCalories": "Est. Calories",
+    "minUnit": "min",
+    "howWasWorkout": "How was the workout?",
+    "tooEasy": "Too Easy",
+    "easy": "Easy",
+    "justRight": "Just Right",
+    "hard": "Hard",
+    "tooHard": "Too Hard",
+    "saveAndContinue": "Save & Continue",
+    "viewWorkoutSummary": "View Workout Summary"
+  }
 }

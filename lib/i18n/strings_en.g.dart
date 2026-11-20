@@ -167,6 +167,10 @@ class _Translations$workoutSession$en extends Translations$workoutSession$id {
 
   final TranslationsEn _root; // ignore: unused_field
 
+  @override
+  late final _Translations$workoutSession$completedScreen$en completedScreen =
+      _Translations$workoutSession$completedScreen$en._(_root);
+
   // Translations
   @override
   String exerciseProgress({required Object current, required Object total}) =>
@@ -310,6 +314,61 @@ class _Translations$workoutSession$en extends Translations$workoutSession$id {
       'We couldn\'t save your workout. Your recorded progress is still here. Please try again.';
   @override
   String get defaultProgramTitle => 'Strength Training';
+}
+
+// Path: workoutSession.completedScreen
+class _Translations$workoutSession$completedScreen$en
+    extends Translations$workoutSession$completedScreen$id {
+  _Translations$workoutSession$completedScreen$en._(TranslationsEn root)
+      : this._root = root,
+        super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+
+  @override
+  String get title => 'Workout Completed! 🎉';
+
+  @override
+  String subtitle({required Object focus}) =>
+      'Great job! You\'ve finished ${focus}.';
+
+  @override
+  String get duration => 'Duration';
+
+  @override
+  String get exercises => 'Exercises';
+
+  @override
+  String get estCalories => 'Est. Calories';
+
+  @override
+  String get minUnit => 'min';
+
+  @override
+  String get howWasWorkout => 'How was the workout?';
+
+  @override
+  String get tooEasy => 'Too Easy';
+
+  @override
+  String get easy => 'Easy';
+
+  @override
+  String get justRight => 'Just Right';
+
+  @override
+  String get hard => 'Hard';
+
+  @override
+  String get tooHard => 'Too Hard';
+
+  @override
+  String get saveAndContinue => 'Save & Continue';
+
+  @override
+  String get viewWorkoutSummary => 'View Workout Summary';
 }
 
 // Path: workouts
@@ -1876,6 +1935,20 @@ extension on TranslationsEn {
       'workoutSession.finishSessionFailed' =>
         'We couldn\'t save your workout. Your recorded progress is still here. Please try again.',
       'workoutSession.defaultProgramTitle' => 'Strength Training',
+      'workoutSession.completedScreen.title' => 'Workout Completed! 🎉',
+      'workoutSession.completedScreen.subtitle' => ({required Object focus}) => 'Great job! You\'ve finished ${focus}.',
+      'workoutSession.completedScreen.duration' => 'Duration',
+      'workoutSession.completedScreen.exercises' => 'Exercises',
+      'workoutSession.completedScreen.estCalories' => 'Est. Calories',
+      'workoutSession.completedScreen.minUnit' => 'min',
+      'workoutSession.completedScreen.howWasWorkout' => 'How was the workout?',
+      'workoutSession.completedScreen.tooEasy' => 'Too Easy',
+      'workoutSession.completedScreen.easy' => 'Easy',
+      'workoutSession.completedScreen.justRight' => 'Just Right',
+      'workoutSession.completedScreen.hard' => 'Hard',
+      'workoutSession.completedScreen.tooHard' => 'Too Hard',
+      'workoutSession.completedScreen.saveAndContinue' => 'Save & Continue',
+      'workoutSession.completedScreen.viewWorkoutSummary' => 'View Workout Summary',
       'workouts.title' => 'Workouts',
       'workouts.searchHint' => 'Search workouts & exercises...',
       'workouts.tabs.myProgram' => 'My Program',

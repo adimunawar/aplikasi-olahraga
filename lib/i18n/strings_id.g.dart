@@ -140,6 +140,9 @@ class Translations$workoutSession$id {
 
   final Translations _root; // ignore: unused_field
 
+  late final Translations$workoutSession$completedScreen$id completedScreen =
+      Translations$workoutSession$completedScreen$id.internal(_root);
+
   // Translations
 
   /// id: 'Latihan $current dari $total'
@@ -352,6 +355,58 @@ class Translations$workoutSession$id {
 
   /// id: 'Latihan Kekuatan'
   String get defaultProgramTitle => 'Latihan Kekuatan';
+}
+
+// Path: workoutSession.completedScreen
+class Translations$workoutSession$completedScreen$id {
+  Translations$workoutSession$completedScreen$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Workout Selesai! 🎉'
+  String get title => 'Workout Selesai! 🎉';
+
+  /// id: 'Kerja bagus! Kamu telah menyelesaikan $focus.'
+  String subtitle({required Object focus}) =>
+      'Kerja bagus! Kamu telah menyelesaikan ${focus}.';
+
+  /// id: 'Durasi'
+  String get duration => 'Durasi';
+
+  /// id: 'Latihan'
+  String get exercises => 'Latihan';
+
+  /// id: 'Est. Kalori'
+  String get estCalories => 'Est. Kalori';
+
+  /// id: 'menit'
+  String get minUnit => 'menit';
+
+  /// id: 'Bagaimana latihannya?'
+  String get howWasWorkout => 'Bagaimana latihannya?';
+
+  /// id: 'Terlalu Mudah'
+  String get tooEasy => 'Terlalu Mudah';
+
+  /// id: 'Mudah'
+  String get easy => 'Mudah';
+
+  /// id: 'Pas Banget'
+  String get justRight => 'Pas Banget';
+
+  /// id: 'Berat'
+  String get hard => 'Berat';
+
+  /// id: 'Terlalu Berat'
+  String get tooHard => 'Terlalu Berat';
+
+  /// id: 'Simpan & Lanjutkan'
+  String get saveAndContinue => 'Simpan & Lanjutkan';
+
+  /// id: 'Lihat Ringkasan Latihan'
+  String get viewWorkoutSummary => 'Lihat Ringkasan Latihan';
 }
 
 // Path: workouts
@@ -1996,6 +2051,20 @@ extension on Translations {
       'workoutSession.backButtonLabel' => 'Kembali',
       'workoutSession.finishSessionFailed' => 'Sesi latihan gagal disimpan. Progres yang sudah tercatat tetap tersedia. Silakan coba lagi.',
       'workoutSession.defaultProgramTitle' => 'Latihan Kekuatan',
+      'workoutSession.completedScreen.title' => 'Workout Selesai! 🎉',
+      'workoutSession.completedScreen.subtitle' => ({required Object focus}) => 'Kerja bagus! Kamu telah menyelesaikan ${focus}.',
+      'workoutSession.completedScreen.duration' => 'Durasi',
+      'workoutSession.completedScreen.exercises' => 'Latihan',
+      'workoutSession.completedScreen.estCalories' => 'Est. Kalori',
+      'workoutSession.completedScreen.minUnit' => 'menit',
+      'workoutSession.completedScreen.howWasWorkout' => 'Bagaimana latihannya?',
+      'workoutSession.completedScreen.tooEasy' => 'Terlalu Mudah',
+      'workoutSession.completedScreen.easy' => 'Mudah',
+      'workoutSession.completedScreen.justRight' => 'Pas Banget',
+      'workoutSession.completedScreen.hard' => 'Berat',
+      'workoutSession.completedScreen.tooHard' => 'Terlalu Berat',
+      'workoutSession.completedScreen.saveAndContinue' => 'Simpan & Lanjutkan',
+      'workoutSession.completedScreen.viewWorkoutSummary' => 'Lihat Ringkasan Latihan',
       'workouts.title' => 'Latihan',
       'workouts.searchHint' => 'Cari latihan & gerakan...',
       'workouts.tabs.myProgram' => 'Program Saya',
