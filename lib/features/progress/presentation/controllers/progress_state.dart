@@ -3,6 +3,7 @@ import '../../domain/models/progress_metrics.dart';
 import '../../domain/models/workout_history_item.dart';
 import '../../domain/models/movement_volume_data.dart';
 import '../../domain/models/progression_milestone.dart';
+import '../../domain/models/weight_record.dart';
 
 /// Immutable State untuk halaman Progress
 class ProgressState {
@@ -15,6 +16,7 @@ class ProgressState {
   final double bmiValue;
   final String bmiStatus;
   final List<WorkoutHistoryItem> recentWorkouts;
+  final List<WeightRecord> weightHistory;
   final List<DayActivity> weeklyActivity;
   final List<MovementVolumeData> movementVolume;
   final List<ProgressionMilestone> milestones;
@@ -35,6 +37,7 @@ class ProgressState {
     this.bmiValue = 19.2,
     this.bmiStatus = 'Healthy',
     this.recentWorkouts = const [],
+    this.weightHistory = const [],
     this.weeklyActivity = const [],
     this.movementVolume = const [],
     this.milestones = const [],
@@ -56,6 +59,7 @@ class ProgressState {
     double? bmiValue,
     String? bmiStatus,
     List<WorkoutHistoryItem>? recentWorkouts,
+    List<WeightRecord>? weightHistory,
     List<DayActivity>? weeklyActivity,
     List<MovementVolumeData>? movementVolume,
     List<ProgressionMilestone>? milestones,
@@ -76,6 +80,7 @@ class ProgressState {
       bmiValue: bmiValue ?? this.bmiValue,
       bmiStatus: bmiStatus ?? this.bmiStatus,
       recentWorkouts: recentWorkouts ?? this.recentWorkouts,
+      weightHistory: weightHistory ?? this.weightHistory,
       weeklyActivity: weeklyActivity ?? this.weeklyActivity,
       movementVolume: movementVolume ?? this.movementVolume,
       milestones: milestones ?? this.milestones,
