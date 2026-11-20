@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,7 +13,6 @@ import 'i18n/strings.g.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await FirebaseConfig.initialize();
   await SupabaseConfig.initialize();
   await SupabaseConfig.initializeCloudSyncConsent();
   final prefs = await SharedPreferences.getInstance();
@@ -35,6 +36,9 @@ void main() async {
       ),
     ),
   );
+
+  // Firebase is optional telemetry; do not delay the local-first UI startup.
+  unawaited(FirebaseConfig.initialize());
 }
 
 class WorkoutApp extends ConsumerWidget {
