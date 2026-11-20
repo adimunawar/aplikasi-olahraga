@@ -19,11 +19,11 @@ class WeightAnalyticsResult {
 class WeightAnalyticsService {
   const WeightAnalyticsService();
 
-  WeightAnalyticsResult analyze(List<WeightRecord> history, {double defaultWeight = 58.0}) {
+  WeightAnalyticsResult analyze(List<WeightRecord> history, {double defaultWeight = 0}) {
     if (history.isEmpty) {
       return WeightAnalyticsResult(
         currentWeight: defaultWeight,
-        weightChange: -1.0,
+        weightChange: 0,
         startLabel: '60 kg\n(Oct 25)',
         endLabel: '${defaultWeight.toStringAsFixed(0)} kg\n(Nov 5)',
       );
