@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/config/firebase_config.dart';
 import 'core/config/supabase_config.dart';
+import 'core/database/app_database.dart';
 import 'core/localization/app_locale.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
@@ -15,9 +15,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SupabaseConfig.initialize();
   await SupabaseConfig.initializeCloudSyncConsent();
-  final prefs = await SharedPreferences.getInstance();
   final hasCompletedOnboarding =
-      prefs.getBool('has_completed_onboarding') ?? false;
+      await AppDatabase.instance.hasCompletedOnboarding();
+  final prefs = await SharedPreferences.getInstance();
   final initialLocale = loadStoredLocale(prefs);
   await applyInitialLocale(initialLocale);
 
