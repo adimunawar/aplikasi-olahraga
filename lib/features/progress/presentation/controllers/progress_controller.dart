@@ -72,8 +72,8 @@ class ProgressController extends StateNotifier<ProgressState> {
 
       // 2. Ambil data profil (tinggi dan berat badan)
       final profile = await _userDatasource.fetchProfileFromSupabase();
-      final heightCm = profile?.heightCm ?? state.heightCm;
-      final profileWeight = profile?.currentWeightKg ?? state.currentWeight;
+      final heightCm = profile?.heightCm ?? 0;
+      final profileWeight = profile?.currentWeightKg ?? 0;
 
       // 3. Ambil riwayat penimbangan
       final history = await _repository.getWeightHistory();
@@ -84,8 +84,11 @@ class ProgressController extends StateNotifier<ProgressState> {
 
       // 4. Hitung BMI melalui Application Service
       final currentWeight = weightAnalysis.currentWeight;
-      final bmi = _bmiCalculator.calculateBmi(weightKg: currentWeight, heightCm: heightCm);
-      final bmiStatus = _bmiCalculator.getBmiStatus(bmi);
+      final hasBodyData = currentWeight > 0 && heightCm > 0;
+      final bmi = hasBodyData
+          ? _bmiCalculator.calculateBmi(weightKg: currentWeight, heightCm: heightCm)
+          : 0.0;
+      final bmiStatus = hasBodyData ? _bmiCalculator.getBmiStatus(bmi) : '';
 
       // 5. Ambil riwayat sesi latihan & aktivitas mingguan
       final recents = await _repository.getRecentWorkouts();
@@ -105,7 +108,7 @@ class ProgressController extends StateNotifier<ProgressState> {
             .map((w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '')
             .join(' ');
       }
-      if (programTitle.isEmpty) programTitle = 'Upper Body Strength';
+      
 
       state = state.copyWith(
         metrics: metrics,
@@ -122,9 +125,9 @@ class ProgressController extends StateNotifier<ProgressState> {
         movementVolume: movementVol,
         milestones: milestones,
         activeProgramTitle: programTitle,
-        activeProgramWeek: 3,
+        activeProgramWeek: 0,
         activeProgramTotalWeeks: activeProgram.totalWeeks,
-        activeProgramPercent: 37,
+        activeProgramPercent: 0,
         isLoading: false,
       );
     } catch (e) {
