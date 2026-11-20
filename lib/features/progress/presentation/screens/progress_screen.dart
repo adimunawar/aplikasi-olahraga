@@ -121,24 +121,32 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       _heading('Your Progress', subtitle: 'A quick summary of your training and body progress.'),
       const SizedBox(height: 10),
-      GridView.count(
-        crossAxisCount: 2, shrinkWrap: true, physics: const NeverScrollableScrollPhysics(),
-        mainAxisSpacing: 10, crossAxisSpacing: 10, childAspectRatio: 1.78,
-        children: [
-          MetricCard(icon: Icons.fitness_center_rounded, value: '${metrics.workoutCount}', label: 'Workouts'),
-          MetricCard(icon: Icons.check_circle_outline_rounded, value: '$completion%', label: 'Completion'),
-          MetricCard(icon: Icons.access_time_rounded, value: _duration(metrics.totalMinutes), label: 'Training Time'),
-          MetricCard(icon: Icons.local_fire_department_outlined, value: '${metrics.streakDays} days', label: 'Current Streak'),
-        ],
-      ),
-      const SizedBox(height: 20),
-      _heading('Program Progress'),
-      const SizedBox(height: 10),
-      ProgramCard(title: state.activeProgramTitle, week: state.activeProgramWeek, totalWeeks: state.activeProgramTotalWeeks, percent: state.activeProgramPercent),
-      const SizedBox(height: 20),
-      _heading('Recent Highlights', trailing: Icons.info_outline),
-      const SizedBox(height: 10),
-      HighlightsCard(completed: metrics.completedThisWeek, target: metrics.weeklyTarget, weightChange: state.weightChange, streak: metrics.streakDays),
+      if (metrics.workoutCount == 0)
+        const ProgressEmptyState(
+          icon: Icons.fitness_center_rounded,
+          title: 'No workout data yet',
+          message: 'Complete your first workout to see your training progress here.',
+        )
+      else ...[
+        GridView.count(
+          crossAxisCount: 2, shrinkWrap: true, physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 10, crossAxisSpacing: 10, childAspectRatio: 1.78,
+          children: [
+            MetricCard(icon: Icons.fitness_center_rounded, value: '${metrics.workoutCount}', label: 'Workouts'),
+            MetricCard(icon: Icons.check_circle_outline_rounded, value: '$completion%', label: 'Completion'),
+            MetricCard(icon: Icons.access_time_rounded, value: _duration(metrics.totalMinutes), label: 'Training Time'),
+            MetricCard(icon: Icons.local_fire_department_outlined, value: '${metrics.streakDays} days', label: 'Current Streak'),
+          ],
+        ),
+        const SizedBox(height: 20),
+        _heading('Program Progress'),
+        const SizedBox(height: 10),
+        ProgramCard(title: state.activeProgramTitle, week: state.activeProgramWeek, totalWeeks: state.activeProgramTotalWeeks, percent: state.activeProgramPercent),
+        const SizedBox(height: 20),
+        _heading('Recent Highlights', trailing: Icons.info_outline),
+        const SizedBox(height: 10),
+        HighlightsCard(completed: metrics.completedThisWeek, target: metrics.weeklyTarget, weightChange: state.weightChange, streak: metrics.streakDays),
+      ],
     ]);
   }
 
@@ -162,18 +170,20 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
           currentWeight: state.currentWeight,
           hasData: hasWeightData,
         ),
-        const SizedBox(height: 10),
-        CurrentWeightSummary(
-          currentWeight: state.currentWeight,
-          change: state.weightChange,
-          rangeWeeks: _bodyRangeWeeks,
-        ),
+        if (hasWeightData) ...[
+          const SizedBox(height: 10),
+          CurrentWeightSummary(
+            currentWeight: state.currentWeight,
+            change: state.weightChange,
+            rangeWeeks: _bodyRangeWeeks,
+          ),
+        ],
         const SizedBox(height: 20),
         SizedBox(
           width: double.infinity,
           height: 42,
           child: ElevatedButton.icon(
-            onPressed: () => _recordWeight(state.currentWeight),
+            onPressed: () => _recordWeight(hasWeightData ? state.currentWeight : null),
             icon: const Icon(Icons.add_rounded, size: 18),
             label: const Text('Log Measurement'),
             style: ElevatedButton.styleFrom(
@@ -227,6 +237,13 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       _heading('Workout Performance', subtitle: 'Your training progress and consistency.'),
       const SizedBox(height: 10),
+      if (state.metrics.workoutCount == 0)
+        const ProgressEmptyState(
+          icon: Icons.fitness_center_rounded,
+          title: 'No workout performance yet',
+          message: 'Your weekly activity and training volume will appear after you complete a workout.',
+        )
+      else ...[
       ProgramCard(title: state.activeProgramTitle, week: state.activeProgramWeek, totalWeeks: state.activeProgramTotalWeeks, percent: state.activeProgramPercent),
       const SizedBox(height: 10),
       Row(children: [
@@ -239,17 +256,34 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
       const SizedBox(height: 20),
       _heading('Weekly Activity', trailing: Icons.info_outline),
       const SizedBox(height: 10),
-      _WeeklyActivityCard(days: state.weeklyActivity, maxMinutes: maxMinutes),
+      if (weeklyMinutes > 0)
+        _WeeklyActivityCard(days: state.weeklyActivity, maxMinutes: maxMinutes)
+      else
+        const ProgressEmptyState(
+          icon: Icons.calendar_today_outlined,
+          title: 'No activity this week',
+          message: 'Completed workout time will be summarized here.',
+          compact: true,
+        ),
       const SizedBox(height: 20),
       _heading('Training Volume', trailing: Icons.info_outline),
       const SizedBox(height: 10),
-      _TrainingVolumeCard(totalSets: totalSets, totalReps: totalReps, activePatterns: state.movementVolume.length),
+      if (totalSets > 0)
+        _TrainingVolumeCard(totalSets: totalSets, totalReps: totalReps, activePatterns: state.movementVolume.length)
+      else
+        const ProgressEmptyState(
+          icon: Icons.bar_chart_rounded,
+          title: 'No training volume yet',
+          message: 'Set and rep totals will appear after you log completed sets.',
+          compact: true,
+        ),
       const SizedBox(height: 20),
       _heading('Recent Workouts'),
       const SizedBox(height: 10),
       RecentWorkoutsCard(workouts: state.recentWorkouts),
       const SizedBox(height: 4),
       Text('$weeklyMinutes training minutes this week', style: AppTypography.labelSmall.copyWith(color: AppColors.neutral500)),
+      ],
     ]);
   }
 
@@ -320,8 +354,8 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
     return '${hours}h ${remaining}m';
   }
 
-  Future<void> _recordWeight(double initialWeight) async {
-    final controller = TextEditingController(text: initialWeight.toStringAsFixed(1));
+  Future<void> _recordWeight(double? initialWeight) async {
+    final controller = TextEditingController(text: initialWeight?.toStringAsFixed(1) ?? '');
     final value = await showDialog<double>(
       context: context,
       builder: (dialogContext) => AlertDialog(
