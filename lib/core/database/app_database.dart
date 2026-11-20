@@ -463,7 +463,7 @@ class AppDatabase {
     }
 
     final db = await database;
-    if (db == null) return {1, 2};
+    if (db == null) return completedDays;
 
     try {
       final rows = await db.query(
@@ -619,7 +619,13 @@ class AppDatabase {
 
   Future<double> getLatestWeight() async {
     if (kIsWeb) {
-      return _webProfile?.currentWeightKg ?? 67.5;
+      return _webMeasurements
+          .where((measurement) => measurement.measurementType == 'weight')
+          .fold<BodyMeasurementEntity?>(null, (latest, measurement) =>
+              latest == null || measurement.recordedAt.isAfter(latest.recordedAt)
+                  ? measurement
+                  : latest)
+          ?.value ?? 0;
     }
 
     final db = await database;
