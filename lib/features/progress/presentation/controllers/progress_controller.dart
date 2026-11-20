@@ -97,11 +97,16 @@ class ProgressController extends StateNotifier<ProgressState> {
       final milestones = await _repository.getProgressionMilestones();
 
       // 6. Ambil status program aktif
-      final activeProgram = await _programsRepo.getActiveProgram();
-      String programTitle = activeProgram.title.en.isNotEmpty
-          ? activeProgram.title.en
-          : activeProgram.title.id;
-      if (programTitle.trim().isEmpty) {
+      final hasActiveProgram = await _programsRepo.hasActiveProgram();
+      final activeProgram = hasActiveProgram
+          ? await _programsRepo.getActiveProgram()
+          : null;
+      String programTitle = activeProgram == null
+          ? ''
+          : (activeProgram.title.en.isNotEmpty
+              ? activeProgram.title.en
+              : activeProgram.title.id);
+      if (activeProgram != null && programTitle.trim().isEmpty) {
         programTitle = activeProgram.id
             .replaceAll('_', ' ')
             .split(' ')
@@ -125,8 +130,9 @@ class ProgressController extends StateNotifier<ProgressState> {
         movementVolume: movementVol,
         milestones: milestones,
         activeProgramTitle: programTitle,
+        hasActiveProgram: hasActiveProgram,
         activeProgramWeek: 0,
-        activeProgramTotalWeeks: activeProgram.totalWeeks,
+        activeProgramTotalWeeks: activeProgram?.totalWeeks ?? 0,
         activeProgramPercent: 0,
         isLoading: false,
       );
