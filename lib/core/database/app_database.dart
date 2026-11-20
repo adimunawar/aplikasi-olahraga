@@ -1029,10 +1029,10 @@ class AppDatabase {
     AppDataSync.instance.notifyDataChanged();
   }
 
-  /// Onboarding dianggap selesai setelah pengguna mengaktifkan program.
-  /// SQLite menjadi sumber kebenaran; tidak bergantung pada preference flag.
+  /// Onboarding selesai setelah pengguna pernah mengaktifkan sebuah program.
+  /// Keberadaan program tersimpan menjadi sumber kebenaran yang persisten.
   Future<bool> hasCompletedOnboarding() async {
-    if (kIsWeb) return _webActiveProgram?.status == 'active';
+    if (kIsWeb) return _webActiveProgram != null;
 
     final db = await database;
     if (db == null) return false;
@@ -1040,8 +1040,8 @@ class AppDatabase {
     final result = await db.query(
       DatabaseTables.trainingPrograms,
       columns: ['id'],
-      where: 'user_id = ? AND status = ?',
-      whereArgs: ['default_user', 'active'],
+      where: 'user_id = ?',
+      whereArgs: ['default_user'],
       limit: 1,
     );
 
@@ -1274,6 +1274,8 @@ class AppDatabase {
       _webSessions.clear();
       _webSets.clear();
       _webMeasurements.clear();
+      _webActiveProgram = null;
+      _webProgramSessionDetails.clear();
       _webProfile = _createDefaultUser(DateTime.now());
       return;
     }
@@ -1284,6 +1286,10 @@ class AppDatabase {
     await db.delete(DatabaseTables.workoutSets);
     await db.delete(DatabaseTables.workoutSessions);
     await db.delete(DatabaseTables.bodyMeasurements);
+    await db.delete(DatabaseTables.programExercises);
+    await db.delete(DatabaseTables.programSessions);
+    await db.delete(DatabaseTables.trainingPrograms);
+    await db.delete(DatabaseTables.userPrograms);
     await db.delete(DatabaseTables.userProfiles);
 
     // Re-seed default profile
