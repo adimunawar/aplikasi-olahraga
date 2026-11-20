@@ -7,6 +7,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../domain/models/workout_history_item.dart';
 import '../../domain/models/weight_record.dart';
 import '../../application/weight_chart_series.dart';
+import '../../application/progress_history_grouping.dart';
 import '../controllers/progress_controller.dart';
 import '../controllers/progress_state.dart';
 
@@ -300,15 +301,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
     ]);
   }
 
-  String _historyGroup(DateTime date) {
-    final today = DateTime.now();
-    final startToday = DateTime(today.year, today.month, today.day);
-    final entryDay = DateTime(date.year, date.month, date.day);
-    final daysAgo = startToday.difference(entryDay).inDays;
-    if (daysAgo < 7 && daysAgo >= 0) return 'This Week';
-    if (daysAgo < 14 && daysAgo >= 7) return 'Last Week';
-    return 'Earlier';
-  }
+  String _historyGroup(DateTime date) => const ProgressHistoryGrouping().groupFor(date, now: DateTime.now());
 
   Widget _heading(String title, {String? subtitle, IconData? trailing}) => Row(children: [
     Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
