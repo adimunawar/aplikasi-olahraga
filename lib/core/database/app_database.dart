@@ -663,7 +663,7 @@ class AppDatabase {
   // MULTI-PROGRAM & ANALYTICS OPERATIONS
   // ==========================================
 
-  String _webActiveProgramId = 'upper_body_strength';
+  String _webActiveProgramId = '';
 
   Future<String> getActiveProgramId() async {
     if (kIsWeb) return _webActiveProgramId;
