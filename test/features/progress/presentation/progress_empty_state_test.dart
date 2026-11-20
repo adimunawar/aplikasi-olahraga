@@ -23,4 +23,23 @@ void main() {
     );
     expect(find.byIcon(Icons.fitness_center_rounded), findsOneWidget);
   });
+
+  testWidgets('HighlightsCard does not display invented values when there is no data', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: HighlightsCard(
+            completed: 0,
+            target: 0,
+            weightChange: 0,
+            streak: 0,
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('No highlights yet'), findsOneWidget);
+    expect(find.textContaining('0.0 kg'), findsNothing);
+    expect(find.textContaining('0 consecutive active days'), findsNothing);
+  });
 }
