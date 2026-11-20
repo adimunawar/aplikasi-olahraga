@@ -110,6 +110,7 @@ class ProgressController extends StateNotifier<ProgressState> {
       state = state.copyWith(
         metrics: metrics,
         currentWeight: currentWeight,
+        weightHistory: history,
         heightCm: heightCm,
         weightChange: weightAnalysis.weightChange,
         startLabel: weightAnalysis.startLabel,
