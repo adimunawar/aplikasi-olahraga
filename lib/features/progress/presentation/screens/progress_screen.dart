@@ -7,6 +7,7 @@ import '../../application/progress_history_grouping.dart';
 import '../controllers/progress_controller.dart';
 import '../controllers/progress_state.dart';
 import '../widgets/progress_dashboard_widgets.dart';
+import '../widgets/progress_history_widgets.dart';
 
 class ProgressScreen extends ConsumerStatefulWidget {
   const ProgressScreen({super.key});
@@ -85,7 +86,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
 
   Widget _tabsBar() => Container(
     padding: const EdgeInsets.all(4),
-    decoration: BoxDecoration(color: const Color(0xFFEFF1F3), borderRadius: BorderRadius.circular(28)),
+    decoration: BoxDecoration(color: const AppColors.neutral100, borderRadius: BorderRadius.circular(28)),
     child: Row(children: List.generate(_tabs.length, (index) {
       final selected = _selectedTab == index;
       return Expanded(
@@ -201,7 +202,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
             duration: const Duration(milliseconds: 160),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
             decoration: BoxDecoration(
-              color: selected ? AppColors.limeAccent : const Color(0xFFEFF1F3),
+              color: selected ? AppColors.limeAccent : const AppColors.neutral100,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(metric, style: AppTypography.labelSmall.copyWith(
@@ -253,9 +254,9 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
   }
 
   Widget _historyTab(ProgressState state) {
-    final workoutItems = state.recentWorkouts.map((item) => _HistoryEntry.workout(item)).toList();
-    final measurementItems = state.weightHistory.map((item) => _HistoryEntry.measurement(item)).toList();
-    final entries = <_HistoryEntry>[
+    final workoutItems = state.recentWorkouts.map((item) => HistoryEntry.workout(item)).toList();
+    final measurementItems = state.weightHistory.map((item) => HistoryEntry.measurement(item)).toList();
+    final entries = <HistoryEntry>[
       if (_historyFilter != 'Measurement') ...workoutItems,
       if (_historyFilter != 'Workout') ...measurementItems,
     ]..sort((a, b) {
@@ -263,18 +264,18 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
       return _historyNewestFirst ? -comparison : comparison;
     });
 
-    final grouped = <String, List<_HistoryEntry>>{};
+    final grouped = <String, List<HistoryEntry>>{};
     for (final entry in entries) {
       grouped.putIfAbsent(_historyGroup(entry.date), () => []).add(entry);
     }
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [
-        _HistoryFilterChip(label: 'All', selected: _historyFilter == 'All', onTap: () => setState(() => _historyFilter = 'All')),
+        HistoryFilterChip(label: 'All', selected: _historyFilter == 'All', onTap: () => setState(() => _historyFilter = 'All')),
         const SizedBox(width: 6),
-        _HistoryFilterChip(label: 'Workout', icon: Icons.fitness_center_rounded, selected: _historyFilter == 'Workout', onTap: () => setState(() => _historyFilter = 'Workout')),
+        HistoryFilterChip(label: 'Workout', icon: Icons.fitness_center_rounded, selected: _historyFilter == 'Workout', onTap: () => setState(() => _historyFilter = 'Workout')),
         const SizedBox(width: 6),
-        _HistoryFilterChip(label: 'Measurement', icon: Icons.monitor_weight_outlined, selected: _historyFilter == 'Measurement', onTap: () => setState(() => _historyFilter = 'Measurement')),
+        HistoryFilterChip(label: 'Measurement', icon: Icons.monitor_weight_outlined, selected: _historyFilter == 'Measurement', onTap: () => setState(() => _historyFilter = 'Measurement')),
         const Spacer(),
         IconButton(
           tooltip: _historyNewestFirst ? 'Oldest first' : 'Newest first',
@@ -285,14 +286,14 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
       ]),
       const SizedBox(height: 12),
       if (entries.isEmpty)
-        _HistoryEmptyState(filter: _historyFilter)
+        HistoryEmptyState(filter: _historyFilter)
       else
         ...grouped.entries.map((group) => Padding(
           padding: const EdgeInsets.only(bottom: 18),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(group.key, style: AppTypography.titleSmall.copyWith(fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
-            _HistoryGroupCard(entries: group.value),
+            HistoryGroupCard(entries: group.value),
           ]),
         )),
     ]);
