@@ -172,7 +172,8 @@ class AppDatabase {
       'updated_at': now.toIso8601String(),
     });
 
-    // Initial Seeder Profil Default (Adi, 67.5 kg, Beginner, 3 Hari Fleksibel)
+    // Create an empty profile record for the local guest. Actual profile values
+    // are supplied by onboarding; never seed personal-looking sample data.
     final defaultUser = _createDefaultUser(now);
     await db.insert(DatabaseTables.userProfiles, defaultUser.toMap());
 
@@ -185,19 +186,21 @@ class AppDatabase {
   UserProfileEntity _createDefaultUser(DateTime now) {
     return UserProfileEntity(
       id: 'default_user',
-      displayName: 'Adi',
-      age: 24,
-      heightCm: 172.0,
-      currentWeightKg: 67.5,
-      goal: 'muscle_gain',
-      experienceLevel: 'beginner',
-      preferredDurationMin: 30,
-      preferredDaysPerWeek: 3,
-      weeklyFrequency: 3,
-      availableDays: const ['monday', 'wednesday', 'friday'],
+      displayName: '',
+      age: 0,
+      heightCm: 0,
+      currentWeightKg: 0,
+      targetWeightKg: 0,
+      targetTimeframeWeeks: 0,
+      goal: '',
+      experienceLevel: '',
+      preferredDurationMin: 0,
+      preferredDaysPerWeek: 0,
+      weeklyFrequency: 0,
+      availableDays: const [],
       trainingLimitations: const [],
       unitPreference: 'metric',
-      equipments: const ['bodyweight', 'mat', 'stable_surface', 'doorframe'],
+      equipments: const [],
       createdAt: now,
       updatedAt: now,
     );
