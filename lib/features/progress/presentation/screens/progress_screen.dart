@@ -104,7 +104,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
         ? (metrics.completedThisWeek / metrics.weeklyTarget * 100).clamp(0, 100).round()
         : 0;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      _heading('Your Progress', 'A quick summary of your training and body progress.'),
+      _heading('Your Progress', subtitle: 'A quick summary of your training and body progress.'),
       const SizedBox(height: 10),
       GridView.count(
         crossAxisCount: 2, shrinkWrap: true, physics: const NeverScrollableScrollPhysics(),
@@ -128,7 +128,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
   }
 
   Widget _bodyTab(ProgressState state) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-    _heading('Body Progress', 'Track your weight and body metrics.'),
+    _heading('Body Progress', subtitle: 'Track your weight and body metrics.'),
     const SizedBox(height: 10),
     _MetricCard(icon: Icons.monitor_weight_outlined, value: '${state.currentWeight.toStringAsFixed(1)} kg', label: 'Current Weight', fullWidth: true, onTap: () => _recordWeight(state.currentWeight)),
     const SizedBox(height: 10),
@@ -138,7 +138,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
   ]);
 
   Widget _workoutTab(ProgressState state) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-    _heading('Workout Activity', 'Your recent training consistency.'),
+    _heading('Workout Activity', subtitle: 'Your recent training consistency.'),
     const SizedBox(height: 10),
     _MetricCard(icon: Icons.fitness_center_rounded, value: '${state.metrics.workoutCount}', label: 'Completed Workouts', fullWidth: true),
     const SizedBox(height: 10),
@@ -148,12 +148,12 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
   ]);
 
   Widget _historyTab(ProgressState state) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-    _heading('Workout History', 'Your latest completed sessions.'),
+    _heading('Workout History', subtitle: 'Your latest completed sessions.'),
     const SizedBox(height: 10),
     _RecentWorkoutsCard(workouts: state.recentWorkouts, expanded: true),
   ]);
 
-  Widget _heading(String title, [String? subtitle], {IconData? trailing}) => Row(children: [
+  Widget _heading(String title, {String? subtitle, IconData? trailing}) => Row(children: [
     Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(title, style: AppTypography.titleMedium.copyWith(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.darkCharcoal)),
       if (subtitle != null) ...[
