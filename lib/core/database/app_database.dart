@@ -14,8 +14,8 @@ import 'models/dynamic_program_entity.dart';
 import 'models/progression_decision_entity.dart';
 
 /// AppDatabase: Single Source of Truth untuk Local Persistence (PRD Bagian 7 & 14).
-/// - Native (Android / iOS): Menggunakan database SQLite riil via `sqflite`.
-/// - Web / Desktop Preview: Menggunakan in-memory reactive fallback agar tidak crash saat di-run di Chrome.
+/// - Native (Android / iOS): SQLite melalui plugin `sqflite`.
+/// - Web: SQLite WebAssembly dengan penyimpanan persisten di IndexedDB.
 class AppDatabase {
   static final AppDatabase instance = AppDatabase._internal();
   AppDatabase._internal();
