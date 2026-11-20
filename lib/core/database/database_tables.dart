@@ -206,8 +206,8 @@ class DatabaseTables {
   static const String createUserSettingsTable = '''
     CREATE TABLE IF NOT EXISTS $userSettings (
       id TEXT PRIMARY KEY,
-      gender TEXT NOT NULL DEFAULT 'Male',
-      target_weight_kg REAL NOT NULL DEFAULT 65.0,
+      gender TEXT NOT NULL DEFAULT '',
+      target_weight_kg REAL NOT NULL DEFAULT 0,
       training_intensity TEXT NOT NULL DEFAULT 'Moderate',
       workout_reminder INTEGER NOT NULL DEFAULT 1,
       reminder_time TEXT NOT NULL DEFAULT '08:00 PM',
