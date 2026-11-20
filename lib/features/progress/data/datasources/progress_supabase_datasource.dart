@@ -132,10 +132,11 @@ class ProgressSupabaseDatasource {
         final map = Map<String, dynamic>.from(item);
         final title = map['program_title']?.toString().trim() ?? '';
         final durSeconds = (map['duration_seconds'] as num?)?.toInt();
-        final minutes = (durSeconds / 60).round();
-        final cals = (map['calories_burned'] as num?)?.toInt() ?? 320;
+        final cals = (map['calories_burned'] as num?)?.toInt() ?? 0;
         final startedAtStr = map['started_at']?.toString() ?? '';
-        final date = DateTime.tryParse(startedAtStr) ?? DateTime.now();
+        final date = DateTime.tryParse(startedAtStr);
+        if (title.isEmpty || durSeconds == null || date == null) return null;
+        final minutes = (durSeconds / 60).round();
 
         return WorkoutHistoryItem(
           id: map['id']?.toString() ?? '',
