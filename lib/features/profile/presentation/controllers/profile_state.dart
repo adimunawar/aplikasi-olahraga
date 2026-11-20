@@ -37,7 +37,7 @@ class ProfileState {
     this.displayName = '',
     this.journeyStatus = '',
     this.age = 0,
-    this.gender = 'male',
+    this.gender = '',
     this.currentWeight = 0,
     this.currentHeight = 0,
     this.currentBmi = 0,
