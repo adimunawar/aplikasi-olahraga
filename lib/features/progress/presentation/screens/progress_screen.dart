@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../domain/models/workout_history_item.dart';
+import '../../domain/models/weight_record.dart';
 import '../../application/weight_chart_series.dart';
 import '../controllers/progress_controller.dart';
 import '../controllers/progress_state.dart';
@@ -20,6 +21,8 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
   int _selectedTab = 0;
   int _bodyRangeWeeks = 8;
   String _bodyMetric = 'Weight';
+  String _historyFilter = 'All';
+  bool _historyNewestFirst = true;
   static const _tabs = ['Overview', 'Body', 'Workout', 'History'];
 
   @override
@@ -213,21 +216,99 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
     }).toList());
   }
 
-  Widget _workoutTab(ProgressState state) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-    _heading('Workout Activity', subtitle: 'Your recent training consistency.'),
-    const SizedBox(height: 10),
-    _MetricCard(icon: Icons.fitness_center_rounded, value: '${state.metrics.workoutCount}', label: 'Completed Workouts', fullWidth: true),
-    const SizedBox(height: 10),
-    _HighlightsCard(completed: state.metrics.completedThisWeek, target: state.metrics.weeklyTarget, weightChange: state.weightChange, streak: state.metrics.streakDays),
-    const SizedBox(height: 10),
-    _RecentWorkoutsCard(workouts: state.recentWorkouts),
-  ]);
+  Widget _workoutTab(ProgressState state) {
+    final weeklyMinutes = state.weeklyActivity.fold<int>(0, (sum, day) => sum + day.minutes);
+    final maxMinutes = state.weeklyActivity.fold<int>(0, (max, day) => day.minutes > max ? day.minutes : max);
+    final totalSets = state.movementVolume.fold<int>(0, (sum, item) => sum + item.totalSets);
+    final totalReps = state.movementVolume.fold<int>(0, (sum, item) => sum + item.totalReps);
+    final completion = state.metrics.weeklyTarget > 0
+        ? (state.metrics.completedThisWeek / state.metrics.weeklyTarget * 100).clamp(0, 100).round()
+        : 0;
 
-  Widget _historyTab(ProgressState state) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-    _heading('Workout History', subtitle: 'Your latest completed sessions.'),
-    const SizedBox(height: 10),
-    _RecentWorkoutsCard(workouts: state.recentWorkouts, expanded: true),
-  ]);
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      _heading('Workout Performance', subtitle: 'Your training progress and consistency.'),
+      const SizedBox(height: 10),
+      _ProgramCard(title: state.activeProgramTitle, week: state.activeProgramWeek, totalWeeks: state.activeProgramTotalWeeks, percent: state.activeProgramPercent),
+      const SizedBox(height: 10),
+      Row(children: [
+        Expanded(child: _WorkoutStatCard(icon: Icons.fitness_center_rounded, value: '${state.metrics.workoutCount}', label: 'Workouts')),
+        const SizedBox(width: 8),
+        Expanded(child: _WorkoutStatCard(icon: Icons.check_circle_outline_rounded, value: '$completion%', label: 'Completion')),
+        const SizedBox(width: 8),
+        Expanded(child: _WorkoutStatCard(icon: Icons.access_time_rounded, value: _duration(state.metrics.totalMinutes), label: 'Total Time')),
+      ]),
+      const SizedBox(height: 20),
+      _heading('Weekly Activity', trailing: Icons.info_outline),
+      const SizedBox(height: 10),
+      _WeeklyActivityCard(days: state.weeklyActivity, maxMinutes: maxMinutes),
+      const SizedBox(height: 20),
+      _heading('Training Volume', trailing: Icons.info_outline),
+      const SizedBox(height: 10),
+      _TrainingVolumeCard(totalSets: totalSets, totalReps: totalReps, activePatterns: state.movementVolume.length),
+      const SizedBox(height: 20),
+      _heading('Recent Workouts'),
+      const SizedBox(height: 10),
+      _RecentWorkoutsCard(workouts: state.recentWorkouts),
+      const SizedBox(height: 4),
+      Text('$weeklyMinutes training minutes this week', style: AppTypography.labelSmall.copyWith(color: AppColors.neutral500)),
+    ]);
+  }
+
+  Widget _historyTab(ProgressState state) {
+    final workoutItems = state.recentWorkouts.map((item) => _HistoryEntry.workout(item)).toList();
+    final measurementItems = state.weightHistory.map((item) => _HistoryEntry.measurement(item)).toList();
+    final entries = <_HistoryEntry>[
+      if (_historyFilter != 'Measurement') ...workoutItems,
+      if (_historyFilter != 'Workout') ...measurementItems,
+    ]..sort((a, b) {
+      final comparison = a.date.compareTo(b.date);
+      return _historyNewestFirst ? -comparison : comparison;
+    });
+
+    final grouped = <String, List<_HistoryEntry>>{};
+    for (final entry in entries) {
+      grouped.putIfAbsent(_historyGroup(entry.date), () => []).add(entry);
+    }
+
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Row(children: [
+        _HistoryFilterChip(label: 'All', selected: _historyFilter == 'All', onTap: () => setState(() => _historyFilter = 'All')),
+        const SizedBox(width: 6),
+        _HistoryFilterChip(label: 'Workout', icon: Icons.fitness_center_rounded, selected: _historyFilter == 'Workout', onTap: () => setState(() => _historyFilter = 'Workout')),
+        const SizedBox(width: 6),
+        _HistoryFilterChip(label: 'Measurement', icon: Icons.monitor_weight_outlined, selected: _historyFilter == 'Measurement', onTap: () => setState(() => _historyFilter = 'Measurement')),
+        const Spacer(),
+        IconButton(
+          tooltip: _historyNewestFirst ? 'Oldest first' : 'Newest first',
+          onPressed: () => setState(() => _historyNewestFirst = !_historyNewestFirst),
+          icon: const Icon(Icons.swap_vert_rounded, size: 20),
+          style: IconButton.styleFrom(backgroundColor: Colors.white, side: const BorderSide(color: AppColors.neutral200)),
+        ),
+      ]),
+      const SizedBox(height: 12),
+      if (entries.isEmpty)
+        _HistoryEmptyState(filter: _historyFilter)
+      else
+        ...grouped.entries.map((group) => Padding(
+          padding: const EdgeInsets.only(bottom: 18),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(group.key, style: AppTypography.titleSmall.copyWith(fontWeight: FontWeight.w600)),
+            const SizedBox(height: 8),
+            _HistoryGroupCard(entries: group.value),
+          ]),
+        )),
+    ]);
+  }
+
+  String _historyGroup(DateTime date) {
+    final today = DateTime.now();
+    final startToday = DateTime(today.year, today.month, today.day);
+    final entryDay = DateTime(date.year, date.month, date.day);
+    final daysAgo = startToday.difference(entryDay).inDays;
+    if (daysAgo < 7 && daysAgo >= 0) return 'This Week';
+    if (daysAgo < 14 && daysAgo >= 7) return 'Last Week';
+    return 'Earlier';
+  }
 
   Widget _heading(String title, {String? subtitle, IconData? trailing}) => Row(children: [
     Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
