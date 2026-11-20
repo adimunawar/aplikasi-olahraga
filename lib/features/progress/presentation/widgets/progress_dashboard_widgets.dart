@@ -265,19 +265,28 @@ class ProgramCard extends StatelessWidget {
 }
 
 class HighlightsCard extends StatelessWidget {
-  const HighlightsCard({required this.completed, required this.target, required this.weightChange, required this.streak});
+  const HighlightsCard({required this.completed, required this.target, required this.weightChange, required this.streak, this.hasWeightData = false});
   final int completed;
   final int target;
   final double weightChange;
   final int streak;
+  final bool hasWeightData;
 
   @override
   Widget build(BuildContext context) {
     final rows = <(IconData, String)>[
-      (Icons.check_circle_outline_rounded, 'Completed $completed of $target workouts this week'),
-      (Icons.trending_up_rounded, 'Weight ${weightChange >= 0 ? 'increased' : 'changed'} by ${weightChange.abs().toStringAsFixed(1)} kg'),
-      (Icons.emoji_events_outlined, '$streak consecutive active days'),
+      if (target > 0) (Icons.check_circle_outline_rounded, 'Completed $completed of $target workouts this week'),
+      if (hasWeightData) (Icons.trending_up_rounded, 'Weight ${weightChange >= 0 ? 'increased' : 'decreased'} by ${weightChange.abs().toStringAsFixed(1)} kg'),
+      if (streak > 0) (Icons.emoji_events_outlined, '$streak consecutive active days'),
     ];
+    if (rows.isEmpty) {
+      return const ProgressEmptyState(
+        icon: Icons.insights_outlined,
+        title: 'No highlights yet',
+        message: 'Your milestones will appear as you record workouts and measurements.',
+        compact: true,
+      );
+    }
     return Container(
       decoration: _cardDecoration(),
       child: Column(children: List.generate(rows.length, (index) {
