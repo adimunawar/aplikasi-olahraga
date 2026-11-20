@@ -1,7 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/models/user_profile_entity.dart';
@@ -244,9 +243,8 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
         sessions: draft.sessions,
       );
 
-      // 2. Tandai onboarding selesai
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('has_completed_onboarding', true);
+      // 2. Tandai onboarding selesai di state aplikasi.
+      // Status persisten diturunkan dari program aktif di SQLite.
       ref.read(hasCompletedOnboardingProvider.notifier).state = true;
 
       // 3. Siapkan argumen Workout Session 1
@@ -326,8 +324,6 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
         sessions: draft.sessions,
       );
 
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('has_completed_onboarding', true);
       ref.read(hasCompletedOnboardingProvider.notifier).state = true;
 
       if (mounted) {
