@@ -20,6 +20,7 @@ class ProgressState {
   final List<DayActivity> weeklyActivity;
   final List<MovementVolumeData> movementVolume;
   final List<ProgressionMilestone> milestones;
+  final bool hasActiveProgram;
   final String activeProgramTitle;
   final int activeProgramWeek;
   final int activeProgramTotalWeeks;
@@ -41,6 +42,7 @@ class ProgressState {
     this.weeklyActivity = const [],
     this.movementVolume = const [],
     this.milestones = const [],
+    this.hasActiveProgram = false,
     this.activeProgramTitle = '',
     this.activeProgramWeek = 0,
     this.activeProgramTotalWeeks = 0,
@@ -63,6 +65,7 @@ class ProgressState {
     List<DayActivity>? weeklyActivity,
     List<MovementVolumeData>? movementVolume,
     List<ProgressionMilestone>? milestones,
+    bool? hasActiveProgram,
     String? activeProgramTitle,
     int? activeProgramWeek,
     int? activeProgramTotalWeeks,
@@ -84,6 +87,7 @@ class ProgressState {
       weeklyActivity: weeklyActivity ?? this.weeklyActivity,
       movementVolume: movementVolume ?? this.movementVolume,
       milestones: milestones ?? this.milestones,
+      hasActiveProgram: hasActiveProgram ?? this.hasActiveProgram,
       activeProgramTitle: activeProgramTitle ?? this.activeProgramTitle,
       activeProgramWeek: activeProgramWeek ?? this.activeProgramWeek,
       activeProgramTotalWeeks: activeProgramTotalWeeks ?? this.activeProgramTotalWeeks,
