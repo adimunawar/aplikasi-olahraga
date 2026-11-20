@@ -153,7 +153,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
         const SizedBox(height: 20),
         _heading('Recent Highlights', trailing: Icons.info_outline),
         const SizedBox(height: 10),
-        HighlightsCard(completed: metrics.completedThisWeek, target: metrics.weeklyTarget, weightChange: state.weightChange, streak: metrics.streakDays),
+        HighlightsCard(completed: metrics.completedThisWeek, target: metrics.weeklyTarget, weightChange: state.weightChange, streak: metrics.streakDays, hasWeightData: state.weightHistory.isNotEmpty),
       ],
     ]);
   }
@@ -252,7 +252,10 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
           message: 'Your weekly activity and training volume will appear after you complete a workout.',
         )
       else ...[
-      ProgramCard(title: state.activeProgramTitle, week: state.activeProgramWeek, totalWeeks: state.activeProgramTotalWeeks, percent: state.activeProgramPercent),
+      if (state.hasActiveProgram)
+        ProgramCard(title: state.activeProgramTitle, week: state.activeProgramWeek, totalWeeks: state.activeProgramTotalWeeks, percent: state.activeProgramPercent)
+      else
+        const ProgressEmptyState(icon: Icons.flag_outlined, title: 'No active program', message: 'Choose a program to see its progress.', compact: true),
       const SizedBox(height: 10),
       Row(children: [
         Expanded(child: _WorkoutStatCard(icon: Icons.fitness_center_rounded, value: '${state.metrics.workoutCount}', label: 'Workouts')),
