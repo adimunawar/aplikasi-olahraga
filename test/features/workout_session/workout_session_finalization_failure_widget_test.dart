@@ -411,9 +411,9 @@ void main() {
               ),
             ),
             GoRoute(
-              path: AppRoutes.workoutSummary,
+              path: AppRoutes.workoutCompleted,
               builder: (context, state) => const Scaffold(
-                body: Center(child: Text('Summary Screen Loaded')),
+                body: Center(child: Text('Completed Screen Loaded')),
               ),
             ),
           ],
@@ -463,7 +463,7 @@ void main() {
         final repository = _FakeWorkoutSessionRepository();
         final userProfileRepo = _FakeUserProfileRepository();
 
-        WorkoutSummaryArgs? capturedSummaryArgs;
+        WorkoutCompletedArgs? capturedCompletedArgs;
 
         final router = GoRouter(
           initialLocation: '/session',
@@ -477,11 +477,11 @@ void main() {
               ),
             ),
             GoRoute(
-              path: AppRoutes.workoutSummary,
+              path: AppRoutes.workoutCompleted,
               builder: (context, state) {
-                capturedSummaryArgs = state.extra as WorkoutSummaryArgs?;
+                capturedCompletedArgs = state.extra as WorkoutCompletedArgs?;
                 return const Scaffold(
-                  body: Center(child: Text('Summary Screen Loaded')),
+                  body: Center(child: Text('Completed Screen Loaded')),
                 );
               },
             ),
@@ -553,7 +553,7 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(repository.finishAttemptCount, 2);
-        expect(find.text('Summary Screen Loaded'), findsNothing);
+        expect(find.text('Completed Screen Loaded'), findsNothing);
         expect(
           find.text(t.workoutSession.finishSessionFailed),
           findsOneWidget,
@@ -566,15 +566,15 @@ void main() {
         await tester.tap(retryButton);
         await tester.pumpAndSettle();
 
-        // Verification 4: Succeeded and navigated to Summary Screen
+        // Verification 4: Succeeded and navigated to Completed Screen
         expect(repository.finishAttemptCount, 3);
-        expect(find.text('Summary Screen Loaded'), findsOneWidget);
+        expect(find.text('Completed Screen Loaded'), findsOneWidget);
         expect(find.byType(WorkoutSessionScreen), findsNothing);
 
-        // Verification 5: Arguments passed to summary route are accurate
-        expect(capturedSummaryArgs, isNotNull);
-        expect(capturedSummaryArgs!.userName, 'Adi');
-        expect(capturedSummaryArgs!.workoutTitle, 'Chest Focus');
+        // Verification 5: Arguments passed to completed route are accurate
+        expect(capturedCompletedArgs, isNotNull);
+        expect(capturedCompletedArgs!.userName, 'Adi');
+        expect(capturedCompletedArgs!.workoutTitle, 'Chest Focus');
       },
     );
   });

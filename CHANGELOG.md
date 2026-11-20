@@ -8,6 +8,7 @@ This changelog starts with the documentation baseline for the current portfolio 
 
 ### Added
 
+- Added full-screen `WorkoutCompletedScreen` with celebration scalloped badge, confetti decorations, key workout metrics (duration, exercises, calories), and interactive workout feedback selector ("How was the workout?"), replacing the temporary celebration modal.
 - Added `WorkoutPrescriptionResolver` to dynamically resolve exercise prescriptions (target sets, rep ranges, target duration, and rest intervals) from program day items and explicit program configurations.
 - Added duration-based exercise tracking support (`TrackingType.duration`), displaying target seconds and duration units instead of repetition counts for isometric exercises.
 - Added `WorkoutSessionEmptyState` to present an honest, recoverable empty state when an active workout is opened with no exercises, eliminating fake dummy exercise generation.

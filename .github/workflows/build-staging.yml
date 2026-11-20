@@ -86,11 +86,37 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: flutter build apk --release --no-pub
 
+      - name: Generate release notes
+        shell: bash
+        run: |
+          set -euo pipefail
+          NOTES_FILE="build/app/outputs/flutter-apk/release-notes.txt"
+
+          COMMIT_MSG=$(git log -1 --pretty=format:"%s" "${{ github.sha }}")
+
+          echo "Staging Release - $(date -u +'%Y-%m-%d %H:%M UTC')" > "$NOTES_FILE"
+          echo "Trigger: $COMMIT_MSG" >> "$NOTES_FILE"
+          echo "" >> "$NOTES_FILE"
+
+          if [ -f CHANGELOG.md ]; then
+            CHANGELOG_CONTENT=$(awk '/^## /{if (found) exit; found=1; next} found{print}' CHANGELOG.md | sed '/^[[:space:]]*$/d')
+            if [ -n "$CHANGELOG_CONTENT" ]; then
+              echo "Highlights from CHANGELOG:" >> "$NOTES_FILE"
+              awk '/^## /{if (found) exit; found=1; next} found{print}' CHANGELOG.md >> "$NOTES_FILE"
+              echo "" >> "$NOTES_FILE"
+            fi
+          fi
+
+          echo "Recent Commits:" >> "$NOTES_FILE"
+          git log -5 --pretty=format:"• %s (%h)" "${{ github.sha }}" >> "$NOTES_FILE"
+
       - name: Upload Staging APK
         uses: actions/upload-artifact@v7
         with:
           name: home-bulking-coach-staging-${{ github.sha }}
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/flutter-apk/release-notes.txt
           if-no-files-found: error
           retention-days: 14
 
@@ -114,7 +140,7 @@ jobs:
           : "${FIREBASE_SERVICE_ACCOUNT_JSON:?Missing GitHub secret FIREBASE_SERVICE_ACCOUNT_JSON}"
           : "${FIREBASE_TESTER_GROUPS:?Missing GitHub Actions variable FIREBASE_TESTER_GROUPS}"
 
-      - name: Download Staging APK
+      - name: Download Staging APK and release notes
         uses: actions/download-artifact@v7
         with:
           name: home-bulking-coach-staging-${{ github.sha }}
@@ -137,6 +163,13 @@ jobs:
           APK_PATH="build/app/outputs/flutter-apk/app-release.apk"
           test -f "$APK_PATH"
 
+          NOTES_PATH="build/app/outputs/flutter-apk/release-notes.txt"
+          if [ -f "$NOTES_PATH" ]; then
+            NOTES_ARG=(--release-notes-file "$NOTES_PATH")
+          else
+            NOTES_ARG=(--release-notes "Staging release ${GITHUB_SHA::7}")
+          fi
+
           SERVICE_ACCOUNT_PATH="$RUNNER_TEMP/firebase-service-account.json"
           printf '%s' "$FIREBASE_SERVICE_ACCOUNT_JSON" > "$SERVICE_ACCOUNT_PATH"
           trap 'rm -f "$SERVICE_ACCOUNT_PATH"' EXIT
@@ -144,8 +177,7 @@ jobs:
           export GOOGLE_APPLICATION_CREDENTIALS="$SERVICE_ACCOUNT_PATH"
           npm install --global firebase-tools
 
-          RELEASE_NOTES="Staging release ${GITHUB_SHA::7}"
           firebase appdistribution:distribute "$APK_PATH" \
             --app "$FIREBASE_APP_ID" \
             --groups "$FIREBASE_TESTER_GROUPS" \
-            --release-notes "$RELEASE_NOTES"
+            "${NOTES_ARG[@]}"

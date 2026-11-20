@@ -286,27 +286,11 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
 
             if (isFinished) {
               _timer?.cancel();
-              _showWorkoutCompleteCelebrationModal();
+              _openSummaryScreen();
             } else {
               controller.startRest();
             }
           },
-    );
-  }
-
-  /// Modal Selebrasi saat semua latihan hari itu tuntas.
-  void _showWorkoutCompleteCelebrationModal() {
-    _timer?.cancel();
-    final sessionState = ref.read(workoutSessionControllerProvider);
-    WorkoutCompleteCelebration.show(
-      context,
-      durationMinutes: (sessionState.elapsedWorkoutSeconds / 60).ceil(),
-      totalSetsDone: sessionState.completedSets,
-      totalExercises: _totalExercises,
-      onViewSummary: () {
-        if (!mounted) return;
-        _openSummaryScreen();
-      },
     );
   }
 
@@ -375,20 +359,22 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
       );
       if (!mounted) return;
 
-      final exercisesCountText = isEndingEarly
-          ? '$completedExercisesCount / $_totalExercises'
-          : '$_totalExercises / $_totalExercises';
+      final exercisesCount = isEndingEarly
+          ? completedExercisesCount
+          : _totalExercises;
 
-      context.pushReplacement(
-        AppRoutes.workoutSummary,
-        extra: WorkoutSummaryArgs(
+      context.go(
+        AppRoutes.workoutCompleted,
+        extra: WorkoutCompletedArgs(
           userName: userName,
           workoutTitle: programTitle,
+          focusText: _programTitle,
+          durationMinutes: result.durationMinutes,
+          exercisesCount: exercisesCount,
+          caloriesBurned: result.caloriesBurned,
+          result: result,
           weekDayText: 'Week ${widget.day.week} • Day ${widget.day.day}',
-          durationText: '${result.durationMinutes} min',
-          exercisesCountText: exercisesCountText,
           setsCountText: '${result.completedSets}',
-          caloriesText: '≈ ${result.caloriesBurned} kcal',
           progressionDecisions: result.progressionDecisions,
         ),
       );

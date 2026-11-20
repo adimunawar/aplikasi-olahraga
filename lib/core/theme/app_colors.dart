@@ -33,6 +33,9 @@ class AppColors {
   static const Color scaffoldBackground = Color(
     0xFFF9FAFB,
   ); // Screen background in modern mockup
+  static const Color celebrationBadge = Color(
+    0xFFA3E635,
+  ); // Lime green for celebration badge and checkmark
 
   // --- Extended Neutrals (Slate / Gray) ---
   static const Color neutral50 = Color(0xFFF8FAFC);
