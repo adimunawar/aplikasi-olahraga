@@ -340,13 +340,13 @@ class _WeightTrendPainter extends CustomPainter {
     final plotWidth = size.width - left - right;
     final plotHeight = size.height - top - bottom;
     final values = points.map((point) => point.weightKg);
-    final minValue = values.reduce(math.min);
-    final maxValue = values.reduce(math.max);
+    final minValue = values.reduce((a, b) => a < b ? a : b);
+    final maxValue = values.reduce((a, b) => a > b ? a : b);
     final spread = (maxValue - minValue).abs();
     final padding = spread < 0.1 ? 1.0 : spread * 0.25;
     final minY = (minValue - padding).floorToDouble();
     final maxY = (maxValue + padding).ceilToDouble();
-    final yRange = (maxY - minY).clamp(1.0, double.infinity);
+    final yRange = math.max(maxY - minY, 1.0).toDouble();
 
     Offset position(WeightChartPoint point) {
       final x = left + ((point.weekNumber - 1) / math.max(weeks - 1, 1)) * plotWidth;
