@@ -180,15 +180,6 @@ class AppDatabase {
     final defaultSettings = UserSettingsEntity(updatedAt: now);
     await db.insert(DatabaseTables.userSettings, defaultSettings.toMap());
 
-    // Initial Seeder Body Measurement
-    final defaultWeight = BodyMeasurementEntity(
-      id: 'initial_weight',
-      measurementType: 'weight',
-      value: 67.5,
-      unit: 'kg',
-      recordedAt: now,
-    );
-    await db.insert(DatabaseTables.bodyMeasurements, defaultWeight.toMap());
   }
 
   UserProfileEntity _createDefaultUser(DateTime now) {
@@ -468,7 +459,7 @@ class AppDatabase {
           completedDays.add(s.programDayId);
         }
       }
-      return completedDays.isNotEmpty ? completedDays : {1, 2};
+      return completedDays;
     }
 
     final db = await database;
@@ -522,18 +513,18 @@ class AppDatabase {
   Future<int> getCompletedSessionsCount() async {
     if (kIsWeb) {
       final count = _webSessions.where((s) => s.status == WorkoutSessionStatus.completed).length;
-      return count > 0 ? count : 6; // Mock awal di web
+      return count;
     }
 
     final db = await database;
-    if (db == null) return 6;
+    if (db == null) return 0;
 
     final result = await db.rawQuery(
       'SELECT COUNT(*) as count FROM ${DatabaseTables.workoutSessions} WHERE status = ?',
       [WorkoutSessionStatus.completed.toDbString()],
     );
     final count = Sqflite.firstIntValue(result) ?? 0;
-    return count > 0 ? count : 6;
+    return count;
   }
 
   /// Total sesi yang selesai pada minggu ini
@@ -626,7 +617,7 @@ class AppDatabase {
     }
 
     final db = await database;
-    if (db == null) return 67.5;
+    if (db == null) return 0;
 
     final maps = await db.query(
       DatabaseTables.bodyMeasurements,
@@ -637,9 +628,9 @@ class AppDatabase {
     );
 
     if (maps.isNotEmpty) {
-      return (maps.first['value'] as num?)?.toDouble() ?? 67.5;
+      return (maps.first['value'] as num?)?.toDouble() ?? 0;
     }
-    return 67.5;
+    return 0;
   }
 
   Future<List<BodyMeasurementEntity>> getWeightHistory() async {
@@ -672,7 +663,7 @@ class AppDatabase {
     if (kIsWeb) return _webActiveProgramId;
 
     final db = await database;
-    if (db == null) return 'upper_body_strength';
+    if (db == null) return '';
 
     final maps = await db.query(
       DatabaseTables.userPrograms,
@@ -682,9 +673,9 @@ class AppDatabase {
     );
 
     if (maps.isNotEmpty) {
-      return maps.first['program_id']?.toString() ?? 'upper_body_strength';
+      return maps.first['program_id']?.toString() ?? '';
     }
-    return 'upper_body_strength';
+    return '';
   }
 
   Future<void> setActiveProgramId(String programId) async {
@@ -723,10 +714,10 @@ class AppDatabase {
 
   /// Menghitung total kalori terbakar dari semua sesi latihan yang selesai
   Future<int> getTotalCaloriesBurned() async {
-    if (kIsWeb) return 2540;
+    if (kIsWeb) return _webSessions.where((s) => s.status == WorkoutSessionStatus.completed).fold<int>(0, (sum, s) => sum + s.caloriesBurned);
 
     final db = await database;
-    if (db == null) return 2540;
+    if (db == null) return 0;
 
     final result = await db.rawQuery(
       'SELECT SUM(calories_burned) as total FROM ${DatabaseTables.workoutSessions} WHERE status = ?',
@@ -734,7 +725,7 @@ class AppDatabase {
     );
 
     final sum = Sqflite.firstIntValue(result) ?? 0;
-    return sum > 0 ? sum : 2540;
+    return sum;
   }
 
   /// Menghitung streak hari latihan beruntun
@@ -782,13 +773,8 @@ class AppDatabase {
   /// Mengambil total menit latihan per hari dalam minggu ini (Mon - Sun)
   Future<Map<String, int>> getWeeklyActivityMinutes() async {
     final Map<String, int> weekMap = {
-      'Mon': 35,
-      'Tue': 52,
-      'Wed': 38,
-      'Thu': 48,
-      'Fri': 0,
-      'Sat': 0,
-      'Sun': 0,
+      'Mon': 0, 'Tue': 0, 'Wed': 0, 'Thu': 0,
+      'Fri': 0, 'Sat': 0, 'Sun': 0,
     };
 
     if (kIsWeb) return weekMap;
@@ -823,13 +809,7 @@ class AppDatabase {
   /// Mengambil akumulasi volume latihan mingguan (Sets & Reps) per movement pattern (Fase 5)
   Future<List<Map<String, dynamic>>> getWeeklyMovementVolume() async {
     if (kIsWeb) {
-      return [
-        {'movement_pattern': 'push', 'sets_count': 9, 'reps_sum': 96},
-        {'movement_pattern': 'pull', 'sets_count': 6, 'reps_sum': 60},
-        {'movement_pattern': 'squat', 'sets_count': 9, 'reps_sum': 108},
-        {'movement_pattern': 'hinge', 'sets_count': 6, 'reps_sum': 72},
-        {'movement_pattern': 'core', 'sets_count': 6, 'reps_sum': 60},
-      ];
+      return [];
     }
 
     final db = await database;
@@ -854,13 +834,7 @@ class AppDatabase {
       }
     } catch (_) {}
 
-    return [
-      {'movement_pattern': 'push', 'sets_count': 6, 'reps_sum': 60},
-      {'movement_pattern': 'pull', 'sets_count': 4, 'reps_sum': 40},
-      {'movement_pattern': 'squat', 'sets_count': 6, 'reps_sum': 72},
-      {'movement_pattern': 'hinge', 'sets_count': 3, 'reps_sum': 36},
-      {'movement_pattern': 'core', 'sets_count': 4, 'reps_sum': 45},
-    ];
+    return [];
   }
 
   /// Mengambil daftar rekomendasi keputusan adaptasi terbaru dari Coach Adi untuk milestone (Fase 5)
