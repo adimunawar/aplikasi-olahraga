@@ -100,11 +100,11 @@ class UserProfileEntity {
 
     final parsedEquipments = parseStringList(
       map['equipments'],
-      fallback: const ['bodyweight', 'dumbbell'],
+      fallback: const [],
     );
     final parsedAvailableDays = parseStringList(
       map['available_days'],
-      fallback: const ['monday', 'wednesday', 'friday'],
+      fallback: const [],
     );
     final parsedLimitations = parseStringList(
       map['training_limitations'],
@@ -113,20 +113,20 @@ class UserProfileEntity {
 
     final freq = (map['weekly_frequency'] as num?)?.toInt() ??
         (map['preferred_days_per_week'] as num?)?.toInt() ??
-        3;
+        0;
 
     return UserProfileEntity(
-      id: map['id']?.toString() ?? 'default_user',
-      displayName: map['display_name']?.toString() ?? 'User',
+      id: map['id']?.toString() ?? '',
+      displayName: map['display_name']?.toString() ?? '',
       gender: map['gender']?.toString() ?? 'male',
-      age: (map['age'] as num?)?.toInt() ?? 28,
-      heightCm: (map['height_cm'] as num?)?.toDouble() ?? 170.0,
-      currentWeightKg: (map['current_weight_kg'] as num?)?.toDouble() ?? 75.0,
-      targetWeightKg: (map['target_weight_kg'] as num?)?.toDouble() ?? 82.0,
-      targetTimeframeWeeks: (map['target_timeframe_weeks'] as num?)?.toInt() ?? 12,
-      goal: map['goal']?.toString() ?? 'muscle_gain',
-      experienceLevel: map['experience_level']?.toString() ?? 'beginner',
-      preferredDurationMin: (map['preferred_duration_min'] as num?)?.toInt() ?? 45,
+      age: (map['age'] as num?)?.toInt() ?? 0,
+      heightCm: (map['height_cm'] as num?)?.toDouble() ?? 0,
+      currentWeightKg: (map['current_weight_kg'] as num?)?.toDouble() ?? 0,
+      targetWeightKg: (map['target_weight_kg'] as num?)?.toDouble() ?? 0,
+      targetTimeframeWeeks: (map['target_timeframe_weeks'] as num?)?.toInt() ?? 0,
+      goal: map['goal']?.toString() ?? '',
+      experienceLevel: map['experience_level']?.toString() ?? '',
+      preferredDurationMin: (map['preferred_duration_min'] as num?)?.toInt() ?? 0,
       preferredDaysPerWeek: freq,
       weeklyFrequency: freq,
       availableDays: parsedAvailableDays,
@@ -135,7 +135,7 @@ class UserProfileEntity {
       unitPreference: map['unit_preference']?.toString() ?? 'metric',
       equipments: parsedEquipments.isNotEmpty
           ? parsedEquipments
-          : ['bodyweight', 'dumbbell'],
+          : [],
       createdAt: map['created_at'] != null
           ? DateTime.tryParse(map['created_at'].toString()) ?? DateTime.now()
           : DateTime.now(),
