@@ -480,7 +480,7 @@ class AppDatabase {
       }
     } catch (_) {}
 
-    return completedDays.isNotEmpty ? completedDays : {1, 2};
+    return completedDays;
   }
 
   /// Mengambil seluruh riwayat workout untuk satu program.
@@ -530,11 +530,17 @@ class AppDatabase {
   /// Total sesi yang selesai pada minggu ini
   Future<int> getThisWeekCompletedCount() async {
     if (kIsWeb) {
-      return 3;
+      final now = DateTime.now();
+      final weekStart = DateTime(now.year, now.month, now.day)
+          .subtract(Duration(days: now.weekday - 1));
+      return _webSessions.where((session) =>
+        session.status == WorkoutSessionStatus.completed &&
+        !session.startedAt.isBefore(weekStart)
+      ).length;
     }
 
     final db = await database;
-    if (db == null) return 3;
+    if (db == null) return 0;
 
     final now = DateTime.now();
     final weekStart = now.subtract(Duration(days: now.weekday - 1));
@@ -621,8 +627,8 @@ class AppDatabase {
 
     final maps = await db.query(
       DatabaseTables.bodyMeasurements,
-      where: 'measurement_type = ?',
-      whereArgs: ['weight'],
+      where: "measurement_type = ? AND id != ?",
+      whereArgs: ['weight', 'initial_weight'],
       orderBy: 'recorded_at DESC',
       limit: 1,
     );
@@ -645,8 +651,8 @@ class AppDatabase {
 
     final maps = await db.query(
       DatabaseTables.bodyMeasurements,
-      where: 'measurement_type = ?',
-      whereArgs: ['weight'],
+      where: "measurement_type = ? AND id != ?",
+      whereArgs: ['weight', 'initial_weight'],
       orderBy: 'recorded_at ASC',
     );
 
