@@ -5,6 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/config/firebase_config.dart';
+import 'core/database/database_factory_stub.dart'
+    if (dart.library.js_interop) 'core/database/database_factory_web.dart'
+    as database_factory;
 import 'core/config/supabase_config.dart';
 import 'core/database/app_database.dart';
 import 'core/localization/app_locale.dart';
@@ -14,6 +17,7 @@ import 'i18n/strings.g.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await database_factory.configureDatabaseFactory();
   await SupabaseConfig.initialize();
   await SupabaseConfig.initializeCloudSyncConsent();
   final hasCompletedOnboarding =
