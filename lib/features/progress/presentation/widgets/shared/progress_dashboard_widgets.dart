@@ -676,3 +676,58 @@ class ProgressEmptyState extends StatelessWidget {
     ),
   );
 }
+
+
+/// Subtle entrance motion for Progress cards. Respects the system animation setting.
+class ProgressReveal extends StatefulWidget {
+  const ProgressReveal({
+    super.key,
+    required this.child,
+    this.delay = Duration.zero,
+  });
+
+  final Widget child;
+  final Duration delay;
+
+  @override
+  State<ProgressReveal> createState() => _ProgressRevealState();
+}
+
+class _ProgressRevealState extends State<ProgressReveal>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 420),
+  );
+  late final Animation<double> _opacity = CurvedAnimation(
+    parent: _controller,
+    curve: Curves.easeOutCubic,
+  );
+  late final Animation<Offset> _offset = Tween<Offset>(
+    begin: const Offset(0, 0.045),
+    end: Offset.zero,
+  ).animate(_opacity);
+
+  @override
+  void initState() {
+    super.initState();
+    Future<void>.delayed(widget.delay, () {
+      if (mounted) _controller.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (MediaQuery.disableAnimationsOf(context)) return widget.child;
+    return FadeTransition(
+      opacity: _opacity,
+      child: SlideTransition(position: _offset, child: widget.child),
+    );
+  }
+}
