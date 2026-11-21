@@ -17,22 +17,7 @@ class ProgressHistoryGrouping {
     if (normalized == 'kemarin' || normalized == 'yesterday') {
       return now.subtract(const Duration(days: 1));
     }
-    final ago = RegExp(r'^(\d+) hari lalu).firstMatch(normalized);
-    if (ago != null) return now.subtract(Duration(days: int.parse(ago.group(1)!)));
-    final parts = value.split('/');
-    if (parts.length == 3) {
-      final day = int.tryParse(parts[0]);
-      final month = int.tryParse(parts[1]);
-      final year = int.tryParse(parts[2]);
-      if (day != null && month != null && year != null) {
-        final parsed = DateTime(year, month, day);
-        if (parsed.year == year && parsed.month == month && parsed.day == day) return parsed;
-      }
-    }
-    return DateTime(2000);
-  }
-}
-).firstMatch(normalized);
+    final ago = RegExp(r'^(\d+) hari lalu').firstMatch(normalized);
     if (ago != null) return now.subtract(Duration(days: int.parse(ago.group(1)!)));
     final parts = value.split('/');
     if (parts.length == 3) {
