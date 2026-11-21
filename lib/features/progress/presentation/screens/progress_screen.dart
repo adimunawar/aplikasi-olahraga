@@ -443,3 +443,102 @@ class _WorkoutStatCard extends StatelessWidget {
     );
   }
 }
+
+
+class _WeeklyActivityCard extends StatelessWidget {
+  const _WeeklyActivityCard({
+    required this.days,
+    required this.maxMinutes,
+  });
+
+  final List<DayActivity> days;
+  final int maxMinutes;
+
+  @override
+  Widget build(BuildContext context) {
+    final safeMaxMinutes = maxMinutes > 0 ? maxMinutes : 1;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 16, 14, 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: AppColors.neutral200, width: 0.8),
+        boxShadow: AppColors.cardShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Minutes per day',
+                style: AppTypography.labelMedium.copyWith(
+                  color: AppColors.darkCharcoal,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                '${days.fold<int>(0, (sum, day) => sum + day.minutes)} min total',
+                style: AppTypography.labelSmall.copyWith(
+                  color: AppColors.neutral500,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          SizedBox(
+            height: 112,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: days.map((day) {
+                final minutes = day.minutes > 0 ? day.minutes : 0;
+                final barHeight = minutes == 0
+                    ? 4.0
+                    : (minutes / safeMaxMinutes * 76).clamp(4.0, 76.0);
+                return Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 3),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          minutes == 0 ? '-' : '$minutes',
+                          style: AppTypography.labelSmall.copyWith(
+                            color: AppColors.neutral500,
+                            fontSize: 9,
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        Container(
+                          height: barHeight,
+                          decoration: BoxDecoration(
+                            color: minutes > 0
+                                ? AppColors.limeAccent
+                                : AppColors.neutral200,
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
+                        const SizedBox(height: 7),
+                        Text(
+                          day.day,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.labelSmall.copyWith(
+                            color: AppColors.neutral600,
+                            fontSize: 9,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
