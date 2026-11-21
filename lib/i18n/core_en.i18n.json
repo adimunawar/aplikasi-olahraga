@@ -39,7 +39,7 @@
   },
   "progress": {
     "title": "Progress",
-    "rangeWeeks": "Last {weeks} Weeks",
+    "rangeWeeks": "Last $weeks Weeks",
     "tabs": {
       "overview": "Overview",
       "body": "Body",
@@ -95,8 +95,8 @@
       },
       "recentWorkouts": "Recent Workouts",
       "minutesPerDay": "Minutes per day",
-      "minutesTotal": "{minutes} min total",
-      "trainingMinutesThisWeek": "{minutes} training minutes this week",
+      "minutesTotal": "$minutes min total",
+      "trainingMinutesThisWeek": "$minutes training minutes this week",
       "totalTime": "Total Time"
     },
     "history": {
@@ -108,9 +108,9 @@
       "recordWeight": "Record weight"
     },
     "duration": {
-      "minutes": "{minutes} min",
-      "hours": "{hours}h",
-      "hoursMinutes": "{hours}h {minutes}m"
+      "minutes": "$minutes min",
+      "hours": "$hoursh",
+      "hoursMinutes": "$hoursh $minutesm"
     },
     "weightDialog": {
       "title": "Record weight",
