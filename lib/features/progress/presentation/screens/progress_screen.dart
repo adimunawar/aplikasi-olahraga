@@ -215,40 +215,40 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
             crossAxisSpacing: 10,
             childAspectRatio: 1.58,
             children: [
-              MetricCard(
+              ProgressReveal(delay: const Duration(milliseconds: 0), child: MetricCard(
                 icon: Icons.fitness_center_rounded,
                 value: '${metrics.workoutCount}',
                 label: 'Workouts',
-              ),
-              MetricCard(
+              )),
+              ProgressReveal(delay: const Duration(milliseconds: 70), child: MetricCard(
                 icon: Icons.check_circle_outline_rounded,
                 value: '$completion%',
                 label: 'Completion',
-              ),
-              MetricCard(
+              )),
+              ProgressReveal(delay: const Duration(milliseconds: 140), child: MetricCard(
                 icon: Icons.access_time_rounded,
                 value: _duration(metrics.totalMinutes),
                 label: 'Training Time',
-              ),
-              MetricCard(
+              )),
+              ProgressReveal(delay: const Duration(milliseconds: 210), child: MetricCard(
                 icon: Icons.local_fire_department_outlined,
                 value: metrics.streakDays == 1
                     ? context.t.core.units.daySingular(count: metrics.streakDays)
                     : context.t.core.units.dayPlural(count: metrics.streakDays),
                 label: 'Current Streak',
-              ),
+              )),
             ],
           ),
         const SizedBox(height: 22),
         _heading('Program Progress'),
         const SizedBox(height: 11),
         if (state.hasActiveProgram)
-          ProgramCard(
+          ProgressReveal(delay: const Duration(milliseconds: 90), child: ProgramCard(
             title: state.activeProgramTitle,
             week: state.activeProgramWeek,
             totalWeeks: state.activeProgramTotalWeeks,
             percent: state.activeProgramPercent,
-          )
+          ))
         else
           const ProgressEmptyState(
             icon: Icons.flag_outlined,
@@ -260,15 +260,15 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
         const SizedBox(height: 22),
         _heading('Recent Highlights', trailing: Icons.info_outline),
         const SizedBox(height: 11),
-        HighlightsCard(
+        ProgressReveal(delay: const Duration(milliseconds: 140), child: HighlightsCard(
           completed: metrics.completedThisWeek,
           target: metrics.weeklyTarget,
           weightChange: state.weightChange,
           streak: metrics.streakDays,
           hasWeightData: state.weightHistory.length >= 2 && state.weightChange.abs() >= 0.05,
-        ),
+        )),
         const SizedBox(height: 18),
-        const KeepGoingCard(),
+        const ProgressReveal(delay: Duration(milliseconds: 220), child: KeepGoingCard()),
       ],
     );
   }
@@ -292,19 +292,19 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
         _bodyMetricSelector(),
         const SizedBox(height: 10),
         if (_bodyMetric == 'Weight') ...[
-          WeightTrendCard(
+          ProgressReveal(child: WeightTrendCard(
             points: chartPoints,
             weeks: _bodyRangeWeeks,
             currentWeight: state.currentWeight,
             hasData: hasWeightData,
-          ),
+          )),
           if (hasWeightData) ...[
             const SizedBox(height: 10),
-            CurrentWeightSummary(
+            ProgressReveal(delay: const Duration(milliseconds: 100), child: CurrentWeightSummary(
               currentWeight: state.currentWeight,
               change: state.weightChange,
               rangeWeeks: _bodyRangeWeeks,
-            ),
+            )),
           ],
           const SizedBox(height: 20),
           SizedBox(
@@ -413,7 +413,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
       _heading('Weekly Activity', trailing: Icons.info_outline),
       const SizedBox(height: 10),
       if (weeklyMinutes > 0)
-        WeeklyActivityCard(days: state.weeklyActivity, maxMinutes: maxMinutes)
+        ProgressReveal(child: WeeklyActivityCard(days: state.weeklyActivity, maxMinutes: maxMinutes))
       else
         const ProgressEmptyState(
           icon: Icons.calendar_today_outlined,
@@ -425,7 +425,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
       _heading('Training Volume', trailing: Icons.info_outline),
       const SizedBox(height: 10),
       if (totalSets > 0)
-        TrainingVolumeCard(totalSets: totalSets, totalReps: totalReps, activePatterns: state.movementVolume.length)
+        ProgressReveal(delay: const Duration(milliseconds: 100), child: TrainingVolumeCard(totalSets: totalSets, totalReps: totalReps, activePatterns: state.movementVolume.length))
       else
         const ProgressEmptyState(
           icon: Icons.bar_chart_rounded,
@@ -436,7 +436,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
       const SizedBox(height: 20),
       _heading('Recent Workouts'),
       const SizedBox(height: 10),
-      RecentWorkoutsCard(workouts: state.recentWorkouts),
+      ProgressReveal(delay: const Duration(milliseconds: 160), child: RecentWorkoutsCard(workouts: state.recentWorkouts)),
       const SizedBox(height: 4),
       Text('$weeklyMinutes training minutes this week', style: AppTypography.labelSmall.copyWith(color: AppColors.neutral500)),
       ],
@@ -508,7 +508,9 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
           ...grouped.entries.map(
             (group) => Padding(
               padding: const EdgeInsets.only(bottom: 18),
-              child: Column(
+              child: ProgressReveal(
+                delay: Duration(milliseconds: grouped.keys.toList().indexOf(group.key) * 65),
+                child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
@@ -520,7 +522,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
                   const SizedBox(height: 8),
                   HistoryGroupCard(entries: group.value),
                 ],
-              ),
+              )),
             ),
           ),
       ],
