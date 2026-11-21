@@ -922,10 +922,6 @@ class _ProgressRevealState extends State<ProgressReveal>
     parent: _controller,
     curve: Curves.easeOutCubic,
   );
-  late final Animation<Offset> _offset = Tween<Offset>(
-    begin: const Offset(0, 0.025),
-    end: Offset.zero,
-  ).animate(_opacity);
 
   @override
   void initState() {
