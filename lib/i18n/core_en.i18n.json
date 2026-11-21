@@ -30,5 +30,11 @@
     "sets": "sets",
     "seconds": "sec",
     "kg": "kg"
+  },
+  "streak": {
+    "daySingular": "$count day",
+    "dayPlural": "$count days",
+    "activeDaySingular": "$count consecutive active day",
+    "activeDayPlural": "$count consecutive active days"
   }
 }
