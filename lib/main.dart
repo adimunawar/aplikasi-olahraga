@@ -20,8 +20,8 @@ void main() async {
   await database_factory.configureDatabaseFactory();
   await SupabaseConfig.initialize();
   await SupabaseConfig.initializeCloudSyncConsent();
-  final hasCompletedOnboarding =
-      await AppDatabase.instance.hasCompletedOnboarding();
+  final hasCompletedOnboarding = await AppDatabase.instance
+      .hasCompletedOnboarding();
   final prefs = await SharedPreferences.getInstance();
   final initialLocale = loadStoredLocale(prefs);
   await applyInitialLocale(initialLocale);
@@ -58,9 +58,8 @@ class WorkoutApp extends ConsumerWidget {
       title: Translations.of(context).core.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.lightTheme,
-      themeMode:
-          ThemeMode.light, // Default Light Theme sesuai PRD v2 Section 12.1
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.dark,
       locale: locale.flutterLocale,
       supportedLocales: AppLocaleUtils.supportedLocales,
       localizationsDelegates: GlobalMaterialLocalizations.delegates,

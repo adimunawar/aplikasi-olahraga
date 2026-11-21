@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
 
@@ -94,7 +95,10 @@ class WeightProgressCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 6),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2.5,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.limeSurface,
                     borderRadius: BorderRadius.circular(8),
@@ -115,9 +119,7 @@ class WeightProgressCard extends StatelessWidget {
             SizedBox(
               height: 38,
               width: double.infinity,
-              child: CustomPaint(
-                painter: _WeightSparklinePainter(),
-              ),
+              child: CustomPaint(painter: _WeightSparklinePainter()),
             ),
 
             // Baris 4: Tanggal Awal & Akhir

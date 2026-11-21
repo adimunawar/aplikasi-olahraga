@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
 
@@ -96,7 +97,9 @@ class ProgramProgressBottomCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Row(
-                  children: List.generate(totalWeeks > 0 ? totalWeeks : 8, (index) {
+                  children: List.generate(totalWeeks > 0 ? totalWeeks : 8, (
+                    index,
+                  ) {
                     final isFilled = index < currentWeek;
                     final total = totalWeeks > 0 ? totalWeeks : 8;
                     return Expanded(

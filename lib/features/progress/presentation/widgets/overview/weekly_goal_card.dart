@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
 
@@ -18,7 +19,11 @@ class WeeklyGoalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final progress = (targetWorkouts > 0 ? completedWorkouts / targetWorkouts : 0.0).clamp(0.0, 1.0);
+    final progress =
+        (targetWorkouts > 0 ? completedWorkouts / targetWorkouts : 0.0).clamp(
+          0.0,
+          1.0,
+        );
     final percentInt = (progress * 100).round();
 
     return Container(

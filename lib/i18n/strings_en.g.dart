@@ -500,6 +500,18 @@ class _Translations$core$progress$en extends Translations$core$progress$id {
   @override
   String get keepGoingMessage => 'Stay consistent. Every workout brings you closer to your goal.';
   @override
+  late final _Translations$core$progress$weightTrend$en weightTrend =
+      _Translations$core$progress$weightTrend$en._(_root);
+  @override
+  late final _Translations$core$progress$notTracked$en notTracked =
+      _Translations$core$progress$notTracked$en._(_root);
+  @override
+  late final _Translations$core$progress$programCard$en programCard =
+      _Translations$core$progress$programCard$en._(_root);
+  @override
+  late final _Translations$core$progress$highlights$en highlights =
+      _Translations$core$progress$highlights$en._(_root);
+  @override
   late final _Translations$core$progress$body$en body = _Translations$core$progress$body$en._(
     _root,
   );
@@ -515,6 +527,10 @@ class _Translations$core$progress$en extends Translations$core$progress$id {
   @override
   late final _Translations$core$progress$weightDialog$en weightDialog =
       _Translations$core$progress$weightDialog$en._(_root);
+  @override
+  late final _Translations$core$progress$error$en error = _Translations$core$progress$error$en._(
+    _root,
+  );
 }
 
 // Path: home.greeting
@@ -1263,6 +1279,85 @@ class _Translations$core$progress$noActiveProgram$en
   String get message => 'Choose a training program to track your weekly progress.';
 }
 
+// Path: core.progress.weightTrend
+class _Translations$core$progress$weightTrend$en extends Translations$core$progress$weightTrend$id {
+  _Translations$core$progress$weightTrend$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Weight (kg)';
+  @override
+  String weekValue({required Object week, required Object value}) => 'W${week} · ${value} kg';
+  @override
+  String weekShort({required Object week}) => 'W${week}';
+  @override
+  String get empty => 'No weight measurements in this period yet.';
+  @override
+  String vsWeeksAgo({required Object weeks}) => 'vs. ${weeks} weeks ago';
+  @override
+  String increase({required Object value}) => '↑ +${value} kg';
+  @override
+  String decrease({required Object value}) => '↓ ${value} kg';
+}
+
+// Path: core.progress.notTracked
+class _Translations$core$progress$notTracked$en extends Translations$core$progress$notTracked$id {
+  _Translations$core$progress$notTracked$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String title({required Object metric}) => '${metric} tracking is not available yet';
+  @override
+  String get message => 'This metric is not stored in your measurements yet.';
+}
+
+// Path: core.progress.programCard
+class _Translations$core$progress$programCard$en extends Translations$core$progress$programCard$id {
+  _Translations$core$progress$programCard$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String weekOf({required Object week, required Object total}) => 'Week ${week} of ${total}';
+  @override
+  String get active => 'Active';
+  @override
+  String get completion => 'Program completion';
+}
+
+// Path: core.progress.highlights
+class _Translations$core$progress$highlights$en extends Translations$core$progress$highlights$id {
+  _Translations$core$progress$highlights$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String completed({required Object completed, required Object target}) =>
+      'Completed ${completed} of ${target} workouts this week';
+  @override
+  String weightIncrease({required Object value}) => 'Weight increased by ${value} kg';
+  @override
+  String weightDecrease({required Object value}) => 'Weight decreased by ${value} kg';
+  @override
+  String get emptyTitle => 'No highlights yet';
+  @override
+  String get emptyMessage => 'Your milestones will appear as you record workouts and measurements.';
+}
+
 // Path: core.progress.body
 class _Translations$core$progress$body$en extends Translations$core$progress$body$id {
   _Translations$core$progress$body$en._(TranslationsEn root)
@@ -1318,6 +1413,9 @@ class _Translations$core$progress$workout$en extends Translations$core$progress$
       _Translations$core$progress$workout$noVolume$en._(_root);
   @override
   String get recentWorkouts => 'Recent Workouts';
+  @override
+  late final _Translations$core$progress$workout$noRecentWorkouts$en noRecentWorkouts =
+      _Translations$core$progress$workout$noRecentWorkouts$en._(_root);
   @override
   String get minutesPerDay => 'Minutes per day';
   @override
@@ -1387,6 +1485,21 @@ class _Translations$core$progress$weightDialog$en
   String get cancel => 'Cancel';
   @override
   String get save => 'Save';
+}
+
+// Path: core.progress.error
+class _Translations$core$progress$error$en extends Translations$core$progress$error$id {
+  _Translations$core$progress$error$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Unable to load progress';
+  @override
+  String get retry => 'Try again';
 }
 
 // Path: home.weeklyProgress.states
@@ -1879,6 +1992,22 @@ class _Translations$core$progress$workout$noVolume$en
   String get message => 'Set and rep totals will appear after you log completed sets.';
 }
 
+// Path: core.progress.workout.noRecentWorkouts
+class _Translations$core$progress$workout$noRecentWorkouts$en
+    extends Translations$core$progress$workout$noRecentWorkouts$id {
+  _Translations$core$progress$workout$noRecentWorkouts$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'No recent workouts';
+  @override
+  String get message => 'Your completed sessions will show up here.';
+}
+
 // Path: onboarding.ready.program.bulking
 class _Translations$onboarding$ready$program$bulking$en
     extends Translations$onboarding$ready$program$bulking$id {
@@ -1988,6 +2117,41 @@ extension on TranslationsEn {
       'core.progress.keepGoing' => 'Keep Going!',
       'core.progress.keepGoingMessage' =>
         'Stay consistent. Every workout brings you closer to your goal.',
+      'core.progress.weightTrend.title' => 'Weight (kg)',
+      'core.progress.weightTrend.weekValue' => ({
+        required Object week,
+        required Object value,
+      }) => 'W${week} · ${value} kg',
+      'core.progress.weightTrend.weekShort' => ({required Object week}) => 'W${week}',
+      'core.progress.weightTrend.empty' => 'No weight measurements in this period yet.',
+      'core.progress.weightTrend.vsWeeksAgo' => ({
+        required Object weeks,
+      }) => 'vs. ${weeks} weeks ago',
+      'core.progress.weightTrend.increase' => ({required Object value}) => '↑ +${value} kg',
+      'core.progress.weightTrend.decrease' => ({required Object value}) => '↓ ${value} kg',
+      'core.progress.notTracked.title' => ({
+        required Object metric,
+      }) => '${metric} tracking is not available yet',
+      'core.progress.notTracked.message' => 'This metric is not stored in your measurements yet.',
+      'core.progress.programCard.weekOf' => ({
+        required Object week,
+        required Object total,
+      }) => 'Week ${week} of ${total}',
+      'core.progress.programCard.active' => 'Active',
+      'core.progress.programCard.completion' => 'Program completion',
+      'core.progress.highlights.completed' => ({
+        required Object completed,
+        required Object target,
+      }) => 'Completed ${completed} of ${target} workouts this week',
+      'core.progress.highlights.weightIncrease' => ({
+        required Object value,
+      }) => 'Weight increased by ${value} kg',
+      'core.progress.highlights.weightDecrease' => ({
+        required Object value,
+      }) => 'Weight decreased by ${value} kg',
+      'core.progress.highlights.emptyTitle' => 'No highlights yet',
+      'core.progress.highlights.emptyMessage' =>
+        'Your milestones will appear as you record workouts and measurements.',
       'core.progress.body.title' => 'Body Progress',
       'core.progress.body.subtitle' => 'Track changes in your body over time.',
       'core.progress.body.weight' => 'Weight',
@@ -2010,6 +2174,9 @@ extension on TranslationsEn {
       'core.progress.workout.noVolume.message' =>
         'Set and rep totals will appear after you log completed sets.',
       'core.progress.workout.recentWorkouts' => 'Recent Workouts',
+      'core.progress.workout.noRecentWorkouts.title' => 'No recent workouts',
+      'core.progress.workout.noRecentWorkouts.message' =>
+        'Your completed sessions will show up here.',
       'core.progress.workout.minutesPerDay' => 'Minutes per day',
       'core.progress.workout.minutesTotal' => ({required Object minutes}) => '${minutes} min total',
       'core.progress.workout.trainingMinutesThisWeek' => ({
@@ -2032,6 +2199,8 @@ extension on TranslationsEn {
       'core.progress.weightDialog.currentWeight' => 'Current weight',
       'core.progress.weightDialog.cancel' => 'Cancel',
       'core.progress.weightDialog.save' => 'Save',
+      'core.progress.error.title' => 'Unable to load progress',
+      'core.progress.error.retry' => 'Try again',
       'home.greeting.goodMorning' => ({required Object name}) => 'Good Morning, ${name} 👋',
       'home.greeting.goodAfternoon' => ({required Object name}) => 'Good Afternoon, ${name} 👋',
       'home.greeting.goodEvening' => ({required Object name}) => 'Good Evening, ${name} 👋',

@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
 import '../../../../../core/widgets/core_widgets.dart';
@@ -12,15 +13,12 @@ class RecentWorkoutsSection extends StatelessWidget {
   final List<WorkoutHistoryItem>? workouts;
   final VoidCallback? onSeeAll;
 
-  const RecentWorkoutsSection({
-    super.key,
-    this.workouts,
-    this.onSeeAll,
-  });
+  const RecentWorkoutsSection({super.key, this.workouts, this.onSeeAll});
 
   @override
   Widget build(BuildContext context) {
-    final List<WorkoutHistoryItem> items = (workouts != null && workouts!.isNotEmpty)
+    final List<WorkoutHistoryItem> items =
+        (workouts != null && workouts!.isNotEmpty)
         ? workouts!
         : const [
             WorkoutHistoryItem(

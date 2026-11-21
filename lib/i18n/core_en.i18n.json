@@ -66,6 +66,31 @@
     "recentHighlights": "Recent Highlights",
     "keepGoing": "Keep Going!",
     "keepGoingMessage": "Stay consistent. Every workout brings you closer to your goal.",
+    "weightTrend": {
+      "title": "Weight (kg)",
+      "weekValue": "W$week · $value kg",
+      "weekShort": "W$week",
+      "empty": "No weight measurements in this period yet.",
+      "vsWeeksAgo": "vs. $weeks weeks ago",
+      "increase": "↑ +$value kg",
+      "decrease": "↓ $value kg"
+    },
+    "notTracked": {
+      "title": "$metric tracking is not available yet",
+      "message": "This metric is not stored in your measurements yet."
+    },
+    "programCard": {
+      "weekOf": "Week $week of $total",
+      "active": "Active",
+      "completion": "Program completion"
+    },
+    "highlights": {
+      "completed": "Completed $completed of $target workouts this week",
+      "weightIncrease": "Weight increased by $value kg",
+      "weightDecrease": "Weight decreased by $value kg",
+      "emptyTitle": "No highlights yet",
+      "emptyMessage": "Your milestones will appear as you record workouts and measurements."
+    },
     "body": {
       "title": "Body Progress",
       "subtitle": "Track changes in your body over time.",
@@ -94,6 +119,10 @@
         "message": "Set and rep totals will appear after you log completed sets."
       },
       "recentWorkouts": "Recent Workouts",
+      "noRecentWorkouts": {
+        "title": "No recent workouts",
+        "message": "Your completed sessions will show up here."
+      },
       "minutesPerDay": "Minutes per day",
       "minutesTotal": "$minutes min total",
       "trainingMinutesThisWeek": "$minutes training minutes this week",
@@ -117,6 +146,10 @@
       "currentWeight": "Current weight",
       "cancel": "Cancel",
       "save": "Save"
+    },
+    "error": {
+      "title": "Unable to load progress",
+      "retry": "Try again"
     }
   }
 }

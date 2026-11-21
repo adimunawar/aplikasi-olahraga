@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
 
@@ -73,11 +74,7 @@ class TopMetricsSummaryCard extends StatelessWidget {
             color: AppColors.limeSurface,
             shape: BoxShape.circle,
           ),
-          child: Icon(
-            icon,
-            size: 19,
-            color: AppColors.darkCharcoal,
-          ),
+          child: Icon(icon, size: 19, color: AppColors.darkCharcoal),
         ),
         const SizedBox(width: 8),
 

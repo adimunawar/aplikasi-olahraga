@@ -1,13 +1,14 @@
 import 'package:material_ui/material_ui.dart';
 
-import '../../../../../core/theme/app_colors.dart';
-import '../../../../../core/theme/app_typography.dart';
-import '../../../domain/models/day_activity.dart';
+import 'package:workout_app/core/theme/app_colors.dart';
+import 'package:workout_app/core/theme/app_typography.dart';
+import 'package:workout_app/features/progress/domain/models/day_activity.dart';
 
 /// Compact workout performance widgets used by the Workout tab.
 
 class WorkoutStatCard extends StatelessWidget {
-  const WorkoutStatCard({super.key, 
+  const WorkoutStatCard({
+    super.key,
     required this.icon,
     required this.value,
     required this.label,
@@ -19,27 +20,38 @@ class WorkoutStatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
+
     return Container(
       constraints: const BoxConstraints(minHeight: 76),
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 11),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.neutral200, width: 0.8),
-        boxShadow: AppColors.cardShadow,
+        border: Border.all(
+          color: isDark ? colorScheme.outline : AppColors.neutral200,
+          width: 0.8,
+        ),
+        boxShadow: isDark ? null : AppColors.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 17, color: AppColors.greenDark),
+          Icon(
+            icon,
+            size: 17,
+            color: isDark ? colorScheme.primary : AppColors.greenDark,
+          ),
           const SizedBox(height: 7),
           Text(
             value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: AppTypography.titleMedium.copyWith(
-              color: AppColors.darkCharcoal,
+              color: colorScheme.onSurface,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -49,7 +61,7 @@ class WorkoutStatCard extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: AppTypography.labelSmall.copyWith(
-              color: AppColors.neutral500,
+              color: colorScheme.onSurfaceVariant,
               fontSize: 9,
             ),
           ),
@@ -59,9 +71,9 @@ class WorkoutStatCard extends StatelessWidget {
   }
 }
 
-
 class WeeklyActivityCard extends StatelessWidget {
-  const WeeklyActivityCard({super.key, 
+  const WeeklyActivityCard({
+    super.key,
     required this.days,
     required this.maxMinutes,
   });
@@ -71,15 +83,21 @@ class WeeklyActivityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
     final safeMaxMinutes = maxMinutes > 0 ? maxMinutes : 1;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 16, 14, 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: AppColors.neutral200, width: 0.8),
-        boxShadow: AppColors.cardShadow,
+        border: Border.all(
+          color: isDark ? colorScheme.outline : AppColors.neutral200,
+          width: 0.8,
+        ),
+        boxShadow: isDark ? null : AppColors.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,14 +108,14 @@ class WeeklyActivityCard extends StatelessWidget {
               Text(
                 'Minutes per day',
                 style: AppTypography.labelMedium.copyWith(
-                  color: AppColors.darkCharcoal,
+                  color: colorScheme.onSurface,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               Text(
                 '${days.fold<int>(0, (sum, day) => sum + day.minutes)} min total',
                 style: AppTypography.labelSmall.copyWith(
-                  color: AppColors.neutral500,
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
@@ -121,24 +139,32 @@ class WeeklyActivityCard extends StatelessWidget {
                         Text(
                           minutes == 0 ? '-' : '$minutes',
                           style: AppTypography.labelSmall.copyWith(
-                            color: AppColors.neutral500,
+                            color: colorScheme.onSurfaceVariant,
                             fontSize: 9,
                           ),
                         ),
                         const SizedBox(height: 5),
                         TweenAnimationBuilder<double>(
                           tween: Tween<double>(begin: 0, end: barHeight),
-                          duration: Duration(milliseconds: 520 + (days.indexOf(day) * 65)),
-                          curve: Curves.easeOutCubic,
-                          builder: (context, animatedHeight, child) => Container(
-                            height: animatedHeight,
-                            decoration: BoxDecoration(
-                              color: minutes > 0
-                                  ? AppColors.limeAccent
-                                  : AppColors.neutral200,
-                              borderRadius: BorderRadius.circular(5),
-                            ),
+                          duration: Duration(
+                            milliseconds: 520 + (days.indexOf(day) * 65),
                           ),
+                          curve: Curves.easeOutCubic,
+                          builder: (context, animatedHeight, child) =>
+                              Container(
+                                height: animatedHeight,
+                                decoration: BoxDecoration(
+                                  color: minutes > 0
+                                      ? (isDark
+                                            ? colorScheme.primary
+                                            : AppColors.limeAccent)
+                                      : (isDark
+                                            ? colorScheme
+                                                  .surfaceContainerHighest
+                                            : AppColors.neutral200),
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                              ),
                         ),
                         const SizedBox(height: 7),
                         Text(
@@ -146,7 +172,7 @@ class WeeklyActivityCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: AppTypography.labelSmall.copyWith(
-                            color: AppColors.neutral600,
+                            color: colorScheme.onSurfaceVariant,
                             fontSize: 9,
                           ),
                         ),
@@ -163,9 +189,9 @@ class WeeklyActivityCard extends StatelessWidget {
   }
 }
 
-
 class TrainingVolumeCard extends StatelessWidget {
-  const TrainingVolumeCard({super.key, 
+  const TrainingVolumeCard({
+    super.key,
     required this.totalSets,
     required this.totalReps,
     required this.activePatterns,
@@ -177,13 +203,18 @@ class TrainingVolumeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
+    final dividerColor = isDark ? colorScheme.outline : AppColors.neutral200;
+
     return Container(
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: AppColors.neutral200, width: 0.8),
-        boxShadow: AppColors.cardShadow,
+        border: Border.all(color: dividerColor, width: 0.8),
+        boxShadow: isDark ? null : AppColors.cardShadow,
       ),
       child: Row(
         children: [
@@ -194,7 +225,7 @@ class TrainingVolumeCard extends StatelessWidget {
               icon: Icons.repeat_rounded,
             ),
           ),
-          Container(width: 1, height: 42, color: AppColors.neutral200),
+          Container(width: 1, height: 42, color: dividerColor),
           Expanded(
             child: _VolumeMetric(
               value: '$totalReps',
@@ -202,7 +233,7 @@ class TrainingVolumeCard extends StatelessWidget {
               icon: Icons.fitness_center_rounded,
             ),
           ),
-          Container(width: 1, height: 42, color: AppColors.neutral200),
+          Container(width: 1, height: 42, color: dividerColor),
           Expanded(
             child: _VolumeMetric(
               value: '$activePatterns',
@@ -229,17 +260,25 @@ class _VolumeMetric extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 17, color: AppColors.greenDark),
+        Icon(
+          icon,
+          size: 17,
+          color: isDark ? colorScheme.primary : AppColors.greenDark,
+        ),
         const SizedBox(height: 6),
         Text(
           value,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: AppTypography.titleMedium.copyWith(
-            color: AppColors.darkCharcoal,
+            color: colorScheme.onSurface,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -250,7 +289,7 @@ class _VolumeMetric extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: AppTypography.labelSmall.copyWith(
-            color: AppColors.neutral500,
+            color: colorScheme.onSurfaceVariant,
             fontSize: 9,
           ),
         ),

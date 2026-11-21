@@ -7,10 +7,10 @@ void main() {
   final now = DateTime(2026, 11, 20);
 
   WeightRecord record(String id, double kg, int daysAgo) => WeightRecord(
-        id: id,
-        weightKg: kg,
-        recordedAt: now.subtract(Duration(days: daysAgo)),
-      );
+    id: id,
+    weightKg: kg,
+    recordedAt: now.subtract(Duration(days: daysAgo)),
+  );
 
   group('WeightChartSeries', () {
     test('sorts measurements by week and maps them to chart week numbers', () {

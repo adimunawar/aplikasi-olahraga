@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
 import '../../../domain/models/movement_volume_data.dart';
@@ -8,10 +9,7 @@ import '../../../domain/models/movement_volume_data.dart';
 class WeeklyMovementVolumeCard extends StatelessWidget {
   final List<MovementVolumeData> volumeData;
 
-  const WeeklyMovementVolumeCard({
-    super.key,
-    required this.volumeData,
-  });
+  const WeeklyMovementVolumeCard({super.key, required this.volumeData});
 
   @override
   Widget build(BuildContext context) {
@@ -172,7 +170,8 @@ class WeeklyMovementVolumeCard extends StatelessWidget {
     try {
       return volumeData.firstWhere(
         (v) => v.pattern.toLowerCase().trim() == pattern,
-        orElse: () => MovementVolumeData(pattern: pattern, totalSets: 0, totalReps: 0),
+        orElse: () =>
+            MovementVolumeData(pattern: pattern, totalSets: 0, totalReps: 0),
       );
     } catch (_) {
       return MovementVolumeData(pattern: pattern, totalSets: 0, totalReps: 0);
@@ -247,4 +246,3 @@ class WeeklyMovementVolumeCard extends StatelessWidget {
     );
   }
 }
-

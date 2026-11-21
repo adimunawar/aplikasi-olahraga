@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../core/database/app_database.dart';
 import '../../application/bmi_calculator_service.dart';
 import '../../application/weight_analytics_service.dart';
@@ -25,13 +26,13 @@ final weightAnalyticsServiceProvider = Provider<WeightAnalyticsService>((ref) {
 
 final progressControllerProvider =
     StateNotifierProvider<ProgressController, ProgressState>((ref) {
-  return ProgressController(
-    repository: ref.watch(progressRepositoryProvider),
-    bmiCalculator: ref.watch(bmiCalculatorServiceProvider),
-    weightAnalytics: ref.watch(weightAnalyticsServiceProvider),
-    database: AppDatabase.instance,
-  );
-});
+      return ProgressController(
+        repository: ref.watch(progressRepositoryProvider),
+        bmiCalculator: ref.watch(bmiCalculatorServiceProvider),
+        weightAnalytics: ref.watch(weightAnalyticsServiceProvider),
+        database: AppDatabase.instance,
+      );
+    });
 
 /// Controller untuk orkestrasi State Halaman Progress (Riverpod StateNotifier)
 class ProgressController extends StateNotifier<ProgressState> {
@@ -80,7 +81,10 @@ class ProgressController extends StateNotifier<ProgressState> {
       final currentWeight = weightAnalysis.currentWeight;
       final hasBodyData = currentWeight > 0 && heightCm > 0;
       final bmi = hasBodyData
-          ? bmiCalculator.calculateBmi(weightKg: currentWeight, heightCm: heightCm)
+          ? bmiCalculator.calculateBmi(
+              weightKg: currentWeight,
+              heightCm: heightCm,
+            )
           : 0.0;
       final bmiStatus = hasBodyData ? bmiCalculator.getBmiStatus(bmi) : '';
 
@@ -93,7 +97,9 @@ class ProgressController extends StateNotifier<ProgressState> {
       // 6. Ambil program hasil generator dari local-first database.
       // Program onboarding disimpan ke training_programs, bukan user_programs.
       final localProfile = await database.getUserProfile();
-      final userId = localProfile.id.isNotEmpty ? localProfile.id : 'default_user';
+      final userId = localProfile.id.isNotEmpty
+          ? localProfile.id
+          : 'default_user';
       var activeProgram = await database.getActiveTrainingProgram(userId);
       activeProgram ??= await database.getActiveTrainingProgram('default_user');
 
@@ -103,11 +109,13 @@ class ProgressController extends StateNotifier<ProgressState> {
       final elapsedDays = activeProgram == null
           ? 0
           : DateTime.now()
-                .difference(DateTime(
-                  activeProgram.startDate.year,
-                  activeProgram.startDate.month,
-                  activeProgram.startDate.day,
-                ))
+                .difference(
+                  DateTime(
+                    activeProgram.startDate.year,
+                    activeProgram.startDate.month,
+                    activeProgram.startDate.day,
+                  ),
+                )
                 .inDays;
       final activeProgramWeek = activeProgram == null
           ? 0
@@ -118,7 +126,6 @@ class ProgressController extends StateNotifier<ProgressState> {
       final activeProgramPercent = totalProgramWeeks > 0
           ? ((clampedProgramWeek / totalProgramWeeks) * 100).round()
           : 0;
-
 
       state = state.copyWith(
         metrics: metrics,
@@ -163,4 +170,3 @@ class ProgressController extends StateNotifier<ProgressState> {
     }
   }
 }
-

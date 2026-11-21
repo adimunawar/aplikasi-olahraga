@@ -25,12 +25,21 @@ void main() {
   group('ProgressHistoryGrouping.parseWorkoutDate', () {
     test('parses relative English and Indonesian labels', () {
       expect(grouping.parseWorkoutDate('Today', now: now), now);
-      expect(grouping.parseWorkoutDate('Yesterday', now: now), DateTime(2026, 11, 19, 12));
-      expect(grouping.parseWorkoutDate('2 hari lalu', now: now), DateTime(2026, 11, 18, 12));
+      expect(
+        grouping.parseWorkoutDate('Yesterday', now: now),
+        DateTime(2026, 11, 19, 12),
+      );
+      expect(
+        grouping.parseWorkoutDate('2 hari lalu', now: now),
+        DateTime(2026, 11, 18, 12),
+      );
     });
 
     test('parses dd/mm/yyyy date text', () {
-      expect(grouping.parseWorkoutDate('09/11/2026', now: now), DateTime(2026, 11, 9));
+      expect(
+        grouping.parseWorkoutDate('09/11/2026', now: now),
+        DateTime(2026, 11, 9),
+      );
     });
 
     test('uses a stable fallback for unsupported date labels', () {

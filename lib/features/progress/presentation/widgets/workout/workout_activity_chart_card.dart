@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
 import '../../../domain/models/day_activity.dart';
@@ -13,7 +14,8 @@ class WorkoutActivityChartCard extends StatefulWidget {
   const WorkoutActivityChartCard({super.key, this.weeklyData});
 
   @override
-  State<WorkoutActivityChartCard> createState() => _WorkoutActivityChartCardState();
+  State<WorkoutActivityChartCard> createState() =>
+      _WorkoutActivityChartCardState();
 }
 
 class _WorkoutActivityChartCardState extends State<WorkoutActivityChartCard> {
@@ -100,7 +102,9 @@ class _WorkoutActivityChartCardState extends State<WorkoutActivityChartCard> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     crossAxisAlignment: CrossAxisAlignment.end,
-                    children: _displayData.map((data) => _buildDayBar(data)).toList(),
+                    children: _displayData
+                        .map((data) => _buildDayBar(data))
+                        .toList(),
                   ),
                 ),
               ],
@@ -134,7 +138,9 @@ class _WorkoutActivityChartCardState extends State<WorkoutActivityChartCard> {
               child: Text(
                 _filters[index],
                 style: AppTypography.labelSmall.copyWith(
-                  color: isSelected ? AppColors.darkCharcoal : AppColors.neutral500,
+                  color: isSelected
+                      ? AppColors.darkCharcoal
+                      : AppColors.neutral500,
                   fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                   fontSize: 11.5,
                 ),
@@ -151,8 +157,10 @@ class _WorkoutActivityChartCardState extends State<WorkoutActivityChartCard> {
     const double barMaxHeight = 108.0;
 
     final hasActivity = data.minutes > 0;
-    final barHeight = (data.minutes / maxChartMinutes * barMaxHeight)
-        .clamp(0.0, barMaxHeight);
+    final barHeight = (data.minutes / maxChartMinutes * barMaxHeight).clamp(
+      0.0,
+      barMaxHeight,
+    );
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,

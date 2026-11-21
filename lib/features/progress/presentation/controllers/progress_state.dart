@@ -90,11 +90,11 @@ class ProgressState {
       hasActiveProgram: hasActiveProgram ?? this.hasActiveProgram,
       activeProgramTitle: activeProgramTitle ?? this.activeProgramTitle,
       activeProgramWeek: activeProgramWeek ?? this.activeProgramWeek,
-      activeProgramTotalWeeks: activeProgramTotalWeeks ?? this.activeProgramTotalWeeks,
+      activeProgramTotalWeeks:
+          activeProgramTotalWeeks ?? this.activeProgramTotalWeeks,
       activeProgramPercent: activeProgramPercent ?? this.activeProgramPercent,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage,
     );
   }
 }
-
