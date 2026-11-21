@@ -24,8 +24,8 @@ class WeightAnalyticsService {
       return WeightAnalyticsResult(
         currentWeight: defaultWeight,
         weightChange: 0,
-        startLabel: '60 kg\n(Oct 25)',
-        endLabel: '${defaultWeight.toStringAsFixed(0)} kg\n(Nov 5)',
+        startLabel: '',
+        endLabel: '',
       );
     }
 

@@ -125,7 +125,7 @@ class WeightProgressCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  startLabel ?? '60 kg\n(Oct 25)',
+                  startLabel ?? '',
                   style: AppTypography.bodySmall.copyWith(
                     color: AppColors.neutral400,
                     fontSize: 10,
@@ -134,7 +134,7 @@ class WeightProgressCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  endLabel ?? '${currentWeight.toStringAsFixed(0)} kg\n(Nov 5)',
+                  endLabel ?? '',
                   textAlign: TextAlign.right,
                   style: AppTypography.bodySmall.copyWith(
                     color: AppColors.neutral400,

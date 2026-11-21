@@ -73,10 +73,12 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap "Too Easy"
+      await tester.ensureVisible(find.text('Too Easy'));
       await tester.tap(find.text('Too Easy'));
       await tester.pumpAndSettle();
 
       // Tap "Hard"
+      await tester.ensureVisible(find.text('Hard'));
       await tester.tap(find.text('Hard'));
       await tester.pumpAndSettle();
 
