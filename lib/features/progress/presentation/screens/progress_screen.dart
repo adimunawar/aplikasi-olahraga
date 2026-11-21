@@ -168,18 +168,29 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
       3 => _historyTab(state),
       _ => _overviewTab(state),
     };
+
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 260),
-      switchInCurve: Curves.easeOutCubic,
-      switchOutCurve: Curves.easeInCubic,
-      transitionBuilder: (child, animation) => FadeTransition(
-        opacity: animation,
-        child: SlideTransition(
-          position: Tween<Offset>(begin: const Offset(0, 0.025), end: Offset.zero).animate(animation),
-          child: child,
-        ),
+      duration: const Duration(milliseconds: 190),
+      reverseDuration: const Duration(milliseconds: 150),
+      switchInCurve: Curves.easeOut,
+      switchOutCurve: Curves.easeIn,
+      layoutBuilder: (currentChild, previousChildren) => Stack(
+        alignment: Alignment.topCenter,
+        children: <Widget>[
+          ...previousChildren,
+          if (currentChild != null) currentChild,
+        ],
       ),
-      child: KeyedSubtree(key: ValueKey(_selectedTab), child: content),
+      transitionBuilder: (child, animation) => FadeTransition(
+        opacity: animation.drive(
+          CurveTween(curve: Curves.easeOut),
+        ),
+        child: child,
+      ),
+      child: KeyedSubtree(
+        key: ValueKey(_selectedTab),
+        child: content,
+      ),
     );
   }
 
