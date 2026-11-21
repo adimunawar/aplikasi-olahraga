@@ -30,5 +30,11 @@
     "sets": "set",
     "seconds": "detik",
     "kg": "kg"
+  },
+  "streak": {
+    "daySingular": "$count hari",
+    "dayPlural": "$count hari",
+    "activeDaySingular": "$count hari aktif",
+    "activeDayPlural": "$count hari aktif"
   }
 }
