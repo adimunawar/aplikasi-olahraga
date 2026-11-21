@@ -7,7 +7,7 @@ import '../../../domain/models/day_activity.dart';
 /// Compact workout performance widgets used by the Workout tab.
 
 class WorkoutStatCard extends StatelessWidget {
-  const WorkoutStatCard({
+  const WorkoutStatCard({super.key, 
     required this.icon,
     required this.value,
     required this.label,
@@ -61,7 +61,7 @@ class WorkoutStatCard extends StatelessWidget {
 
 
 class WeeklyActivityCard extends StatelessWidget {
-  const WeeklyActivityCard({
+  const WeeklyActivityCard({super.key, 
     required this.days,
     required this.maxMinutes,
   });
@@ -160,7 +160,7 @@ class WeeklyActivityCard extends StatelessWidget {
 
 
 class TrainingVolumeCard extends StatelessWidget {
-  const TrainingVolumeCard({
+  const TrainingVolumeCard({super.key, 
     required this.totalSets,
     required this.totalReps,
     required this.activePatterns,

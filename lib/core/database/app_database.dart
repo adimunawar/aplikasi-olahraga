@@ -24,10 +24,6 @@ class AppDatabase {
 
   static Database? _database;
 
-  // Legacy in-memory state is retained only as a disabled fallback while all
-  // platforms use the same SQLite API. Web SQLite is persisted in IndexedDB.
-  bool get _useInMemoryFallback => false;
-
   // --- Legacy in-memory fallback state ---
   UserProfileEntity? _webProfile;
   UserSettingsEntity? _webSettings;

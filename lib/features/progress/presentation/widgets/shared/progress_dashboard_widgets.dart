@@ -8,7 +8,7 @@ import '../../../application/weight_chart_series.dart';
 import '../../../domain/models/workout_history_item.dart';
 
 class WeightTrendCard extends StatelessWidget {
-  const WeightTrendCard({
+  const WeightTrendCard({super.key, 
     required this.points,
     required this.weeks,
     required this.currentWeight,
@@ -151,7 +151,7 @@ class WeightTrendPainter extends CustomPainter {
 }
 
 class CurrentWeightSummary extends StatelessWidget {
-  const CurrentWeightSummary({required this.currentWeight, required this.change, required this.rangeWeeks});
+  const CurrentWeightSummary({super.key, required this.currentWeight, required this.change, required this.rangeWeeks});
   final double currentWeight;
   final double change;
   final int rangeWeeks;
@@ -179,7 +179,7 @@ class CurrentWeightSummary extends StatelessWidget {
 }
 
 class MetricNotTrackedCard extends StatelessWidget {
-  const MetricNotTrackedCard({required this.metric});
+  const MetricNotTrackedCard({super.key, required this.metric});
   final String metric;
 
   @override
@@ -200,7 +200,7 @@ class MetricNotTrackedCard extends StatelessWidget {
 }
 
 class MetricCard extends StatelessWidget {
-  const MetricCard({required this.icon, required this.value, required this.label, this.fullWidth = false, this.onTap});
+  const MetricCard({super.key, required this.icon, required this.value, required this.label, this.fullWidth = false, this.onTap});
   final IconData icon;
   final String value;
   final String label;
@@ -232,7 +232,7 @@ class MetricCard extends StatelessWidget {
 }
 
 class ProgramCard extends StatelessWidget {
-  const ProgramCard({required this.title, required this.week, required this.totalWeeks, required this.percent});
+  const ProgramCard({super.key, required this.title, required this.week, required this.totalWeeks, required this.percent});
   final String title;
   final int week;
   final int totalWeeks;
@@ -265,7 +265,7 @@ class ProgramCard extends StatelessWidget {
 }
 
 class HighlightsCard extends StatelessWidget {
-  const HighlightsCard({required this.completed, required this.target, required this.weightChange, required this.streak, this.hasWeightData = false});
+  const HighlightsCard({super.key, required this.completed, required this.target, required this.weightChange, required this.streak, this.hasWeightData = false});
   final int completed;
   final int target;
   final double weightChange;
@@ -309,7 +309,7 @@ class HighlightsCard extends StatelessWidget {
 }
 
 class WeightChangeCard extends StatelessWidget {
-  const WeightChangeCard({required this.change, required this.onTap});
+  const WeightChangeCard({super.key, required this.change, required this.onTap});
   final double change;
   final VoidCallback onTap;
 
@@ -334,7 +334,7 @@ class WeightChangeCard extends StatelessWidget {
 }
 
 class RecentWorkoutsCard extends StatelessWidget {
-  const RecentWorkoutsCard({required this.workouts, this.expanded = false});
+  const RecentWorkoutsCard({super.key, required this.workouts, this.expanded = false});
   final List<WorkoutHistoryItem> workouts;
   final bool expanded;
 
@@ -369,13 +369,13 @@ class RecentWorkoutsCard extends StatelessWidget {
 }
 
 class LoadingState extends StatelessWidget {
-  const LoadingState();
+  const LoadingState({super.key});
   @override
   Widget build(BuildContext context) => const Padding(padding: EdgeInsets.symmetric(vertical: 60), child: Center(child: CircularProgressIndicator()));
 }
 
 class ErrorState extends StatelessWidget {
-  const ErrorState({required this.message, required this.onRetry});
+  const ErrorState({super.key, required this.message, required this.onRetry});
   final String message;
   final VoidCallback onRetry;
   @override
