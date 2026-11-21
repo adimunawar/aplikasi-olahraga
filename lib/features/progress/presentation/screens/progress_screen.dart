@@ -1,6 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../i18n/strings.g.dart';
+
 import 'package:workout_app/features/progress/application/weight_chart_series.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -169,16 +171,20 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
       _ => _overviewTab(state),
     };
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 260),
-      switchInCurve: Curves.easeOutCubic,
-      switchOutCurve: Curves.easeInCubic,
-      transitionBuilder: (child, animation) => FadeTransition(
-        opacity: animation,
-        child: SlideTransition(
-          position: Tween<Offset>(begin: const Offset(0, 0.025), end: Offset.zero).animate(animation),
-          child: child,
-        ),
-      ),
+      duration: const Duration(milliseconds: 200),
+      switchInCurve: Curves.easeOut,
+      switchOutCurve: Curves.easeIn,
+      layoutBuilder: (currentChild, previousChildren) {
+        return Stack(
+          alignment: Alignment.topCenter,
+          children: [
+            ...previousChildren,
+            ?currentChild,
+          ],
+        );
+      },
+      transitionBuilder: (child, animation) =>
+          FadeTransition(opacity: animation, child: child),
       child: KeyedSubtree(key: ValueKey(_selectedTab), child: content),
     );
   }
@@ -203,8 +209,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
           const ProgressEmptyState(
             icon: Icons.fitness_center_rounded,
             title: 'No workout data yet',
-            message:
-                'Complete your first workout to see your training progress here.',
+            message: 'Complete your first workout to see your training progress here.',
           )
         else
           GridView.count(
@@ -215,60 +220,77 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
             crossAxisSpacing: 10,
             childAspectRatio: 1.58,
             children: [
-              ProgressReveal(delay: const Duration(milliseconds: 0), child: MetricCard(
-                icon: Icons.fitness_center_rounded,
-                value: '${metrics.workoutCount}',
-                label: 'Workouts',
-              )),
-              ProgressReveal(delay: const Duration(milliseconds: 70), child: MetricCard(
-                icon: Icons.check_circle_outline_rounded,
-                value: '$completion%',
-                label: 'Completion',
-              )),
-              ProgressReveal(delay: const Duration(milliseconds: 140), child: MetricCard(
-                icon: Icons.access_time_rounded,
-                value: _duration(metrics.totalMinutes),
-                label: 'Training Time',
-              )),
-              ProgressReveal(delay: const Duration(milliseconds: 210), child: MetricCard(
-                icon: Icons.local_fire_department_outlined,
-                value: metrics.streakDays == 1
-                    ? context.t.core.units.daySingular(count: metrics.streakDays)
-                    : context.t.core.units.dayPlural(count: metrics.streakDays),
-                label: 'Current Streak',
-              )),
+              ProgressReveal(
+                child: MetricCard(
+                  icon: Icons.fitness_center_rounded,
+                  value: '${metrics.workoutCount}',
+                  label: 'Workouts',
+                ),
+              ),
+              ProgressReveal(
+                child: MetricCard(
+                  icon: Icons.check_circle_outline_rounded,
+                  value: '$completion%',
+                  label: 'Completion',
+                ),
+              ),
+              ProgressReveal(
+                child: MetricCard(
+                  icon: Icons.access_time_rounded,
+                  value: _duration(metrics.totalMinutes),
+                  label: 'Training Time',
+                ),
+              ),
+              ProgressReveal(
+                child: MetricCard(
+                  icon: Icons.local_fire_department_outlined,
+                  value: metrics.streakDays == 1
+                      ? context.t.core.streak.daySingular(
+                          count: metrics.streakDays,
+                        )
+                      : context.t.core.streak.dayPlural(
+                          count: metrics.streakDays,
+                        ),
+                  label: 'Current Streak',
+                ),
+              ),
             ],
           ),
         const SizedBox(height: 22),
         _heading('Program Progress'),
         const SizedBox(height: 11),
         if (state.hasActiveProgram)
-          ProgressReveal(delay: const Duration(milliseconds: 90), child: ProgramCard(
-            title: state.activeProgramTitle,
-            week: state.activeProgramWeek,
-            totalWeeks: state.activeProgramTotalWeeks,
-            percent: state.activeProgramPercent,
-          ))
+          ProgressReveal(
+            child: ProgramCard(
+              title: state.activeProgramTitle,
+              week: state.activeProgramWeek,
+              totalWeeks: state.activeProgramTotalWeeks,
+              percent: state.activeProgramPercent,
+            ),
+          )
         else
           const ProgressEmptyState(
             icon: Icons.flag_outlined,
             title: 'No active program',
-            message:
-                'Choose a training program to track your weekly progress.',
+            message: 'Choose a training program to track your weekly progress.',
             compact: true,
           ),
         const SizedBox(height: 22),
         _heading('Recent Highlights', trailing: Icons.info_outline),
         const SizedBox(height: 11),
-        ProgressReveal(delay: const Duration(milliseconds: 140), child: HighlightsCard(
-          completed: metrics.completedThisWeek,
-          target: metrics.weeklyTarget,
-          weightChange: state.weightChange,
-          streak: metrics.streakDays,
-          hasWeightData: state.weightHistory.length >= 2 && state.weightChange.abs() >= 0.05,
-        )),
+        ProgressReveal(
+          child: HighlightsCard(
+            completed: metrics.completedThisWeek,
+            target: metrics.weeklyTarget,
+            weightChange: state.weightChange,
+            streak: metrics.streakDays,
+            hasWeightData:
+                state.weightHistory.length >= 2 &&
+                state.weightChange.abs() >= 0.05,
+          ),
+        ),
         const SizedBox(height: 18),
-        const ProgressReveal(delay: Duration(milliseconds: 220), child: KeepGoingCard()),
+        const ProgressReveal(child: KeepGoingCard()),
       ],
     );
   }
@@ -292,19 +314,23 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
         _bodyMetricSelector(),
         const SizedBox(height: 10),
         if (_bodyMetric == 'Weight') ...[
-          ProgressReveal(child: WeightTrendCard(
-            points: chartPoints,
-            weeks: _bodyRangeWeeks,
-            currentWeight: state.currentWeight,
-            hasData: hasWeightData,
-          )),
+          ProgressReveal(
+            child: WeightTrendCard(
+              points: chartPoints,
+              weeks: _bodyRangeWeeks,
+              currentWeight: state.currentWeight,
+              hasData: hasWeightData,
+            ),
+          ),
           if (hasWeightData) ...[
             const SizedBox(height: 10),
-            ProgressReveal(delay: const Duration(milliseconds: 100), child: CurrentWeightSummary(
-              currentWeight: state.currentWeight,
-              change: state.weightChange,
-              rangeWeeks: _bodyRangeWeeks,
-            )),
+            ProgressReveal(
+              child: CurrentWeightSummary(
+                currentWeight: state.currentWeight,
+                change: state.weightChange,
+                rangeWeeks: _bodyRangeWeeks,
+              ),
+            ),
           ],
           const SizedBox(height: 20),
           SizedBox(
@@ -387,60 +413,114 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
               .round()
         : 0;
 
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      _heading('Workout Performance', subtitle: 'Your training progress and consistency.'),
-      const SizedBox(height: 10),
-      if (state.metrics.workoutCount == 0)
-        const ProgressEmptyState(
-          icon: Icons.fitness_center_rounded,
-          title: 'No workout performance yet',
-          message: 'Your weekly activity and training volume will appear after you complete a workout.',
-        )
-      else ...[
-      if (state.hasActiveProgram)
-        ProgramCard(title: state.activeProgramTitle, week: state.activeProgramWeek, totalWeeks: state.activeProgramTotalWeeks, percent: state.activeProgramPercent)
-      else
-        const ProgressEmptyState(icon: Icons.flag_outlined, title: 'No active program', message: 'Choose a program to see its progress.', compact: true),
-      const SizedBox(height: 10),
-      Row(children: [
-        Expanded(child: WorkoutStatCard(icon: Icons.fitness_center_rounded, value: '${state.metrics.workoutCount}', label: 'Workouts')),
-        const SizedBox(width: 8),
-        Expanded(child: WorkoutStatCard(icon: Icons.check_circle_outline_rounded, value: '$completion%', label: 'Completion')),
-        const SizedBox(width: 8),
-        Expanded(child: WorkoutStatCard(icon: Icons.access_time_rounded, value: _duration(state.metrics.totalMinutes), label: 'Total Time')),
-      ]),
-      const SizedBox(height: 20),
-      _heading('Weekly Activity', trailing: Icons.info_outline),
-      const SizedBox(height: 10),
-      if (weeklyMinutes > 0)
-        ProgressReveal(child: WeeklyActivityCard(days: state.weeklyActivity, maxMinutes: maxMinutes))
-      else
-        const ProgressEmptyState(
-          icon: Icons.calendar_today_outlined,
-          title: 'No activity this week',
-          message: 'Completed workout time will be summarized here.',
-          compact: true,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _heading(
+          'Workout Performance',
+          subtitle: 'Your training progress and consistency.',
         ),
-      const SizedBox(height: 20),
-      _heading('Training Volume', trailing: Icons.info_outline),
-      const SizedBox(height: 10),
-      if (totalSets > 0)
-        ProgressReveal(delay: const Duration(milliseconds: 100), child: TrainingVolumeCard(totalSets: totalSets, totalReps: totalReps, activePatterns: state.movementVolume.length))
-      else
-        const ProgressEmptyState(
-          icon: Icons.bar_chart_rounded,
-          title: 'No training volume yet',
-          message: 'Set and rep totals will appear after you log completed sets.',
-          compact: true,
-        ),
-      const SizedBox(height: 20),
-      _heading('Recent Workouts'),
-      const SizedBox(height: 10),
-      ProgressReveal(delay: const Duration(milliseconds: 160), child: RecentWorkoutsCard(workouts: state.recentWorkouts)),
-      const SizedBox(height: 4),
-      Text('$weeklyMinutes training minutes this week', style: AppTypography.labelSmall.copyWith(color: AppColors.neutral500)),
+        const SizedBox(height: 10),
+        if (state.metrics.workoutCount == 0)
+          const ProgressEmptyState(
+            icon: Icons.fitness_center_rounded,
+            title: 'No workout performance yet',
+            message: 'Your weekly activity and training volume will appear after you complete a workout.',
+          )
+        else ...[
+          if (state.hasActiveProgram)
+            ProgramCard(
+              title: state.activeProgramTitle,
+              week: state.activeProgramWeek,
+              totalWeeks: state.activeProgramTotalWeeks,
+              percent: state.activeProgramPercent,
+            )
+          else
+            const ProgressEmptyState(
+              icon: Icons.flag_outlined,
+              title: 'No active program',
+              message: 'Choose a program to see its progress.',
+              compact: true,
+            ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: WorkoutStatCard(
+                  icon: Icons.fitness_center_rounded,
+                  value: '${state.metrics.workoutCount}',
+                  label: 'Workouts',
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: WorkoutStatCard(
+                  icon: Icons.check_circle_outline_rounded,
+                  value: '$completion%',
+                  label: 'Completion',
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: WorkoutStatCard(
+                  icon: Icons.access_time_rounded,
+                  value: _duration(state.metrics.totalMinutes),
+                  label: 'Total Time',
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          _heading('Weekly Activity', trailing: Icons.info_outline),
+          const SizedBox(height: 10),
+          if (weeklyMinutes > 0)
+            ProgressReveal(
+              child: WeeklyActivityCard(
+                days: state.weeklyActivity,
+                maxMinutes: maxMinutes,
+              ),
+            )
+          else
+            const ProgressEmptyState(
+              icon: Icons.calendar_today_outlined,
+              title: 'No activity this week',
+              message: 'Completed workout time will be summarized here.',
+              compact: true,
+            ),
+          const SizedBox(height: 20),
+          _heading('Training Volume', trailing: Icons.info_outline),
+          const SizedBox(height: 10),
+          if (totalSets > 0)
+            ProgressReveal(
+              child: TrainingVolumeCard(
+                totalSets: totalSets,
+                totalReps: totalReps,
+                activePatterns: state.movementVolume.length,
+              ),
+            )
+          else
+            const ProgressEmptyState(
+              icon: Icons.bar_chart_rounded,
+              title: 'No training volume yet',
+              message: 'Set and rep totals will appear after you log completed sets.',
+              compact: true,
+            ),
+          const SizedBox(height: 20),
+          _heading('Recent Workouts'),
+          const SizedBox(height: 10),
+          ProgressReveal(
+            child: RecentWorkoutsCard(workouts: state.recentWorkouts),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '$weeklyMinutes training minutes this week',
+            style: AppTypography.labelSmall.copyWith(
+              color: AppColors.neutral500,
+            ),
+          ),
+        ],
       ],
-    ]);
+    );
   }
 
   Widget _historyTab(ProgressState state) {
@@ -509,20 +589,23 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
             (group) => Padding(
               padding: const EdgeInsets.only(bottom: 18),
               child: ProgressReveal(
-                delay: Duration(milliseconds: grouped.keys.toList().indexOf(group.key) * 65),
+                delay: Duration(
+                  milliseconds: grouped.keys.toList().indexOf(group.key) * 65,
+                ),
                 child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    group.key,
-                    style: AppTypography.titleSmall.copyWith(
-                      fontWeight: FontWeight.w600,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      group.key,
+                      style: AppTypography.titleSmall.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  HistoryGroupCard(entries: group.value),
-                ],
-              )),
+                    const SizedBox(height: 8),
+                    HistoryGroupCard(entries: group.value),
+                  ],
+                ),
+              ),
             ),
           ),
       ],
@@ -613,4 +696,3 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
     }
   }
 }
-

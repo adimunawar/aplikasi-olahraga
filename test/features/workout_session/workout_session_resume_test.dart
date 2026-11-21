@@ -6,6 +6,7 @@ import 'package:workout_app/core/database/app_database.dart';
 import 'package:workout_app/core/database/models/workout_session_entity.dart';
 import 'package:workout_app/core/database/models/workout_set_entity.dart';
 import 'package:workout_app/features/plans/presentation/controllers/plans_controller.dart';
+import 'package:workout_app/features/profile/data/datasources/user_supabase_datasource.dart';
 import 'package:workout_app/features/program/data/repositories/programs_repository_impl.dart';
 import 'package:workout_app/features/progress/application/bmi_calculator_service.dart';
 import 'package:workout_app/features/progress/application/weight_analytics_service.dart';

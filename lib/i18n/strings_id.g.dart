@@ -77,6 +77,7 @@ class Translations$core$id {
   late final Translations$core$badge$id badge = Translations$core$badge$id.internal(_root);
   late final Translations$core$language$id language = Translations$core$language$id.internal(_root);
   late final Translations$core$units$id units = Translations$core$units$id.internal(_root);
+  late final Translations$core$streak$id streak = Translations$core$streak$id.internal(_root);
 }
 
 // Path: home
@@ -139,9 +140,6 @@ class Translations$workoutSession$id {
   Translations$workoutSession$id.internal(this._root);
 
   final Translations _root; // ignore: unused_field
-
-  late final Translations$workoutSession$completedScreen$id completedScreen =
-      Translations$workoutSession$completedScreen$id.internal(_root);
 
   // Translations
 
@@ -355,58 +353,9 @@ class Translations$workoutSession$id {
 
   /// id: 'Latihan Kekuatan'
   String get defaultProgramTitle => 'Latihan Kekuatan';
-}
 
-// Path: workoutSession.completedScreen
-class Translations$workoutSession$completedScreen$id {
-  Translations$workoutSession$completedScreen$id.internal(this._root);
-
-  final Translations _root; // ignore: unused_field
-
-  // Translations
-
-  /// id: 'Workout Selesai! 🎉'
-  String get title => 'Workout Selesai! 🎉';
-
-  /// id: 'Kerja bagus! Kamu telah menyelesaikan $focus.'
-  String subtitle({required Object focus}) =>
-      'Kerja bagus! Kamu telah menyelesaikan ${focus}.';
-
-  /// id: 'Durasi'
-  String get duration => 'Durasi';
-
-  /// id: 'Latihan'
-  String get exercises => 'Latihan';
-
-  /// id: 'Est. Kalori'
-  String get estCalories => 'Est. Kalori';
-
-  /// id: 'menit'
-  String get minUnit => 'menit';
-
-  /// id: 'Bagaimana latihannya?'
-  String get howWasWorkout => 'Bagaimana latihannya?';
-
-  /// id: 'Terlalu Mudah'
-  String get tooEasy => 'Terlalu Mudah';
-
-  /// id: 'Mudah'
-  String get easy => 'Mudah';
-
-  /// id: 'Pas Banget'
-  String get justRight => 'Pas Banget';
-
-  /// id: 'Berat'
-  String get hard => 'Berat';
-
-  /// id: 'Terlalu Berat'
-  String get tooHard => 'Terlalu Berat';
-
-  /// id: 'Simpan & Lanjutkan'
-  String get saveAndContinue => 'Simpan & Lanjutkan';
-
-  /// id: 'Lihat Ringkasan Latihan'
-  String get viewWorkoutSummary => 'Lihat Ringkasan Latihan';
+  late final Translations$workoutSession$completedScreen$id completedScreen =
+      Translations$workoutSession$completedScreen$id.internal(_root);
 }
 
 // Path: workouts
@@ -552,6 +501,15 @@ class Translations$core$units$id {
 
   /// id: 'kg'
   String get kg => 'kg';
+}
+
+// Path: core.streak
+class Translations$core$streak$id {
+  Translations$core$streak$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
 
   /// id: '$count hari'
   String daySingular({required Object count}) => '${count} hari';
@@ -1074,6 +1032,57 @@ class Translations$onboarding$preview$id {
   /// id: '$sets set • $reps repetisi • istirahat $rests dtk'
   String prescription({required Object sets, required Object reps, required Object rests}) =>
       '${sets} set • ${reps} repetisi • istirahat ${rests} dtk';
+}
+
+// Path: workoutSession.completedScreen
+class Translations$workoutSession$completedScreen$id {
+  Translations$workoutSession$completedScreen$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Workout Selesai! 🎉'
+  String get title => 'Workout Selesai! 🎉';
+
+  /// id: 'Kerja bagus! Kamu telah menyelesaikan $focus.'
+  String subtitle({required Object focus}) => 'Kerja bagus! Kamu telah menyelesaikan ${focus}.';
+
+  /// id: 'Durasi'
+  String get duration => 'Durasi';
+
+  /// id: 'Latihan'
+  String get exercises => 'Latihan';
+
+  /// id: 'Est. Kalori'
+  String get estCalories => 'Est. Kalori';
+
+  /// id: 'menit'
+  String get minUnit => 'menit';
+
+  /// id: 'Bagaimana latihannya?'
+  String get howWasWorkout => 'Bagaimana latihannya?';
+
+  /// id: 'Terlalu Mudah'
+  String get tooEasy => 'Terlalu Mudah';
+
+  /// id: 'Mudah'
+  String get easy => 'Mudah';
+
+  /// id: 'Pas Banget'
+  String get justRight => 'Pas Banget';
+
+  /// id: 'Berat'
+  String get hard => 'Berat';
+
+  /// id: 'Terlalu Berat'
+  String get tooHard => 'Terlalu Berat';
+
+  /// id: 'Simpan & Lanjutkan'
+  String get saveAndContinue => 'Simpan & Lanjutkan';
+
+  /// id: 'Lihat Ringkasan Latihan'
+  String get viewWorkoutSummary => 'Lihat Ringkasan Latihan';
 }
 
 // Path: workouts.tabs
@@ -1779,6 +1788,10 @@ extension on Translations {
       'core.units.sets' => 'set',
       'core.units.seconds' => 'detik',
       'core.units.kg' => 'kg',
+      'core.streak.daySingular' => ({required Object count}) => '${count} hari',
+      'core.streak.dayPlural' => ({required Object count}) => '${count} hari',
+      'core.streak.activeDaySingular' => ({required Object count}) => '${count} hari aktif',
+      'core.streak.activeDayPlural' => ({required Object count}) => '${count} hari aktif',
       'home.greeting.goodMorning' => ({required Object name}) => 'Selamat Pagi, ${name} 👋',
       'home.greeting.goodAfternoon' => ({required Object name}) => 'Selamat Siang, ${name} 👋',
       'home.greeting.goodEvening' => ({required Object name}) => 'Selamat Malam, ${name} 👋',
@@ -2064,7 +2077,9 @@ extension on Translations {
       'workoutSession.finishSessionFailed' => 'Sesi latihan gagal disimpan. Progres yang sudah tercatat tetap tersedia. Silakan coba lagi.',
       'workoutSession.defaultProgramTitle' => 'Latihan Kekuatan',
       'workoutSession.completedScreen.title' => 'Workout Selesai! 🎉',
-      'workoutSession.completedScreen.subtitle' => ({required Object focus}) => 'Kerja bagus! Kamu telah menyelesaikan ${focus}.',
+      'workoutSession.completedScreen.subtitle' => ({
+        required Object focus,
+      }) => 'Kerja bagus! Kamu telah menyelesaikan ${focus}.',
       'workoutSession.completedScreen.duration' => 'Durasi',
       'workoutSession.completedScreen.exercises' => 'Latihan',
       'workoutSession.completedScreen.estCalories' => 'Est. Kalori',

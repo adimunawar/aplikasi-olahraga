@@ -84,6 +84,8 @@ class _Translations$core$en extends Translations$core$id {
   late final _Translations$core$language$en language = _Translations$core$language$en._(_root);
   @override
   late final _Translations$core$units$en units = _Translations$core$units$en._(_root);
+  @override
+  late final _Translations$core$streak$en streak = _Translations$core$streak$en._(_root);
 }
 
 // Path: home
@@ -166,10 +168,6 @@ class _Translations$workoutSession$en extends Translations$workoutSession$id {
   _Translations$workoutSession$en._(TranslationsEn root) : this._root = root, super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
-
-  @override
-  late final _Translations$workoutSession$completedScreen$en completedScreen =
-      _Translations$workoutSession$completedScreen$en._(_root);
 
   // Translations
   @override
@@ -314,61 +312,9 @@ class _Translations$workoutSession$en extends Translations$workoutSession$id {
       'We couldn\'t save your workout. Your recorded progress is still here. Please try again.';
   @override
   String get defaultProgramTitle => 'Strength Training';
-}
-
-// Path: workoutSession.completedScreen
-class _Translations$workoutSession$completedScreen$en
-    extends Translations$workoutSession$completedScreen$id {
-  _Translations$workoutSession$completedScreen$en._(TranslationsEn root)
-      : this._root = root,
-        super.internal(root);
-
-  final TranslationsEn _root; // ignore: unused_field
-
-  // Translations
-
   @override
-  String get title => 'Workout Completed! 🎉';
-
-  @override
-  String subtitle({required Object focus}) =>
-      'Great job! You\'ve finished ${focus}.';
-
-  @override
-  String get duration => 'Duration';
-
-  @override
-  String get exercises => 'Exercises';
-
-  @override
-  String get estCalories => 'Est. Calories';
-
-  @override
-  String get minUnit => 'min';
-
-  @override
-  String get howWasWorkout => 'How was the workout?';
-
-  @override
-  String get tooEasy => 'Too Easy';
-
-  @override
-  String get easy => 'Easy';
-
-  @override
-  String get justRight => 'Just Right';
-
-  @override
-  String get hard => 'Hard';
-
-  @override
-  String get tooHard => 'Too Hard';
-
-  @override
-  String get saveAndContinue => 'Save & Continue';
-
-  @override
-  String get viewWorkoutSummary => 'View Workout Summary';
+  late final _Translations$workoutSession$completedScreen$en completedScreen =
+      _Translations$workoutSession$completedScreen$en._(_root);
 }
 
 // Path: workouts
@@ -496,6 +442,15 @@ class _Translations$core$units$en extends Translations$core$units$id {
   String get seconds => 'sec';
   @override
   String get kg => 'kg';
+}
+
+// Path: core.streak
+class _Translations$core$streak$en extends Translations$core$streak$id {
+  _Translations$core$streak$en._(TranslationsEn root) : this._root = root, super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
   @override
   String daySingular({required Object count}) => '${count} day';
   @override
@@ -950,6 +905,46 @@ class _Translations$onboarding$preview$en extends Translations$onboarding$previe
   @override
   String prescription({required Object sets, required Object reps, required Object rests}) =>
       '${sets} sets • ${reps} reps • ${rests} rest';
+}
+
+// Path: workoutSession.completedScreen
+class _Translations$workoutSession$completedScreen$en
+    extends Translations$workoutSession$completedScreen$id {
+  _Translations$workoutSession$completedScreen$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Workout Completed! 🎉';
+  @override
+  String subtitle({required Object focus}) => 'Great job! You\'ve finished ${focus}.';
+  @override
+  String get duration => 'Duration';
+  @override
+  String get exercises => 'Exercises';
+  @override
+  String get estCalories => 'Est. Calories';
+  @override
+  String get minUnit => 'min';
+  @override
+  String get howWasWorkout => 'How was the workout?';
+  @override
+  String get tooEasy => 'Too Easy';
+  @override
+  String get easy => 'Easy';
+  @override
+  String get justRight => 'Just Right';
+  @override
+  String get hard => 'Hard';
+  @override
+  String get tooHard => 'Too Hard';
+  @override
+  String get saveAndContinue => 'Save & Continue';
+  @override
+  String get viewWorkoutSummary => 'View Workout Summary';
 }
 
 // Path: workouts.tabs
@@ -1661,6 +1656,14 @@ extension on TranslationsEn {
       'core.units.sets' => 'sets',
       'core.units.seconds' => 'sec',
       'core.units.kg' => 'kg',
+      'core.streak.daySingular' => ({required Object count}) => '${count} day',
+      'core.streak.dayPlural' => ({required Object count}) => '${count} days',
+      'core.streak.activeDaySingular' => ({
+        required Object count,
+      }) => '${count} consecutive active day',
+      'core.streak.activeDayPlural' => ({
+        required Object count,
+      }) => '${count} consecutive active days',
       'home.greeting.goodMorning' => ({required Object name}) => 'Good Morning, ${name} 👋',
       'home.greeting.goodAfternoon' => ({required Object name}) => 'Good Afternoon, ${name} 👋',
       'home.greeting.goodEvening' => ({required Object name}) => 'Good Evening, ${name} 👋',
@@ -1944,7 +1947,9 @@ extension on TranslationsEn {
         'We couldn\'t save your workout. Your recorded progress is still here. Please try again.',
       'workoutSession.defaultProgramTitle' => 'Strength Training',
       'workoutSession.completedScreen.title' => 'Workout Completed! 🎉',
-      'workoutSession.completedScreen.subtitle' => ({required Object focus}) => 'Great job! You\'ve finished ${focus}.',
+      'workoutSession.completedScreen.subtitle' => ({
+        required Object focus,
+      }) => 'Great job! You\'ve finished ${focus}.',
       'workoutSession.completedScreen.duration' => 'Duration',
       'workoutSession.completedScreen.exercises' => 'Exercises',
       'workoutSession.completedScreen.estCalories' => 'Est. Calories',
