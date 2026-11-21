@@ -496,6 +496,14 @@ class _Translations$core$units$en extends Translations$core$units$id {
   String get seconds => 'sec';
   @override
   String get kg => 'kg';
+  @override
+  String daySingular({required Object count}) => '${count} day';
+  @override
+  String dayPlural({required Object count}) => '${count} days';
+  @override
+  String activeDaySingular({required Object count}) => '${count} consecutive active day';
+  @override
+  String activeDayPlural({required Object count}) => '${count} consecutive active days';
 }
 
 // Path: home.greeting
