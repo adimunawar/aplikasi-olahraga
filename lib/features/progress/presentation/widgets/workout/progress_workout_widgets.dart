@@ -126,13 +126,18 @@ class WeeklyActivityCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 5),
-                        Container(
-                          height: barHeight,
-                          decoration: BoxDecoration(
-                            color: minutes > 0
-                                ? AppColors.limeAccent
-                                : AppColors.neutral200,
-                            borderRadius: BorderRadius.circular(5),
+                        TweenAnimationBuilder<double>(
+                          tween: Tween<double>(begin: 0, end: barHeight),
+                          duration: Duration(milliseconds: 520 + (days.indexOf(day) * 65)),
+                          curve: Curves.easeOutCubic,
+                          builder: (context, animatedHeight, child) => Container(
+                            height: animatedHeight,
+                            decoration: BoxDecoration(
+                              color: minutes > 0
+                                  ? AppColors.limeAccent
+                                  : AppColors.neutral200,
+                              borderRadius: BorderRadius.circular(5),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 7),
