@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/database/app_database.dart';
-import '../../../profile/data/datasources/user_supabase_datasource.dart';
 import '../../application/bmi_calculator_service.dart';
 import '../../application/weight_analytics_service.dart';
 import '../../data/datasources/progress_supabase_datasource.dart';
@@ -24,17 +23,12 @@ final weightAnalyticsServiceProvider = Provider<WeightAnalyticsService>((ref) {
   return const WeightAnalyticsService();
 });
 
-final userProfileDatasourceProvider = Provider<UserSupabaseDatasource>((ref) {
-  return const UserSupabaseDatasource();
-});
-
 final progressControllerProvider =
     StateNotifierProvider<ProgressController, ProgressState>((ref) {
   return ProgressController(
     repository: ref.watch(progressRepositoryProvider),
     bmiCalculator: ref.watch(bmiCalculatorServiceProvider),
     weightAnalytics: ref.watch(weightAnalyticsServiceProvider),
-    userDatasource: ref.watch(userProfileDatasourceProvider),
     database: AppDatabase.instance,
   );
 });
@@ -44,14 +38,12 @@ class ProgressController extends StateNotifier<ProgressState> {
   final ProgressRepository _repository;
   final BmiCalculatorService _bmiCalculator;
   final WeightAnalyticsService _weightAnalytics;
-  final UserSupabaseDatasource _userDatasource;
   final AppDatabase _database;
 
   ProgressController({
     required this._repository,
     required this._bmiCalculator,
     required this._weightAnalytics,
-    required this._userDatasource,
     required this._database,
   })  : super(const ProgressState()) {
     loadProgress();
@@ -65,12 +57,20 @@ class ProgressController extends StateNotifier<ProgressState> {
       final metrics = await _repository.getMetrics();
 
       // 2. Ambil data profil (tinggi dan berat badan)
-      final profile = await _userDatasource.fetchProfileFromSupabase();
-      final heightCm = profile?.heightCm ?? 0;
-      final profileWeight = profile?.currentWeightKg ?? 0;
+      // Profil onboarding bersifat local-first sampai user melakukan sync.
+      // Jangan bergantung pada Supabase untuk data awal Progress.
+      final profile = await _database.getUserProfile();
+      final heightCm = profile.heightCm;
+      final profileWeight = profile.currentWeightKg;
 
-      // 3. Ambil riwayat penimbangan
-      final history = await _repository.getWeightHistory();
+      // 3. Ambil riwayat penimbangan. Berat awal dari onboarding perlu
+      // dijadikan baseline agar grafik punya titik pertama sebelum user
+      // mencatat penimbangan berikutnya.
+      var history = await _repository.getWeightHistory();
+      if (history.isEmpty && profileWeight > 0) {
+        await _database.recordBodyWeight(profileWeight);
+        history = await _repository.getWeightHistory();
+      }
       final weightAnalysis = _weightAnalytics.analyze(
         history,
         defaultWeight: profileWeight,
