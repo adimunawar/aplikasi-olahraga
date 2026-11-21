@@ -383,7 +383,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                metric,
+                _bodyMetricLabel(metric),
                 style: AppTypography.labelSmall.copyWith(
                   color: AppColors.darkCharcoal,
                   fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
@@ -444,8 +444,8 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
           else
             const ProgressEmptyState(
               icon: Icons.flag_outlined,
-              title: 'No active program',
-              message: 'Choose a program to see its progress.',
+              title: context.t.core.progress.noActiveProgram.title,
+              message: context.t.core.progress.noActiveProgram.message,
               compact: true,
             ),
           const SizedBox(height: 10),
