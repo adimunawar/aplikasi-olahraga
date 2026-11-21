@@ -175,13 +175,13 @@ class _StubPlansController extends PlansController {
 class _StubProgressController extends ProgressController {
   _StubProgressController()
     : super(
-        _repository: ProgressRepositoryImpl(
+        repository: ProgressRepositoryImpl(
           remoteDatasource: const ProgressSupabaseDatasource(),
           localDatabase: AppDatabase.instance,
         ),
-        _bmiCalculator: const BmiCalculatorService(),
-        _weightAnalytics: const WeightAnalyticsService(),
-        _database: AppDatabase.instance,
+        bmiCalculator: const BmiCalculatorService(),
+        weightAnalytics: const WeightAnalyticsService(),
+        database: AppDatabase.instance,
       );
 
   @override
