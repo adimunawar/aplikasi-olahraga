@@ -36,5 +36,87 @@
     "dayPlural": "$count days",
     "activeDaySingular": "$count consecutive active day",
     "activeDayPlural": "$count consecutive active days"
+  },
+  "progress": {
+    "title": "Progress",
+    "rangeWeeks": "Last $weeks Weeks",
+    "tabs": {
+      "overview": "Overview",
+      "body": "Body",
+      "workout": "Workout",
+      "history": "History"
+    },
+    "overviewTitle": "Your Progress",
+    "overviewSubtitle": "A quick summary of your training and body progress.",
+    "metrics": {
+      "workouts": "Workouts",
+      "completion": "Completion",
+      "trainingTime": "Training Time",
+      "currentStreak": "Current Streak"
+    },
+    "programProgress": "Program Progress",
+    "noWorkoutData": {
+      "title": "No workout data yet",
+      "message": "Complete your first workout to see your training progress here."
+    },
+    "noActiveProgram": {
+      "title": "No active program",
+      "message": "Choose a training program to track your weekly progress."
+    },
+    "recentHighlights": "Recent Highlights",
+    "keepGoing": "Keep Going!",
+    "keepGoingMessage": "Stay consistent. Every workout brings you closer to your goal.",
+    "body": {
+      "title": "Body Progress",
+      "subtitle": "Track changes in your body over time.",
+      "weight": "Weight",
+      "muscleMass": "Muscle Mass",
+      "bodyFat": "Body Fat",
+      "logMeasurement": "Log Measurement",
+      "recordWeight": "Record weight",
+      "currentWeight": "Current weight"
+    },
+    "workout": {
+      "title": "Workout Performance",
+      "subtitle": "Your training progress and consistency.",
+      "noPerformance": {
+        "title": "No workout performance yet",
+        "message": "Your weekly activity and training volume will appear after you complete a workout."
+      },
+      "weeklyActivity": "Weekly Activity",
+      "noActivity": {
+        "title": "No activity this week",
+        "message": "Completed workout time will be summarized here."
+      },
+      "trainingVolume": "Training Volume",
+      "noVolume": {
+        "title": "No training volume yet",
+        "message": "Set and rep totals will appear after you log completed sets."
+      },
+      "recentWorkouts": "Recent Workouts",
+      "minutesPerDay": "Minutes per day",
+      "minutesTotal": "$minutes min total",
+      "trainingMinutesThisWeek": "$minutes training minutes this week",
+      "totalTime": "Total Time"
+    },
+    "history": {
+      "all": "All",
+      "workout": "Workout",
+      "measurement": "Measurement",
+      "oldestFirst": "Oldest first",
+      "newestFirst": "Newest first",
+      "recordWeight": "Record weight"
+    },
+    "duration": {
+      "minutes": "$minutes min",
+      "hours": "$hoursh",
+      "hoursMinutes": "$hoursh $minutesm"
+    },
+    "weightDialog": {
+      "title": "Record weight",
+      "currentWeight": "Current weight",
+      "cancel": "Cancel",
+      "save": "Save"
+    }
   }
 }
