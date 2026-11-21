@@ -39,7 +39,7 @@
   },
   "progress": {
     "title": "Progres",
-    "rangeWeeks": "{weeks} Minggu Terakhir",
+    "rangeWeeks": "$weeks Minggu Terakhir",
     "tabs": {
       "overview": "Ringkasan",
       "body": "Tubuh",
@@ -95,8 +95,8 @@
       },
       "recentWorkouts": "Latihan Terbaru",
       "minutesPerDay": "Menit per hari",
-      "minutesTotal": "{minutes} menit total",
-      "trainingMinutesThisWeek": "{minutes} menit latihan minggu ini",
+      "minutesTotal": "$minutes menit total",
+      "trainingMinutesThisWeek": "$minutes menit latihan minggu ini",
       "totalTime": "Total Waktu"
     },
     "history": {
@@ -108,9 +108,9 @@
       "recordWeight": "Catat berat badan"
     },
     "duration": {
-      "minutes": "{minutes} mnt",
-      "hours": "{hours}j",
-      "hoursMinutes": "{hours}j {minutes}mnt"
+      "minutes": "$minutes mnt",
+      "hours": "$hoursj",
+      "hoursMinutes": "$hoursj $minutesmnt"
     },
     "weightDialog": {
       "title": "Catat berat badan",
