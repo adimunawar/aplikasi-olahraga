@@ -724,7 +724,7 @@ class _ProgressRevealState extends State<ProgressReveal>
 
   @override
   Widget build(BuildContext context) {
-    if (MediaQuery.disableAnimationsOf(context)) return widget.child;
+    if (MediaQuery.of(context).disableAnimations) return widget.child;
     return FadeTransition(
       opacity: _opacity,
       child: SlideTransition(position: _offset, child: widget.child),
