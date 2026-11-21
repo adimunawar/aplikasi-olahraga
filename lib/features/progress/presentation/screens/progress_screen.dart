@@ -93,7 +93,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
       PopupMenuButton<int>(
         initialValue: _bodyRangeWeeks,
         onSelected: (value) => setState(() => _bodyRangeWeeks = value),
-        itemBuilder: (context) => const [
+        itemBuilder: (context) =>  [
           PopupMenuItem(value: 4, child: Text(context.t.core.progress.rangeWeeks(weeks: 4))),
           PopupMenuItem(value: 8, child: Text(context.t.core.progress.rangeWeeks(weeks: 8))),
           PopupMenuItem(value: 12, child: Text(context.t.core.progress.rangeWeeks(weeks: 12))),
@@ -212,7 +212,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
         ),
         const SizedBox(height: 13),
         if (metrics.workoutCount == 0)
-          const ProgressEmptyState(
+           ProgressEmptyState(
             icon: Icons.fitness_center_rounded,
             title: context.t.core.progress.noWorkoutData.title,
             message: context.t.core.progress.noWorkoutData.message,
@@ -275,7 +275,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
             ),
           )
         else
-          const ProgressEmptyState(
+           ProgressEmptyState(
             icon: Icons.flag_outlined,
             title: context.t.core.progress.noActiveProgram.title,
             message: context.t.core.progress.noActiveProgram.message,
@@ -428,7 +428,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
         ),
         const SizedBox(height: 10),
         if (state.metrics.workoutCount == 0)
-          const ProgressEmptyState(
+           ProgressEmptyState(
             icon: Icons.fitness_center_rounded,
             title: context.t.core.progress.workout.noPerformance.title,
             message: context.t.core.progress.workout.noPerformance.message,
@@ -442,7 +442,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
               percent: state.activeProgramPercent,
             )
           else
-            const ProgressEmptyState(
+             ProgressEmptyState(
               icon: Icons.flag_outlined,
               title: context.t.core.progress.noActiveProgram.title,
               message: context.t.core.progress.noActiveProgram.message,
@@ -487,7 +487,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
               ),
             )
           else
-            const ProgressEmptyState(
+            ProgressEmptyState(
               icon: Icons.calendar_today_outlined,
               title: context.t.core.progress.workout.noActivity.title,
               message: context.t.core.progress.workout.noActivity.message,
@@ -505,7 +505,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
               ),
             )
           else
-            const ProgressEmptyState(
+            ProgressEmptyState(
               icon: Icons.bar_chart_rounded,
               title: context.t.core.progress.workout.noVolume.title,
               message: context.t.core.progress.workout.noVolume.message,
@@ -690,7 +690,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
           controller: controller,
           autofocus: true,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: const InputDecoration(
+          decoration:  InputDecoration(
             labelText: context.t.core.progress.weightDialog.currentWeight,
             suffixText: 'kg',
           ),

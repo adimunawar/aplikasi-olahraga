@@ -108,9 +108,9 @@
       "recordWeight": "Record weight"
     },
     "duration": {
-      "minutes": "$minutes min",
-      "hours": "$hoursh",
-      "hoursMinutes": "$hoursh $minutesm"
+      "minutes": "${minutes} min",
+      "hours": "${hours}h",
+      "hoursMinutes": "${hours}h ${minutes}m"
     },
     "weightDialog": {
       "title": "Record weight",

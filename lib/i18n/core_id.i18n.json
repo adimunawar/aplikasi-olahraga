@@ -108,9 +108,9 @@
       "recordWeight": "Catat berat badan"
     },
     "duration": {
-      "minutes": "$minutes mnt",
-      "hours": "$hoursj",
-      "hoursMinutes": "$hoursj $minutesmnt"
+      "minutes": "${minutes} mnt",
+      "hours": "${hours}j",
+      "hoursMinutes": "${hours}j ${minutes}mnt"
     },
     "weightDialog": {
       "title": "Catat berat badan",
