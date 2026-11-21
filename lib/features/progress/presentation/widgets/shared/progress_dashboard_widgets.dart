@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:material_ui/material_ui.dart';
+import '../../../../../i18n/strings.g.dart';
 
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
@@ -493,7 +494,9 @@ class HighlightsCard extends StatelessWidget {
     final rows = <(IconData, String)>[
       if (target > 0) (Icons.check_circle_outline_rounded, 'Completed $completed of $target workouts this week'),
       if (hasWeightData) (Icons.trending_up_rounded, 'Weight ${weightChange >= 0 ? 'increased' : 'decreased'} by ${weightChange.abs().toStringAsFixed(1)} kg'),
-      if (streak > 0) (Icons.emoji_events_outlined, '$streak consecutive active ${streak == 1 ? 'day' : 'days'}'),
+      if (streak > 0) (Icons.emoji_events_outlined, streak == 1
+            ? context.t.core.units.activeDaySingular(count: streak)
+            : context.t.core.units.activeDayPlural(count: streak)),
     ];
     if (rows.isEmpty) {
       return const ProgressEmptyState(
