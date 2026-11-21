@@ -176,11 +176,11 @@ jobs:
           retention-days: 7
 
   # --------------------------------------------------
-  # 3. WEB BUILD
-  # Ensures the SQLite WASM and worker assets are present.
+  # 3. WEB BUILD & DEPLOY
+  # Ensures SQLite WASM assets are present and deploys to Cloudflare Pages.
   # --------------------------------------------------
   build_web:
-    name: Build Flutter Web
+    name: Build & Deploy Flutter Web
     runs-on: ubuntu-latest
     timeout-minutes: 35
 
@@ -202,5 +202,13 @@ jobs:
       - name: Generate SQLite Web assets
         run: dart run sqflite_common_ffi_web:setup
 
-      - name: Build Flutter Web
-        run: flutter build web --release --no-pub
+      - name: Build Flutter Web (WASM)
+        run: flutter build web --wasm --release --no-pub
+
+      - name: Deploy to Cloudflare Pages
+        if: (github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch') && secrets.CLOUDFLARE_API_TOKEN != ''
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy build/web --project-name=workout-coach
