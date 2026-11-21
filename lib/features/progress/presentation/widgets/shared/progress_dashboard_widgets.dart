@@ -703,11 +703,6 @@ class _ProgressRevealState extends State<ProgressReveal>
     parent: _controller,
     curve: Curves.easeOutCubic,
   );
-  late final Animation<Offset> _offset = Tween<Offset>(
-    begin: const Offset(0, 0.045),
-    end: Offset.zero,
-  ).animate(_opacity);
-
   @override
   void initState() {
     super.initState();
@@ -727,7 +722,7 @@ class _ProgressRevealState extends State<ProgressReveal>
     if (MediaQuery.of(context).disableAnimations) return widget.child;
     return FadeTransition(
       opacity: _opacity,
-      child: SlideTransition(position: _offset, child: widget.child),
+      child: widget.child,
     );
   }
 }
