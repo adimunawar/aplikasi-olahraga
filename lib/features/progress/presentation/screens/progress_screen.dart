@@ -161,16 +161,25 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
   );
 
   Widget _tabContent(ProgressState state) {
-    switch (_selectedTab) {
-      case 1:
-        return _bodyTab(state);
-      case 2:
-        return _workoutTab(state);
-      case 3:
-        return _historyTab(state);
-      default:
-        return _overviewTab(state);
-    }
+    final content = switch (_selectedTab) {
+      1 => _bodyTab(state),
+      2 => _workoutTab(state),
+      3 => _historyTab(state),
+      _ => _overviewTab(state),
+    };
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 260),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      transitionBuilder: (child, animation) => FadeTransition(
+        opacity: animation,
+        child: SlideTransition(
+          position: Tween<Offset>(begin: const Offset(0, 0.025), end: Offset.zero).animate(animation),
+          child: child,
+        ),
+      ),
+      child: KeyedSubtree(key: ValueKey(_selectedTab), child: content),
+    );
   }
 
   Widget _overviewTab(ProgressState state) {
@@ -222,7 +231,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
               ),
               MetricCard(
                 icon: Icons.local_fire_department_outlined,
-                value: '${metrics.streakDays} days',
+                value: '${metrics.streakDays} ${metrics.streakDays == 1 ? 'day' : 'days'}',
                 label: 'Current Streak',
               ),
             ],
@@ -253,7 +262,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
           target: metrics.weeklyTarget,
           weightChange: state.weightChange,
           streak: metrics.streakDays,
-          hasWeightData: state.weightHistory.isNotEmpty,
+          hasWeightData: state.weightHistory.length >= 2 && state.weightChange.abs() >= 0.05,
         ),
         const SizedBox(height: 18),
         const KeepGoingCard(),
@@ -551,9 +560,10 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
   );
 
   String _duration(int minutes) {
-    final hours = minutes ~/ 60;
-    final remaining = minutes % 60;
-    if (hours == 0) return '${remaining}m';
+    final safeMinutes = minutes < 0 ? 0 : minutes;
+    final hours = safeMinutes ~/ 60;
+    final remaining = safeMinutes % 60;
+    if (hours == 0) return '$safeMinutes min';
     if (remaining == 0) return '${hours}h';
     return '${hours}h ${remaining}m';
   }
