@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_typography.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_typography.dart';
 
 /// Top Metrics Summary Card pada Halaman Progress (1:1 sesuai mockup):
 /// - 1 Kartu putih utuh tanpa garis pemisah vertikal

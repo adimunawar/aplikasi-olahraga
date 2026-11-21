@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_typography.dart';
-import '../../domain/models/movement_volume_data.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_typography.dart';
+import '../../../domain/models/movement_volume_data.dart';
 
 /// Card Visualisasi Volume Latihan Per Movement Pattern (Fase 5: Biomechanical Balance)
 /// Menampilkan distribusi Sets & Reps pada Push, Pull, Squat, Hinge, dan Core

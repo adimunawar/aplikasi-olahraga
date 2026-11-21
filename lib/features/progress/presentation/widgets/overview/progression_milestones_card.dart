@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_typography.dart';
-import '../../domain/models/progression_milestone.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_typography.dart';
+import '../../../domain/models/progression_milestone.dart';
 
 /// Card Pencapaian Tangga Gerakan & Riwayat Adaptasi Coach Adi (Fase 5)
 class ProgressionMilestonesCard extends StatelessWidget {

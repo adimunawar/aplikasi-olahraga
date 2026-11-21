@@ -1,10 +1,10 @@
 import 'package:material_ui/material_ui.dart';
 
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_typography.dart';
-import '../../application/progress_history_grouping.dart';
-import '../../domain/models/weight_record.dart';
-import '../../domain/models/workout_history_item.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_typography.dart';
+import '../../../application/progress_history_grouping.dart';
+import '../../../domain/models/weight_record.dart';
+import '../../../domain/models/workout_history_item.dart';
 
 class HistoryEntry {
   const HistoryEntry._({

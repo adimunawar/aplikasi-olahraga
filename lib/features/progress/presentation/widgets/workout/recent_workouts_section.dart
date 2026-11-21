@@ -1,8 +1,8 @@
 import 'package:material_ui/material_ui.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_typography.dart';
-import '../../../../core/widgets/core_widgets.dart';
-import '../../domain/models/workout_history_item.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_typography.dart';
+import '../../../../../core/widgets/core_widgets.dart';
+import '../../../domain/models/workout_history_item.dart';
 
 /// Section "Recent Workouts" pada Halaman Progress:
 /// - Header: "Recent Workouts" dengan tombol "See All" warna hijau lime

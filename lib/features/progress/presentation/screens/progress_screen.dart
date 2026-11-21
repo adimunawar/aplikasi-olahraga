@@ -8,8 +8,9 @@ import '../../../../core/theme/app_typography.dart';
 import '../../application/progress_history_grouping.dart';
 import '../controllers/progress_controller.dart';
 import '../controllers/progress_state.dart';
-import '../widgets/progress_dashboard_widgets.dart';
-import '../widgets/progress_history_widgets.dart';
+import '../widgets/shared/progress_dashboard_widgets.dart';
+import '../widgets/history/progress_history_widgets.dart';
+import '../widgets/workout/progress_workout_widgets.dart';
 
 class ProgressScreen extends ConsumerStatefulWidget {
   const ProgressScreen({super.key});
@@ -372,108 +373,60 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
               .round()
         : 0;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _heading(
-          'Workout Performance',
-          subtitle: 'Your training progress and consistency.',
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      _heading('Workout Performance', subtitle: 'Your training progress and consistency.'),
+      const SizedBox(height: 10),
+      if (state.metrics.workoutCount == 0)
+        const ProgressEmptyState(
+          icon: Icons.fitness_center_rounded,
+          title: 'No workout performance yet',
+          message: 'Your weekly activity and training volume will appear after you complete a workout.',
+        )
+      else ...[
+      if (state.hasActiveProgram)
+        ProgramCard(title: state.activeProgramTitle, week: state.activeProgramWeek, totalWeeks: state.activeProgramTotalWeeks, percent: state.activeProgramPercent)
+      else
+        const ProgressEmptyState(icon: Icons.flag_outlined, title: 'No active program', message: 'Choose a program to see its progress.', compact: true),
+      const SizedBox(height: 10),
+      Row(children: [
+        Expanded(child: WorkoutStatCard(icon: Icons.fitness_center_rounded, value: '${state.metrics.workoutCount}', label: 'Workouts')),
+        const SizedBox(width: 8),
+        Expanded(child: WorkoutStatCard(icon: Icons.check_circle_outline_rounded, value: '$completion%', label: 'Completion')),
+        const SizedBox(width: 8),
+        Expanded(child: WorkoutStatCard(icon: Icons.access_time_rounded, value: _duration(state.metrics.totalMinutes), label: 'Total Time')),
+      ]),
+      const SizedBox(height: 20),
+      _heading('Weekly Activity', trailing: Icons.info_outline),
+      const SizedBox(height: 10),
+      if (weeklyMinutes > 0)
+        WeeklyActivityCard(days: state.weeklyActivity, maxMinutes: maxMinutes)
+      else
+        const ProgressEmptyState(
+          icon: Icons.calendar_today_outlined,
+          title: 'No activity this week',
+          message: 'Completed workout time will be summarized here.',
+          compact: true,
         ),
-        const SizedBox(height: 10),
-        if (state.metrics.workoutCount == 0)
-          const ProgressEmptyState(
-            icon: Icons.fitness_center_rounded,
-            title: 'No workout performance yet',
-            message: 'Your weekly activity and training volume will appear after you complete a workout.',
-          )
-        else ...[
-          if (state.hasActiveProgram)
-            ProgramCard(
-              title: state.activeProgramTitle,
-              week: state.activeProgramWeek,
-              totalWeeks: state.activeProgramTotalWeeks,
-              percent: state.activeProgramPercent,
-            )
-          else
-            const ProgressEmptyState(
-              icon: Icons.flag_outlined,
-              title: 'No active program',
-              message: 'Choose a program to see its progress.',
-              compact: true,
-            ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: _WorkoutStatCard(
-                  icon: Icons.fitness_center_rounded,
-                  value: '${state.metrics.workoutCount}',
-                  label: 'Workouts',
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _WorkoutStatCard(
-                  icon: Icons.check_circle_outline_rounded,
-                  value: '$completion%',
-                  label: 'Completion',
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _WorkoutStatCard(
-                  icon: Icons.access_time_rounded,
-                  value: _duration(state.metrics.totalMinutes),
-                  label: 'Total Time',
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          _heading('Weekly Activity', trailing: Icons.info_outline),
-          const SizedBox(height: 10),
-          if (weeklyMinutes > 0)
-            _WeeklyActivityCard(
-              days: state.weeklyActivity,
-              maxMinutes: maxMinutes,
-            )
-          else
-            const ProgressEmptyState(
-              icon: Icons.calendar_today_outlined,
-              title: 'No activity this week',
-              message: 'Completed workout time will be summarized here.',
-              compact: true,
-            ),
-          const SizedBox(height: 20),
-          _heading('Training Volume', trailing: Icons.info_outline),
-          const SizedBox(height: 10),
-          if (totalSets > 0)
-            _TrainingVolumeCard(
-              totalSets: totalSets,
-              totalReps: totalReps,
-              activePatterns: state.movementVolume.length,
-            )
-          else
-            const ProgressEmptyState(
-              icon: Icons.bar_chart_rounded,
-              title: 'No training volume yet',
-              message: 'Set and rep totals will appear after you log completed sets.',
-              compact: true,
-            ),
-          const SizedBox(height: 20),
-          _heading('Recent Workouts'),
-          const SizedBox(height: 10),
-          RecentWorkoutsCard(workouts: state.recentWorkouts),
-          const SizedBox(height: 4),
-          Text(
-            '$weeklyMinutes training minutes this week',
-            style: AppTypography.labelSmall.copyWith(
-              color: AppColors.neutral500,
-            ),
-          ),
-        ],
+      const SizedBox(height: 20),
+      _heading('Training Volume', trailing: Icons.info_outline),
+      const SizedBox(height: 10),
+      if (totalSets > 0)
+        TrainingVolumeCard(totalSets: totalSets, totalReps: totalReps, activePatterns: state.movementVolume.length)
+      else
+        const ProgressEmptyState(
+          icon: Icons.bar_chart_rounded,
+          title: 'No training volume yet',
+          message: 'Set and rep totals will appear after you log completed sets.',
+          compact: true,
+        ),
+      const SizedBox(height: 20),
+      _heading('Recent Workouts'),
+      const SizedBox(height: 10),
+      RecentWorkoutsCard(workouts: state.recentWorkouts),
+      const SizedBox(height: 4),
+      Text('$weeklyMinutes training minutes this week', style: AppTypography.labelSmall.copyWith(color: AppColors.neutral500)),
       ],
-    );
+    ]);
   }
 
   Widget _historyTab(ProgressState state) {

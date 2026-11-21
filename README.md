@@ -53,7 +53,9 @@ The flow describes intended dependency boundaries. Some legacy screens still con
 - SQLite is the local persistence baseline for personal profile, workout, and progress data.
 - Personal cloud synchronization requires a non-anonymous Supabase Auth session and explicit Cloud Sync consent for that account.
 - Exercise videos are referenced by URL; large media files are not intended to be bundled into the application.
-- The web database fallback is in-memory and is not equivalent to durable SQLite persistence.
+- Flutter Web uses SQLite compiled to WebAssembly with persistent browser storage in IndexedDB through `sqflite_common_ffi_web`; native platforms use the `sqflite` plugin.
+
+For Web setup, local development, generated WASM/worker assets, and platform limitations, see [Flutter Web Local Database](docs/WEB_DATABASE.md).
 
 See [Data and synchronization](docs/DATA_AND_SYNC.md) and [Security](SECURITY.md).
 

@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_typography.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_typography.dart';
 
 /// Card Ringkasan BMI pada Halaman Progress (1:1 sesuai mockup):
 /// - Header: Icon squircle lime dengan lambang hati, judul "BMI", chevron '>'

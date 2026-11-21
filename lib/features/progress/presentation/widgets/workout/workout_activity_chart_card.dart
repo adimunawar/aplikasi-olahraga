@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_typography.dart';
-import '../../domain/models/day_activity.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_typography.dart';
+import '../../../domain/models/day_activity.dart';
 
 /// Card Grafik Aktivitas Latihan (Workout Activity) pada Halaman Progress:
 /// - Header: "Workout Activity" dengan filter segmented [Week, Month, All]

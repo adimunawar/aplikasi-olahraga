@@ -2,10 +2,10 @@ import 'dart:math' as math;
 
 import 'package:material_ui/material_ui.dart';
 
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_typography.dart';
-import '../../application/weight_chart_series.dart';
-import '../../domain/models/workout_history_item.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_typography.dart';
+import '../../../application/weight_chart_series.dart';
+import '../../../domain/models/workout_history_item.dart';
 
 class WeightTrendCard extends StatelessWidget {
   const WeightTrendCard({
