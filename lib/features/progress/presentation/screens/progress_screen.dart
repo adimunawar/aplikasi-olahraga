@@ -8,6 +8,7 @@ import '../controllers/progress_controller.dart';
 import '../controllers/progress_state.dart';
 import '../widgets/progress_dashboard_widgets.dart';
 import '../widgets/progress_history_widgets.dart';
+import '../widgets/progress_workout_widgets.dart';
 
 class ProgressScreen extends ConsumerStatefulWidget {
   const ProgressScreen({super.key});
@@ -258,17 +259,17 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
         const ProgressEmptyState(icon: Icons.flag_outlined, title: 'No active program', message: 'Choose a program to see its progress.', compact: true),
       const SizedBox(height: 10),
       Row(children: [
-        Expanded(child: _WorkoutStatCard(icon: Icons.fitness_center_rounded, value: '${state.metrics.workoutCount}', label: 'Workouts')),
+        Expanded(child: WorkoutStatCard(icon: Icons.fitness_center_rounded, value: '${state.metrics.workoutCount}', label: 'Workouts')),
         const SizedBox(width: 8),
-        Expanded(child: _WorkoutStatCard(icon: Icons.check_circle_outline_rounded, value: '$completion%', label: 'Completion')),
+        Expanded(child: WorkoutStatCard(icon: Icons.check_circle_outline_rounded, value: '$completion%', label: 'Completion')),
         const SizedBox(width: 8),
-        Expanded(child: _WorkoutStatCard(icon: Icons.access_time_rounded, value: _duration(state.metrics.totalMinutes), label: 'Total Time')),
+        Expanded(child: WorkoutStatCard(icon: Icons.access_time_rounded, value: _duration(state.metrics.totalMinutes), label: 'Total Time')),
       ]),
       const SizedBox(height: 20),
       _heading('Weekly Activity', trailing: Icons.info_outline),
       const SizedBox(height: 10),
       if (weeklyMinutes > 0)
-        _WeeklyActivityCard(days: state.weeklyActivity, maxMinutes: maxMinutes)
+        WeeklyActivityCard(days: state.weeklyActivity, maxMinutes: maxMinutes)
       else
         const ProgressEmptyState(
           icon: Icons.calendar_today_outlined,
@@ -280,7 +281,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
       _heading('Training Volume', trailing: Icons.info_outline),
       const SizedBox(height: 10),
       if (totalSets > 0)
-        _TrainingVolumeCard(totalSets: totalSets, totalReps: totalReps, activePatterns: state.movementVolume.length)
+        TrainingVolumeCard(totalSets: totalSets, totalReps: totalReps, activePatterns: state.movementVolume.length)
       else
         const ProgressEmptyState(
           icon: Icons.bar_chart_rounded,
@@ -387,254 +388,5 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
     );
     controller.dispose();
     if (value != null) await ref.read(progressControllerProvider.notifier).recordWeight(value);
-  }
-}
-
-
-class _WorkoutStatCard extends StatelessWidget {
-  const _WorkoutStatCard({
-    required this.icon,
-    required this.value,
-    required this.label,
-  });
-
-  final IconData icon;
-  final String value;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      constraints: const BoxConstraints(minHeight: 76),
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 11),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.neutral200, width: 0.8),
-        boxShadow: AppColors.cardShadow,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 17, color: AppColors.greenDark),
-          const SizedBox(height: 7),
-          Text(
-            value,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppTypography.titleMedium.copyWith(
-              color: AppColors.darkCharcoal,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppTypography.labelSmall.copyWith(
-              color: AppColors.neutral500,
-              fontSize: 9,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-
-class _WeeklyActivityCard extends StatelessWidget {
-  const _WeeklyActivityCard({
-    required this.days,
-    required this.maxMinutes,
-  });
-
-  final List<DayActivity> days;
-  final int maxMinutes;
-
-  @override
-  Widget build(BuildContext context) {
-    final safeMaxMinutes = maxMinutes > 0 ? maxMinutes : 1;
-
-    return Container(
-      padding: const EdgeInsets.fromLTRB(14, 16, 14, 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: AppColors.neutral200, width: 0.8),
-        boxShadow: AppColors.cardShadow,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Minutes per day',
-                style: AppTypography.labelMedium.copyWith(
-                  color: AppColors.darkCharcoal,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Text(
-                '${days.fold<int>(0, (sum, day) => sum + day.minutes)} min total',
-                style: AppTypography.labelSmall.copyWith(
-                  color: AppColors.neutral500,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 18),
-          SizedBox(
-            height: 112,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: days.map((day) {
-                final minutes = day.minutes > 0 ? day.minutes : 0;
-                final barHeight = minutes == 0
-                    ? 4.0
-                    : (minutes / safeMaxMinutes * 76).clamp(4.0, 76.0);
-                return Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 3),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          minutes == 0 ? '-' : '$minutes',
-                          style: AppTypography.labelSmall.copyWith(
-                            color: AppColors.neutral500,
-                            fontSize: 9,
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        Container(
-                          height: barHeight,
-                          decoration: BoxDecoration(
-                            color: minutes > 0
-                                ? AppColors.limeAccent
-                                : AppColors.neutral200,
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                        ),
-                        const SizedBox(height: 7),
-                        Text(
-                          day.day,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTypography.labelSmall.copyWith(
-                            color: AppColors.neutral600,
-                            fontSize: 9,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-
-class _TrainingVolumeCard extends StatelessWidget {
-  const _TrainingVolumeCard({
-    required this.totalSets,
-    required this.totalReps,
-    required this.activePatterns,
-  });
-
-  final int totalSets;
-  final int totalReps;
-  final int activePatterns;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: AppColors.neutral200, width: 0.8),
-        boxShadow: AppColors.cardShadow,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: _VolumeMetric(
-              value: '$totalSets',
-              label: 'Total Sets',
-              icon: Icons.repeat_rounded,
-            ),
-          ),
-          Container(width: 1, height: 42, color: AppColors.neutral200),
-          Expanded(
-            child: _VolumeMetric(
-              value: '$totalReps',
-              label: 'Total Reps',
-              icon: Icons.fitness_center_rounded,
-            ),
-          ),
-          Container(width: 1, height: 42, color: AppColors.neutral200),
-          Expanded(
-            child: _VolumeMetric(
-              value: '$activePatterns',
-              label: 'Movement Types',
-              icon: Icons.category_outlined,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _VolumeMetric extends StatelessWidget {
-  const _VolumeMetric({
-    required this.value,
-    required this.label,
-    required this.icon,
-  });
-
-  final String value;
-  final String label;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 17, color: AppColors.greenDark),
-        const SizedBox(height: 6),
-        Text(
-          value,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: AppTypography.titleMedium.copyWith(
-            color: AppColors.darkCharcoal,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: AppTypography.labelSmall.copyWith(
-            color: AppColors.neutral500,
-            fontSize: 9,
-          ),
-        ),
-      ],
-    );
   }
 }
