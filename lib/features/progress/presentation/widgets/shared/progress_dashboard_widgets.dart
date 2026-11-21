@@ -950,7 +950,7 @@ class _ProgressRevealState extends State<ProgressReveal>
     if (MediaQuery.of(context).disableAnimations) return widget.child;
     return FadeTransition(
       opacity: _opacity,
-      child: SlideTransition(position: _offset, child: widget.child),
+      child: widget.child,
     );
   }
 }

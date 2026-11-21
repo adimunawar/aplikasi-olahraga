@@ -170,6 +170,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
       3 => _historyTab(state),
       _ => _overviewTab(state),
     };
+
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 200),
       switchInCurve: Curves.easeOut,
