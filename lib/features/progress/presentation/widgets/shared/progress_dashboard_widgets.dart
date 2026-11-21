@@ -216,13 +216,24 @@ class MetricCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   @override
-  Widget build(BuildContext context) => Material(
-    color: Colors.white,
-    borderRadius: BorderRadius.circular(17),
-    child: InkWell(
-      onTap: onTap,
+  Widget build(BuildContext context) => TweenAnimationBuilder<double>(
+    tween: Tween(begin: 0.92, end: 1),
+    duration: const Duration(milliseconds: 420),
+    curve: Curves.easeOutCubic,
+    builder: (context, scale, child) => Opacity(
+      opacity: ((scale - 0.92) / 0.08).clamp(0.0, 1.0),
+      child: Transform.translate(
+        offset: Offset(0, (1 - scale) * 28),
+        child: Transform.scale(scale: scale, child: child),
+      ),
+    ),
+    child: Material(
+      color: Colors.white,
       borderRadius: BorderRadius.circular(17),
-      child: Container(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(17),
+        child: Container(
         width: fullWidth ? double.infinity : null,
         constraints: const BoxConstraints(minHeight: 88),
         padding: const EdgeInsets.all(13),
@@ -273,6 +284,7 @@ class MetricCard extends StatelessWidget {
           ],
         ),
       ),
+    ),
     ),
   );
 }
@@ -395,11 +407,16 @@ class ProgramCard extends StatelessWidget {
           const SizedBox(height: 7),
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
-            child: LinearProgressIndicator(
-              value: safePercent / 100,
-              minHeight: 7,
-              backgroundColor: AppColors.neutral100,
-              valueColor: const AlwaysStoppedAnimation(AppColors.limeAccent),
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: safePercent / 100),
+              duration: const Duration(milliseconds: 850),
+              curve: Curves.easeOutCubic,
+              builder: (context, value, _) => LinearProgressIndicator(
+                value: value,
+                minHeight: 7,
+                backgroundColor: AppColors.neutral100,
+                valueColor: const AlwaysStoppedAnimation(AppColors.limeAccent),
+              ),
             ),
           ),
         ],
@@ -490,7 +507,15 @@ class HighlightsCard extends StatelessWidget {
       decoration: _cardDecoration(),
       child: Column(children: List.generate(rows.length, (index) {
         final row = rows[index];
-        return Column(children: [
+        return TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0, end: 1),
+          duration: Duration(milliseconds: 300 + (index * 100)),
+          curve: Curves.easeOutCubic,
+          builder: (context, value, child) => Opacity(
+            opacity: value,
+            child: Transform.translate(offset: Offset((1 - value) * 12, 0), child: child),
+          ),
+          child: Column(children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
             child: Row(children: [
@@ -501,7 +526,8 @@ class HighlightsCard extends StatelessWidget {
             ]),
           ),
           if (index != rows.length - 1) const Divider(height: 1, color: AppColors.neutral200),
-        ]);
+        ]),
+        );
       })),
     );
   }
