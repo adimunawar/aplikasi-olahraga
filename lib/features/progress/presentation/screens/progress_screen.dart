@@ -27,7 +27,12 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
   String _bodyMetric = 'Weight';
   String _historyFilter = 'All';
   bool _historyNewestFirst = true;
-  static const _tabs = ['Overview', 'Body', 'Workout', 'History'];
+  List<String> get _tabs => [
+    context.t.core.progress.tabs.overview,
+    context.t.core.progress.tabs.body,
+    context.t.core.progress.tabs.workout,
+    context.t.core.progress.tabs.history,
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +81,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
     children: [
       Expanded(
         child: Text(
-          'Progress',
+          context.t.core.progress.title,
           style: AppTypography.headlineLarge.copyWith(
             fontSize: 26,
             fontWeight: FontWeight.w700,
@@ -89,9 +94,9 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
         initialValue: _bodyRangeWeeks,
         onSelected: (value) => setState(() => _bodyRangeWeeks = value),
         itemBuilder: (context) => const [
-          PopupMenuItem(value: 4, child: Text('Last 4 Weeks')),
-          PopupMenuItem(value: 8, child: Text('Last 8 Weeks')),
-          PopupMenuItem(value: 12, child: Text('Last 12 Weeks')),
+          PopupMenuItem(value: 4, child: Text(context.t.core.progress.rangeWeeks(weeks: 4))),
+          PopupMenuItem(value: 8, child: Text(context.t.core.progress.rangeWeeks(weeks: 8))),
+          PopupMenuItem(value: 12, child: Text(context.t.core.progress.rangeWeeks(weeks: 12))),
         ],
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
@@ -110,7 +115,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
               ),
               const SizedBox(width: 7),
               Text(
-                'Last $_bodyRangeWeeks Weeks',
+                context.t.core.progress.rangeWeeks(weeks: _bodyRangeWeeks),
                 style: AppTypography.labelSmall.copyWith(
                   color: AppColors.darkCharcoal,
                   fontWeight: FontWeight.w600,
@@ -202,15 +207,15 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _heading(
-          'Your Progress',
-          subtitle: 'A quick summary of your training and body progress.',
+          context.t.core.progress.overviewTitle,
+          subtitle: context.t.core.progress.overviewSubtitle,
         ),
         const SizedBox(height: 13),
         if (metrics.workoutCount == 0)
           const ProgressEmptyState(
             icon: Icons.fitness_center_rounded,
-            title: 'No workout data yet',
-            message: 'Complete your first workout to see your training progress here.',
+            title: context.t.core.progress.noWorkoutData.title,
+            message: context.t.core.progress.noWorkoutData.message,
           )
         else
           GridView.count(
@@ -225,21 +230,21 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
                 child: MetricCard(
                   icon: Icons.fitness_center_rounded,
                   value: '${metrics.workoutCount}',
-                  label: 'Workouts',
+                  label: context.t.core.progress.metrics.workouts,
                 ),
               ),
               ProgressReveal(
                 child: MetricCard(
                   icon: Icons.check_circle_outline_rounded,
                   value: '$completion%',
-                  label: 'Completion',
+                  label: context.t.core.progress.metrics.completion,
                 ),
               ),
               ProgressReveal(
                 child: MetricCard(
                   icon: Icons.access_time_rounded,
                   value: _duration(metrics.totalMinutes),
-                  label: 'Training Time',
+                  label: context.t.core.progress.metrics.trainingTime,
                 ),
               ),
               ProgressReveal(
@@ -252,13 +257,13 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
                       : context.t.core.streak.dayPlural(
                           count: metrics.streakDays,
                         ),
-                  label: 'Current Streak',
+                  label: context.t.core.progress.metrics.currentStreak,
                 ),
               ),
             ],
           ),
         const SizedBox(height: 22),
-        _heading('Program Progress'),
+        _heading(context.t.core.progress.programProgress),
         const SizedBox(height: 11),
         if (state.hasActiveProgram)
           ProgressReveal(
@@ -272,12 +277,12 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
         else
           const ProgressEmptyState(
             icon: Icons.flag_outlined,
-            title: 'No active program',
-            message: 'Choose a training program to track your weekly progress.',
+            title: context.t.core.progress.noActiveProgram.title,
+            message: context.t.core.progress.noActiveProgram.message,
             compact: true,
           ),
         const SizedBox(height: 22),
-        _heading('Recent Highlights', trailing: Icons.info_outline),
+        _heading(context.t.core.progress.recentHighlights, trailing: Icons.info_outline),
         const SizedBox(height: 11),
         ProgressReveal(
           child: HighlightsCard(
@@ -308,8 +313,8 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _heading(
-          'Body Progress',
-          subtitle: 'Track changes in your body over time.',
+          context.t.core.progress.body.title,
+          subtitle: context.t.core.progress.body.subtitle,
         ),
         const SizedBox(height: 10),
         _bodyMetricSelector(),
@@ -341,7 +346,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
               onPressed: () =>
                   _recordWeight(hasWeightData ? state.currentWeight : null),
               icon: const Icon(Icons.add_rounded, size: 18),
-              label: const Text('Log Measurement'),
+              label: Text(context.t.core.progress.body.logMeasurement),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.limeAccent,
                 foregroundColor: AppColors.darkCharcoal,
@@ -418,15 +423,15 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _heading(
-          'Workout Performance',
-          subtitle: 'Your training progress and consistency.',
+          context.t.core.progress.workout.title,
+          subtitle: context.t.core.progress.workout.subtitle,
         ),
         const SizedBox(height: 10),
         if (state.metrics.workoutCount == 0)
           const ProgressEmptyState(
             icon: Icons.fitness_center_rounded,
-            title: 'No workout performance yet',
-            message: 'Your weekly activity and training volume will appear after you complete a workout.',
+            title: context.t.core.progress.workout.noPerformance.title,
+            message: context.t.core.progress.workout.noPerformance.message,
           )
         else ...[
           if (state.hasActiveProgram)
@@ -450,7 +455,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
                 child: WorkoutStatCard(
                   icon: Icons.fitness_center_rounded,
                   value: '${state.metrics.workoutCount}',
-                  label: 'Workouts',
+                  label: context.t.core.progress.metrics.workouts,
                 ),
               ),
               const SizedBox(width: 8),
@@ -458,7 +463,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
                 child: WorkoutStatCard(
                   icon: Icons.check_circle_outline_rounded,
                   value: '$completion%',
-                  label: 'Completion',
+                  label: context.t.core.progress.metrics.completion,
                 ),
               ),
               const SizedBox(width: 8),
@@ -466,13 +471,13 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
                 child: WorkoutStatCard(
                   icon: Icons.access_time_rounded,
                   value: _duration(state.metrics.totalMinutes),
-                  label: 'Total Time',
+                  label: context.t.core.progress.workout.totalTime,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 20),
-          _heading('Weekly Activity', trailing: Icons.info_outline),
+          _heading(context.t.core.progress.workout.weeklyActivity, trailing: Icons.info_outline),
           const SizedBox(height: 10),
           if (weeklyMinutes > 0)
             ProgressReveal(
@@ -484,12 +489,12 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
           else
             const ProgressEmptyState(
               icon: Icons.calendar_today_outlined,
-              title: 'No activity this week',
-              message: 'Completed workout time will be summarized here.',
+              title: context.t.core.progress.workout.noActivity.title,
+              message: context.t.core.progress.workout.noActivity.message,
               compact: true,
             ),
           const SizedBox(height: 20),
-          _heading('Training Volume', trailing: Icons.info_outline),
+          _heading(context.t.core.progress.workout.trainingVolume, trailing: Icons.info_outline),
           const SizedBox(height: 10),
           if (totalSets > 0)
             ProgressReveal(
@@ -502,19 +507,19 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
           else
             const ProgressEmptyState(
               icon: Icons.bar_chart_rounded,
-              title: 'No training volume yet',
-              message: 'Set and rep totals will appear after you log completed sets.',
+              title: context.t.core.progress.workout.noVolume.title,
+              message: context.t.core.progress.workout.noVolume.message,
               compact: true,
             ),
           const SizedBox(height: 20),
-          _heading('Recent Workouts'),
+          _heading(context.t.core.progress.workout.recentWorkouts),
           const SizedBox(height: 10),
           ProgressReveal(
             child: RecentWorkoutsCard(workouts: state.recentWorkouts),
           ),
           const SizedBox(height: 4),
           Text(
-            '$weeklyMinutes training minutes this week',
+            context.t.core.progress.workout.trainingMinutesThisWeek(minutes: weeklyMinutes),
             style: AppTypography.labelSmall.copyWith(
               color: AppColors.neutral500,
             ),
@@ -551,27 +556,29 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
         Row(
           children: [
             HistoryFilterChip(
-              label: 'All',
+              label: context.t.core.progress.history.all,
               selected: _historyFilter == 'All',
               onTap: () => setState(() => _historyFilter = 'All'),
             ),
             const SizedBox(width: 6),
             HistoryFilterChip(
-              label: 'Workout',
+              label: context.t.core.progress.history.workout,
               icon: Icons.fitness_center_rounded,
               selected: _historyFilter == 'Workout',
               onTap: () => setState(() => _historyFilter = 'Workout'),
             ),
             const SizedBox(width: 6),
             HistoryFilterChip(
-              label: 'Measurement',
+              label: context.t.core.progress.history.measurement,
               icon: Icons.monitor_weight_outlined,
               selected: _historyFilter == 'Measurement',
               onTap: () => setState(() => _historyFilter = 'Measurement'),
             ),
             const Spacer(),
             IconButton(
-              tooltip: _historyNewestFirst ? 'Oldest first' : 'Newest first',
+              tooltip: _historyNewestFirst
+                  ? context.t.core.progress.history.oldestFirst
+                  : context.t.core.progress.history.newestFirst,
               onPressed: () =>
                   setState(() => _historyNewestFirst = !_historyNewestFirst),
               icon: const Icon(Icons.swap_vert_rounded, size: 20),
@@ -613,6 +620,13 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
     );
   }
 
+  String _bodyMetricLabel(String metric) => switch (metric) {
+    'Weight' => context.t.core.progress.body.weight,
+    'Muscle Mass' => context.t.core.progress.body.muscleMass,
+    'Body Fat' => context.t.core.progress.body.bodyFat,
+    _ => metric,
+  };
+
   String _historyGroup(DateTime date) =>
       const ProgressHistoryGrouping().groupFor(date, now: DateTime.now());
 
@@ -652,9 +666,16 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
     final safeMinutes = minutes < 0 ? 0 : minutes;
     final hours = safeMinutes ~/ 60;
     final remaining = safeMinutes % 60;
-    if (hours == 0) return '$safeMinutes min';
-    if (remaining == 0) return '${hours}h';
-    return '${hours}h ${remaining}m';
+    if (hours == 0) {
+      return context.t.core.progress.duration.minutes(minutes: safeMinutes);
+    }
+    if (remaining == 0) {
+      return context.t.core.progress.duration.hours(hours: hours);
+    }
+    return context.t.core.progress.duration.hoursMinutes(
+      hours: hours,
+      minutes: remaining,
+    );
   }
 
   Future<void> _recordWeight(double? initialWeight) async {
@@ -664,20 +685,20 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
     final value = await showDialog<double>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Record weight'),
+        title: Text(context.t.core.progress.weightDialog.title),
         content: TextField(
           controller: controller,
           autofocus: true,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           decoration: const InputDecoration(
-            labelText: 'Current weight',
+            labelText: context.t.core.progress.weightDialog.currentWeight,
             suffixText: 'kg',
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+            child: Text(context.t.core.progress.weightDialog.cancel),
           ),
           FilledButton(
             onPressed: () {
@@ -686,7 +707,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
                 Navigator.pop(dialogContext, parsed);
               }
             },
-            child: const Text('Save'),
+            child: Text(context.t.core.progress.weightDialog.save),
           ),
         ],
       ),
