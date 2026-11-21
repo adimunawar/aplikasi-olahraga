@@ -52,7 +52,7 @@ class ProgressController extends StateNotifier<ProgressState> {
     required this._bmiCalculator,
     required this._weightAnalytics,
     required this._userDatasource,
-    required this._programsRepo,
+    required AppDatabase database,
   })  : _database = database,
         super(const ProgressState()) {
     loadProgress();
