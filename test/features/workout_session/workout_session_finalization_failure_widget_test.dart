@@ -182,7 +182,7 @@ class _StubProgressController extends ProgressController {
         bmiCalculator: const BmiCalculatorService(),
         weightAnalytics: const WeightAnalyticsService(),
         userDatasource: const UserSupabaseDatasource(),
-        programsRepo: ProgramsRepositoryImpl(database: AppDatabase.instance),
+        database: AppDatabase.instance,
       );
 
   @override

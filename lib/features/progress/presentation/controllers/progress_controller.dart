@@ -1,8 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../profile/data/datasources/user_supabase_datasource.dart';
-import '../../../program/data/repositories/programs_repository_impl.dart';
-import '../../../program/domain/repositories/programs_repository.dart';
 import '../../application/bmi_calculator_service.dart';
 import '../../application/weight_analytics_service.dart';
 import '../../data/datasources/progress_supabase_datasource.dart';
@@ -30,10 +28,6 @@ final userProfileDatasourceProvider = Provider<UserSupabaseDatasource>((ref) {
   return const UserSupabaseDatasource();
 });
 
-final programsRepositoryProvider = Provider<ProgramsRepository>((ref) {
-  return ProgramsRepositoryImpl(database: AppDatabase.instance);
-});
-
 final progressControllerProvider =
     StateNotifierProvider<ProgressController, ProgressState>((ref) {
   return ProgressController(
@@ -41,7 +35,7 @@ final progressControllerProvider =
     bmiCalculator: ref.watch(bmiCalculatorServiceProvider),
     weightAnalytics: ref.watch(weightAnalyticsServiceProvider),
     userDatasource: ref.watch(userProfileDatasourceProvider),
-    programsRepo: ref.watch(programsRepositoryProvider),
+    database: AppDatabase.instance,
   );
 });
 
@@ -51,14 +45,14 @@ class ProgressController extends StateNotifier<ProgressState> {
   final BmiCalculatorService _bmiCalculator;
   final WeightAnalyticsService _weightAnalytics;
   final UserSupabaseDatasource _userDatasource;
-  final ProgramsRepository _programsRepo;
+  final AppDatabase _database;
 
   ProgressController({
     required this._repository,
     required this._bmiCalculator,
     required this._weightAnalytics,
     required this._userDatasource,
-    required this._programsRepo,
+    required this._database,
   })  : super(const ProgressState()) {
     loadProgress();
   }
@@ -96,24 +90,35 @@ class ProgressController extends StateNotifier<ProgressState> {
       final movementVol = await _repository.getMovementVolume();
       final milestones = await _repository.getProgressionMilestones();
 
-      // 6. Ambil status program aktif
-      final hasActiveProgram = await _programsRepo.hasActiveProgram();
-      final activeProgram = hasActiveProgram
-          ? await _programsRepo.getActiveProgram()
-          : null;
-      String programTitle = activeProgram == null
-          ? ''
-          : (activeProgram.title.en.isNotEmpty
-              ? activeProgram.title.en
-              : activeProgram.title.id);
-      if (activeProgram != null && programTitle.trim().isEmpty) {
-        programTitle = activeProgram.id
-            .replaceAll('_', ' ')
-            .split(' ')
-            .map((w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '')
-            .join(' ');
-      }
-      
+      // 6. Ambil program hasil generator dari local-first database.
+      // Program onboarding disimpan ke training_programs, bukan user_programs.
+      final localProfile = await _database.getUserProfile();
+      final userId = localProfile.id.isNotEmpty ? localProfile.id : 'default_user';
+      var activeProgram = await _database.getActiveTrainingProgram(userId);
+      activeProgram ??= await _database.getActiveTrainingProgram('default_user');
+
+      final hasActiveProgram = activeProgram != null;
+      final programTitle = activeProgram?.name ?? '';
+      final totalProgramWeeks = activeProgram?.durationWeeks ?? 0;
+      final elapsedDays = activeProgram == null
+          ? 0
+          : DateTime.now()
+                .difference(DateTime(
+                  activeProgram.startDate.year,
+                  activeProgram.startDate.month,
+                  activeProgram.startDate.day,
+                ))
+                .inDays;
+      final activeProgramWeek = activeProgram == null
+          ? 0
+          : ((elapsedDays < 0 ? 0 : elapsedDays) ~/ 7) + 1;
+      final clampedProgramWeek = totalProgramWeeks > 0
+          ? activeProgramWeek.clamp(1, totalProgramWeeks).toInt()
+          : activeProgramWeek;
+      final activeProgramPercent = totalProgramWeeks > 0
+          ? ((clampedProgramWeek / totalProgramWeeks) * 100).round()
+          : 0;
+
 
       state = state.copyWith(
         metrics: metrics,
@@ -131,9 +136,9 @@ class ProgressController extends StateNotifier<ProgressState> {
         milestones: milestones,
         activeProgramTitle: programTitle,
         hasActiveProgram: hasActiveProgram,
-        activeProgramWeek: 0,
-        activeProgramTotalWeeks: activeProgram?.totalWeeks ?? 0,
-        activeProgramPercent: 0,
+        activeProgramWeek: clampedProgramWeek,
+        activeProgramTotalWeeks: totalProgramWeeks,
+        activeProgramPercent: activeProgramPercent,
         isLoading: false,
       );
     } catch (e) {
