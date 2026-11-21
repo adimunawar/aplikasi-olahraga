@@ -200,7 +200,15 @@ class MetricNotTrackedCard extends StatelessWidget {
 }
 
 class MetricCard extends StatelessWidget {
-  const MetricCard({super.key, required this.icon, required this.value, required this.label, this.fullWidth = false, this.onTap});
+  const MetricCard({
+    super.key,
+    required this.icon,
+    required this.value,
+    required this.label,
+    this.fullWidth = false,
+    this.onTap,
+  });
+
   final IconData icon;
   final String value;
   final String label;
@@ -209,30 +217,75 @@ class MetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Material(
-    color: Colors.white, borderRadius: BorderRadius.circular(15),
+    color: Colors.white,
+    borderRadius: BorderRadius.circular(17),
     child: InkWell(
-      onTap: onTap, borderRadius: BorderRadius.circular(15),
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(17),
       child: Container(
         width: fullWidth ? double.infinity : null,
-        constraints: const BoxConstraints(minHeight: 66),
-        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
-        decoration: _cardDecoration(),
-        child: Row(children: [
-          Container(width: 36, height: 36, decoration: const BoxDecoration(color: AppColors.limeSurface, shape: BoxShape.circle), child: Icon(icon, size: 17, color: AppColors.greenDark)),
-          const SizedBox(width: 10),
-          Expanded(child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(value, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.titleLarge.copyWith(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.darkCharcoal)),
-            const SizedBox(height: 2),
-            Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.labelSmall.copyWith(fontSize: 10, color: AppColors.neutral500)),
-          ])),
-        ]),
+        constraints: const BoxConstraints(minHeight: 88),
+        padding: const EdgeInsets.all(13),
+        decoration: _cardDecoration().copyWith(
+          borderRadius: BorderRadius.circular(17),
+          boxShadow: AppColors.cardShadow,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 39,
+              height: 39,
+              decoration: const BoxDecoration(
+                color: AppColors.limeSurface,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, size: 19, color: AppColors.greenDark),
+            ),
+            const SizedBox(width: 11),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    value,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.titleLarge.copyWith(
+                      fontSize: 19,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.darkCharcoal,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.labelSmall.copyWith(
+                      fontSize: 10,
+                      color: AppColors.neutral500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     ),
   );
 }
 
 class ProgramCard extends StatelessWidget {
-  const ProgramCard({super.key, required this.title, required this.week, required this.totalWeeks, required this.percent});
+  const ProgramCard({
+    super.key,
+    required this.title,
+    required this.week,
+    required this.totalWeeks,
+    required this.percent,
+  });
+
   final String title;
   final int week;
   final int totalWeeks;
@@ -241,27 +294,173 @@ class ProgramCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final safePercent = percent.clamp(0, 100);
+    final safeTotalWeeks = totalWeeks > 0 ? totalWeeks : 1;
+    final safeWeek = week.clamp(1, safeTotalWeeks);
+
     return Container(
-      padding: const EdgeInsets.all(13), decoration: _cardDecoration(),
-      child: Row(children: [
-        Container(width: 37, height: 37, decoration: const BoxDecoration(color: AppColors.limeSurface, shape: BoxShape.circle), child: const Icon(Icons.fitness_center_rounded, size: 18, color: AppColors.greenDark)),
-        const SizedBox(width: 12),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
-            Flexible(child: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.titleSmall.copyWith(fontWeight: FontWeight.w700, color: AppColors.darkCharcoal))),
-            const SizedBox(width: 7),
-            Container(padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3), decoration: BoxDecoration(color: AppColors.limeSurface, borderRadius: BorderRadius.circular(10)), child: Text('Active', style: AppTypography.labelSmall.copyWith(fontSize: 9, color: AppColors.greenDark, fontWeight: FontWeight.w600))),
-          ]),
-          const SizedBox(height: 4),
-          Text('Week $week of $totalWeeks · $safePercent%', style: AppTypography.labelSmall.copyWith(color: AppColors.neutral500, fontSize: 10)),
+      padding: const EdgeInsets.all(15),
+      decoration: _cardDecoration().copyWith(
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: const BoxDecoration(
+                  color: AppColors.limeSurface,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.fitness_center_rounded,
+                  size: 19,
+                  color: AppColors.greenDark,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.titleSmall.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.darkCharcoal,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Week $safeWeek of $safeTotalWeeks',
+                      style: AppTypography.labelSmall.copyWith(
+                        color: AppColors.neutral500,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 9,
+                  vertical: 5,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.limeSurface,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  'Active',
+                  style: AppTypography.labelSmall.copyWith(
+                    fontSize: 10,
+                    color: AppColors.greenDark,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 3),
+              const Icon(
+                Icons.chevron_right_rounded,
+                size: 21,
+                color: AppColors.neutral400,
+              ),
+            ],
+          ),
+          const SizedBox(height: 15),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Program completion',
+                style: AppTypography.labelSmall.copyWith(
+                  color: AppColors.neutral500,
+                  fontSize: 10,
+                ),
+              ),
+              Text(
+                '$safePercent%',
+                style: AppTypography.labelSmall.copyWith(
+                  color: AppColors.greenDark,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 11,
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 7),
-          ClipRRect(borderRadius: BorderRadius.circular(8), child: LinearProgressIndicator(value: safePercent / 100, minHeight: 5, backgroundColor: AppColors.neutral100, valueColor: const AlwaysStoppedAnimation(AppColors.limeAccent))),
-        ])),
-        const SizedBox(width: 8),
-        const Icon(Icons.chevron_right_rounded, size: 20, color: AppColors.neutral400),
-      ]),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: LinearProgressIndicator(
+              value: safePercent / 100,
+              minHeight: 7,
+              backgroundColor: AppColors.neutral100,
+              valueColor: const AlwaysStoppedAnimation(AppColors.limeAccent),
+            ),
+          ),
+        ],
+      ),
     );
   }
+}
+
+class KeepGoingCard extends StatelessWidget {
+  const KeepGoingCard({super.key});
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(17),
+    decoration: BoxDecoration(
+      color: AppColors.limeSurface,
+      borderRadius: BorderRadius.circular(18),
+    ),
+    child: Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Keep Going!',
+                style: AppTypography.titleMedium.copyWith(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.darkCharcoal,
+                ),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                'Stay consistent. Every workout brings you closer to your goal.',
+                style: AppTypography.bodySmall.copyWith(
+                  color: AppColors.neutral700,
+                  height: 1.35,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 12),
+        Container(
+          width: 48,
+          height: 48,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(
+            Icons.fitness_center_rounded,
+            size: 24,
+            color: AppColors.greenDark,
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 class HighlightsCard extends StatelessWidget {
