@@ -114,7 +114,7 @@ class ProgressController extends StateNotifier<ProgressState> {
           ? 0
           : ((elapsedDays < 0 ? 0 : elapsedDays) ~/ 7) + 1;
       final clampedProgramWeek = totalProgramWeeks > 0
-          ? activeProgramWeek.clamp(1, totalProgramWeeks)
+          ? activeProgramWeek.clamp(1, totalProgramWeeks).toInt()
           : activeProgramWeek;
       final activeProgramPercent = totalProgramWeeks > 0
           ? ((clampedProgramWeek / totalProgramWeeks) * 100).round()
