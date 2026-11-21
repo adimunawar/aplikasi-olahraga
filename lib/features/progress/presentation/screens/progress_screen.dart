@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../i18n/strings.g.dart';
 import 'package:workout_app/features/progress/application/weight_chart_series.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -231,7 +232,9 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
               ),
               MetricCard(
                 icon: Icons.local_fire_department_outlined,
-                value: '${metrics.streakDays} ${metrics.streakDays == 1 ? 'day' : 'days'}',
+                value: metrics.streakDays == 1
+                    ? context.t.core.units.daySingular(count: metrics.streakDays)
+                    : context.t.core.units.dayPlural(count: metrics.streakDays),
                 label: 'Current Streak',
               ),
             ],
