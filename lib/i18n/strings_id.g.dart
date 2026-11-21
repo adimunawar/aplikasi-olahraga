@@ -552,6 +552,18 @@ class Translations$core$units$id {
 
   /// id: 'kg'
   String get kg => 'kg';
+
+  /// id: '$count hari'
+  String daySingular({required Object count}) => '${count} hari';
+
+  /// id: '$count hari'
+  String dayPlural({required Object count}) => '${count} hari';
+
+  /// id: '$count hari aktif'
+  String activeDaySingular({required Object count}) => '${count} hari aktif';
+
+  /// id: '$count hari aktif'
+  String activeDayPlural({required Object count}) => '${count} hari aktif';
 }
 
 // Path: home.greeting
