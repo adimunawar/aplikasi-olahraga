@@ -6,9 +6,9 @@ import '../../../../core/theme/app_typography.dart';
 import '../../application/progress_history_grouping.dart';
 import '../controllers/progress_controller.dart';
 import '../controllers/progress_state.dart';
-import '../widgets/progress_dashboard_widgets.dart';
-import '../widgets/progress_history_widgets.dart';
-import '../widgets/progress_workout_widgets.dart';
+import '../widgets/shared/progress_dashboard_widgets.dart';
+import '../widgets/history/progress_history_widgets.dart';
+import '../widgets/workout/progress_workout_widgets.dart';
 
 class ProgressScreen extends ConsumerStatefulWidget {
   const ProgressScreen({super.key});
