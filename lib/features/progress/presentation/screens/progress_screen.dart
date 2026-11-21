@@ -542,3 +542,99 @@ class _WeeklyActivityCard extends StatelessWidget {
     );
   }
 }
+
+
+class _TrainingVolumeCard extends StatelessWidget {
+  const _TrainingVolumeCard({
+    required this.totalSets,
+    required this.totalReps,
+    required this.activePatterns,
+  });
+
+  final int totalSets;
+  final int totalReps;
+  final int activePatterns;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: AppColors.neutral200, width: 0.8),
+        boxShadow: AppColors.cardShadow,
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: _VolumeMetric(
+              value: '$totalSets',
+              label: 'Total Sets',
+              icon: Icons.repeat_rounded,
+            ),
+          ),
+          Container(width: 1, height: 42, color: AppColors.neutral200),
+          Expanded(
+            child: _VolumeMetric(
+              value: '$totalReps',
+              label: 'Total Reps',
+              icon: Icons.fitness_center_rounded,
+            ),
+          ),
+          Container(width: 1, height: 42, color: AppColors.neutral200),
+          Expanded(
+            child: _VolumeMetric(
+              value: '$activePatterns',
+              label: 'Movement Types',
+              icon: Icons.category_outlined,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _VolumeMetric extends StatelessWidget {
+  const _VolumeMetric({
+    required this.value,
+    required this.label,
+    required this.icon,
+  });
+
+  final String value;
+  final String label;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 17, color: AppColors.greenDark),
+        const SizedBox(height: 6),
+        Text(
+          value,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: AppTypography.titleMedium.copyWith(
+            color: AppColors.darkCharcoal,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: AppTypography.labelSmall.copyWith(
+            color: AppColors.neutral500,
+            fontSize: 9,
+          ),
+        ),
+      ],
+    );
+  }
+}
