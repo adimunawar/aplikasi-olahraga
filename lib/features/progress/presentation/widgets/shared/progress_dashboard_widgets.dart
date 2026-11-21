@@ -221,7 +221,7 @@ class MetricCard extends StatelessWidget {
     duration: const Duration(milliseconds: 420),
     curve: Curves.easeOutCubic,
     builder: (context, scale, child) => Opacity(
-      opacity: ((scale - 0.92) / 0.08).clamp(0.0, 1.0),
+      opacity: ((scale - 0.92) / 0.08).clamp(0.0, 1.0).toDouble(),
       child: Transform.translate(
         offset: Offset(0, (1 - scale) * 28),
         child: Transform.scale(scale: scale, child: child),
@@ -493,7 +493,7 @@ class HighlightsCard extends StatelessWidget {
     final rows = <(IconData, String)>[
       if (target > 0) (Icons.check_circle_outline_rounded, 'Completed $completed of $target workouts this week'),
       if (hasWeightData) (Icons.trending_up_rounded, 'Weight ${weightChange >= 0 ? 'increased' : 'decreased'} by ${weightChange.abs().toStringAsFixed(1)} kg'),
-      if (streak > 0) (Icons.emoji_events_outlined, '$streak consecutive active days'),
+      if (streak > 0) (Icons.emoji_events_outlined, '$streak consecutive active ${streak == 1 ? 'day' : 'days'}'),
     ];
     if (rows.isEmpty) {
       return const ProgressEmptyState(
