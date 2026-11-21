@@ -180,6 +180,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
               .clamp(0, 100)
               .round()
         : 0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -187,21 +188,22 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
           'Your Progress',
           subtitle: 'A quick summary of your training and body progress.',
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 13),
         if (metrics.workoutCount == 0)
           const ProgressEmptyState(
             icon: Icons.fitness_center_rounded,
             title: 'No workout data yet',
-            message: 'Complete your first workout to see your training progress here.',
+            message:
+                'Complete your first workout to see your training progress here.',
           )
-        else ...[
+        else
           GridView.count(
             crossAxisCount: 2,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             mainAxisSpacing: 10,
             crossAxisSpacing: 10,
-            childAspectRatio: 1.78,
+            childAspectRatio: 1.58,
             children: [
               MetricCard(
                 icon: Icons.fitness_center_rounded,
@@ -225,35 +227,36 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          _heading('Program Progress'),
-          const SizedBox(height: 10),
-          if (state.hasActiveProgram)
-            ProgramCard(
-              title: state.activeProgramTitle,
-              week: state.activeProgramWeek,
-              totalWeeks: state.activeProgramTotalWeeks,
-              percent: state.activeProgramPercent,
-            )
-          else
-            const ProgressEmptyState(
-              icon: Icons.flag_outlined,
-              title: 'No active program',
-              message:
-                  'Choose a training program to track your weekly progress.',
-              compact: true,
-            ),
-          const SizedBox(height: 20),
-          _heading('Recent Highlights', trailing: Icons.info_outline),
-          const SizedBox(height: 10),
-          HighlightsCard(
-            completed: metrics.completedThisWeek,
-            target: metrics.weeklyTarget,
-            weightChange: state.weightChange,
-            streak: metrics.streakDays,
-            hasWeightData: state.weightHistory.isNotEmpty,
+        const SizedBox(height: 22),
+        _heading('Program Progress'),
+        const SizedBox(height: 11),
+        if (state.hasActiveProgram)
+          ProgramCard(
+            title: state.activeProgramTitle,
+            week: state.activeProgramWeek,
+            totalWeeks: state.activeProgramTotalWeeks,
+            percent: state.activeProgramPercent,
+          )
+        else
+          const ProgressEmptyState(
+            icon: Icons.flag_outlined,
+            title: 'No active program',
+            message:
+                'Choose a training program to track your weekly progress.',
+            compact: true,
           ),
-        ],
+        const SizedBox(height: 22),
+        _heading('Recent Highlights', trailing: Icons.info_outline),
+        const SizedBox(height: 11),
+        HighlightsCard(
+          completed: metrics.completedThisWeek,
+          target: metrics.weeklyTarget,
+          weightChange: state.weightChange,
+          streak: metrics.streakDays,
+          hasWeightData: state.weightHistory.isNotEmpty,
+        ),
+        const SizedBox(height: 18),
+        const KeepGoingCard(),
       ],
     );
   }
