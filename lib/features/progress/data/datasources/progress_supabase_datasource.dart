@@ -43,8 +43,7 @@ class ProgressSupabaseDatasource {
         totalCalories += cal;
       }
 
-      final totalMinutes = totalSeconds > 0 ? (totalSeconds / 60).round() : workoutCount * 25;
-      if (totalCalories == 0) totalCalories = workoutCount * 254;
+      final totalMinutes = (totalSeconds / 60).round();
 
       int streak = 0;
       try {
@@ -64,7 +63,7 @@ class ProgressSupabaseDatasource {
         totalMinutes: totalMinutes,
         streakDays: streak,
         completedThisWeek: 0,
-        weeklyTarget: 4,
+        weeklyTarget: 0,
       );
     } catch (e) {
       debugPrint('[Supabase] Error fetchTopMetrics: $e');
@@ -91,14 +90,15 @@ class ProgressSupabaseDatasource {
       final List<dynamic> list = response as List<dynamic>;
       return list.map((item) {
         final map = Map<String, dynamic>.from(item);
-        final val = (map['value'] as num?)?.toDouble() ?? 58.0;
-        final date = DateTime.tryParse(map['recorded_at']?.toString() ?? '') ?? DateTime.now();
+        final val = (map['value'] as num?)?.toDouble();
+        final date = DateTime.tryParse(map['recorded_at']?.toString() ?? '');
+        if (val == null || val <= 0 || date == null) return null;
         return WeightRecord(
           id: map['id']?.toString() ?? '',
           weightKg: val,
           recordedAt: date,
         );
-      }).toList();
+      }).whereType<WeightRecord>().toList();
     } catch (e) {
       debugPrint('[Supabase] Error fetchWeightHistory: $e');
       return [];
@@ -130,12 +130,13 @@ class ProgressSupabaseDatasource {
 
       return list.map((item) {
         final map = Map<String, dynamic>.from(item);
-        final title = map['program_title']?.toString() ?? 'Upper Body Workout';
-        final durSeconds = (map['duration_seconds'] as num?)?.toInt() ?? 2400;
-        final minutes = (durSeconds / 60).round();
-        final cals = (map['calories_burned'] as num?)?.toInt() ?? 320;
+        final title = map['program_title']?.toString().trim() ?? '';
+        final durSeconds = (map['duration_seconds'] as num?)?.toInt();
+        final cals = (map['calories_burned'] as num?)?.toInt() ?? 0;
         final startedAtStr = map['started_at']?.toString() ?? '';
-        final date = DateTime.tryParse(startedAtStr) ?? DateTime.now();
+        final date = DateTime.tryParse(startedAtStr);
+        if (title.isEmpty || durSeconds == null || date == null) return null;
+        final minutes = (durSeconds / 60).round();
 
         return WorkoutHistoryItem(
           id: map['id']?.toString() ?? '',
@@ -147,7 +148,7 @@ class ProgressSupabaseDatasource {
               ? 'assets/images/coach_flex.png'
               : 'assets/images/Home Workout Push-Up Guide.png',
         );
-      }).toList();
+      }).whereType<WorkoutHistoryItem>().toList();
     } catch (e) {
       debugPrint('[Supabase] Error fetchRecentWorkouts: $e');
       return [];

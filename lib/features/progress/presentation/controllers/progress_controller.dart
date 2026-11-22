@@ -1,8 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../core/database/app_database.dart';
-import '../../../profile/data/datasources/user_supabase_datasource.dart';
-import '../../../program/data/repositories/programs_repository_impl.dart';
-import '../../../program/domain/repositories/programs_repository.dart';
 import '../../application/bmi_calculator_service.dart';
 import '../../application/weight_analytics_service.dart';
 import '../../data/datasources/progress_supabase_datasource.dart';
@@ -26,40 +24,29 @@ final weightAnalyticsServiceProvider = Provider<WeightAnalyticsService>((ref) {
   return const WeightAnalyticsService();
 });
 
-final userProfileDatasourceProvider = Provider<UserSupabaseDatasource>((ref) {
-  return const UserSupabaseDatasource();
-});
-
-final programsRepositoryProvider = Provider<ProgramsRepository>((ref) {
-  return ProgramsRepositoryImpl(database: AppDatabase.instance);
-});
-
 final progressControllerProvider =
     StateNotifierProvider<ProgressController, ProgressState>((ref) {
-  return ProgressController(
-    repository: ref.watch(progressRepositoryProvider),
-    bmiCalculator: ref.watch(bmiCalculatorServiceProvider),
-    weightAnalytics: ref.watch(weightAnalyticsServiceProvider),
-    userDatasource: ref.watch(userProfileDatasourceProvider),
-    programsRepo: ref.watch(programsRepositoryProvider),
-  );
-});
+      return ProgressController(
+        repository: ref.watch(progressRepositoryProvider),
+        bmiCalculator: ref.watch(bmiCalculatorServiceProvider),
+        weightAnalytics: ref.watch(weightAnalyticsServiceProvider),
+        database: AppDatabase.instance,
+      );
+    });
 
 /// Controller untuk orkestrasi State Halaman Progress (Riverpod StateNotifier)
 class ProgressController extends StateNotifier<ProgressState> {
-  final ProgressRepository _repository;
-  final BmiCalculatorService _bmiCalculator;
-  final WeightAnalyticsService _weightAnalytics;
-  final UserSupabaseDatasource _userDatasource;
-  final ProgramsRepository _programsRepo;
+  final ProgressRepository repository;
+  final BmiCalculatorService bmiCalculator;
+  final WeightAnalyticsService weightAnalytics;
+  final AppDatabase database;
 
   ProgressController({
-    required this._repository,
-    required this._bmiCalculator,
-    required this._weightAnalytics,
-    required this._userDatasource,
-    required this._programsRepo,
-  })  : super(const ProgressState()) {
+    required this.repository,
+    required this.bmiCalculator,
+    required this.weightAnalytics,
+    required this.database,
+  }) : super(const ProgressState()) {
     loadProgress();
   }
 
@@ -68,48 +55,82 @@ class ProgressController extends StateNotifier<ProgressState> {
     state = state.copyWith(isLoading: true);
     try {
       // 1. Ambil data metrik utama
-      final metrics = await _repository.getMetrics();
+      final metrics = await repository.getMetrics();
 
       // 2. Ambil data profil (tinggi dan berat badan)
-      final profile = await _userDatasource.fetchProfileFromSupabase();
-      final heightCm = profile?.heightCm ?? state.heightCm;
-      final profileWeight = profile?.currentWeightKg ?? state.currentWeight;
+      // Profil onboarding bersifat local-first sampai user melakukan sync.
+      // Jangan bergantung pada Supabase untuk data awal Progress.
+      final profile = await database.getUserProfile();
+      final heightCm = profile.heightCm;
+      final profileWeight = profile.currentWeightKg;
 
-      // 3. Ambil riwayat penimbangan
-      final history = await _repository.getWeightHistory();
-      final weightAnalysis = _weightAnalytics.analyze(
+      // 3. Ambil riwayat penimbangan. Berat awal dari onboarding perlu
+      // dijadikan baseline agar grafik punya titik pertama sebelum user
+      // mencatat penimbangan berikutnya.
+      var history = await repository.getWeightHistory();
+      if (history.isEmpty && profileWeight > 0) {
+        await database.recordBodyWeight(profileWeight);
+        history = await repository.getWeightHistory();
+      }
+      final weightAnalysis = weightAnalytics.analyze(
         history,
         defaultWeight: profileWeight,
       );
 
       // 4. Hitung BMI melalui Application Service
       final currentWeight = weightAnalysis.currentWeight;
-      final bmi = _bmiCalculator.calculateBmi(weightKg: currentWeight, heightCm: heightCm);
-      final bmiStatus = _bmiCalculator.getBmiStatus(bmi);
+      final hasBodyData = currentWeight > 0 && heightCm > 0;
+      final bmi = hasBodyData
+          ? bmiCalculator.calculateBmi(
+              weightKg: currentWeight,
+              heightCm: heightCm,
+            )
+          : 0.0;
+      final bmiStatus = hasBodyData ? bmiCalculator.getBmiStatus(bmi) : '';
 
       // 5. Ambil riwayat sesi latihan & aktivitas mingguan
-      final recents = await _repository.getRecentWorkouts();
-      final weekly = await _repository.getWeeklyActivity();
-      final movementVol = await _repository.getMovementVolume();
-      final milestones = await _repository.getProgressionMilestones();
+      final recents = await repository.getRecentWorkouts();
+      final weekly = await repository.getWeeklyActivity();
+      final movementVol = await repository.getMovementVolume();
+      final milestones = await repository.getProgressionMilestones();
 
-      // 6. Ambil status program aktif
-      final activeProgram = await _programsRepo.getActiveProgram();
-      String programTitle = activeProgram.title.en.isNotEmpty
-          ? activeProgram.title.en
-          : activeProgram.title.id;
-      if (programTitle.trim().isEmpty) {
-        programTitle = activeProgram.id
-            .replaceAll('_', ' ')
-            .split(' ')
-            .map((w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '')
-            .join(' ');
-      }
-      if (programTitle.isEmpty) programTitle = 'Upper Body Strength';
+      // 6. Ambil program hasil generator dari local-first database.
+      // Program onboarding disimpan ke training_programs, bukan user_programs.
+      final localProfile = await database.getUserProfile();
+      final userId = localProfile.id.isNotEmpty
+          ? localProfile.id
+          : 'default_user';
+      var activeProgram = await database.getActiveTrainingProgram(userId);
+      activeProgram ??= await database.getActiveTrainingProgram('default_user');
+
+      final hasActiveProgram = activeProgram != null;
+      final programTitle = activeProgram?.name ?? '';
+      final totalProgramWeeks = activeProgram?.durationWeeks ?? 0;
+      final elapsedDays = activeProgram == null
+          ? 0
+          : DateTime.now()
+                .difference(
+                  DateTime(
+                    activeProgram.startDate.year,
+                    activeProgram.startDate.month,
+                    activeProgram.startDate.day,
+                  ),
+                )
+                .inDays;
+      final activeProgramWeek = activeProgram == null
+          ? 0
+          : ((elapsedDays < 0 ? 0 : elapsedDays) ~/ 7) + 1;
+      final clampedProgramWeek = totalProgramWeeks > 0
+          ? activeProgramWeek.clamp(1, totalProgramWeeks).toInt()
+          : activeProgramWeek;
+      final activeProgramPercent = totalProgramWeeks > 0
+          ? ((clampedProgramWeek / totalProgramWeeks) * 100).round()
+          : 0;
 
       state = state.copyWith(
         metrics: metrics,
         currentWeight: currentWeight,
+        weightHistory: history,
         heightCm: heightCm,
         weightChange: weightAnalysis.weightChange,
         startLabel: weightAnalysis.startLabel,
@@ -121,9 +142,10 @@ class ProgressController extends StateNotifier<ProgressState> {
         movementVolume: movementVol,
         milestones: milestones,
         activeProgramTitle: programTitle,
-        activeProgramWeek: 3,
-        activeProgramTotalWeeks: activeProgram.totalWeeks,
-        activeProgramPercent: 37,
+        hasActiveProgram: hasActiveProgram,
+        activeProgramWeek: clampedProgramWeek,
+        activeProgramTotalWeeks: totalProgramWeeks,
+        activeProgramPercent: activeProgramPercent,
         isLoading: false,
       );
     } catch (e) {
@@ -140,7 +162,7 @@ class ProgressController extends StateNotifier<ProgressState> {
   /// Mencatat penimbangan berat badan baru
   Future<void> recordWeight(double newWeight) async {
     try {
-      await _repository.recordWeight(newWeight);
+      await repository.recordWeight(newWeight);
       // Reload setelah pencatatan berhasil
       await loadProgress();
     } catch (e) {
@@ -148,4 +170,3 @@ class ProgressController extends StateNotifier<ProgressState> {
     }
   }
 }
-

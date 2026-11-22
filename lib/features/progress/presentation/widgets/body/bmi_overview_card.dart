@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_typography.dart';
+
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_typography.dart';
 
 /// Card Ringkasan BMI pada Halaman Progress (1:1 sesuai mockup):
 /// - Header: Icon squircle lime dengan lambang hati, judul "BMI", chevron '>'
@@ -86,7 +87,10 @@ class BmiOverviewCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 6),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2.5,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.limeSurface,
                     borderRadius: BorderRadius.circular(8),
@@ -151,11 +155,7 @@ class BmiOverviewCard extends StatelessWidget {
                   children: [
                     Expanded(
                       flex: 22,
-                      child: Text(
-                        '< 18.5',
-                        style: _rangeStyle,
-                        maxLines: 1,
-                      ),
+                      child: Text('< 18.5', style: _rangeStyle, maxLines: 1),
                     ),
                     Expanded(
                       flex: 30,
@@ -195,11 +195,11 @@ class BmiOverviewCard extends StatelessWidget {
   }
 
   TextStyle get _rangeStyle => AppTypography.bodySmall.copyWith(
-        color: AppColors.neutral400,
-        fontSize: 9.5,
-        fontWeight: FontWeight.w500,
-        letterSpacing: -0.2,
-      );
+    color: AppColors.neutral400,
+    fontSize: 9.5,
+    fontWeight: FontWeight.w500,
+    letterSpacing: -0.2,
+  );
 
   Widget _buildPointerIndicator() {
     return LayoutBuilder(
@@ -207,8 +207,14 @@ class BmiOverviewCard extends StatelessWidget {
         final totalWidth = constraints.maxWidth;
         const minBmi = 15.0;
         const maxBmi = 35.0;
-        final ratio = ((bmiValue - minBmi) / (maxBmi - minBmi)).clamp(0.05, 0.95);
-        final arrowX = (ratio * (totalWidth - 10)).clamp(4.0, totalWidth - 12.0);
+        final ratio = ((bmiValue - minBmi) / (maxBmi - minBmi)).clamp(
+          0.05,
+          0.95,
+        );
+        final arrowX = (ratio * (totalWidth - 10)).clamp(
+          4.0,
+          totalWidth - 12.0,
+        );
 
         return Stack(
           children: [

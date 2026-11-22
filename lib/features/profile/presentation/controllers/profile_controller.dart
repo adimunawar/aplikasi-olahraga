@@ -39,12 +39,10 @@ class ProfileController extends StateNotifier<ProfileState> {
       final profile = await _repository.getUserProfile();
       final settings = await _repository.getUserSettings();
 
-      final weight = profile.currentWeightKg > 0
-          ? profile.currentWeightKg
-          : 58.0;
-      final height = profile.heightCm > 0 ? profile.heightCm : 174.0;
+      final weight = profile.currentWeightKg;
+      final height = profile.heightCm;
 
-      double bmi = 19.2;
+      double bmi = 0;
       if (height > 0 && weight > 0) {
         final hM = height / 100.0;
         bmi = double.parse((weight / (hM * hM)).toStringAsFixed(1));
@@ -67,12 +65,11 @@ class ProfileController extends StateNotifier<ProfileState> {
       final lastUpdated = DateFormat('MMM d, yyyy').format(profile.updatedAt);
 
       state = state.copyWith(
-        displayName: profile.displayName.isNotEmpty
-            ? profile.displayName
-            : 'Adi Munawar',
-        journeyStatus:
-            'Bulking journey • ${profile.experienceLevel.isNotEmpty ? (profile.experienceLevel[0].toUpperCase() + profile.experienceLevel.substring(1)) : "Beginner"}',
-        age: profile.age > 0 ? profile.age : 29,
+        displayName: profile.displayName,
+        journeyStatus: profile.experienceLevel.isEmpty
+            ? ''
+            : 'Bulking journey • ${profile.experienceLevel[0].toUpperCase()}${profile.experienceLevel.substring(1)}',
+        age: profile.age,
         gender: gender,
         currentWeight: weight,
         currentHeight: height,
@@ -81,16 +78,11 @@ class ProfileController extends StateNotifier<ProfileState> {
         goal: profile.goal == 'muscle_gain'
             ? 'Build Muscle (Bulking)'
             : profile.goal,
-        experienceLevel: profile.experienceLevel.isNotEmpty
-            ? (profile.experienceLevel[0].toUpperCase() +
-                  profile.experienceLevel.substring(1))
-            : 'Beginner',
-        preferredDaysPerWeek: profile.preferredDaysPerWeek > 0
-            ? profile.preferredDaysPerWeek
-            : 4,
-        preferredDurationMin: profile.preferredDurationMin > 0
-            ? profile.preferredDurationMin
-            : 45,
+        experienceLevel: profile.experienceLevel.isEmpty
+            ? ''
+            : '${profile.experienceLevel[0].toUpperCase()}${profile.experienceLevel.substring(1)}',
+        preferredDaysPerWeek: profile.preferredDaysPerWeek,
+        preferredDurationMin: profile.preferredDurationMin,
         trainingIntensity: intensity,
         unitPreference: profile.unitPreference == 'metric'
             ? 'Metric (kg, cm)'

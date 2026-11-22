@@ -14,6 +14,10 @@ import 'package:workout_app/features/workouts/presentation/screens/workouts_scre
 import 'package:workout_app/i18n/strings.g.dart';
 
 void main() {
+  setUp(() {
+    LocaleSettings.setLocaleSync(AppLocale.id);
+  });
+
   Exercise makeExercise({
     required String id,
     required String name,

@@ -53,7 +53,9 @@ The flow describes intended dependency boundaries. Some legacy screens still con
 - SQLite is the local persistence baseline for personal profile, workout, and progress data.
 - Personal cloud synchronization requires a non-anonymous Supabase Auth session and explicit Cloud Sync consent for that account.
 - Exercise videos are referenced by URL; large media files are not intended to be bundled into the application.
-- The web database fallback is in-memory and is not equivalent to durable SQLite persistence.
+- Flutter Web uses SQLite compiled to WebAssembly with persistent browser storage in IndexedDB through `sqflite_common_ffi_web`; native platforms use the `sqflite` plugin.
+
+For Web setup, local development, generated WASM/worker assets, and platform limitations, see [Flutter Web Local Database](docs/WEB_DATABASE.md).
 
 See [Data and synchronization](docs/DATA_AND_SYNC.md) and [Security](SECURITY.md).
 
@@ -196,3 +198,15 @@ The following are known from the repository snapshot and MUST NOT be hidden in a
 This repository is maintained as a portfolio and engineering showcase. Product scope, implementation status, and known gaps are documented rather than implied.
 
 No open-source license is currently declared in this repository. Unless a license is added by the maintainer, do not assume permission to redistribute, modify, or use this code in another product.
+
+## Flutter Web database setup
+
+The Web target uses `sqflite_common_ffi_web`, which stores the SQLite database in browser IndexedDB. Before running or building the Web app, install dependencies and generate the required SQLite WebAssembly and worker assets:
+
+```bash
+flutter pub get
+dart run sqflite_common_ffi_web:setup
+flutter run -d chrome --web-port 8080
+```
+
+The setup command creates `web/sqlite3.wasm` and `web/sqflite_sw.js`. Keep both files in the project or run the setup command in your Web build pipeline before `flutter build web`. Browser data is scoped to the site origin (including its port); changing the local development port uses a separate IndexedDB store. Web support in `sqflite_common_ffi_web` is experimental.

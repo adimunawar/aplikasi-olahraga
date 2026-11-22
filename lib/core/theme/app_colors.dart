@@ -13,6 +13,16 @@ class AppColors {
   static const Color successSurface = Color(0xFFE9F5DA);
   static const Color warningSurface = Color(0xFFFCE8E5);
 
+  // --- Dark Mode Core Tokens ---
+  static const Color darkScaffoldBackground = Color(0xFF0F1115);
+  static const Color darkSurface = Color(0xFF181B20);
+  static const Color darkSurfaceContainer = Color(0xFF20242B);
+  static const Color darkSurfaceContainerHigh = Color(0xFF282D36);
+  static const Color darkSurfaceContainerHighest = Color(0xFF323842);
+  static const Color darkBorder = Color(0xFF282E38);
+  static const Color darkTextPrimary = Color(0xFFF1F5F9);
+  static const Color darkTextSecondary = Color(0xFF94A3B8);
+
   // --- Mockup Standard Design Tokens ---
   static const Color limeAccent = Color(
     0xFFC7F135,

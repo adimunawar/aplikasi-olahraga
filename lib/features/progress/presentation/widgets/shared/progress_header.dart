@@ -1,11 +1,8 @@
 import 'package:material_ui/material_ui.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_typography.dart';
 
-/// Header Halaman Progress:
-/// - Judul besar: "Progress"
-/// - Subtitle: "Track your workouts and consistency."
-/// - Latar belakang ambient glow lime di pojok kanan atas
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_typography.dart';
+
 class ProgressHeader extends StatelessWidget {
   const ProgressHeader({super.key});
 

@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_typography.dart';
+
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_typography.dart';
 
 /// Card "Streak" pada Halaman Progress (1:1 sesuai mockup):
 /// - Icon petir dalam squircle lime lembut

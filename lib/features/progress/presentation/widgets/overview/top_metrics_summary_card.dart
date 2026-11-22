@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_typography.dart';
+
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_typography.dart';
 
 /// Top Metrics Summary Card pada Halaman Progress (1:1 sesuai mockup):
 /// - 1 Kartu putih utuh tanpa garis pemisah vertikal
@@ -73,11 +74,7 @@ class TopMetricsSummaryCard extends StatelessWidget {
             color: AppColors.limeSurface,
             shape: BoxShape.circle,
           ),
-          child: Icon(
-            icon,
-            size: 19,
-            color: AppColors.darkCharcoal,
-          ),
+          child: Icon(icon, size: 19, color: AppColors.darkCharcoal),
         ),
         const SizedBox(width: 8),
 

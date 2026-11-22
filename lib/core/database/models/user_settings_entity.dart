@@ -18,8 +18,8 @@ class UserSettingsEntity {
 
   const UserSettingsEntity({
     this.id = 'default_settings',
-    this.gender = 'Male',
-    this.targetWeightKg = 65.0,
+    this.gender = '',
+    this.targetWeightKg = 0,
     this.trainingIntensity = 'Moderate',
     this.workoutReminder = true,
     this.reminderTime = '08:00 PM',
@@ -69,8 +69,8 @@ class UserSettingsEntity {
 
     return UserSettingsEntity(
       id: map['id']?.toString() ?? 'default_settings',
-      gender: map['gender']?.toString() ?? 'Male',
-      targetWeightKg: (map['target_weight_kg'] as num?)?.toDouble() ?? 65.0,
+      gender: map['gender']?.toString() ?? '',
+      targetWeightKg: (map['target_weight_kg'] as num?)?.toDouble() ?? 0,
       trainingIntensity: map['training_intensity']?.toString() ?? 'Moderate',
       workoutReminder: readBool('workout_reminder', fallback: true),
       reminderTime: map['reminder_time']?.toString() ?? '08:00 PM',

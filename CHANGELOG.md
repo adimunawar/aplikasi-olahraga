@@ -15,6 +15,8 @@ This changelog starts with the documentation baseline for the current portfolio 
 
 ### Changed
 
+- Localized the Progress dashboard cards (weight trend, current weight summary, program summary, highlights, untracked metrics) so their copy follows the active app language.
+- Split the monolithic Progress dashboard widgets file into one component per file, exposed through shared and screen-level barrel files.
 - Updated `RestTimerScreen` back navigation: the top-left back button now safely exits the session (`onExitSession`) while preserving the `in_progress` state for later resumption, separating it from the "Skip Rest" action.
 - Added responsive layout scaling to `RestTimerScreen` using adaptive progress ring sizing and scrollable layout to prevent vertical overflows on small viewports and large accessibility text scaling.
 

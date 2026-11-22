@@ -84,6 +84,10 @@ class _Translations$core$en extends Translations$core$id {
   late final _Translations$core$language$en language = _Translations$core$language$en._(_root);
   @override
   late final _Translations$core$units$en units = _Translations$core$units$en._(_root);
+  @override
+  late final _Translations$core$streak$en streak = _Translations$core$streak$en._(_root);
+  @override
+  late final _Translations$core$progress$en progress = _Translations$core$progress$en._(_root);
 }
 
 // Path: home
@@ -166,10 +170,6 @@ class _Translations$workoutSession$en extends Translations$workoutSession$id {
   _Translations$workoutSession$en._(TranslationsEn root) : this._root = root, super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
-
-  @override
-  late final _Translations$workoutSession$completedScreen$en completedScreen =
-      _Translations$workoutSession$completedScreen$en._(_root);
 
   // Translations
   @override
@@ -314,61 +314,9 @@ class _Translations$workoutSession$en extends Translations$workoutSession$id {
       'We couldn\'t save your workout. Your recorded progress is still here. Please try again.';
   @override
   String get defaultProgramTitle => 'Strength Training';
-}
-
-// Path: workoutSession.completedScreen
-class _Translations$workoutSession$completedScreen$en
-    extends Translations$workoutSession$completedScreen$id {
-  _Translations$workoutSession$completedScreen$en._(TranslationsEn root)
-      : this._root = root,
-        super.internal(root);
-
-  final TranslationsEn _root; // ignore: unused_field
-
-  // Translations
-
   @override
-  String get title => 'Workout Completed! 🎉';
-
-  @override
-  String subtitle({required Object focus}) =>
-      'Great job! You\'ve finished ${focus}.';
-
-  @override
-  String get duration => 'Duration';
-
-  @override
-  String get exercises => 'Exercises';
-
-  @override
-  String get estCalories => 'Est. Calories';
-
-  @override
-  String get minUnit => 'min';
-
-  @override
-  String get howWasWorkout => 'How was the workout?';
-
-  @override
-  String get tooEasy => 'Too Easy';
-
-  @override
-  String get easy => 'Easy';
-
-  @override
-  String get justRight => 'Just Right';
-
-  @override
-  String get hard => 'Hard';
-
-  @override
-  String get tooHard => 'Too Hard';
-
-  @override
-  String get saveAndContinue => 'Save & Continue';
-
-  @override
-  String get viewWorkoutSummary => 'View Workout Summary';
+  late final _Translations$workoutSession$completedScreen$en completedScreen =
+      _Translations$workoutSession$completedScreen$en._(_root);
 }
 
 // Path: workouts
@@ -496,6 +444,93 @@ class _Translations$core$units$en extends Translations$core$units$id {
   String get seconds => 'sec';
   @override
   String get kg => 'kg';
+}
+
+// Path: core.streak
+class _Translations$core$streak$en extends Translations$core$streak$id {
+  _Translations$core$streak$en._(TranslationsEn root) : this._root = root, super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String daySingular({required Object count}) => '${count} day';
+  @override
+  String dayPlural({required Object count}) => '${count} days';
+  @override
+  String activeDaySingular({required Object count}) => '${count} consecutive active day';
+  @override
+  String activeDayPlural({required Object count}) => '${count} consecutive active days';
+}
+
+// Path: core.progress
+class _Translations$core$progress$en extends Translations$core$progress$id {
+  _Translations$core$progress$en._(TranslationsEn root) : this._root = root, super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Progress';
+  @override
+  String rangeWeeks({required Object weeks}) => 'Last ${weeks} Weeks';
+  @override
+  late final _Translations$core$progress$tabs$en tabs = _Translations$core$progress$tabs$en._(
+    _root,
+  );
+  @override
+  String get overviewTitle => 'Your Progress';
+  @override
+  String get overviewSubtitle => 'A quick summary of your training and body progress.';
+  @override
+  late final _Translations$core$progress$metrics$en metrics =
+      _Translations$core$progress$metrics$en._(_root);
+  @override
+  String get programProgress => 'Program Progress';
+  @override
+  late final _Translations$core$progress$noWorkoutData$en noWorkoutData =
+      _Translations$core$progress$noWorkoutData$en._(_root);
+  @override
+  late final _Translations$core$progress$noActiveProgram$en noActiveProgram =
+      _Translations$core$progress$noActiveProgram$en._(_root);
+  @override
+  String get recentHighlights => 'Recent Highlights';
+  @override
+  String get keepGoing => 'Keep Going!';
+  @override
+  String get keepGoingMessage => 'Stay consistent. Every workout brings you closer to your goal.';
+  @override
+  late final _Translations$core$progress$weightTrend$en weightTrend =
+      _Translations$core$progress$weightTrend$en._(_root);
+  @override
+  late final _Translations$core$progress$notTracked$en notTracked =
+      _Translations$core$progress$notTracked$en._(_root);
+  @override
+  late final _Translations$core$progress$programCard$en programCard =
+      _Translations$core$progress$programCard$en._(_root);
+  @override
+  late final _Translations$core$progress$highlights$en highlights =
+      _Translations$core$progress$highlights$en._(_root);
+  @override
+  late final _Translations$core$progress$body$en body = _Translations$core$progress$body$en._(
+    _root,
+  );
+  @override
+  late final _Translations$core$progress$workout$en workout =
+      _Translations$core$progress$workout$en._(_root);
+  @override
+  late final _Translations$core$progress$history$en history =
+      _Translations$core$progress$history$en._(_root);
+  @override
+  late final _Translations$core$progress$duration$en duration =
+      _Translations$core$progress$duration$en._(_root);
+  @override
+  late final _Translations$core$progress$weightDialog$en weightDialog =
+      _Translations$core$progress$weightDialog$en._(_root);
+  @override
+  late final _Translations$core$progress$error$en error = _Translations$core$progress$error$en._(
+    _root,
+  );
 }
 
 // Path: home.greeting
@@ -944,6 +979,46 @@ class _Translations$onboarding$preview$en extends Translations$onboarding$previe
       '${sets} sets • ${reps} reps • ${rests} rest';
 }
 
+// Path: workoutSession.completedScreen
+class _Translations$workoutSession$completedScreen$en
+    extends Translations$workoutSession$completedScreen$id {
+  _Translations$workoutSession$completedScreen$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Workout Completed! 🎉';
+  @override
+  String subtitle({required Object focus}) => 'Great job! You\'ve finished ${focus}.';
+  @override
+  String get duration => 'Duration';
+  @override
+  String get exercises => 'Exercises';
+  @override
+  String get estCalories => 'Est. Calories';
+  @override
+  String get minUnit => 'min';
+  @override
+  String get howWasWorkout => 'How was the workout?';
+  @override
+  String get tooEasy => 'Too Easy';
+  @override
+  String get easy => 'Easy';
+  @override
+  String get justRight => 'Just Right';
+  @override
+  String get hard => 'Hard';
+  @override
+  String get tooHard => 'Too Hard';
+  @override
+  String get saveAndContinue => 'Save & Continue';
+  @override
+  String get viewWorkoutSummary => 'View Workout Summary';
+}
+
 // Path: workouts.tabs
 class _Translations$workouts$tabs$en extends Translations$workouts$tabs$id {
   _Translations$workouts$tabs$en._(TranslationsEn root) : this._root = root, super.internal(root);
@@ -1132,6 +1207,299 @@ class _Translations$workouts$categories$en extends Translations$workouts$categor
   String get arms => 'Arms';
   @override
   String get shoulders => 'Shoulders';
+}
+
+// Path: core.progress.tabs
+class _Translations$core$progress$tabs$en extends Translations$core$progress$tabs$id {
+  _Translations$core$progress$tabs$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get overview => 'Overview';
+  @override
+  String get body => 'Body';
+  @override
+  String get workout => 'Workout';
+  @override
+  String get history => 'History';
+}
+
+// Path: core.progress.metrics
+class _Translations$core$progress$metrics$en extends Translations$core$progress$metrics$id {
+  _Translations$core$progress$metrics$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get workouts => 'Workouts';
+  @override
+  String get completion => 'Completion';
+  @override
+  String get trainingTime => 'Training Time';
+  @override
+  String get currentStreak => 'Current Streak';
+}
+
+// Path: core.progress.noWorkoutData
+class _Translations$core$progress$noWorkoutData$en
+    extends Translations$core$progress$noWorkoutData$id {
+  _Translations$core$progress$noWorkoutData$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'No workout data yet';
+  @override
+  String get message => 'Complete your first workout to see your training progress here.';
+}
+
+// Path: core.progress.noActiveProgram
+class _Translations$core$progress$noActiveProgram$en
+    extends Translations$core$progress$noActiveProgram$id {
+  _Translations$core$progress$noActiveProgram$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'No active program';
+  @override
+  String get message => 'Choose a training program to track your weekly progress.';
+}
+
+// Path: core.progress.weightTrend
+class _Translations$core$progress$weightTrend$en extends Translations$core$progress$weightTrend$id {
+  _Translations$core$progress$weightTrend$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Weight (kg)';
+  @override
+  String weekValue({required Object week, required Object value}) => 'W${week} · ${value} kg';
+  @override
+  String weekShort({required Object week}) => 'W${week}';
+  @override
+  String get empty => 'No weight measurements in this period yet.';
+  @override
+  String vsWeeksAgo({required Object weeks}) => 'vs. ${weeks} weeks ago';
+  @override
+  String increase({required Object value}) => '↑ +${value} kg';
+  @override
+  String decrease({required Object value}) => '↓ ${value} kg';
+}
+
+// Path: core.progress.notTracked
+class _Translations$core$progress$notTracked$en extends Translations$core$progress$notTracked$id {
+  _Translations$core$progress$notTracked$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String title({required Object metric}) => '${metric} tracking is not available yet';
+  @override
+  String get message => 'This metric is not stored in your measurements yet.';
+}
+
+// Path: core.progress.programCard
+class _Translations$core$progress$programCard$en extends Translations$core$progress$programCard$id {
+  _Translations$core$progress$programCard$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String weekOf({required Object week, required Object total}) => 'Week ${week} of ${total}';
+  @override
+  String get active => 'Active';
+  @override
+  String get completion => 'Program completion';
+}
+
+// Path: core.progress.highlights
+class _Translations$core$progress$highlights$en extends Translations$core$progress$highlights$id {
+  _Translations$core$progress$highlights$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String completed({required Object completed, required Object target}) =>
+      'Completed ${completed} of ${target} workouts this week';
+  @override
+  String weightIncrease({required Object value}) => 'Weight increased by ${value} kg';
+  @override
+  String weightDecrease({required Object value}) => 'Weight decreased by ${value} kg';
+  @override
+  String get emptyTitle => 'No highlights yet';
+  @override
+  String get emptyMessage => 'Your milestones will appear as you record workouts and measurements.';
+}
+
+// Path: core.progress.body
+class _Translations$core$progress$body$en extends Translations$core$progress$body$id {
+  _Translations$core$progress$body$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Body Progress';
+  @override
+  String get subtitle => 'Track changes in your body over time.';
+  @override
+  String get weight => 'Weight';
+  @override
+  String get muscleMass => 'Muscle Mass';
+  @override
+  String get bodyFat => 'Body Fat';
+  @override
+  String get logMeasurement => 'Log Measurement';
+  @override
+  String get recordWeight => 'Record weight';
+  @override
+  String get currentWeight => 'Current weight';
+}
+
+// Path: core.progress.workout
+class _Translations$core$progress$workout$en extends Translations$core$progress$workout$id {
+  _Translations$core$progress$workout$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Workout Performance';
+  @override
+  String get subtitle => 'Your training progress and consistency.';
+  @override
+  late final _Translations$core$progress$workout$noPerformance$en noPerformance =
+      _Translations$core$progress$workout$noPerformance$en._(_root);
+  @override
+  String get weeklyActivity => 'Weekly Activity';
+  @override
+  late final _Translations$core$progress$workout$noActivity$en noActivity =
+      _Translations$core$progress$workout$noActivity$en._(_root);
+  @override
+  String get trainingVolume => 'Training Volume';
+  @override
+  late final _Translations$core$progress$workout$noVolume$en noVolume =
+      _Translations$core$progress$workout$noVolume$en._(_root);
+  @override
+  String get recentWorkouts => 'Recent Workouts';
+  @override
+  late final _Translations$core$progress$workout$noRecentWorkouts$en noRecentWorkouts =
+      _Translations$core$progress$workout$noRecentWorkouts$en._(_root);
+  @override
+  String get minutesPerDay => 'Minutes per day';
+  @override
+  String minutesTotal({required Object minutes}) => '${minutes} min total';
+  @override
+  String trainingMinutesThisWeek({required Object minutes}) =>
+      '${minutes} training minutes this week';
+  @override
+  String get totalTime => 'Total Time';
+}
+
+// Path: core.progress.history
+class _Translations$core$progress$history$en extends Translations$core$progress$history$id {
+  _Translations$core$progress$history$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get all => 'All';
+  @override
+  String get workout => 'Workout';
+  @override
+  String get measurement => 'Measurement';
+  @override
+  String get oldestFirst => 'Oldest first';
+  @override
+  String get newestFirst => 'Newest first';
+  @override
+  String get recordWeight => 'Record weight';
+}
+
+// Path: core.progress.duration
+class _Translations$core$progress$duration$en extends Translations$core$progress$duration$id {
+  _Translations$core$progress$duration$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String minutes({required Object minutes}) => '${minutes} min';
+  @override
+  String hours({required Object hours}) => '${hours}h';
+  @override
+  String hoursMinutes({required Object hours, required Object minutes}) => '${hours}h ${minutes}m';
+}
+
+// Path: core.progress.weightDialog
+class _Translations$core$progress$weightDialog$en
+    extends Translations$core$progress$weightDialog$id {
+  _Translations$core$progress$weightDialog$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Record weight';
+  @override
+  String get currentWeight => 'Current weight';
+  @override
+  String get cancel => 'Cancel';
+  @override
+  String get save => 'Save';
+}
+
+// Path: core.progress.error
+class _Translations$core$progress$error$en extends Translations$core$progress$error$id {
+  _Translations$core$progress$error$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Unable to load progress';
+  @override
+  String get retry => 'Try again';
 }
 
 // Path: home.weeklyProgress.states
@@ -1575,6 +1943,71 @@ class _Translations$workouts$session$status$en extends Translations$workouts$ses
   String get scheduled => 'Scheduled';
 }
 
+// Path: core.progress.workout.noPerformance
+class _Translations$core$progress$workout$noPerformance$en
+    extends Translations$core$progress$workout$noPerformance$id {
+  _Translations$core$progress$workout$noPerformance$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'No workout performance yet';
+  @override
+  String get message =>
+      'Your weekly activity and training volume will appear after you complete a workout.';
+}
+
+// Path: core.progress.workout.noActivity
+class _Translations$core$progress$workout$noActivity$en
+    extends Translations$core$progress$workout$noActivity$id {
+  _Translations$core$progress$workout$noActivity$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'No activity this week';
+  @override
+  String get message => 'Completed workout time will be summarized here.';
+}
+
+// Path: core.progress.workout.noVolume
+class _Translations$core$progress$workout$noVolume$en
+    extends Translations$core$progress$workout$noVolume$id {
+  _Translations$core$progress$workout$noVolume$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'No training volume yet';
+  @override
+  String get message => 'Set and rep totals will appear after you log completed sets.';
+}
+
+// Path: core.progress.workout.noRecentWorkouts
+class _Translations$core$progress$workout$noRecentWorkouts$en
+    extends Translations$core$progress$workout$noRecentWorkouts$id {
+  _Translations$core$progress$workout$noRecentWorkouts$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'No recent workouts';
+  @override
+  String get message => 'Your completed sessions will show up here.';
+}
+
 // Path: onboarding.ready.program.bulking
 class _Translations$onboarding$ready$program$bulking$en
     extends Translations$onboarding$ready$program$bulking$id {
@@ -1653,6 +2086,121 @@ extension on TranslationsEn {
       'core.units.sets' => 'sets',
       'core.units.seconds' => 'sec',
       'core.units.kg' => 'kg',
+      'core.streak.daySingular' => ({required Object count}) => '${count} day',
+      'core.streak.dayPlural' => ({required Object count}) => '${count} days',
+      'core.streak.activeDaySingular' => ({
+        required Object count,
+      }) => '${count} consecutive active day',
+      'core.streak.activeDayPlural' => ({
+        required Object count,
+      }) => '${count} consecutive active days',
+      'core.progress.title' => 'Progress',
+      'core.progress.rangeWeeks' => ({required Object weeks}) => 'Last ${weeks} Weeks',
+      'core.progress.tabs.overview' => 'Overview',
+      'core.progress.tabs.body' => 'Body',
+      'core.progress.tabs.workout' => 'Workout',
+      'core.progress.tabs.history' => 'History',
+      'core.progress.overviewTitle' => 'Your Progress',
+      'core.progress.overviewSubtitle' => 'A quick summary of your training and body progress.',
+      'core.progress.metrics.workouts' => 'Workouts',
+      'core.progress.metrics.completion' => 'Completion',
+      'core.progress.metrics.trainingTime' => 'Training Time',
+      'core.progress.metrics.currentStreak' => 'Current Streak',
+      'core.progress.programProgress' => 'Program Progress',
+      'core.progress.noWorkoutData.title' => 'No workout data yet',
+      'core.progress.noWorkoutData.message' =>
+        'Complete your first workout to see your training progress here.',
+      'core.progress.noActiveProgram.title' => 'No active program',
+      'core.progress.noActiveProgram.message' =>
+        'Choose a training program to track your weekly progress.',
+      'core.progress.recentHighlights' => 'Recent Highlights',
+      'core.progress.keepGoing' => 'Keep Going!',
+      'core.progress.keepGoingMessage' =>
+        'Stay consistent. Every workout brings you closer to your goal.',
+      'core.progress.weightTrend.title' => 'Weight (kg)',
+      'core.progress.weightTrend.weekValue' => ({
+        required Object week,
+        required Object value,
+      }) => 'W${week} · ${value} kg',
+      'core.progress.weightTrend.weekShort' => ({required Object week}) => 'W${week}',
+      'core.progress.weightTrend.empty' => 'No weight measurements in this period yet.',
+      'core.progress.weightTrend.vsWeeksAgo' => ({
+        required Object weeks,
+      }) => 'vs. ${weeks} weeks ago',
+      'core.progress.weightTrend.increase' => ({required Object value}) => '↑ +${value} kg',
+      'core.progress.weightTrend.decrease' => ({required Object value}) => '↓ ${value} kg',
+      'core.progress.notTracked.title' => ({
+        required Object metric,
+      }) => '${metric} tracking is not available yet',
+      'core.progress.notTracked.message' => 'This metric is not stored in your measurements yet.',
+      'core.progress.programCard.weekOf' => ({
+        required Object week,
+        required Object total,
+      }) => 'Week ${week} of ${total}',
+      'core.progress.programCard.active' => 'Active',
+      'core.progress.programCard.completion' => 'Program completion',
+      'core.progress.highlights.completed' => ({
+        required Object completed,
+        required Object target,
+      }) => 'Completed ${completed} of ${target} workouts this week',
+      'core.progress.highlights.weightIncrease' => ({
+        required Object value,
+      }) => 'Weight increased by ${value} kg',
+      'core.progress.highlights.weightDecrease' => ({
+        required Object value,
+      }) => 'Weight decreased by ${value} kg',
+      'core.progress.highlights.emptyTitle' => 'No highlights yet',
+      'core.progress.highlights.emptyMessage' =>
+        'Your milestones will appear as you record workouts and measurements.',
+      'core.progress.body.title' => 'Body Progress',
+      'core.progress.body.subtitle' => 'Track changes in your body over time.',
+      'core.progress.body.weight' => 'Weight',
+      'core.progress.body.muscleMass' => 'Muscle Mass',
+      'core.progress.body.bodyFat' => 'Body Fat',
+      'core.progress.body.logMeasurement' => 'Log Measurement',
+      'core.progress.body.recordWeight' => 'Record weight',
+      'core.progress.body.currentWeight' => 'Current weight',
+      'core.progress.workout.title' => 'Workout Performance',
+      'core.progress.workout.subtitle' => 'Your training progress and consistency.',
+      'core.progress.workout.noPerformance.title' => 'No workout performance yet',
+      'core.progress.workout.noPerformance.message' =>
+        'Your weekly activity and training volume will appear after you complete a workout.',
+      'core.progress.workout.weeklyActivity' => 'Weekly Activity',
+      'core.progress.workout.noActivity.title' => 'No activity this week',
+      'core.progress.workout.noActivity.message' =>
+        'Completed workout time will be summarized here.',
+      'core.progress.workout.trainingVolume' => 'Training Volume',
+      'core.progress.workout.noVolume.title' => 'No training volume yet',
+      'core.progress.workout.noVolume.message' =>
+        'Set and rep totals will appear after you log completed sets.',
+      'core.progress.workout.recentWorkouts' => 'Recent Workouts',
+      'core.progress.workout.noRecentWorkouts.title' => 'No recent workouts',
+      'core.progress.workout.noRecentWorkouts.message' =>
+        'Your completed sessions will show up here.',
+      'core.progress.workout.minutesPerDay' => 'Minutes per day',
+      'core.progress.workout.minutesTotal' => ({required Object minutes}) => '${minutes} min total',
+      'core.progress.workout.trainingMinutesThisWeek' => ({
+        required Object minutes,
+      }) => '${minutes} training minutes this week',
+      'core.progress.workout.totalTime' => 'Total Time',
+      'core.progress.history.all' => 'All',
+      'core.progress.history.workout' => 'Workout',
+      'core.progress.history.measurement' => 'Measurement',
+      'core.progress.history.oldestFirst' => 'Oldest first',
+      'core.progress.history.newestFirst' => 'Newest first',
+      'core.progress.history.recordWeight' => 'Record weight',
+      'core.progress.duration.minutes' => ({required Object minutes}) => '${minutes} min',
+      'core.progress.duration.hours' => ({required Object hours}) => '${hours}h',
+      'core.progress.duration.hoursMinutes' => ({
+        required Object hours,
+        required Object minutes,
+      }) => '${hours}h ${minutes}m',
+      'core.progress.weightDialog.title' => 'Record weight',
+      'core.progress.weightDialog.currentWeight' => 'Current weight',
+      'core.progress.weightDialog.cancel' => 'Cancel',
+      'core.progress.weightDialog.save' => 'Save',
+      'core.progress.error.title' => 'Unable to load progress',
+      'core.progress.error.retry' => 'Try again',
       'home.greeting.goodMorning' => ({required Object name}) => 'Good Morning, ${name} 👋',
       'home.greeting.goodAfternoon' => ({required Object name}) => 'Good Afternoon, ${name} 👋',
       'home.greeting.goodEvening' => ({required Object name}) => 'Good Evening, ${name} 👋',
@@ -1936,7 +2484,9 @@ extension on TranslationsEn {
         'We couldn\'t save your workout. Your recorded progress is still here. Please try again.',
       'workoutSession.defaultProgramTitle' => 'Strength Training',
       'workoutSession.completedScreen.title' => 'Workout Completed! 🎉',
-      'workoutSession.completedScreen.subtitle' => ({required Object focus}) => 'Great job! You\'ve finished ${focus}.',
+      'workoutSession.completedScreen.subtitle' => ({
+        required Object focus,
+      }) => 'Great job! You\'ve finished ${focus}.',
       'workoutSession.completedScreen.duration' => 'Duration',
       'workoutSession.completedScreen.exercises' => 'Exercises',
       'workoutSession.completedScreen.estCalories' => 'Est. Calories',

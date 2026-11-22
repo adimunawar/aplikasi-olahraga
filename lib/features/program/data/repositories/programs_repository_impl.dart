@@ -34,6 +34,12 @@ class ProgramsRepositoryImpl implements ProgramsRepository {
   }
 
   @override
+  Future<bool> hasActiveProgram() async {
+    final activeId = await database.getActiveProgramId();
+    return activeId.trim().isNotEmpty;
+  }
+
+  @override
   Future<WorkoutProgram> getActiveProgram() async {
     final activeId = await database.getActiveProgramId();
 

@@ -1,16 +1,14 @@
 import 'package:material_ui/material_ui.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_typography.dart';
-import '../../domain/models/progression_milestone.dart';
+
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_typography.dart';
+import '../../../domain/models/progression_milestone.dart';
 
 /// Card Pencapaian Tangga Gerakan & Riwayat Adaptasi Coach Adi (Fase 5)
 class ProgressionMilestonesCard extends StatelessWidget {
   final List<ProgressionMilestone> milestones;
 
-  const ProgressionMilestonesCard({
-    super.key,
-    required this.milestones,
-  });
+  const ProgressionMilestonesCard({super.key, required this.milestones});
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +77,11 @@ class ProgressionMilestonesCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Row(
                 children: [
-                  const Icon(Icons.info_outline_rounded, color: AppColors.neutral500, size: 18),
+                  const Icon(
+                    Icons.info_outline_rounded,
+                    color: AppColors.neutral500,
+                    size: 18,
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -166,7 +168,11 @@ class ProgressionMilestonesCard extends StatelessWidget {
                     if (m.nextExerciseNameFormatted != null) ...[
                       const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 4),
-                        child: Icon(Icons.arrow_forward_rounded, size: 14, color: Color(0xFF16A34A)),
+                        child: Icon(
+                          Icons.arrow_forward_rounded,
+                          size: 14,
+                          color: Color(0xFF16A34A),
+                        ),
                       ),
                       Flexible(
                         child: Text(
@@ -232,4 +238,3 @@ class ProgressionMilestonesCard extends StatelessWidget {
     );
   }
 }
-

@@ -4,7 +4,7 @@ class BmiCalculatorService {
 
   /// Menghitung nilai BMI dengan rumus: BB(kg) / (TB(m))^2
   double calculateBmi({required double weightKg, required double heightCm}) {
-    if (heightCm <= 0 || weightKg <= 0) return 19.2;
+    if (heightCm <= 0 || weightKg <= 0) return 0;
     final heightM = heightCm / 100.0;
     final rawBmi = weightKg / (heightM * heightM);
     return double.parse(rawBmi.toStringAsFixed(1));
