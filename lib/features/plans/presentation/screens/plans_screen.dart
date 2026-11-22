@@ -156,7 +156,7 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
         }
       }
 
-      final thisWeekCount = await _db.getThisWeekCompletedCount();
+      await _db.getThisWeekCompletedCount();
       final totalCompleted = await _db.getCompletedSessionsCount();
       final weightLogs = await _db.getWeightHistory();
 
