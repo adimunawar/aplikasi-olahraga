@@ -1,4 +1,3 @@
-import '../../../exercises/domain/models/exercise.dart';
 import '../../../program/domain/models/program_day.dart';
 import '../../../program/domain/models/workout_program.dart';
 

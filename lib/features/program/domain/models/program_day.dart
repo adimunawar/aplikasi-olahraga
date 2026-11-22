@@ -1,7 +1,5 @@
 import 'package:flutter/foundation.dart';
 
-import '../../../exercises/domain/models/exercise.dart';
-
 enum WorkoutTypeCode {
   p,
   k,
@@ -154,13 +152,11 @@ class ProgramDay {
     if (rawFocus is String) {
       parsedFocus = rawFocus;
     } else if (rawFocus is Map) {
-      parsedFocus = rawFocus['id']?.toString() ??
-          rawFocus['en']?.toString() ??
-          '';
+      parsedFocus =
+          rawFocus['id']?.toString() ?? rawFocus['en']?.toString() ?? '';
     } else {
-      parsedFocus = json['focus_id']?.toString() ??
-          json['focus_en']?.toString() ??
-          '';
+      parsedFocus =
+          json['focus_id']?.toString() ?? json['focus_en']?.toString() ?? '';
     }
 
     final rawItems = json['program_day_exercises'] ?? json['items'];
@@ -173,8 +169,10 @@ class ProgramDay {
       isRest: json['is_rest'] as bool? ?? false,
       isRetestMilestone: json['is_retest_milestone'] as bool? ?? false,
       title: json['title'] as String?,
-      thumbnailAsset: json['thumbnail_asset'] as String? ?? json['thumbnail'] as String?,
-      estimatedDurationMinutes: (json['estimated_duration_minutes'] as num?)?.toInt() ?? 30,
+      thumbnailAsset:
+          json['thumbnail_asset'] as String? ?? json['thumbnail'] as String?,
+      estimatedDurationMinutes:
+          (json['estimated_duration_minutes'] as num?)?.toInt() ?? 30,
       items:
           (rawItems as List?)
               ?.map(
@@ -221,7 +219,8 @@ class ProgramDay {
       items: items ?? this.items,
       title: title ?? this.title,
       thumbnailAsset: thumbnailAsset ?? this.thumbnailAsset,
-      estimatedDurationMinutes: estimatedDurationMinutes ?? this.estimatedDurationMinutes,
+      estimatedDurationMinutes:
+          estimatedDurationMinutes ?? this.estimatedDurationMinutes,
     );
   }
 }

@@ -15,7 +15,6 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
 import '../../../exercises/data/repositories/exercise_repository_impl.dart';
-import '../../../exercises/domain/models/exercise.dart';
 import '../../../program/domain/models/program_day.dart';
 import '../../../program/domain/services/dynamic_program_generator.dart';
 import '../widgets/plans_overview_tab.dart';
@@ -791,7 +790,10 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
         surfaceTintColor: Colors.transparent,
         leading: widget.isOnboarding
             ? IconButton(
-                icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF141718)),
+                icon: const Icon(
+                  Icons.arrow_back_rounded,
+                  color: Color(0xFF141718),
+                ),
                 onPressed: () {
                   if (context.canPop()) {
                     context.pop();
@@ -801,11 +803,14 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
                 },
               )
             : (context.canPop()
-                ? IconButton(
-                    icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF141718)),
-                    onPressed: () => context.pop(),
-                  )
-                : null),
+                  ? IconButton(
+                      icon: const Icon(
+                        Icons.arrow_back_rounded,
+                        color: Color(0xFF141718),
+                      ),
+                      onPressed: () => context.pop(),
+                    )
+                  : null),
         title: Text(
           'Your Training Plan',
           style: AppTypography.headlineMedium.copyWith(

@@ -46,12 +46,12 @@ class WorkoutSessionCard extends StatelessWidget {
     final statusText = isCompleted
         ? t.workouts.session.status.completed
         : isInProgress
-            ? t.workouts.session.status.inProgress
-            : isActiveToday
-                ? t.workouts.session.status.readyToStart
-                : isMissed
-                    ? t.workouts.session.status.missed
-                    : t.workouts.session.status.scheduled;
+        ? t.workouts.session.status.inProgress
+        : isActiveToday
+        ? t.workouts.session.status.readyToStart
+        : isMissed
+        ? t.workouts.session.status.missed
+        : t.workouts.session.status.scheduled;
 
     // Left badge colors & icons
     final Color badgeBg;
@@ -60,11 +60,15 @@ class WorkoutSessionCard extends StatelessWidget {
 
     if (isCompleted) {
       badgeBg = isDark ? const Color(0xFF233B19) : const Color(0xFFDCFCE7);
-      badgeIconColor = isDark ? const Color(0xFFA3E635) : const Color(0xFF16A34A);
+      badgeIconColor = isDark
+          ? const Color(0xFFA3E635)
+          : const Color(0xFF16A34A);
       badgeIcon = Icons.check_rounded;
     } else if (isInProgress) {
       badgeBg = isDark ? const Color(0xFF3D2E14) : const Color(0xFFFEF3C7);
-      badgeIconColor = isDark ? const Color(0xFFFBBF24) : const Color(0xFFD97706);
+      badgeIconColor = isDark
+          ? const Color(0xFFFBBF24)
+          : const Color(0xFFD97706);
       badgeIcon = Icons.play_arrow_rounded;
     } else if (isActiveToday) {
       badgeBg = isDark ? const Color(0xFF1E3516) : const Color(0xFFECFCCB);
@@ -72,19 +76,21 @@ class WorkoutSessionCard extends StatelessWidget {
       badgeIcon = Icons.play_arrow_rounded;
     } else if (isMissed) {
       badgeBg = isDark ? const Color(0xFF381E1E) : const Color(0xFFFEE2E2);
-      badgeIconColor = isDark ? const Color(0xFFF87171) : const Color(0xFFDC2626);
+      badgeIconColor = isDark
+          ? const Color(0xFFF87171)
+          : const Color(0xFFDC2626);
       badgeIcon = Icons.event_busy_rounded;
     } else {
       // Locked / Scheduled
       badgeBg = isDark ? const Color(0xFF1E242C) : const Color(0xFFF1F5F9);
-      badgeIconColor = isDark ? const Color(0xFF8B9CB2) : const Color(0xFF64748B);
+      badgeIconColor = isDark
+          ? const Color(0xFF8B9CB2)
+          : const Color(0xFF64748B);
       badgeIcon = Icons.lock_rounded;
     }
 
     // Card background & borders
-    final cardBgColor = isDark
-        ? const Color(0xFF16191D)
-        : Colors.white;
+    final cardBgColor = isDark ? const Color(0xFF16191D) : Colors.white;
     final borderColor = isActionable
         ? (isDark ? const Color(0xFF2C3524) : const Color(0xFFE2E8F0))
         : (isDark ? const Color(0xFF222830) : const Color(0xFFE5E7EB));
@@ -97,7 +103,7 @@ class WorkoutSessionCard extends StatelessWidget {
         : const Color(0xFF6B7280);
 
     // Subtitle composition
-    final durationStr = '${t.workouts.session.min(min: durationMinutes)}';
+    final durationStr = t.workouts.session.min(min: durationMinutes);
     final subParts = <String>[];
     if (focusLabel != null && focusLabel!.trim().isNotEmpty) {
       subParts.add(focusLabel!.trim());
@@ -114,10 +120,7 @@ class WorkoutSessionCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: cardBgColor,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: borderColor,
-            width: 1.2,
-          ),
+          border: Border.all(color: borderColor, width: 1.2),
           boxShadow: [
             BoxShadow(
               color: isDark ? const Color(0x33000000) : const Color(0x06000000),
@@ -132,16 +135,9 @@ class WorkoutSessionCard extends StatelessWidget {
             Container(
               width: 38,
               height: 38,
-              decoration: BoxDecoration(
-                color: badgeBg,
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: badgeBg, shape: BoxShape.circle),
               child: Center(
-                child: Icon(
-                  badgeIcon,
-                  size: 18,
-                  color: badgeIconColor,
-                ),
+                child: Icon(badgeIcon, size: 18, color: badgeIconColor),
               ),
             ),
             const SizedBox(width: 14),

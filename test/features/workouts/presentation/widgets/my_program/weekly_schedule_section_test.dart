@@ -3,12 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:workout_app/core/database/models/dynamic_program_entity.dart';
 import 'package:workout_app/core/database/models/user_profile_entity.dart';
-import 'package:workout_app/core/database/models/workout_session_entity.dart';
 import 'package:workout_app/core/router/app_router.dart';
 import 'package:workout_app/core/theme/app_theme.dart';
 import 'package:workout_app/features/program/domain/models/program_lifecycle.dart';
 import 'package:workout_app/features/program/domain/services/program_week_schedule.dart';
-import 'package:workout_app/features/workouts/domain/models/week_progress.dart';
 import 'package:workout_app/features/workouts/presentation/widgets/my_program/weekly_schedule_section.dart';
 import 'package:workout_app/i18n/strings.g.dart';
 
@@ -118,43 +116,49 @@ void main() {
     );
   }
 
-  testWidgets('passes localized Indonesian strings to WorkoutDetailArgs when locale is ID', (tester) async {
-    WorkoutDetailArgs? capturedArgs;
+  testWidgets(
+    'passes localized Indonesian strings to WorkoutDetailArgs when locale is ID',
+    (tester) async {
+      WorkoutDetailArgs? capturedArgs;
 
-    await tester.pumpWidget(
-      createTestWidget(
-        locale: AppLocale.id,
-        onDetailNavigated: (args) => capturedArgs = args,
-      ),
-    );
-    await tester.pumpAndSettle();
+      await tester.pumpWidget(
+        createTestWidget(
+          locale: AppLocale.id,
+          onDetailNavigated: (args) => capturedArgs = args,
+        ),
+      );
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Full Body Push'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('Full Body Push'));
+      await tester.pumpAndSettle();
 
-    expect(capturedArgs, isNotNull);
-    expect(capturedArgs!.weekDayText, equals('Minggu 1 • Hari 1'));
-    expect(capturedArgs!.durationText, equals('45 mnt'));
-    expect(capturedArgs!.levelText, equals('Pemula'));
-  });
+      expect(capturedArgs, isNotNull);
+      expect(capturedArgs!.weekDayText, equals('Minggu 1 • Hari 1'));
+      expect(capturedArgs!.durationText, equals('45 mnt'));
+      expect(capturedArgs!.levelText, equals('Pemula'));
+    },
+  );
 
-  testWidgets('passes localized English strings to WorkoutDetailArgs when locale is EN', (tester) async {
-    WorkoutDetailArgs? capturedArgs;
+  testWidgets(
+    'passes localized English strings to WorkoutDetailArgs when locale is EN',
+    (tester) async {
+      WorkoutDetailArgs? capturedArgs;
 
-    await tester.pumpWidget(
-      createTestWidget(
-        locale: AppLocale.en,
-        onDetailNavigated: (args) => capturedArgs = args,
-      ),
-    );
-    await tester.pumpAndSettle();
+      await tester.pumpWidget(
+        createTestWidget(
+          locale: AppLocale.en,
+          onDetailNavigated: (args) => capturedArgs = args,
+        ),
+      );
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Full Body Push'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('Full Body Push'));
+      await tester.pumpAndSettle();
 
-    expect(capturedArgs, isNotNull);
-    expect(capturedArgs!.weekDayText, equals('Week 1 • Day 1'));
-    expect(capturedArgs!.durationText, equals('45 min'));
-    expect(capturedArgs!.levelText, equals('Beginner'));
-  });
+      expect(capturedArgs, isNotNull);
+      expect(capturedArgs!.weekDayText, equals('Week 1 • Day 1'));
+      expect(capturedArgs!.durationText, equals('45 min'));
+      expect(capturedArgs!.levelText, equals('Beginner'));
+    },
+  );
 }
