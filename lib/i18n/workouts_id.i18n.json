@@ -60,7 +60,30 @@
   "workoutDetail": {
     "readOnlyTitle": "Mode pratinjau",
     "readOnlyNotice": "Rencana latihan ini hanya bisa dilihat. Tombol mulai aktif pada hari yang dijadwalkan.",
-    "resume": "Lanjutkan Latihan"
+    "resume": "Lanjutkan Latihan",
+    "shareTooltip": "Salin detail latihan",
+    "bookmarkAdd": "Bookmark latihan",
+    "bookmarkRemove": "Hapus bookmark",
+    "copiedMessage": "Detail latihan berhasil disalin.",
+    "defaultDescription": "Tingkatkan kekuatan dan kebugaran tubuh dengan gerakan terpilih.",
+    "exerciseCount": "$count latihan",
+    "exerciseListTitle": "Daftar Gerakan ($count)",
+    "stages": {
+      "warmup": {
+        "title": "Pemanasan",
+        "subtitle": "Persiapan"
+      },
+      "main": {
+        "title": "Latihan Inti",
+        "subtitle": "Latihan Utama"
+      },
+      "cooldown": {
+        "title": "Pendinginan",
+        "subtitle": "Pemulihan"
+      }
+    },
+    "setReps": "$sets set × $reps",
+    "repsUnit": "repetisi"
   },
   "filter": {
     "title": "Filter Berdasarkan Otot"

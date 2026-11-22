@@ -60,7 +60,30 @@
   "workoutDetail": {
     "readOnlyTitle": "Preview mode",
     "readOnlyNotice": "You can review this workout plan. The start button unlocks on its scheduled day.",
-    "resume": "Resume Workout"
+    "resume": "Resume Workout",
+    "shareTooltip": "Copy workout details",
+    "bookmarkAdd": "Bookmark workout",
+    "bookmarkRemove": "Remove bookmark",
+    "copiedMessage": "Workout details copied.",
+    "defaultDescription": "Build strength and stability with a focused mix of bodyweight exercises.",
+    "exerciseCount": "$count exercises",
+    "exerciseListTitle": "Exercises ($count)",
+    "stages": {
+      "warmup": {
+        "title": "Warm up",
+        "subtitle": "Warm-up"
+      },
+      "main": {
+        "title": "Training",
+        "subtitle": "Main Workout"
+      },
+      "cooldown": {
+        "title": "Cool down",
+        "subtitle": "Recovery"
+      }
+    },
+    "setReps": "$sets sets × $reps",
+    "repsUnit": "reps"
   },
   "filter": {
     "title": "Filter by Muscle Group"

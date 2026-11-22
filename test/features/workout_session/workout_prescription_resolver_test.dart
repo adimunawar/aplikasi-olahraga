@@ -12,7 +12,7 @@ ProgramDay _day(List<WorkoutItem> items) {
     day: 1,
     week: 1,
     type: WorkoutTypeCode.f,
-    focus: const LocalizedString(id: 'Quo', en: 'Full Body'),
+    focus: 'Full Body',
     isRest: false,
     isRetestMilestone: false,
     items: items,

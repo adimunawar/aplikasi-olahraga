@@ -268,10 +268,7 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
           day: firstSession.session.dayNumber,
           week: 1,
           type: WorkoutTypeCode.f,
-          focus: LocalizedString(
-            id: firstSession.session.focusLabel,
-            en: firstSession.session.focusLabel,
-          ),
+          focus: firstSession.session.focusLabel,
           isRest: false,
           isRetestMilestone: false,
           items: workoutItems,

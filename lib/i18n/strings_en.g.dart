@@ -1171,6 +1171,100 @@ class _Translations$workouts$workoutDetail$en extends Translations$workouts$work
       'You can review this workout plan. The start button unlocks on its scheduled day.';
   @override
   String get resume => 'Resume Workout';
+  @override
+  String get shareTooltip => 'Copy workout details';
+  @override
+  String get bookmarkAdd => 'Bookmark workout';
+  @override
+  String get bookmarkRemove => 'Remove bookmark';
+  @override
+  String get copiedMessage => 'Workout details copied.';
+  @override
+  String get defaultDescription =>
+      'Build strength and stability with a focused mix of bodyweight exercises.';
+  @override
+  String exerciseCount({required Object count}) => '${count} exercises';
+  @override
+  String exerciseListTitle({required Object count}) => 'Exercises (${count})';
+
+  @override
+  late final _Translations$workouts$workoutDetail$stages$en stages =
+      _Translations$workouts$workoutDetail$stages$en._(_root);
+
+  @override
+  String setReps({required Object sets, required Object reps}) => '${sets} sets × ${reps}';
+
+  @override
+  String get repsUnit => 'reps';
+}
+
+// Path: workouts.workoutDetail.stages
+class _Translations$workouts$workoutDetail$stages$en
+    extends Translations$workouts$workoutDetail$stages$id {
+  _Translations$workouts$workoutDetail$stages$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  late final _Translations$workouts$workoutDetail$stages$warmup$en warmup =
+      _Translations$workouts$workoutDetail$stages$warmup$en._(_root);
+  @override
+  late final _Translations$workouts$workoutDetail$stages$main$en main =
+      _Translations$workouts$workoutDetail$stages$main$en._(_root);
+  @override
+  late final _Translations$workouts$workoutDetail$stages$cooldown$en cooldown =
+      _Translations$workouts$workoutDetail$stages$cooldown$en._(_root);
+}
+
+// Path: workouts.workoutDetail.stages.warmup
+class _Translations$workouts$workoutDetail$stages$warmup$en
+    extends Translations$workouts$workoutDetail$stages$warmup$id {
+  _Translations$workouts$workoutDetail$stages$warmup$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Warm up';
+  @override
+  String get subtitle => 'Warm-up';
+}
+
+// Path: workouts.workoutDetail.stages.main
+class _Translations$workouts$workoutDetail$stages$main$en
+    extends Translations$workouts$workoutDetail$stages$main$id {
+  _Translations$workouts$workoutDetail$stages$main$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Training';
+  @override
+  String get subtitle => 'Main Workout';
+}
+
+// Path: workouts.workoutDetail.stages.cooldown
+class _Translations$workouts$workoutDetail$stages$cooldown$en
+    extends Translations$workouts$workoutDetail$stages$cooldown$id {
+  _Translations$workouts$workoutDetail$stages$cooldown$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Cool down';
+  @override
+  String get subtitle => 'Recovery';
 }
 
 // Path: workouts.filter
@@ -2554,6 +2648,27 @@ extension on TranslationsEn {
       'workouts.workoutDetail.readOnlyNotice' =>
         'You can review this workout plan. The start button unlocks on its scheduled day.',
       'workouts.workoutDetail.resume' => 'Resume Workout',
+      'workouts.workoutDetail.shareTooltip' => 'Copy workout details',
+      'workouts.workoutDetail.bookmarkAdd' => 'Bookmark workout',
+      'workouts.workoutDetail.bookmarkRemove' => 'Remove bookmark',
+      'workouts.workoutDetail.copiedMessage' => 'Workout details copied.',
+      'workouts.workoutDetail.defaultDescription' =>
+        'Build strength and stability with a focused mix of bodyweight exercises.',
+      'workouts.workoutDetail.exerciseCount' => ({required Object count}) => '${count} exercises',
+      'workouts.workoutDetail.exerciseListTitle' => ({
+        required Object count,
+      }) => 'Exercises (${count})',
+      'workouts.workoutDetail.stages.warmup.title' => 'Warm up',
+      'workouts.workoutDetail.stages.warmup.subtitle' => 'Warm-up',
+      'workouts.workoutDetail.stages.main.title' => 'Training',
+      'workouts.workoutDetail.stages.main.subtitle' => 'Main Workout',
+      'workouts.workoutDetail.stages.cooldown.title' => 'Cool down',
+      'workouts.workoutDetail.stages.cooldown.subtitle' => 'Recovery',
+      'workouts.workoutDetail.setReps' => ({
+        required Object sets,
+        required Object reps,
+      }) => '${sets} sets × ${reps}',
+      'workouts.workoutDetail.repsUnit' => 'reps',
       'workouts.filter.title' => 'Filter by Muscle Group',
       'workouts.categories.all' => 'All',
       'workouts.categories.chest' => 'Chest',

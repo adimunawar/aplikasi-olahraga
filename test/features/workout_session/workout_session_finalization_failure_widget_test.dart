@@ -221,7 +221,7 @@ void main() {
     day: 1,
     week: 1,
     type: WorkoutTypeCode.p,
-    focus: const LocalizedString(id: 'Dada', en: 'Chest Focus'),
+    focus: 'Dada',
     isRest: false,
     isRetestMilestone: false,
     items: const [

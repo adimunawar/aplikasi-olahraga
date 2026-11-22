@@ -18,6 +18,8 @@ The current implementation includes:
 - Set-level training records, including RIR-related fields.
 - A rule-based progression engine that evaluates training performance and produces explainable progression decisions.
 - Workout history, body measurements, progress metrics, and nutrition guidance screens.
+- Comprehensive Dark Mode and Light Mode support with accessibility-conscious contrast and semantic theming.
+- Multiplatform architecture supporting native mobile (Android/iOS) and Flutter Web via WebAssembly (WASM).
 - Indonesian and English localization infrastructure.
 - Optional Firebase Analytics and Crashlytics integration.
 
@@ -27,15 +29,17 @@ The list describes implemented areas in the repository; it is not a claim that e
 
 | Concern | Current approach |
 |---|---|
-| Client | Flutter / Dart |
-| State management | Riverpod 2.x |
-| Navigation | GoRouter |
-| Local persistence | SQLite through sqflite |
-| Remote catalog and optional cloud data | Supabase |
+| Client | Flutter / Dart (Native Android/iOS & Flutter Web with WebAssembly/WASM) |
+| UI & Theming | Material 3 with full Dark Mode and Light Mode support (`AppTheme`) |
+| State management | Riverpod 2.x (`flutter_riverpod`) |
+| Navigation | GoRouter (`go_router`) |
+| Local persistence | SQLite through `sqflite` (Native) & `sqflite_common_ffi_web` via WebAssembly + IndexedDB (Web) |
+| Remote catalog and optional cloud data | Supabase (`supabase_flutter`) |
 | Media delivery | Remote media URLs, including R2 proxy resolution |
-| Video playback | video_player |
+| Video playback | `video_player` |
 | Crash reporting and analytics | Firebase Crashlytics and Analytics |
-| Localization | slang / slang_flutter |
+| Localization | `slang` / `slang_flutter` |
+| Quality & Verification | Strict automated test requirement for every feature/fix (unit, widget, integration) |
 | CI | GitHub Actions |
 | Android tester distribution | Firebase App Distribution |
 
@@ -139,6 +143,8 @@ For a clean environment setup and platform caveats, read [Development setup](doc
 
 ## Quality checks
 
+Every feature addition, modification, or bug fix MUST include automated tests (unit, widget, or integration tests). Untested features or fixes are not accepted.
+
 Run these commands before opening a pull request:
 
 ```bash
@@ -190,7 +196,7 @@ The following are known from the repository snapshot and MUST NOT be hidden in a
 - Progress-related code contains fallback/sample values. Those values must be removed from production data paths before presenting analytics as real user activity.
 - Exercise catalog first-install behavior needs an explicit, tested path for an empty local cache when the network is unavailable.
 - Cloud Sync has consent and account checks, but a complete in-app authentication journey and durable retry/outbox behavior must be verified before describing cloud synchronization as fully end-to-end.
-- The web persistence fallback is in-memory; native SQLite behavior must not be assumed on web.
+- Flutter Web persistence uses SQLite compiled to WebAssembly with IndexedDB storage; browser storage is origin/port-scoped and subject to browser clearing or eviction policies, and should not replace persistent cloud sync.
 - iOS and desktop release pipelines are not established by the current Android-focused CI workflows.
 
 ## Project status and licensing
@@ -199,14 +205,36 @@ This repository is maintained as a portfolio and engineering showcase. Product s
 
 No open-source license is currently declared in this repository. Unless a license is added by the maintainer, do not assume permission to redistribute, modify, or use this code in another product.
 
-## Flutter Web database setup
+## Flutter Web & WebAssembly (WASM)
 
-The Web target uses `sqflite_common_ffi_web`, which stores the SQLite database in browser IndexedDB. Before running or building the Web app, install dependencies and generate the required SQLite WebAssembly and worker assets:
+The Web target compiles using Flutter Web (supporting WebAssembly/WASM) and uses `sqflite_common_ffi_web` to provide the same SQLite API with IndexedDB browser persistence.
+
+### First-time Web setup
+
+Generate the SQLite WebAssembly binary and worker assets beside `web/index.html`:
 
 ```bash
 flutter pub get
 dart run sqflite_common_ffi_web:setup
-flutter run -d chrome --web-port 8080
 ```
 
-The setup command creates `web/sqlite3.wasm` and `web/sqflite_sw.js`. Keep both files in the project or run the setup command in your Web build pipeline before `flutter build web`. Browser data is scoped to the site origin (including its port); changing the local development port uses a separate IndexedDB store. Web support in `sqflite_common_ffi_web` is experimental.
+This creates `web/sqlite3.wasm` and `web/sqflite_sw.js`. These assets are tracked in source control or generated during Web CI builds before `flutter build web`.
+
+### Running and building Web
+
+1. **Local development (Chrome):**
+   Use a stable port so browser IndexedDB data remains attached to the same origin:
+   ```bash
+   flutter run -d chrome --web-port 8080
+   ```
+2. **Build for production with WebAssembly (WASM):**
+   ```bash
+   flutter build web --wasm
+   ```
+   > **Note on HTTP Headers:** When deploying Flutter Web with WASM and multi-threading/shared workers, your web server or CDN (e.g., Cloudflare Pages, Netlify) must serve Cross-Origin Isolation headers. A pre-configured `web/_headers` file is provided:
+   > ```http
+   > Cross-Origin-Opener-Policy: same-origin
+   > Cross-Origin-Embedder-Policy: require-corp
+   > ```
+
+For further Web setup details, worker configurations, and platform notes, see [Flutter Web Local Database](docs/WEB_DATABASE.md).

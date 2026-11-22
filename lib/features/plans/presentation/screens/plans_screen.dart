@@ -710,10 +710,7 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
       day: s.session.dayNumber,
       week: _currentActiveWeek,
       type: WorkoutTypeCode.f,
-      focus: LocalizedString(
-        id: s.session.focusLabel,
-        en: s.session.focusLabel,
-      ),
+      focus: s.session.focusLabel,
       isRest: false,
       isRetestMilestone: false,
       items: workoutItems,
