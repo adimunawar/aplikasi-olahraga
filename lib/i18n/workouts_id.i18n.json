@@ -20,6 +20,7 @@
     "workoutCount": "$completed/$total latihan",
     "current": "Saat Ini",
     "weekShort": "W$n",
+    "weekNumber": "Minggu $n",
     "empty": "Tidak ada sesi latihan yang dijadwalkan untuk minggu ini.",
     "previewTitle": "Mode pratinjau",
     "previewNotice": "Kamu bisa melihat rencana minggu ini, tapi latihan baru bisa dimulai sesuai jadwalnya.",

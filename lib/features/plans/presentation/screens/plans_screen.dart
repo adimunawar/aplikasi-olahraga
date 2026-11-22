@@ -104,8 +104,9 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
       program ??= await _db.getActiveTrainingProgram('default_user');
 
       final List<SessionWithDetail> sessionList = [];
+      List<ProgramSessionEntity> rawSessions = const [];
       if (program != null) {
-        final rawSessions = await _db.getProgramSessions(program.id);
+        rawSessions = await _db.getProgramSessions(program.id);
         for (final s in rawSessions) {
           final detail = await _db.getProgramSessionDetail(s.id);
           if (detail != null) {
@@ -114,13 +115,14 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
         }
       }
 
-      // Auto-generate / Auto-heal jika program belum ada atau sesi tidak sinkron
+      // Auto-generate HANYA jika program belum ada atau database sama sekali tidak memiliki sesi
       final targetWeekly = profile.weeklyFrequency > 0
           ? profile.weeklyFrequency
           : 4;
-      if (program == null ||
-          sessionList.isEmpty ||
-          sessionList.length != targetWeekly) {
+      final bool needsGeneration = program == null ||
+          (rawSessions.isEmpty && sessionList.isEmpty);
+
+      if (needsGeneration) {
         try {
           final catalog = exerciseCatalog;
           final startingPushId = profile.experienceLevel == 'advanced'
@@ -161,10 +163,23 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
       final totalWeeks = profile.targetTimeframeWeeks > 0
           ? profile.targetTimeframeWeeks
           : (program?.durationWeeks ?? 12);
-      final activeWeek = ((thisWeekCount ~/ targetWeekly) + 1).clamp(
-        1,
-        totalWeeks,
-      );
+
+      // Hitung minggu aktif secara deterministik berdasarkan program.startDate
+      final int activeWeek;
+      if (program != null) {
+        final now = DateTime.now();
+        final startDay = DateTime(
+          program.startDate.year,
+          program.startDate.month,
+          program.startDate.day,
+        );
+        final currentDay = DateTime(now.year, now.month, now.day);
+        final daysElapsed = currentDay.difference(startDay).inDays;
+        final calendarWeek = daysElapsed >= 0 ? (daysElapsed ~/ 7) + 1 : 1;
+        activeWeek = calendarWeek.clamp(1, totalWeeks);
+      } else {
+        activeWeek = ((totalCompleted ~/ targetWeekly) + 1).clamp(1, totalWeeks);
+      }
 
       if (mounted) {
         setState(() {

@@ -20,6 +20,7 @@
     "workoutCount": "$completed/$total workouts",
     "current": "Current",
     "weekShort": "W$n",
+    "weekNumber": "Week $n",
     "empty": "No workout sessions are scheduled for this week.",
     "previewTitle": "Preview mode",
     "previewNotice": "You can review this week's plan, but workouts can only be started on their scheduled day.",

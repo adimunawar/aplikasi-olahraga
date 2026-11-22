@@ -1251,6 +1251,9 @@ class Translations$workouts$weeklySchedule$id {
   /// id: 'W$n'
   String weekShort({required Object n}) => 'W${n}';
 
+  /// id: 'Minggu $n'
+  String weekNumber({required Object n}) => 'Minggu ${n}';
+
   /// id: 'Tidak ada sesi latihan yang dijadwalkan untuk minggu ini.'
   String get empty =>
       'Tidak ada sesi latihan yang dijadwalkan untuk minggu ini.';
@@ -2891,6 +2894,7 @@ extension on Translations {
       }) => '${completed}/${total} latihan',
       'workouts.weeklySchedule.current' => 'Saat Ini',
       'workouts.weeklySchedule.weekShort' => ({required Object n}) => 'W${n}',
+      'workouts.weeklySchedule.weekNumber' => ({required Object n}) => 'Minggu ${n}',
       'workouts.weeklySchedule.empty' =>
         'Tidak ada sesi latihan yang dijadwalkan untuk minggu ini.',
       'workouts.weeklySchedule.previewTitle' => 'Mode pratinjau',

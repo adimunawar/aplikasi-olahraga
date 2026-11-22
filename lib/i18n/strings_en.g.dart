@@ -1071,6 +1071,8 @@ class _Translations$workouts$weeklySchedule$en extends Translations$workouts$wee
   @override
   String weekShort({required Object n}) => 'W${n}';
   @override
+  String weekNumber({required Object n}) => 'Week ${n}';
+  @override
   String get empty => 'No workout sessions are scheduled for this week.';
   @override
   String get previewTitle => 'Preview mode';
@@ -2615,6 +2617,7 @@ extension on TranslationsEn {
       }) => '${completed}/${total} workouts',
       'workouts.weeklySchedule.current' => 'Current',
       'workouts.weeklySchedule.weekShort' => ({required Object n}) => 'W${n}',
+      'workouts.weeklySchedule.weekNumber' => ({required Object n}) => 'Week ${n}',
       'workouts.weeklySchedule.empty' => 'No workout sessions are scheduled for this week.',
       'workouts.weeklySchedule.previewTitle' => 'Preview mode',
       'workouts.weeklySchedule.previewNotice' => 'You can review this week\'s plan, but workouts can only be started on their scheduled day.',

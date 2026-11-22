@@ -48,14 +48,31 @@ class AppDatabase {
     return _database;
   }
 
+  static const int currentDatabaseVersion = 2;
+
   Future<Database> _initDatabase() async {
     final path = kIsWeb
         ? 'home_bulking_coach.db'
         : p.join(await getDatabasesPath(), 'home_bulking_coach.db');
 
-    final db = await openDatabase(path, version: 1, onCreate: _onCreate);
+    final db = await openDatabase(
+      path,
+      version: currentDatabaseVersion,
+      onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
+    );
 
-    // Pastikan tabel user_settings & exercises dibuat jika database versi 1 sudah ada sebelumnya
+    return db;
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await _migrateToV2(db);
+    }
+  }
+
+  Future<void> _migrateToV2(Database db) async {
+    // 1. Buat tabel-tabel baru jika belum ada
     await db.execute(DatabaseTables.createUsersTable);
     await db.execute(DatabaseTables.createUserSettingsTable);
     await db.execute(DatabaseTables.createExercisesTable);
@@ -67,94 +84,114 @@ class AppDatabase {
     await db.execute(
       'CREATE INDEX IF NOT EXISTS idx_progression_decisions_user ON ${DatabaseTables.progressionDecisions} (user_id, exercise_id)',
     );
-    await db.execute(DatabaseTables.createProgressionDecisionsTable);
-    try {
-      await db.execute(
-        'CREATE INDEX IF NOT EXISTS idx_progression_decisions_user ON ${DatabaseTables.progressionDecisions} (user_id, exercise_id)',
-      );
-    } catch (_) {}
 
-    // Migrasi aman untuk kolom baru pada tabel exercises
-    try {
-      await db.execute(
-        "ALTER TABLE ${DatabaseTables.exercises} ADD COLUMN movement_pattern TEXT NOT NULL DEFAULT 'other'",
-      );
-    } catch (_) {}
-    try {
-      await db.execute(
-        "ALTER TABLE ${DatabaseTables.exercises} ADD COLUMN equipments TEXT NOT NULL DEFAULT '[\"none\"]'",
-      );
-    } catch (_) {}
+    // 2. Tambahkan kolom baru yang hilang secara aman dan deterministik
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.exercises,
+      column: 'movement_pattern',
+      definition: "TEXT NOT NULL DEFAULT 'other'",
+    );
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.exercises,
+      column: 'equipments',
+      definition: "TEXT NOT NULL DEFAULT '[\"none\"]'",
+    );
 
-    // Migrasi aman untuk kolom baru pada tabel user_profiles
-    try {
-      await db.execute(
-        "ALTER TABLE ${DatabaseTables.userProfiles} ADD COLUMN gender TEXT NOT NULL DEFAULT 'male'",
-      );
-    } catch (_) {}
-    try {
-      await db.execute(
-        "ALTER TABLE ${DatabaseTables.userProfiles} ADD COLUMN target_weight_kg REAL NOT NULL DEFAULT 82.0",
-      );
-    } catch (_) {}
-    try {
-      await db.execute(
-        "ALTER TABLE ${DatabaseTables.userProfiles} ADD COLUMN target_timeframe_weeks INTEGER NOT NULL DEFAULT 12",
-      );
-    } catch (_) {}
-    try {
-      await db.execute(
-        "ALTER TABLE ${DatabaseTables.userProfiles} ADD COLUMN weekly_frequency INTEGER NOT NULL DEFAULT 3",
-      );
-    } catch (_) {}
-    try {
-      await db.execute(
-        "ALTER TABLE ${DatabaseTables.userProfiles} ADD COLUMN available_days TEXT NOT NULL DEFAULT '[\"monday\",\"wednesday\",\"friday\"]'",
-      );
-    } catch (_) {}
-    try {
-      await db.execute(
-        "ALTER TABLE ${DatabaseTables.userProfiles} ADD COLUMN training_limitations TEXT NOT NULL DEFAULT '[]'",
-      );
-    } catch (_) {}
-    try {
-      await db.execute(
-        "ALTER TABLE ${DatabaseTables.userProfiles} ADD COLUMN timezone TEXT",
-      );
-    } catch (_) {}
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.userProfiles,
+      column: 'gender',
+      definition: "TEXT NOT NULL DEFAULT 'male'",
+    );
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.userProfiles,
+      column: 'target_weight_kg',
+      definition: "REAL NOT NULL DEFAULT 82.0",
+    );
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.userProfiles,
+      column: 'target_timeframe_weeks',
+      definition: "INTEGER NOT NULL DEFAULT 12",
+    );
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.userProfiles,
+      column: 'weekly_frequency',
+      definition: "INTEGER NOT NULL DEFAULT 3",
+    );
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.userProfiles,
+      column: 'available_days',
+      definition: "TEXT NOT NULL DEFAULT '[\"monday\",\"wednesday\",\"friday\"]'",
+    );
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.userProfiles,
+      column: 'training_limitations',
+      definition: "TEXT NOT NULL DEFAULT '[]'",
+    );
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.userProfiles,
+      column: 'timezone',
+      definition: "TEXT",
+    );
 
-    // Migrasi aman untuk kolom baru pada tabel workout_sessions (elapsed aktif)
-    try {
-      await db.execute(
-        "ALTER TABLE ${DatabaseTables.workoutSessions} ADD COLUMN elapsed_seconds INTEGER NOT NULL DEFAULT 0",
-      );
-    } catch (_) {}
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.workoutSessions,
+      column: 'elapsed_seconds',
+      definition: "INTEGER NOT NULL DEFAULT 0",
+    );
 
-    // Migrasi aman untuk kolom baru pada tabel workout_sets (Fase 3: RIR & Tracking)
-    try {
-      await db.execute(
-        "ALTER TABLE ${DatabaseTables.workoutSets} ADD COLUMN rir INTEGER DEFAULT 2",
-      );
-    } catch (_) {}
-    try {
-      await db.execute(
-        "ALTER TABLE ${DatabaseTables.workoutSets} ADD COLUMN is_warmup INTEGER NOT NULL DEFAULT 0",
-      );
-    } catch (_) {}
-    try {
-      await db.execute(
-        "ALTER TABLE ${DatabaseTables.workoutSets} ADD COLUMN form_score REAL DEFAULT 1.0",
-      );
-    } catch (_) {}
-    try {
-      await db.execute(
-        "ALTER TABLE ${DatabaseTables.workoutSets} ADD COLUMN data_source TEXT NOT NULL DEFAULT 'manual'",
-      );
-    } catch (_) {}
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.workoutSets,
+      column: 'rir',
+      definition: "INTEGER DEFAULT 2",
+    );
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.workoutSets,
+      column: 'is_warmup',
+      definition: "INTEGER NOT NULL DEFAULT 0",
+    );
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.workoutSets,
+      column: 'form_score',
+      definition: "REAL DEFAULT 1.0",
+    );
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.workoutSets,
+      column: 'data_source',
+      definition: "TEXT NOT NULL DEFAULT 'manual'",
+    );
 
     await _seedExerciseProgressions(db);
+  }
 
-    return db;
+  Future<void> _addColumnIfNotExists(
+    Database db, {
+    required String table,
+    required String column,
+    required String definition,
+  }) async {
+    try {
+      final info = await db.rawQuery('PRAGMA table_info($table)');
+      final columnExists = info.any((row) => row['name'] == column);
+      if (!columnExists) {
+        await db.execute('ALTER TABLE $table ADD COLUMN $column $definition');
+      }
+    } catch (e) {
+      debugPrint('[AppDatabase] Error adding column $column to $table: $e');
+    }
   }
 
   Future<void> _seedExerciseProgressions(Database db) async {
@@ -271,6 +308,9 @@ class AppDatabase {
     // Initial Seeder User Settings
     final defaultSettings = UserSettingsEntity(updatedAt: now);
     await db.insert(DatabaseTables.userSettings, defaultSettings.toMap());
+
+    // Initial Seeder Exercise Progressions
+    await _seedExerciseProgressions(db);
   }
 
   UserProfileEntity _createDefaultUser(DateTime now) {
