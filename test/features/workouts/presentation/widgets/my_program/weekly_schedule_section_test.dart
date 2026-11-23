@@ -129,7 +129,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Full Body Push'));
+      await tester.tap(find.textContaining('Full Body Push'));
       await tester.pumpAndSettle();
 
       expect(capturedArgs, isNotNull);
@@ -152,7 +152,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Full Body Push'));
+      await tester.tap(find.textContaining('Full Body Push'));
       await tester.pumpAndSettle();
 
       expect(capturedArgs, isNotNull);

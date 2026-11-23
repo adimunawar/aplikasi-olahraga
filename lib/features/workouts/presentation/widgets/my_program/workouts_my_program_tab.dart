@@ -44,7 +44,7 @@ class WorkoutsMyProgramTab extends StatelessWidget {
     final configuredWeeks = profile?.targetTimeframeWeeks ?? 0;
     final totalWeeks = configuredWeeks > 0
         ? configuredWeeks
-        : (program.durationWeeks > 0 ? program.durationWeeks : 8);
+        : (program.endDate != null ? program.durationWeeks : 8);
     final today = ProgramWeekSchedule.dateOnly(DateTime.now());
 
     final progressWithActiveLifecycle = WeekProgressCalculator.calculate(

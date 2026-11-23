@@ -221,7 +221,7 @@ void main() {
     day: 1,
     week: 1,
     type: WorkoutTypeCode.p,
-    focus: 'Dada',
+    focus: 'Chest Focus',
     isRest: false,
     isRetestMilestone: false,
     items: const [

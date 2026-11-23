@@ -215,7 +215,11 @@ class _Translations$workoutSession$en extends Translations$workoutSession$id {
   @override
   String get exerciseLabel => 'Exercises';
   @override
-  String exerciseCount({required Object count}) => '${count} exercises';
+  String exerciseCount({required Object count}) {
+    final countNum = num.tryParse(count.toString());
+    if (countNum == 1) return '1 exercise';
+    return '${count} exercises';
+  }
   @override
   String get totalSetsLabel => 'Total Sets';
   @override
@@ -1185,7 +1189,11 @@ class _Translations$workouts$workoutDetail$en extends Translations$workouts$work
   String get defaultDescription =>
       'Build strength and stability with a focused mix of bodyweight exercises.';
   @override
-  String exerciseCount({required Object count}) => '${count} exercises';
+  String exerciseCount({required Object count}) {
+    final countNum = num.tryParse(count.toString());
+    if (countNum == 1) return '1 exercise';
+    return '${count} exercises';
+  }
   @override
   String exerciseListTitle({required Object count}) => 'Exercises (${count})';
 
@@ -2657,7 +2665,11 @@ extension on TranslationsEn {
       'workouts.workoutDetail.copiedMessage' => 'Workout details copied.',
       'workouts.workoutDetail.defaultDescription' =>
         'Build strength and stability with a focused mix of bodyweight exercises.',
-      'workouts.workoutDetail.exerciseCount' => ({required Object count}) => '${count} exercises',
+      'workouts.workoutDetail.exerciseCount' => ({required Object count}) {
+        final countNum = num.tryParse(count.toString());
+        if (countNum == 1) return '1 exercise';
+        return '${count} exercises';
+      },
       'workouts.workoutDetail.exerciseListTitle' => ({
         required Object count,
       }) => 'Exercises (${count})',

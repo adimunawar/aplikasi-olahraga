@@ -177,11 +177,13 @@ jobs:
 
   # --------------------------------------------------
   # 3. WEB BUILD
-  # Ensures SQLite WASM assets are present and Flutter Web builds cleanly.
+  # Ensures SQLite Web assets are generated and Flutter Web builds cleanly.
+  # Configured to only run for staging (PRs targeting staging or staging branch refs).
   # --------------------------------------------------
   build_web:
     name: Build Flutter Web
     runs-on: ubuntu-latest
+    if: github.base_ref == 'staging' || github.ref == 'refs/heads/staging'
     timeout-minutes: 35
 
     steps:
