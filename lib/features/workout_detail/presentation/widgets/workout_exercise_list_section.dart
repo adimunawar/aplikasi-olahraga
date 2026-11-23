@@ -1,74 +1,76 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../core/theme/app_typography.dart';
+import '../../../../i18n/strings.g.dart';
 import '../../../exercises/domain/models/exercise.dart';
 import '../../../workout_session/domain/models/exercise_prescription.dart';
 import 'workout_exercise_list_item.dart';
 
-/// Section daftar gerakan latihan:
-/// - Otomatis mendeteksi jika program memiliki fase 'Warm-up', 'Training', atau 'Cool-down'
-/// - Jika TIDAK memiliki warm-up/cool-down, tampil ringkas normal 'Exercises (N)' tanpa seksi kosong
-/// - Jika memiliki warm-up/cool-down, dikelompokkan secara terstruktur dan informatif
 class WorkoutExerciseListSection extends StatelessWidget {
   final List<WorkoutDetailExerciseData> exercises;
-  const WorkoutExerciseListSection({
-    super.key,
-    required this.exercises,
-  });
+
+  const WorkoutExerciseListSection({super.key, required this.exercises});
 
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context);
+    final theme = Theme.of(context);
+
     final warmupList = exercises.where((e) => e.stage == 'warmup').toList();
     final trainingList = exercises.where((e) => e.stage == 'main').toList();
     final cooldownList = exercises.where((e) => e.stage == 'cooldown').toList();
     final hasMultiStage = warmupList.isNotEmpty || cooldownList.isNotEmpty;
 
+    final sectionTitle = t.workouts.workoutDetail.exerciseListTitle(
+      count: exercises.length,
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Compact section title, matching the workout detail reference.
         Text(
-          'Exercises (${exercises.length})',
+          sectionTitle,
           style: AppTypography.headlineSmall.copyWith(
             fontWeight: FontWeight.w800,
             fontSize: 17,
-            color: const Color(0xFF141718),
+            color: theme.colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 12),
 
         if (!hasMultiStage)
-          // 1. Tampilan Standar Normal (Jika program hanya berisi latihan inti)
           _buildExerciseList(exercises)
         else ...[
-          // 2. Tampilan Terstruktur (Jika program memiliki Warm-up atau Cool-down)
           if (warmupList.isNotEmpty) ...[
             _buildStageHeader(
+              context: context,
               icon: Icons.local_fire_department_rounded,
               iconColor: const Color(0xFFF97316),
-              title: 'Warm up',
+              title: t.workouts.workoutDetail.stages.warmup.title,
               count: warmupList.length,
-              subtitle: 'Pemanasan',
+              subtitle: t.workouts.workoutDetail.stages.warmup.subtitle,
             ),
             _buildExerciseList(warmupList),
           ],
           if (trainingList.isNotEmpty) ...[
             _buildStageHeader(
+              context: context,
               icon: Icons.fitness_center_rounded,
-              iconColor: const Color(0xFF141718),
-              title: 'Training',
+              iconColor: theme.colorScheme.primary,
+              title: t.workouts.workoutDetail.stages.main.title,
               count: trainingList.length,
-              subtitle: 'Latihan Inti',
+              subtitle: t.workouts.workoutDetail.stages.main.subtitle,
             ),
             _buildExerciseList(trainingList),
           ],
           if (cooldownList.isNotEmpty) ...[
             _buildStageHeader(
+              context: context,
               icon: Icons.self_improvement_rounded,
               iconColor: const Color(0xFF0284C7),
-              title: 'Cool down',
+              title: t.workouts.workoutDetail.stages.cooldown.title,
               count: cooldownList.length,
-              subtitle: 'Pendinginan',
+              subtitle: t.workouts.workoutDetail.stages.cooldown.subtitle,
             ),
             _buildExerciseList(cooldownList),
           ],
@@ -78,12 +80,15 @@ class WorkoutExerciseListSection extends StatelessWidget {
   }
 
   Widget _buildStageHeader({
+    required BuildContext context,
     required IconData icon,
     required Color iconColor,
     required String title,
     required int count,
     required String subtitle,
   }) {
+    final theme = Theme.of(context);
+
     return Padding(
       padding: const EdgeInsets.only(top: 8, bottom: 8),
       child: Row(
@@ -98,7 +103,7 @@ class WorkoutExerciseListSection extends StatelessWidget {
                 style: AppTypography.headlineSmall.copyWith(
                   fontWeight: FontWeight.w800,
                   fontSize: 14.5,
-                  color: const Color(0xFF141718),
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
             ],
@@ -106,7 +111,7 @@ class WorkoutExerciseListSection extends StatelessWidget {
           Text(
             subtitle,
             style: AppTypography.labelSmall.copyWith(
-              color: const Color(0xFF64748B),
+              color: theme.colorScheme.onSurfaceVariant,
               fontWeight: FontWeight.w600,
               fontSize: 11,
             ),

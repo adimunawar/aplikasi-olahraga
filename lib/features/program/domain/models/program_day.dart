@@ -1,7 +1,5 @@
 import 'package:flutter/foundation.dart';
 
-import '../../../exercises/domain/models/exercise.dart';
-
 enum WorkoutTypeCode {
   p,
   k,
@@ -115,7 +113,7 @@ class ProgramDay {
   final int day;
   final int week;
   final WorkoutTypeCode type;
-  final LocalizedString focus;
+  final String focus;
   final bool isRest;
   final bool isRetestMilestone;
   final List<WorkoutItem> items;
@@ -149,16 +147,16 @@ class ProgramDay {
     final rawType =
         json['type_code'] as String? ?? json['type'] as String? ?? 'R';
 
-    LocalizedString parsedFocus;
-    if (json['focus'] != null) {
-      parsedFocus = LocalizedString.fromJson(json['focus']);
+    String parsedFocus;
+    final rawFocus = json['focus'];
+    if (rawFocus is String) {
+      parsedFocus = rawFocus;
+    } else if (rawFocus is Map) {
+      parsedFocus =
+          rawFocus['id']?.toString() ?? rawFocus['en']?.toString() ?? '';
     } else {
-      final enFocus = json['focus_en']?.toString();
-      final idFocus = json['focus_id']?.toString();
-      parsedFocus = LocalizedString(
-        id: idFocus ?? enFocus ?? 'Latihan',
-        en: enFocus ?? idFocus ?? 'Workout',
-      );
+      parsedFocus =
+          json['focus_id']?.toString() ?? json['focus_en']?.toString() ?? '';
     }
 
     final rawItems = json['program_day_exercises'] ?? json['items'];
@@ -171,8 +169,10 @@ class ProgramDay {
       isRest: json['is_rest'] as bool? ?? false,
       isRetestMilestone: json['is_retest_milestone'] as bool? ?? false,
       title: json['title'] as String?,
-      thumbnailAsset: json['thumbnail_asset'] as String? ?? json['thumbnail'] as String?,
-      estimatedDurationMinutes: (json['estimated_duration_minutes'] as num?)?.toInt() ?? 30,
+      thumbnailAsset:
+          json['thumbnail_asset'] as String? ?? json['thumbnail'] as String?,
+      estimatedDurationMinutes:
+          (json['estimated_duration_minutes'] as num?)?.toInt() ?? 30,
       items:
           (rawItems as List?)
               ?.map(
@@ -188,7 +188,7 @@ class ProgramDay {
     'day': day,
     'week': week,
     'type': type.code,
-    'focus': {'id': focus.id, 'en': focus.en},
+    'focus': focus,
     'is_rest': isRest,
     'is_retest_milestone': isRetestMilestone,
     if (title != null) 'title': title,
@@ -201,7 +201,7 @@ class ProgramDay {
     int? day,
     int? week,
     WorkoutTypeCode? type,
-    LocalizedString? focus,
+    String? focus,
     bool? isRest,
     bool? isRetestMilestone,
     List<WorkoutItem>? items,
@@ -219,7 +219,8 @@ class ProgramDay {
       items: items ?? this.items,
       title: title ?? this.title,
       thumbnailAsset: thumbnailAsset ?? this.thumbnailAsset,
-      estimatedDurationMinutes: estimatedDurationMinutes ?? this.estimatedDurationMinutes,
+      estimatedDurationMinutes:
+          estimatedDurationMinutes ?? this.estimatedDurationMinutes,
     );
   }
 }

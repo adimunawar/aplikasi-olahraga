@@ -249,7 +249,7 @@ void main() {
       );
 
       expect(find.text('Program Aktif'), findsOneWidget);
-      expect(find.text('Saat Ini'), findsOneWidget);
+      expect(find.text('Minggu 1 dari 8'), findsOneWidget);
       expect(find.text('Mode pratinjau'), findsNothing);
 
       await tester.ensureVisible(find.text('W3'));
@@ -277,8 +277,8 @@ void main() {
       );
 
       expect(find.text('Program berakhir'), findsOneWidget);
-      // Program yang sudah berakhir tidak boleh punya minggu "Saat Ini".
-      expect(find.text('Saat Ini'), findsNothing);
+      // Program yang sudah berakhir tidak boleh punya minggu berjalan.
+      expect(find.textContaining('Minggu 1 dari'), findsNothing);
     });
 
     testWidgets('shows completed program status', (tester) async {
@@ -291,7 +291,7 @@ void main() {
       );
 
       expect(find.text('Program selesai'), findsOneWidget);
-      expect(find.text('Saat Ini'), findsNothing);
+      expect(find.textContaining('Minggu 1 dari'), findsNothing);
     });
 
     testWidgets('surfaces an in-progress session with its date', (

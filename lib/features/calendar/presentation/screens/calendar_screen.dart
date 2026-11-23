@@ -172,10 +172,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             day: sequenceDay,
             week: week,
             type: WorkoutTypeCode.r,
-            focus: const LocalizedString(
-              id: 'Istirahat & Pemulihan',
-              en: 'Rest & Recovery',
-            ),
+            focus: 'Istirahat & Pemulihan',
             isRest: true,
             isRetestMilestone: false,
             items: const [],
@@ -225,10 +222,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           day: scheduled.session.dayNumber,
           week: week,
           type: _resolveWorkoutType(scheduled.session.focusLabel),
-          focus: LocalizedString(
-            id: scheduled.session.focusLabel,
-            en: scheduled.session.focusLabel,
-          ),
+          focus: scheduled.session.focusLabel,
           isRest: false,
           isRetestMilestone: false,
           items: workoutItems,
@@ -393,7 +387,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  day.focus.id,
+                  day.focus,
                   style: AppTypography.headlineMedium.copyWith(
                     color: AppColors.textPrimary,
                   ),

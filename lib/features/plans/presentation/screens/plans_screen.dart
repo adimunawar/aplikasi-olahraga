@@ -15,7 +15,6 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
 import '../../../exercises/data/repositories/exercise_repository_impl.dart';
-import '../../../exercises/domain/models/exercise.dart';
 import '../../../program/domain/models/program_day.dart';
 import '../../../program/domain/services/dynamic_program_generator.dart';
 import '../widgets/plans_overview_tab.dart';
@@ -105,8 +104,9 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
       program ??= await _db.getActiveTrainingProgram('default_user');
 
       final List<SessionWithDetail> sessionList = [];
+      List<ProgramSessionEntity> rawSessions = const [];
       if (program != null) {
-        final rawSessions = await _db.getProgramSessions(program.id);
+        rawSessions = await _db.getProgramSessions(program.id);
         for (final s in rawSessions) {
           final detail = await _db.getProgramSessionDetail(s.id);
           if (detail != null) {
@@ -115,13 +115,14 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
         }
       }
 
-      // Auto-generate / Auto-heal jika program belum ada atau sesi tidak sinkron
+      // Auto-generate HANYA jika program belum ada atau database sama sekali tidak memiliki sesi
       final targetWeekly = profile.weeklyFrequency > 0
           ? profile.weeklyFrequency
           : 4;
-      if (program == null ||
-          sessionList.isEmpty ||
-          sessionList.length != targetWeekly) {
+      final bool needsGeneration = program == null ||
+          (rawSessions.isEmpty && sessionList.isEmpty);
+
+      if (needsGeneration) {
         try {
           final catalog = exerciseCatalog;
           final startingPushId = profile.experienceLevel == 'advanced'
@@ -155,17 +156,30 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
         }
       }
 
-      final thisWeekCount = await _db.getThisWeekCompletedCount();
+      await _db.getThisWeekCompletedCount();
       final totalCompleted = await _db.getCompletedSessionsCount();
       final weightLogs = await _db.getWeightHistory();
 
       final totalWeeks = profile.targetTimeframeWeeks > 0
           ? profile.targetTimeframeWeeks
           : (program?.durationWeeks ?? 12);
-      final activeWeek = ((thisWeekCount ~/ targetWeekly) + 1).clamp(
-        1,
-        totalWeeks,
-      );
+
+      // Hitung minggu aktif secara deterministik berdasarkan program.startDate
+      final int activeWeek;
+      if (program != null) {
+        final now = DateTime.now();
+        final startDay = DateTime(
+          program.startDate.year,
+          program.startDate.month,
+          program.startDate.day,
+        );
+        final currentDay = DateTime(now.year, now.month, now.day);
+        final daysElapsed = currentDay.difference(startDay).inDays;
+        final calendarWeek = daysElapsed >= 0 ? (daysElapsed ~/ 7) + 1 : 1;
+        activeWeek = calendarWeek.clamp(1, totalWeeks);
+      } else {
+        activeWeek = ((totalCompleted ~/ targetWeekly) + 1).clamp(1, totalWeeks);
+      }
 
       if (mounted) {
         setState(() {
@@ -710,10 +724,7 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
       day: s.session.dayNumber,
       week: _currentActiveWeek,
       type: WorkoutTypeCode.f,
-      focus: LocalizedString(
-        id: s.session.focusLabel,
-        en: s.session.focusLabel,
-      ),
+      focus: s.session.focusLabel,
       isRest: false,
       isRetestMilestone: false,
       items: workoutItems,
@@ -794,7 +805,10 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
         surfaceTintColor: Colors.transparent,
         leading: widget.isOnboarding
             ? IconButton(
-                icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF141718)),
+                icon: const Icon(
+                  Icons.arrow_back_rounded,
+                  color: Color(0xFF141718),
+                ),
                 onPressed: () {
                   if (context.canPop()) {
                     context.pop();
@@ -804,11 +818,14 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
                 },
               )
             : (context.canPop()
-                ? IconButton(
-                    icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF141718)),
-                    onPressed: () => context.pop(),
-                  )
-                : null),
+                  ? IconButton(
+                      icon: const Icon(
+                        Icons.arrow_back_rounded,
+                        color: Color(0xFF141718),
+                      ),
+                      onPressed: () => context.pop(),
+                    )
+                  : null),
         title: Text(
           'Your Training Plan',
           style: AppTypography.headlineMedium.copyWith(

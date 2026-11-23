@@ -10,7 +10,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../i18n/strings.g.dart';
-import '../../../exercises/domain/models/exercise.dart';
 import '../../../plans/presentation/screens/plans_screen.dart';
 import '../../../plans/presentation/widgets/plans_overview_tab.dart';
 import '../../../plans/presentation/widgets/plans_workout_split_tab.dart';
@@ -268,10 +267,7 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
           day: firstSession.session.dayNumber,
           week: 1,
           type: WorkoutTypeCode.f,
-          focus: LocalizedString(
-            id: firstSession.session.focusLabel,
-            en: firstSession.session.focusLabel,
-          ),
+          focus: firstSession.session.focusLabel,
           isRest: false,
           isRetestMilestone: false,
           items: workoutItems,
@@ -288,9 +284,10 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
               programId: draft.program.id,
               prescriptions: {
                 for (final e in firstSession.exercises)
-                  e.exercise.id: WorkoutExercisePrescription.fromProgramExercise(
-                    e.prescription,
-                  ),
+                  e.exercise.id:
+                      WorkoutExercisePrescription.fromProgramExercise(
+                        e.prescription,
+                      ),
               },
             ),
           );

@@ -113,10 +113,7 @@ class _WorkoutSessionScreenState extends ConsumerState<WorkoutSessionScreen>
       exercise.name.localized(LocaleSettings.currentLocale.languageCode);
 
   String get _programTitle {
-    final title = widget.day.focus.localized(
-      LocaleSettings.currentLocale.languageCode,
-    );
-    if (title.isNotEmpty) return title;
+    if (widget.day.focus.isNotEmpty) return widget.day.focus;
 
     final typeTitle = widget.day.type.localizedTitle(
       LocaleSettings.currentLocale.languageCode,

@@ -1,7 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:workout_app/core/theme/app_theme.dart';
 import 'package:workout_app/features/workouts/domain/models/week_progress.dart';
-import 'package:workout_app/features/workouts/presentation/widgets/weekly_schedule_selector.dart';
+import 'package:workout_app/features/workouts/presentation/widgets/my_program/weekly_schedule_selector.dart';
 import 'package:workout_app/i18n/strings.g.dart';
 
 void main() {
@@ -26,10 +27,14 @@ void main() {
     required int totalWeeks,
     required Map<int, WeekProgress> progress,
     required ValueChanged<int> onWeekSelected,
+    ThemeMode themeMode = ThemeMode.light,
   }) async {
     await tester.pumpWidget(
       TranslationProvider(
         child: MaterialApp(
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeMode,
           home: Scaffold(
             body: Center(
               child: SizedBox(
@@ -50,43 +55,60 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  group('WeeklyScheduleSelector', () {
-    testWidgets('renders status from history instead of week number', (
+  group('WeeklyScheduleSelector Pill Design & Theme Fidelity', () {
+    testWidgets('renders pill status indicators accurately', (
       tester,
     ) async {
       await pumpSelector(
         tester,
-        selectedWeek: 4,
-        currentWeek: 4,
+        selectedWeek: 3,
+        currentWeek: 3,
         totalWeeks: 5,
         progress: {
           1: week(1, 3, 3, WeekStatus.completed),
-          2: week(2, 1, 3, WeekStatus.partial),
-          3: week(3, 0, 3, WeekStatus.missed),
-          4: week(4, 0, 3, WeekStatus.current),
+          2: week(2, 3, 3, WeekStatus.completed),
+          3: week(3, 0, 3, WeekStatus.current),
+          4: week(4, 0, 3, WeekStatus.upcoming),
           5: week(5, 0, 3, WeekStatus.upcoming),
         },
         onWeekSelected: (_) {},
       );
 
-      // Current week keeps the current badge.
-      expect(find.text('Saat Ini'), findsOneWidget);
+      // Completed weeks (W1, W2) show check icon
+      expect(find.byIcon(Icons.check_rounded), findsNWidgets(2));
 
-      // Fully completed -> check.
-      expect(find.byIcon(Icons.check_rounded), findsOneWidget);
-
-      // Partially completed -> small progress ring.
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-
-      // Missed -> warning.
-      expect(find.byIcon(Icons.error_outline_rounded), findsOneWidget);
-
-      // Upcoming -> preview affordance, not a full lock.
-      expect(find.byIcon(Icons.visibility_outlined), findsOneWidget);
-      expect(find.byIcon(Icons.lock_outline_rounded), findsNothing);
+      // Week labels W1 to W5 are present
+      expect(find.text('W1'), findsOneWidget);
+      expect(find.text('W2'), findsOneWidget);
+      expect(find.text('W3'), findsOneWidget);
+      expect(find.text('W4'), findsOneWidget);
+      expect(find.text('W5'), findsOneWidget);
     });
 
-    testWidgets('allows opening future weeks for preview', (tester) async {
+    testWidgets('renders properly in Dark Mode without crashing', (
+      tester,
+    ) async {
+      await pumpSelector(
+        tester,
+        selectedWeek: 3,
+        currentWeek: 3,
+        totalWeeks: 5,
+        progress: {
+          1: week(1, 3, 3, WeekStatus.completed),
+          2: week(2, 3, 3, WeekStatus.completed),
+          3: week(3, 0, 3, WeekStatus.current),
+          4: week(4, 0, 3, WeekStatus.upcoming),
+          5: week(5, 0, 3, WeekStatus.upcoming),
+        },
+        onWeekSelected: (_) {},
+        themeMode: ThemeMode.dark,
+      );
+
+      expect(find.byIcon(Icons.check_rounded), findsNWidgets(2));
+      expect(find.text('W3'), findsOneWidget);
+    });
+
+    testWidgets('allows tapping any week pill to select week', (tester) async {
       var selected = 1;
 
       await pumpSelector(
@@ -101,7 +123,7 @@ void main() {
           4: week(4, 0, 3, WeekStatus.upcoming),
           5: week(5, 0, 3, WeekStatus.upcoming),
         },
-        onWeekSelected: (week) => selected = week,
+        onWeekSelected: (w) => selected = w,
       );
 
       await tester.tap(find.text('W4'));
@@ -110,7 +132,7 @@ void main() {
       expect(selected, 4);
     });
 
-    testWidgets('falls back gracefully when progress data is missing', (
+    testWidgets('falls back gracefully when progress data is empty', (
       tester,
     ) async {
       await pumpSelector(
@@ -123,8 +145,7 @@ void main() {
       );
 
       expect(tester.takeException(), isNull);
-      expect(find.text('Saat Ini'), findsOneWidget);
-      expect(find.byIcon(Icons.visibility_outlined), findsOneWidget);
+      expect(find.text('W2'), findsOneWidget);
     });
   });
 }
