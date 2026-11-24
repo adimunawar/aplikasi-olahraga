@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import 'package:workout_app/core/theme/app_typography.dart';
+import 'package:workout_app/core/widgets/app_smart_image.dart';
 import 'package:workout_app/features/exercises/domain/models/exercise.dart';
 
 /// Kartu untuk menampilkan item latihan pada tab "Semua Latihan".
@@ -31,9 +32,11 @@ class ExerciseItemCard extends StatelessWidget {
         : exercise.category.localizedName(langCode);
     final difficulty = exercise.difficulty.localizedName(langCode);
 
-    final thumb = exercise.media.startPose.isNotEmpty
-        ? exercise.media.startPose
-        : exercise.media.endPose;
+    final thumb = exercise.resolvedImageUrl.isNotEmpty
+        ? exercise.resolvedImageUrl
+        : (exercise.media.startPose.isNotEmpty
+            ? exercise.media.startPose
+            : exercise.media.endPose);
 
     final cardBgColor = isDark ? theme.colorScheme.surface : Colors.white;
     final borderColor = isDark ? theme.colorScheme.outline : const Color(0xFFE5E7EB);
@@ -64,21 +67,15 @@ class ExerciseItemCard extends StatelessWidget {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(14),
-                child: thumb.isNotEmpty
-                    ? Image.asset(
-                        thumb,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) => const Icon(
-                          Icons.fitness_center_rounded,
-                          color: Color(0xFF65A30D),
-                          size: 26,
-                        ),
-                      )
-                    : const Icon(
-                        Icons.fitness_center_rounded,
-                        color: Color(0xFF65A30D),
-                        size: 26,
-                      ),
+                child: AppSmartImage(
+                  imagePathOrUrl: thumb,
+                  width: 52,
+                  height: 52,
+                  fit: BoxFit.cover,
+                  fallbackIcon: Icons.fitness_center_rounded,
+                  fallbackIconColor: const Color(0xFF65A30D),
+                  fallbackIconSize: 26,
+                ),
               ),
             ),
             const SizedBox(width: 14),

@@ -48,7 +48,7 @@ class AppDatabase {
     return _database;
   }
 
-  static const int currentDatabaseVersion = 2;
+  static const int currentDatabaseVersion = 3;
 
   Future<Database> _initDatabase() async {
     final path = kIsWeb
@@ -62,6 +62,14 @@ class AppDatabase {
       onUpgrade: _onUpgrade,
     );
 
+    // Pastikan kolom thumbnail_url selalu ada di SQLite bahkan jika onUpgrade tidak terpanggil (idempotent)
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.exercises,
+      column: 'thumbnail_url',
+      definition: 'TEXT',
+    );
+
     return db;
   }
 
@@ -69,6 +77,18 @@ class AppDatabase {
     if (oldVersion < 2) {
       await _migrateToV2(db);
     }
+    if (oldVersion < 3) {
+      await _migrateToV3(db);
+    }
+  }
+
+  Future<void> _migrateToV3(Database db) async {
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.exercises,
+      column: 'thumbnail_url',
+      definition: 'TEXT',
+    );
   }
 
   Future<void> _migrateToV2(Database db) async {
@@ -127,7 +147,8 @@ class AppDatabase {
       db,
       table: DatabaseTables.userProfiles,
       column: 'available_days',
-      definition: "TEXT NOT NULL DEFAULT '[\"monday\",\"wednesday\",\"friday\"]'",
+      definition:
+          "TEXT NOT NULL DEFAULT '[\"monday\",\"wednesday\",\"friday\"]'",
     );
     await _addColumnIfNotExists(
       db,
@@ -1076,6 +1097,7 @@ class AppDatabase {
           endPoseAsset: existing.endPoseAsset,
           animationAsset: existing.animationAsset,
           videoUrl: existing.videoUrl,
+          thumbnailUrl: existing.thumbnailUrl,
           isCustom: existing.isCustom,
           isFavorite: isFavorite,
           createdByUserId: existing.createdByUserId,
@@ -1202,7 +1224,6 @@ class AppDatabase {
           : _webProgramSessionDetails.map((d) => d.session).toList();
     }
 
-
     final result = await db.query(
       DatabaseTables.programSessions,
       where: 'program_id = ?',
@@ -1260,6 +1281,14 @@ class AppDatabase {
       );
       if (exEntityRows.isNotEmpty) {
         final exEntity = ExerciseEntity.fromMap(exEntityRows.first);
+        if (exEntity.id.contains('knee') || exEntity.id.contains('push')) {
+          debugPrint(
+            '[AppDatabase.getProgramSessionDetail] 📦 SQLite Exercise row:',
+          );
+          debugPrint('   id           : "${exEntity.id}"');
+          debugPrint('   thumbnail_url: "${exEntity.thumbnailUrl}"');
+          debugPrint('   start_pose   : "${exEntity.startPoseAsset}"');
+        }
         items.add(
           ProgramExerciseDetailItem(
             prescription: prescription,

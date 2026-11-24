@@ -133,7 +133,8 @@ class WorkoutExerciseListSection extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 10),
           child: WorkoutExerciseListItem(
             title: item.title,
-            thumbnailAsset: item.thumbnailAsset,
+            thumbnailAsset:
+                item.exercise.media.thumbnailUrl ?? item.thumbnailAsset,
             sets: item.sets,
             reps: item.reps,
             exercise: item.exercise,

@@ -48,6 +48,7 @@ class DatabaseTables {
       end_pose_asset TEXT,
       animation_asset TEXT,
       video_url TEXT,
+      thumbnail_url TEXT,
       is_custom INTEGER NOT NULL DEFAULT 0,
       is_favorite INTEGER NOT NULL DEFAULT 0,
       created_by_user_id TEXT,
