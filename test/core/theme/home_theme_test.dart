@@ -1,8 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:workout_app/core/theme/app_theme.dart';
-import 'package:workout_app/core/theme/home_theme.dart';
 import 'package:workout_app/core/theme/app_colors.dart';
+import 'package:workout_app/core/theme/home_theme.dart';
 
 void main() {
   testWidgets('HomeTheme resolves surfaces from the active dark theme', (tester) async {

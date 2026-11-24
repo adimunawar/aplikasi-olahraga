@@ -228,7 +228,7 @@ class WeeklyProgressCalendarCard extends StatelessWidget {
           width: 26,
           height: 26,
           decoration: BoxDecoration(
-            color: AppColors.neutral100,
+            color: HomeTheme.subtleSurface(context),
             shape: BoxShape.circle,
             border: Border.all(color: HomeTheme.border(context), width: 1.2),
           ),

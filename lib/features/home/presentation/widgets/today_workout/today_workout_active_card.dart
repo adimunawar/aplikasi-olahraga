@@ -75,7 +75,7 @@ class TodayWorkoutActiveCard extends StatelessWidget {
               color: HomeTheme.surface(context),
               borderRadius: BorderRadius.circular(22),
               border: Border.all(
-                color: AppColors.neutral200,
+                color: HomeTheme.border(context),
                 width: 1.2,
               ),
               boxShadow: [
@@ -97,7 +97,7 @@ class TodayWorkoutActiveCard extends StatelessWidget {
                       width: 52,
                       height: 52,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEAF8D5),
+                        color: HomeTheme.accentSurface(context),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Center(
@@ -185,7 +185,7 @@ class TodayWorkoutActiveCard extends StatelessWidget {
                     onPressed: onStartWorkout,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF84CC16),
-                      foregroundColor: HomeTheme.text(context),
+                      foregroundColor: AppColors.darkCharcoal,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -198,7 +198,7 @@ class TodayWorkoutActiveCard extends StatelessWidget {
                         Icon(
                           Icons.play_arrow_rounded,
                           size: 24,
-                          color: HomeTheme.text(context),
+                          color: AppColors.darkCharcoal,
                         ),
                         const SizedBox(width: 6),
                         Text(
@@ -206,7 +206,7 @@ class TodayWorkoutActiveCard extends StatelessWidget {
                           style: AppTypography.titleMedium.copyWith(
                             fontWeight: FontWeight.w800,
                             fontSize: 15,
-                            color: HomeTheme.text(context),
+                            color: AppColors.darkCharcoal,
                           ),
                         ),
                       ],
