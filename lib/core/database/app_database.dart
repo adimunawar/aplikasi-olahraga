@@ -638,31 +638,6 @@ class AppDatabase {
     return rows.map(WorkoutSessionEntity.fromMap).toList();
   }
 
-  /// Mengambil seluruh riwayat workout untuk satu program.
-  /// Data ini dipakai untuk menentukan status tiap sesi pada masing-masing minggu.
-  Future<List<WorkoutSessionEntity>> getWorkoutSessionsForProgram(
-    String programId,
-  ) async {
-    if (kIsWeb) {
-      final sessions = _webSessions
-          .where((session) => session.programId == programId)
-          .toList()
-        ..sort((a, b) => a.scheduledDate.compareTo(b.scheduledDate));
-      return sessions;
-    }
-
-    final db = await database;
-    if (db == null) return [];
-
-    final rows = await db.query(
-      DatabaseTables.workoutSessions,
-      where: 'program_id = ?',
-      whereArgs: [programId],
-      orderBy: 'scheduled_date ASC, started_at ASC',
-    );
-
-    return rows.map(WorkoutSessionEntity.fromMap).toList();
-  }
 
   /// Total sesi yang selesai secara keseluruhan (PRG-01)
   Future<int> getCompletedSessionsCount() async {
