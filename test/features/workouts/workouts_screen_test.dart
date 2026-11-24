@@ -245,7 +245,10 @@ void main() {
       );
 
       expect(find.text('Program Aktif'), findsOneWidget);
-      expect(find.text('Saat Ini'), findsOneWidget);
+      // The weekly selector marks the current week through its selected pill,
+      // while the lifecycle label on the active-program card shows Week 1.
+      expect(find.text('Minggu 1 dari 4'), findsOneWidget);
+      expect(find.text('W1'), findsOneWidget);
       expect(find.text('Mode pratinjau'), findsNothing);
 
       await tester.ensureVisible(find.text('W3'));
