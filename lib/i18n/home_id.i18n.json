@@ -1,0 +1,61 @@
+{
+  "greeting": {
+    "goodMorning": "Selamat Pagi, $name 👋",
+    "goodAfternoon": "Selamat Siang, $name 👋",
+    "goodEvening": "Selamat Malam, $name 👋",
+    "subtitle": "Tetap konsisten dan capai targetmu!"
+  },
+  "goalCard": {
+    "goalPrefix": "Target:",
+    "gainWeight": "Naikkan Berat Badan & Bentuk Otot",
+    "fatLoss": "Turunkan Lemak & Badan Atletis",
+    "maintain": "Jaga Berat Badan & Tetap Bugar",
+    "target": "Target",
+    "current": "Saat Ini",
+    "programDuration": "$weeks Minggu Program",
+    "weekOf": "Minggu $current dari $total"
+  },
+  "todayWorkout": {
+    "title": "Latihan Hari Ini",
+    "viewPlan": "Lihat Jadwal →",
+    "startWorkout": "Mulai Latihan",
+    "approxMin": "≈ $min mnt",
+    "approxKcal": "≈ $kcal kkal"
+  },
+  "restDay": {
+    "title": "Hari Ini Istirahat",
+    "subtitle": "Waktunya pemulihan, biarkan ototmu pulih dan berkembang.",
+    "recoveryTips": "Tips Pemulihan",
+    "hydrate": "Cukupi kebutuhan cairan tubuh",
+    "sleep": "Tidur cukup 7–9 jam",
+    "stretch": "Lakukan peregangan ringan atau mobilitas"
+  },
+  "noProgram": {
+    "title": "Kamu belum memiliki program latihan",
+    "subtitle": "Buat rencana latihan personal berdasarkan target, profil, dan preferensimu.",
+    "createProgram": "Buat Program Saya"
+  },
+  "weeklyProgress": {
+    "title": "Kemajuan Minggu Ini",
+    "seeDetails": "Lihat Detail →",
+    "states": {
+      "completed": "Selesai (latihan tuntas)",
+      "today": "Hari Ini (jadwal latihan)",
+      "rest": "Hari istirahat",
+      "upcoming": "Mendatang (belum)",
+      "missed": "Terlewat"
+    }
+  },
+  "supportGoal": {
+    "title": "Dukung Targetmu",
+    "subtitleGain": "Dapatkan tips nutrisi sederhana untuk pembentukan otot.",
+    "subtitleLoss": "Dapatkan tips nutrisi sederhana untuk pembakaran lemak.",
+    "subtitleMaintain": "Dapatkan tips pola makan sehat agar tetap fit."
+  },
+  "error": {
+    "connectionIssue": "Masalah koneksi",
+    "connectionDesc": "Sebagian data tidak dapat dimuat ulang. Menampilkan data terakhir yang tersimpan.",
+    "lastSynced": "Sinkronisasi terakhir: $time",
+    "retry": "Coba Lagi"
+  }
+}

@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/database/app_database.dart';
@@ -97,7 +97,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
     final controller = TextEditingController();
     showDialog(
       context: context,
-      builder: (_) {
+      builder: (dialogCtx) {
         return AlertDialog(
           backgroundColor: AppColors.surface,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -125,7 +125,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(dialogCtx),
               child: Text('Batal', style: TextStyle(color: AppColors.textDim)),
             ),
             ElevatedButton(
@@ -143,7 +143,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                       DateTime.now().toIso8601String().substring(0, 10);
                   await prefs.setDouble('nutrition_protein_$todayKey', newLogged);
                 }
-                if (context.mounted) Navigator.pop(context);
+                if (dialogCtx.mounted) Navigator.pop(dialogCtx);
               },
               child: const Text('Catat'),
             ),
@@ -225,7 +225,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: _foods.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              separatorBuilder: (_, _) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
                 final food = _foods[index];
                 return _buildFoodItemRow(food);

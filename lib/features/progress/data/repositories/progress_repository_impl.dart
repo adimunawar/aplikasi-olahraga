@@ -1,8 +1,12 @@
+import 'package:workout_app/core/config/supabase_config.dart';
+
 import '../../../../core/database/app_database.dart';
 import '../../domain/models/day_activity.dart';
 import '../../domain/models/progress_metrics.dart';
 import '../../domain/models/weight_record.dart';
 import '../../domain/models/workout_history_item.dart';
+import '../../domain/models/movement_volume_data.dart';
+import '../../domain/models/progression_milestone.dart';
 import '../../domain/repositories/progress_repository.dart';
 import '../datasources/progress_supabase_datasource.dart';
 
@@ -20,59 +24,64 @@ class ProgressRepositoryImpl implements ProgressRepository {
 
   @override
   Future<ProgressMetrics> getMetrics() async {
-    // 1. Ambil data lokal SQLite
-    int workoutCount = 10;
-    int caloriesBurned = 2540;
-    int streakDays = 3;
+    var workoutCount = 0;
+    var caloriesBurned = 0;
+    var streakDays = 0;
+    var completedThisWeek = 0;
+    var weeklyTarget = 0;
+    var totalMinutes = 0;
 
     try {
       final completed = await localDatabase.getCompletedSessionsCount();
       final calories = await localDatabase.getTotalCaloriesBurned();
       final streak = await localDatabase.getCurrentStreak();
-      if (completed > 0) workoutCount = completed;
-      if (calories > 0) caloriesBurned = calories;
-      if (streak > 0) streakDays = streak;
-    } catch (_) {}
+      final thisWeek = await localDatabase.getThisWeekCompletedCount();
+      final profile = await localDatabase.getUserProfile();
 
-    // 2. Coba sinkronisasi dengan Supabase
-    try {
-      final remoteMetrics = await remoteDatasource.fetchTopMetrics();
-      if (remoteMetrics.workoutCount > 0) {
-        return remoteMetrics;
-      }
+      workoutCount = completed;
+      caloriesBurned = calories;
+      streakDays = streak;
+      completedThisWeek = thisWeek;
+      weeklyTarget = profile.weeklyFrequency;
+      final sessions = await localDatabase.getRecentWorkoutSessions(limit: 10000);
+      totalMinutes = sessions
+          .where((session) => session.status.name == 'completed')
+          .fold<int>(0, (sum, session) => sum + session.durationSeconds) ~/ 60;
     } catch (_) {}
 
     return ProgressMetrics(
       workoutCount: workoutCount,
       caloriesBurned: caloriesBurned,
-      totalMinutes: 250,
+      totalMinutes: totalMinutes,
       streakDays: streakDays,
-      completedThisWeek: 3,
-      weeklyTarget: 4,
+      completedThisWeek: completedThisWeek,
+      weeklyTarget: weeklyTarget,
     );
   }
 
   @override
   Future<List<WeightRecord>> getWeightHistory() async {
-    try {
-      final remoteRecords = await remoteDatasource.fetchWeightHistory();
-      if (remoteRecords.isNotEmpty) {
-        return remoteRecords;
-      }
-    } catch (_) {}
+    // 1. Jika Cloud Sync aktif, coba sinkronisasi dari remote
+    if (SupabaseConfig.canSyncToCloud) {
+      try {
+        final remoteRecords = await remoteDatasource.fetchWeightHistory();
+        if (remoteRecords.isNotEmpty) {
+          return remoteRecords;
+        }
+      } catch (_) {}
+    }
 
-    // Fallback: baca berat lokal
+    // 2. Default Local-first: baca dari SQLite lokal
     try {
-      final latest = await localDatabase.getLatestWeight();
-      if (latest > 0) {
-        return [
-          WeightRecord(
-            id: 'local_latest',
-            weightKg: latest,
-            recordedAt: DateTime.now(),
-          ),
-        ];
+      final measurements = await localDatabase.getWeightHistory();
+      if (measurements.isNotEmpty) {
+        return measurements.map((m) => WeightRecord(
+          id: m.id,
+          weightKg: m.value,
+          recordedAt: m.recordedAt,
+        )).toList();
       }
+
     } catch (_) {}
 
     return [];
@@ -81,33 +90,80 @@ class ProgressRepositoryImpl implements ProgressRepository {
   @override
   Future<List<WorkoutHistoryItem>> getRecentWorkouts({int limit = 5}) async {
     try {
-      final remoteItems = await remoteDatasource.fetchRecentWorkouts(limit: limit);
-      if (remoteItems.isNotEmpty) {
-        return remoteItems;
+      final localSessions = await localDatabase.getRecentWorkoutSessions(limit: limit);
+      if (localSessions.isNotEmpty) {
+        return localSessions.map((s) {
+          final durMin = (s.durationSeconds / 60).round();
+          final dateStr = '${s.startedAt.day}/${s.startedAt.month}/${s.startedAt.year}';
+          return WorkoutHistoryItem(
+            id: s.id,
+            title: s.programTitle.isNotEmpty ? s.programTitle : 'Full Body Workout',
+            dateText: dateStr,
+            durationText: '$durMin min',
+            caloriesText: '${s.caloriesBurned} kcal',
+          );
+        }).toList();
       }
     } catch (_) {}
 
+    if (SupabaseConfig.canSyncToCloud) {
+      try {
+        final remoteItems = await remoteDatasource.fetchRecentWorkouts(limit: limit);
+        if (remoteItems.isNotEmpty) {
+          return remoteItems;
+        }
+      } catch (_) {}
+    }
+
     return [];
+
   }
 
   @override
   Future<List<DayActivity>> getWeeklyActivity() async {
     try {
-      final remoteActivity = await remoteDatasource.fetchWeeklyActivity();
-      if (remoteActivity.isNotEmpty) {
-        return remoteActivity;
-      }
-    } catch (_) {}
+      final localActivity = await localDatabase.getWeeklyActivityMinutes();
+      final daysOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      return daysOrder.map((day) => DayActivity(
+        day: day,
+        minutes: localActivity[day] ?? 0,
+      )).toList();
+    } catch (_) {
+      return const [];
+    }
+  }
 
-    return const [
-      DayActivity(day: 'Mon', minutes: 35),
-      DayActivity(day: 'Tue', minutes: 52),
-      DayActivity(day: 'Wed', minutes: 38),
-      DayActivity(day: 'Thu', minutes: 48),
-      DayActivity(day: 'Fri', minutes: 0),
-      DayActivity(day: 'Sat', minutes: 0),
-      DayActivity(day: 'Sun', minutes: 0),
-    ];
+  @override
+  Future<List<MovementVolumeData>> getMovementVolume() async {
+    try {
+      final rows = await localDatabase.getWeeklyMovementVolume();
+      return rows.map((r) => MovementVolumeData.fromMap(r)).toList();
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  @override
+  Future<List<ProgressionMilestone>> getProgressionMilestones({int limit = 5}) async {
+    try {
+      final decisions = await localDatabase.getRecentProgressionMilestones(limit: limit);
+      return decisions.map((d) {
+        String? nextExId;
+        final nextMap = d.nextPrescriptionMap;
+        if (nextMap != null && nextMap.containsKey('suggested_exercise_id')) {
+          nextExId = nextMap['suggested_exercise_id'] as String?;
+        }
+        return ProgressionMilestone(
+          exerciseId: d.exerciseId,
+          decision: d.decision,
+          reason: d.reason,
+          date: d.createdAt,
+          nextExerciseId: nextExId,
+        );
+      }).toList();
+    } catch (_) {
+      return [];
+    }
   }
 
   @override

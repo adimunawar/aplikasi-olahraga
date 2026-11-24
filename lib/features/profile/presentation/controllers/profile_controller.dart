@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/database/app_database.dart';
+import '../../../program/domain/services/program_week_schedule.dart';
 import '../../data/datasources/user_supabase_datasource.dart';
 import '../../data/repositories/user_profile_repository_impl.dart';
 import '../../domain/repositories/user_profile_repository.dart';
@@ -26,9 +28,8 @@ final profileControllerProvider =
 class ProfileController extends StateNotifier<ProfileState> {
   final UserProfileRepository _repository;
 
-  ProfileController({required UserProfileRepository repository})
-    : _repository = repository,
-      super(const ProfileState()) {
+  ProfileController({required this._repository})
+    : super(const ProfileState()) {
     loadProfile();
   }
 
@@ -38,12 +39,10 @@ class ProfileController extends StateNotifier<ProfileState> {
       final profile = await _repository.getUserProfile();
       final settings = await _repository.getUserSettings();
 
-      final weight = profile.currentWeightKg > 0
-          ? profile.currentWeightKg
-          : 58.0;
-      final height = profile.heightCm > 0 ? profile.heightCm : 174.0;
+      final weight = profile.currentWeightKg;
+      final height = profile.heightCm;
 
-      double bmi = 19.2;
+      double bmi = 0;
       if (height > 0 && weight > 0) {
         final hM = height / 100.0;
         bmi = double.parse((weight / (hM * hM)).toStringAsFixed(1));
@@ -66,12 +65,11 @@ class ProfileController extends StateNotifier<ProfileState> {
       final lastUpdated = DateFormat('MMM d, yyyy').format(profile.updatedAt);
 
       state = state.copyWith(
-        displayName: profile.displayName.isNotEmpty
-            ? profile.displayName
-            : 'Adi Munawar',
-        journeyStatus:
-            'Bulking journey • ${profile.experienceLevel.isNotEmpty ? (profile.experienceLevel[0].toUpperCase() + profile.experienceLevel.substring(1)) : "Beginner"}',
-        age: profile.age > 0 ? profile.age : 29,
+        displayName: profile.displayName,
+        journeyStatus: profile.experienceLevel.isEmpty
+            ? ''
+            : 'Bulking journey • ${profile.experienceLevel[0].toUpperCase()}${profile.experienceLevel.substring(1)}',
+        age: profile.age,
         gender: gender,
         currentWeight: weight,
         currentHeight: height,
@@ -80,16 +78,11 @@ class ProfileController extends StateNotifier<ProfileState> {
         goal: profile.goal == 'muscle_gain'
             ? 'Build Muscle (Bulking)'
             : profile.goal,
-        experienceLevel: profile.experienceLevel.isNotEmpty
-            ? (profile.experienceLevel[0].toUpperCase() +
-                  profile.experienceLevel.substring(1))
-            : 'Beginner',
-        preferredDaysPerWeek: profile.preferredDaysPerWeek > 0
-            ? profile.preferredDaysPerWeek
-            : 4,
-        preferredDurationMin: profile.preferredDurationMin > 0
-            ? profile.preferredDurationMin
-            : 45,
+        experienceLevel: profile.experienceLevel.isEmpty
+            ? ''
+            : '${profile.experienceLevel[0].toUpperCase()}${profile.experienceLevel.substring(1)}',
+        preferredDaysPerWeek: profile.preferredDaysPerWeek,
+        preferredDurationMin: profile.preferredDurationMin,
         trainingIntensity: intensity,
         unitPreference: profile.unitPreference == 'metric'
             ? 'Metric (kg, cm)'
@@ -215,6 +208,27 @@ class ProfileController extends StateNotifier<ProfileState> {
     }
   }
 
+  List<String> _getAvailableDays(
+    int frequency, {
+    required DateTime startDate,
+  }) {
+    return ProgramWeekSchedule.availableWeekdaysForFrequency(
+      startDate: startDate,
+      frequency: frequency,
+    );
+  }
+
+  @visibleForTesting
+  List<String> getAvailableDaysForTesting(
+    int frequency, {
+    DateTime? startDate,
+  }) {
+    return _getAvailableDays(
+      frequency,
+      startDate: startDate ?? DateTime(2026, 11, 2),
+    );
+  }
+
   Future<void> updateWorkoutPreferences({
     required int trainingDaysPerWeek,
     required int workoutDurationMin,
@@ -222,18 +236,43 @@ class ProfileController extends StateNotifier<ProfileState> {
   }) async {
     try {
       final profile = await _repository.getUserProfile();
+      final updatedAt = DateTime.now();
+      final userId = profile.id.isNotEmpty ? profile.id : 'default_user';
+      var activeProgram = await AppDatabase.instance
+          .getActiveTrainingProgram(userId)
+          .catchError((_) => null);
+      activeProgram ??= await AppDatabase.instance
+          .getActiveTrainingProgram('default_user')
+          .catchError((_) => null);
+
+      // Keep the existing program's weekday anchor when only duration or
+      // intensity changes. A frequency change starts a fresh schedule today;
+      // HomeController will regenerate the matching session templates.
+      final scheduleStartDate =
+          activeProgram != null &&
+              activeProgram.weeklyFrequency == trainingDaysPerWeek
+          ? activeProgram.startDate
+          : updatedAt;
+      final availableDays = _getAvailableDays(
+        trainingDaysPerWeek,
+        startDate: scheduleStartDate,
+      );
+
       final updatedProfile = profile.copyWith(
         preferredDaysPerWeek: trainingDaysPerWeek,
+        weeklyFrequency: trainingDaysPerWeek,
+        availableDays: availableDays,
         preferredDurationMin: workoutDurationMin,
-        updatedAt: DateTime.now(),
+        updatedAt: updatedAt,
       );
+
       await _repository.saveUserProfile(updatedProfile);
 
       final settings = await _repository.getUserSettings();
       await _repository.saveUserSettings(
         settings.copyWith(
           trainingIntensity: trainingIntensity,
-          updatedAt: DateTime.now(),
+          updatedAt: updatedAt,
         ),
       );
 
@@ -244,7 +283,7 @@ class ProfileController extends StateNotifier<ProfileState> {
         preferredDaysPerWeek: trainingDaysPerWeek,
         preferredDurationMin: workoutDurationMin,
         trainingIntensity: trainingIntensity,
-        lastUpdatedDate: DateFormat('MMM d, yyyy').format(DateTime.now()),
+        lastUpdatedDate: DateFormat('MMM d, yyyy').format(updatedAt),
       );
     } catch (e) {
       state = state.copyWith(

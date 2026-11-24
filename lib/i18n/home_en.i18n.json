@@ -1,0 +1,61 @@
+{
+  "greeting": {
+    "goodMorning": "Good Morning, $name 👋",
+    "goodAfternoon": "Good Afternoon, $name 👋",
+    "goodEvening": "Good Evening, $name 👋",
+    "subtitle": "Stay consistent and reach your goal!"
+  },
+  "goalCard": {
+    "goalPrefix": "Goal:",
+    "gainWeight": "Gain Weight & Build Muscle",
+    "fatLoss": "Fat Loss & Build Lean Body",
+    "maintain": "Maintain & Stay Fit",
+    "target": "Target",
+    "current": "Current",
+    "programDuration": "$weeks Weeks Program",
+    "weekOf": "Week $current of $total"
+  },
+  "todayWorkout": {
+    "title": "Today's Workout",
+    "viewPlan": "View Plan →",
+    "startWorkout": "Start Workout",
+    "approxMin": "≈ $min min",
+    "approxKcal": "≈ $kcal kcal"
+  },
+  "restDay": {
+    "title": "Today is a Rest Day",
+    "subtitle": "Time to recover, let your muscles repair and grow.",
+    "recoveryTips": "Recovery Tips",
+    "hydrate": "Stay hydrated",
+    "sleep": "Get 7–9 hours of sleep",
+    "stretch": "Do light stretching or mobility"
+  },
+  "noProgram": {
+    "title": "You don't have a training program yet",
+    "subtitle": "Create a personalized training plan based on your goal, profile, and preference.",
+    "createProgram": "Create My Program"
+  },
+  "weeklyProgress": {
+    "title": "This Week Progress",
+    "seeDetails": "See Details →",
+    "states": {
+      "completed": "Completed (workout done)",
+      "today": "Today (scheduled workout)",
+      "rest": "Rest day",
+      "upcoming": "Upcoming (not yet)",
+      "missed": "Missed"
+    }
+  },
+  "supportGoal": {
+    "title": "Support Your Goal",
+    "subtitleGain": "Get simple nutrition tips for muscle gain.",
+    "subtitleLoss": "Get simple nutrition tips for fat loss.",
+    "subtitleMaintain": "Get simple nutrition tips to stay fit."
+  },
+  "error": {
+    "connectionIssue": "Connection issue",
+    "connectionDesc": "Some information couldn't be refreshed. Showing your last available data.",
+    "lastSynced": "Last synced: $time",
+    "retry": "Retry"
+  }
+}

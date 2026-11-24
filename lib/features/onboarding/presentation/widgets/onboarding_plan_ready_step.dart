@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../../../../core/theme/app_typography.dart';
 import 'onboarding_cta_button.dart';
 
@@ -9,6 +9,7 @@ class OnboardingPlanReadyStep extends StatelessWidget {
   final int durationMin;
   final String level;
   final String goal;
+  final String startingExercise;
   final VoidCallback onStartMyPlan;
   final VoidCallback onBack;
 
@@ -18,6 +19,7 @@ class OnboardingPlanReadyStep extends StatelessWidget {
     required this.durationMin,
     required this.level,
     required this.goal,
+    this.startingExercise = 'Incline Push Up',
     required this.onStartMyPlan,
     required this.onBack,
   });
@@ -144,6 +146,11 @@ class OnboardingPlanReadyStep extends StatelessWidget {
                     _buildSummaryRow(
                       icon: Icons.fitness_center_rounded,
                       text: goalText,
+                    ),
+                    const Divider(height: 22, color: Color(0xFFF1F5F9)),
+                    _buildSummaryRow(
+                      icon: Icons.play_circle_outline_rounded,
+                      text: 'Start exercise: $startingExercise',
                     ),
                   ],
                 ),

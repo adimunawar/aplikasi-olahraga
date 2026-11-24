@@ -1,113 +1,146 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_typography.dart';
+import '../../../../i18n/strings.g.dart';
 import '../../../exercises/domain/models/exercise.dart';
+import '../../../workout_session/domain/models/exercise_prescription.dart';
 import 'workout_exercise_list_item.dart';
 
-/// Section daftar 5 gerakan latihan dengan tombol header "Edit Workout"
 class WorkoutExerciseListSection extends StatelessWidget {
   final List<WorkoutDetailExerciseData> exercises;
-  final VoidCallback onEditWorkout;
-  final void Function(int oldIndex, int newIndex) onReorder;
 
-  const WorkoutExerciseListSection({
-    super.key,
-    required this.exercises,
-    required this.onEditWorkout,
-    required this.onReorder,
-  });
+  const WorkoutExerciseListSection({super.key, required this.exercises});
 
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context);
+    final theme = Theme.of(context);
+
+    final warmupList = exercises.where((e) => e.stage == 'warmup').toList();
+    final trainingList = exercises.where((e) => e.stage == 'main').toList();
+    final cooldownList = exercises.where((e) => e.stage == 'cooldown').toList();
+    final hasMultiStage = warmupList.isNotEmpty || cooldownList.isNotEmpty;
+
+    final sectionTitle = t.workouts.workoutDetail.exerciseListTitle(
+      count: exercises.length,
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Header Section
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              'Exercises (${exercises.length})',
-              style: AppTypography.headlineSmall.copyWith(
-                fontWeight: FontWeight.w800,
-                fontSize: 17,
-                color: const Color(0xFF141718),
-              ),
-            ),
-            GestureDetector(
-              onTap: onEditWorkout,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEDF8D6),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.edit_outlined,
-                      size: 14,
-                      color: Color(0xFF365314),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Edit Workout',
-                      style: AppTypography.labelSmall.copyWith(
-                        color: const Color(0xFF365314),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 11.5,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+        Text(
+          sectionTitle,
+          style: AppTypography.headlineSmall.copyWith(
+            fontWeight: FontWeight.w800,
+            fontSize: 17,
+            color: theme.colorScheme.onSurface,
+          ),
         ),
         const SizedBox(height: 12),
 
-        // List Gerakan Latihan (Dapat Digeser & Ditukar Posisinya)
-        ReorderableListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          buildDefaultDragHandles: false, // Handle khusus di drag indicator :::
-          itemCount: exercises.length,
-          onReorder: onReorder,
-          proxyDecorator: (child, index, animation) {
-            return AnimatedBuilder(
-              animation: animation,
-              builder: (context, _) {
-                final t = Curves.easeInOut.transform(animation.value);
-                return Material(
-                  color: Colors.transparent,
-                  elevation: 10 * t,
-                  shadowColor: const Color(0x33000000),
-                  borderRadius: BorderRadius.circular(16),
-                  child: child,
-                );
-              },
-            );
-          },
-          itemBuilder: (context, index) {
-            final item = exercises[index];
-            return Padding(
-              key: ValueKey('${item.exercise.id}_$index'),
-              padding: const EdgeInsets.only(bottom: 10),
-              child: WorkoutExerciseListItem(
-                index: index,
-                title: item.title,
-                categoryTag: item.categoryTag,
-                thumbnailAsset: item.thumbnailAsset,
-                sets: item.sets,
-                reps: item.reps,
-                rest: item.rest,
-                exercise: item.exercise,
-              ),
-            );
-          },
-        ),
+        if (!hasMultiStage)
+          _buildExerciseList(exercises)
+        else ...[
+          if (warmupList.isNotEmpty) ...[
+            _buildStageHeader(
+              context: context,
+              icon: Icons.local_fire_department_rounded,
+              iconColor: const Color(0xFFF97316),
+              title: t.workouts.workoutDetail.stages.warmup.title,
+              count: warmupList.length,
+              subtitle: t.workouts.workoutDetail.stages.warmup.subtitle,
+            ),
+            _buildExerciseList(warmupList),
+          ],
+          if (trainingList.isNotEmpty) ...[
+            _buildStageHeader(
+              context: context,
+              icon: Icons.fitness_center_rounded,
+              iconColor: theme.colorScheme.primary,
+              title: t.workouts.workoutDetail.stages.main.title,
+              count: trainingList.length,
+              subtitle: t.workouts.workoutDetail.stages.main.subtitle,
+            ),
+            _buildExerciseList(trainingList),
+          ],
+          if (cooldownList.isNotEmpty) ...[
+            _buildStageHeader(
+              context: context,
+              icon: Icons.self_improvement_rounded,
+              iconColor: const Color(0xFF0284C7),
+              title: t.workouts.workoutDetail.stages.cooldown.title,
+              count: cooldownList.length,
+              subtitle: t.workouts.workoutDetail.stages.cooldown.subtitle,
+            ),
+            _buildExerciseList(cooldownList),
+          ],
+        ],
       ],
+    );
+  }
+
+  Widget _buildStageHeader({
+    required BuildContext context,
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required int count,
+    required String subtitle,
+  }) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 16, color: iconColor),
+              const SizedBox(width: 6),
+              Text(
+                '$title ($count)',
+                style: AppTypography.headlineSmall.copyWith(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 14.5,
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
+            ],
+          ),
+          Text(
+            subtitle,
+            style: AppTypography.labelSmall.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+              fontSize: 11,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExerciseList(List<WorkoutDetailExerciseData> list) {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: list.length,
+      itemBuilder: (context, index) {
+        final item = list[index];
+        return Padding(
+          key: ValueKey('${item.exercise.id}_$index'),
+          padding: const EdgeInsets.only(bottom: 10),
+          child: WorkoutExerciseListItem(
+            title: item.title,
+            thumbnailAsset:
+                item.exercise.media.thumbnailUrl ?? item.thumbnailAsset,
+            sets: item.sets,
+            reps: item.reps,
+            exercise: item.exercise,
+          ),
+        );
+      },
     );
   }
 }
@@ -120,6 +153,11 @@ class WorkoutDetailExerciseData {
   final String reps;
   final String rest;
   final Exercise exercise;
+  final String stage; // 'warmup', 'main', 'cooldown'
+
+  /// Preskripsi asli dari program (target set, min/max reps, rest) supaya
+  /// bisa diteruskan ke Active Workout tanpa kehilangan detail.
+  final WorkoutExercisePrescription? prescription;
 
   WorkoutDetailExerciseData({
     required this.title,
@@ -129,6 +167,7 @@ class WorkoutDetailExerciseData {
     this.reps = '8 – 12',
     this.rest = '60 – 90s',
     required this.exercise,
+    this.stage = 'main',
+    this.prescription,
   });
 }
-

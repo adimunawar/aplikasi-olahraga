@@ -1,0 +1,155 @@
+{
+  "appName": "Home Bulking Coach",
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back",
+    "next": "Next",
+    "skip": "Skip",
+    "done": "Done",
+    "retry": "Retry",
+    "close": "Close",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "state": {
+    "loading": "Loading...",
+    "empty": "Nothing here yet",
+    "error": "Something went wrong"
+  },
+  "badge": {
+    "currentPlan": "Current Plan"
+  },
+  "language": {
+    "label": "Language",
+    "id": "Bahasa Indonesia",
+    "en": "English"
+  },
+  "units": {
+    "reps": "reps",
+    "sets": "sets",
+    "seconds": "sec",
+    "kg": "kg"
+  },
+  "streak": {
+    "daySingular": "$count day",
+    "dayPlural": "$count days",
+    "activeDaySingular": "$count consecutive active day",
+    "activeDayPlural": "$count consecutive active days"
+  },
+  "progress": {
+    "title": "Progress",
+    "rangeWeeks": "Last $weeks Weeks",
+    "tabs": {
+      "overview": "Overview",
+      "body": "Body",
+      "workout": "Workout",
+      "history": "History"
+    },
+    "overviewTitle": "Your Progress",
+    "overviewSubtitle": "A quick summary of your training and body progress.",
+    "metrics": {
+      "workouts": "Workouts",
+      "completion": "Completion",
+      "trainingTime": "Training Time",
+      "currentStreak": "Current Streak"
+    },
+    "programProgress": "Program Progress",
+    "noWorkoutData": {
+      "title": "No workout data yet",
+      "message": "Complete your first workout to see your training progress here."
+    },
+    "noActiveProgram": {
+      "title": "No active program",
+      "message": "Choose a training program to track your weekly progress."
+    },
+    "recentHighlights": "Recent Highlights",
+    "keepGoing": "Keep Going!",
+    "keepGoingMessage": "Stay consistent. Every workout brings you closer to your goal.",
+    "weightTrend": {
+      "title": "Weight (kg)",
+      "weekValue": "W$week · $value kg",
+      "weekShort": "W$week",
+      "empty": "No weight measurements in this period yet.",
+      "vsWeeksAgo": "vs. $weeks weeks ago",
+      "increase": "↑ +$value kg",
+      "decrease": "↓ $value kg"
+    },
+    "notTracked": {
+      "title": "$metric tracking is not available yet",
+      "message": "This metric is not stored in your measurements yet."
+    },
+    "programCard": {
+      "weekOf": "Week $week of $total",
+      "active": "Active",
+      "completion": "Program completion"
+    },
+    "highlights": {
+      "completed": "Completed $completed of $target workouts this week",
+      "weightIncrease": "Weight increased by $value kg",
+      "weightDecrease": "Weight decreased by $value kg",
+      "emptyTitle": "No highlights yet",
+      "emptyMessage": "Your milestones will appear as you record workouts and measurements."
+    },
+    "body": {
+      "title": "Body Progress",
+      "subtitle": "Track changes in your body over time.",
+      "weight": "Weight",
+      "muscleMass": "Muscle Mass",
+      "bodyFat": "Body Fat",
+      "logMeasurement": "Log Measurement",
+      "recordWeight": "Record weight",
+      "currentWeight": "Current weight"
+    },
+    "workout": {
+      "title": "Workout Performance",
+      "subtitle": "Your training progress and consistency.",
+      "noPerformance": {
+        "title": "No workout performance yet",
+        "message": "Your weekly activity and training volume will appear after you complete a workout."
+      },
+      "weeklyActivity": "Weekly Activity",
+      "noActivity": {
+        "title": "No activity this week",
+        "message": "Completed workout time will be summarized here."
+      },
+      "trainingVolume": "Training Volume",
+      "noVolume": {
+        "title": "No training volume yet",
+        "message": "Set and rep totals will appear after you log completed sets."
+      },
+      "recentWorkouts": "Recent Workouts",
+      "noRecentWorkouts": {
+        "title": "No recent workouts",
+        "message": "Your completed sessions will show up here."
+      },
+      "minutesPerDay": "Minutes per day",
+      "minutesTotal": "$minutes min total",
+      "trainingMinutesThisWeek": "$minutes training minutes this week",
+      "totalTime": "Total Time"
+    },
+    "history": {
+      "all": "All",
+      "workout": "Workout",
+      "measurement": "Measurement",
+      "oldestFirst": "Oldest first",
+      "newestFirst": "Newest first",
+      "recordWeight": "Record weight"
+    },
+    "duration": {
+      "minutes": "${minutes} min",
+      "hours": "${hours}h",
+      "hoursMinutes": "${hours}h ${minutes}m"
+    },
+    "weightDialog": {
+      "title": "Record weight",
+      "currentWeight": "Current weight",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "error": {
+      "title": "Unable to load progress",
+      "retry": "Try again"
+    }
+  }
+}

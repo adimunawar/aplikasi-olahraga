@@ -8,12 +8,12 @@ class ProgressMetrics {
   final int weeklyTarget;
 
   const ProgressMetrics({
-    this.workoutCount = 10,
-    this.caloriesBurned = 2540,
-    this.totalMinutes = 250,
-    this.streakDays = 3,
-    this.completedThisWeek = 3,
-    this.weeklyTarget = 4,
+    this.workoutCount = 0,
+    this.caloriesBurned = 0,
+    this.totalMinutes = 0,
+    this.streakDays = 0,
+    this.completedThisWeek = 0,
+    this.weeklyTarget = 0,
   });
 
   ProgressMetrics copyWith({

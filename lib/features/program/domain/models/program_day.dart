@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import '../../../exercises/domain/models/exercise.dart';
 
 enum WorkoutTypeCode {
   p,
@@ -51,6 +50,7 @@ class WorkoutItem {
   final int? durationSec;
   final int restSeconds;
   final bool isMain;
+  final String? stage; // 'warmup', 'main', 'cooldown'
 
   const WorkoutItem({
     required this.exerciseId,
@@ -59,9 +59,11 @@ class WorkoutItem {
     this.durationSec,
     this.restSeconds = 60,
     this.isMain = false,
+    this.stage,
   });
 
-  bool get isDurationBased => durationSec != null && (reps == null || reps == 0);
+  bool get isDurationBased =>
+      durationSec != null && (reps == null || reps == 0);
 
   factory WorkoutItem.fromJson(Map<String, dynamic> json) {
     return WorkoutItem(
@@ -71,17 +73,19 @@ class WorkoutItem {
       durationSec: json['duration_sec'] as int?,
       restSeconds: json['rest_seconds'] as int? ?? 60,
       isMain: json['is_main'] as bool? ?? false,
+      stage: json['stage'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'exercise_id': exerciseId,
-        'sets': sets,
-        if (reps != null) 'reps': reps,
-        if (durationSec != null) 'duration_sec': durationSec,
-        'rest_seconds': restSeconds,
-        'is_main': isMain,
-      };
+    'exercise_id': exerciseId,
+    'sets': sets,
+    if (reps != null) 'reps': reps,
+    if (durationSec != null) 'duration_sec': durationSec,
+    'rest_seconds': restSeconds,
+    'is_main': isMain,
+    if (stage != null) 'stage': stage,
+  };
 
   WorkoutItem copyWith({
     String? exerciseId,
@@ -90,6 +94,7 @@ class WorkoutItem {
     int? durationSec,
     int? restSeconds,
     bool? isMain,
+    String? stage,
   }) {
     return WorkoutItem(
       exerciseId: exerciseId ?? this.exerciseId,
@@ -98,6 +103,7 @@ class WorkoutItem {
       durationSec: durationSec ?? this.durationSec,
       restSeconds: restSeconds ?? this.restSeconds,
       isMain: isMain ?? this.isMain,
+      stage: stage ?? this.stage,
     );
   }
 }
@@ -107,10 +113,13 @@ class ProgramDay {
   final int day;
   final int week;
   final WorkoutTypeCode type;
-  final LocalizedString focus;
+  final String focus;
   final bool isRest;
   final bool isRetestMilestone;
   final List<WorkoutItem> items;
+  final String? title;
+  final String? thumbnailAsset;
+  final int estimatedDurationMinutes;
 
   const ProgramDay({
     required this.day,
@@ -120,28 +129,34 @@ class ProgramDay {
     required this.isRest,
     required this.isRetestMilestone,
     required this.items,
+    this.title,
+    this.thumbnailAsset,
+    this.estimatedDurationMinutes = 30,
   });
 
   factory ProgramDay.fromJson(Map<String, dynamic> json) {
-    final dayNum = (json['day_number'] as num?)?.toInt() ??
+    final dayNum =
+        (json['day_number'] as num?)?.toInt() ??
         (json['day'] as num?)?.toInt() ??
         1;
-    final weekNum = (json['week_number'] as num?)?.toInt() ??
+    final weekNum =
+        (json['week_number'] as num?)?.toInt() ??
         (json['week'] as num?)?.toInt() ??
         (((dayNum - 1) ~/ 7) + 1);
 
-    final rawType = json['type_code'] as String? ?? json['type'] as String? ?? 'R';
+    final rawType =
+        json['type_code'] as String? ?? json['type'] as String? ?? 'R';
 
-    LocalizedString parsedFocus;
-    if (json['focus'] != null) {
-      parsedFocus = LocalizedString.fromJson(json['focus']);
+    String parsedFocus;
+    final rawFocus = json['focus'];
+    if (rawFocus is String) {
+      parsedFocus = rawFocus;
+    } else if (rawFocus is Map) {
+      parsedFocus =
+          rawFocus['id']?.toString() ?? rawFocus['en']?.toString() ?? '';
     } else {
-      final enFocus = json['focus_en']?.toString();
-      final idFocus = json['focus_id']?.toString();
-      parsedFocus = LocalizedString(
-        id: idFocus ?? enFocus ?? 'Latihan',
-        en: enFocus ?? idFocus ?? 'Workout',
-      );
+      parsedFocus =
+          json['focus_id']?.toString() ?? json['focus_en']?.toString() ?? '';
     }
 
     final rawItems = json['program_day_exercises'] ?? json['items'];
@@ -153,21 +168,59 @@ class ProgramDay {
       focus: parsedFocus,
       isRest: json['is_rest'] as bool? ?? false,
       isRetestMilestone: json['is_retest_milestone'] as bool? ?? false,
-      items: (rawItems as List?)
-              ?.map((e) => WorkoutItem.fromJson(Map<String, dynamic>.from(e as Map)))
+      title: json['title'] as String?,
+      thumbnailAsset:
+          json['thumbnail_asset'] as String? ?? json['thumbnail'] as String?,
+      estimatedDurationMinutes:
+          (json['estimated_duration_minutes'] as num?)?.toInt() ?? 30,
+      items:
+          (rawItems as List?)
+              ?.map(
+                (e) =>
+                    WorkoutItem.fromJson(Map<String, dynamic>.from(e as Map)),
+              )
               .toList() ??
           [],
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'day': day,
-        'week': week,
-        'type': type.code,
-        'focus': {'id': focus.id, 'en': focus.en},
-        'is_rest': isRest,
-        'is_retest_milestone': isRetestMilestone,
-        'items': items.map((e) => e.toJson()).toList(),
-      };
-}
+    'day': day,
+    'week': week,
+    'type': type.code,
+    'focus': focus,
+    'is_rest': isRest,
+    'is_retest_milestone': isRetestMilestone,
+    if (title != null) 'title': title,
+    if (thumbnailAsset != null) 'thumbnail_asset': thumbnailAsset,
+    'estimated_duration_minutes': estimatedDurationMinutes,
+    'items': items.map((e) => e.toJson()).toList(),
+  };
 
+  ProgramDay copyWith({
+    int? day,
+    int? week,
+    WorkoutTypeCode? type,
+    String? focus,
+    bool? isRest,
+    bool? isRetestMilestone,
+    List<WorkoutItem>? items,
+    String? title,
+    String? thumbnailAsset,
+    int? estimatedDurationMinutes,
+  }) {
+    return ProgramDay(
+      day: day ?? this.day,
+      week: week ?? this.week,
+      type: type ?? this.type,
+      focus: focus ?? this.focus,
+      isRest: isRest ?? this.isRest,
+      isRetestMilestone: isRetestMilestone ?? this.isRetestMilestone,
+      items: items ?? this.items,
+      title: title ?? this.title,
+      thumbnailAsset: thumbnailAsset ?? this.thumbnailAsset,
+      estimatedDurationMinutes:
+          estimatedDurationMinutes ?? this.estimatedDurationMinutes,
+    );
+  }
+}

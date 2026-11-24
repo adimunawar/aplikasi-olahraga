@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// CustomPainter untuk menggambar anatomi tubuh (dada, bahu, dan punggung)
 class AnatomyTorsoPainter extends CustomPainter {

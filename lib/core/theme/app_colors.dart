@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Palet warna "Home Bulking Coach v2" sesuai PRD Bagian 12.1.
 /// Memadukan tema Light yang bersih, modern, dan energik dengan aksen Lime-Green.
@@ -13,14 +13,39 @@ class AppColors {
   static const Color successSurface = Color(0xFFE9F5DA);
   static const Color warningSurface = Color(0xFFFCE8E5);
 
+  // --- Dark Mode Core Tokens ---
+  static const Color darkScaffoldBackground = Color(0xFF0F1115);
+  static const Color darkSurface = Color(0xFF181B20);
+  static const Color darkSurfaceContainer = Color(0xFF20242B);
+  static const Color darkSurfaceContainerHigh = Color(0xFF282D36);
+  static const Color darkSurfaceContainerHighest = Color(0xFF323842);
+  static const Color darkBorder = Color(0xFF282E38);
+  static const Color darkTextPrimary = Color(0xFFF1F5F9);
+  static const Color darkTextSecondary = Color(0xFF94A3B8);
+
   // --- Mockup Standard Design Tokens ---
-  static const Color limeAccent = Color(0xFFC7F135); // Vibrant neon lime (Play buttons, active pills, highlights)
-  static const Color limeSurface = Color(0xFFEAF8D5); // Soft lime surface for circular icon backgrounds
-  static const Color limeCardSurface = Color(0xFFF4FBEB); // Soft lime card tint for Rest cards & current plan
+  static const Color limeAccent = Color(
+    0xFFC7F135,
+  ); // Vibrant neon lime (Play buttons, active pills, highlights)
+  static const Color limeSurface = Color(
+    0xFFEAF8D5,
+  ); // Soft lime surface for circular icon backgrounds
+  static const Color limeCardSurface = Color(
+    0xFFF4FBEB,
+  ); // Soft lime card tint for Rest cards & current plan
   static const Color limeCardBorder = Color(0xFFD4EBA8); // Soft lime border
-  static const Color darkCharcoal = Color(0xFF141718); // Pure charcoal headings, titles, active labels
-  static const Color cardBorder = Color(0xFFF1F3F5); // Card border standard (1.2px)
-  static const Color scaffoldBackground = Color(0xFFF9FAFB); // Screen background in modern mockup
+  static const Color darkCharcoal = Color(
+    0xFF141718,
+  ); // Pure charcoal headings, titles, active labels
+  static const Color cardBorder = Color(
+    0xFFF1F3F5,
+  ); // Card border standard (1.2px)
+  static const Color scaffoldBackground = Color(
+    0xFFF9FAFB,
+  ); // Screen background in modern mockup
+  static const Color celebrationBadge = Color(
+    0xFFA3E635,
+  ); // Lime green for celebration badge and checkmark
 
   // --- Extended Neutrals (Slate / Gray) ---
   static const Color neutral50 = Color(0xFFF8FAFC);
@@ -88,7 +113,9 @@ class AppColors {
   static const Color onError = Colors.white;
 
   // --- Semantic Workout Classifications ---
-  static const Color workoutPush = Color(0xFF65A30D); // P (Dorong) - Energetic Green
+  static const Color workoutPush = Color(
+    0xFF65A30D,
+  ); // P (Dorong) - Energetic Green
   static const Color workoutLegs = Color(0xFF0D9488); // K (Kaki) - Teal
   static const Color workoutCore = Color(0xFFD97706); // C (Core) - Amber
   static const Color workoutFull = Color(0xFF7C3AED); // F (Full Body) - Violet

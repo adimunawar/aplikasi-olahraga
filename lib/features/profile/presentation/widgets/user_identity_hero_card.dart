@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../../../../core/theme/app_typography.dart';
 
 /// Card Identitas Pengguna pada Halaman Profile:
@@ -49,7 +49,7 @@ class UserIdentityHeroCard extends StatelessWidget {
                 'assets/images/coach_hero.png',
                 fit: BoxFit.cover,
                 alignment: Alignment.topCenter,
-                errorBuilder: (_, __, ___) => Image.asset(
+                errorBuilder: (_, _, _) => Image.asset(
                   'assets/images/coach_character.png',
                   fit: BoxFit.cover,
                   alignment: Alignment.topCenter,

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../../../../core/theme/app_typography.dart';
 
 /// Header Halaman Profile (Mockup 1:1):
@@ -23,8 +23,8 @@ class ProfileHeader extends StatelessWidget {
               shape: BoxShape.circle,
               gradient: RadialGradient(
                 colors: [
-                  const Color(0xFFC7F135).withOpacity(0.35),
-                  const Color(0xFFC7F135).withOpacity(0.0),
+                  const Color(0xFFC7F135).withValues(alpha: 0.35),
+                  const Color(0xFFC7F135).withValues(alpha: 0.0),
                 ],
               ),
             ),
