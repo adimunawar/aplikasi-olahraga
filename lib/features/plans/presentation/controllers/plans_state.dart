@@ -1,4 +1,3 @@
-import '../../../exercises/domain/models/exercise.dart';
 import '../../../program/domain/models/program_day.dart';
 import '../../../program/domain/models/workout_program.dart';
 
@@ -66,10 +65,7 @@ class PlansState {
         day: 1,
         week: w,
         type: WorkoutTypeCode.p,
-        focus: LocalizedString(
-          id: 'Dada • Bahu • Triceps (Minggu $w)',
-          en: 'Chest • Shoulders • Triceps (Week $w)',
-        ),
+        focus: 'Dada • Bahu • Triceps (Minggu $w)',
         isRest: false,
         isRetestMilestone: false,
         items: const [],
@@ -78,10 +74,7 @@ class PlansState {
         day: 2,
         week: w,
         type: WorkoutTypeCode.p,
-        focus: LocalizedString(
-          id: 'Punggung • Biceps (Minggu $w)',
-          en: 'Back • Biceps (Week $w)',
-        ),
+        focus: 'Punggung • Biceps (Minggu $w)',
         isRest: false,
         isRetestMilestone: false,
         items: const [],
@@ -90,10 +83,7 @@ class PlansState {
         day: 3,
         week: w,
         type: WorkoutTypeCode.r,
-        focus: const LocalizedString(
-          id: 'Istirahat atau aktivitas ringan seperti stretching.',
-          en: 'Rest, or light activity like stretching.',
-        ),
+        focus: 'Istirahat atau aktivitas ringan seperti stretching.',
         isRest: true,
         isRetestMilestone: false,
         items: const [],
@@ -102,10 +92,7 @@ class PlansState {
         day: 4,
         week: w,
         type: WorkoutTypeCode.f,
-        focus: LocalizedString(
-          id: 'Dada • Punggung • Bahu • Lengan (Minggu $w)',
-          en: 'Chest • Back • Shoulders • Arms (Week $w)',
-        ),
+        focus: 'Dada • Punggung • Bahu • Lengan (Minggu $w)',
         isRest: false,
         isRetestMilestone: false,
         items: const [],
@@ -114,7 +101,7 @@ class PlansState {
         day: 5,
         week: w,
         type: WorkoutTypeCode.r,
-        focus: const LocalizedString(id: 'Istirahat Total', en: 'Rest'),
+        focus: 'Istirahat Total',
         isRest: true,
         isRetestMilestone: false,
         items: const [],
@@ -123,7 +110,7 @@ class PlansState {
         day: 6,
         week: w,
         type: WorkoutTypeCode.r,
-        focus: const LocalizedString(id: 'Istirahat Total', en: 'Rest'),
+        focus: 'Istirahat Total',
         isRest: true,
         isRetestMilestone: false,
         items: const [],
@@ -132,7 +119,7 @@ class PlansState {
         day: 7,
         week: w,
         type: WorkoutTypeCode.r,
-        focus: const LocalizedString(id: 'Istirahat Total', en: 'Rest'),
+        focus: 'Istirahat Total',
         isRest: true,
         isRetestMilestone: false,
         items: const [],

@@ -1,6 +1,9 @@
 import '../../domain/models/day_activity.dart';
 import '../../domain/models/progress_metrics.dart';
 import '../../domain/models/workout_history_item.dart';
+import '../../domain/models/movement_volume_data.dart';
+import '../../domain/models/progression_milestone.dart';
+import '../../domain/models/weight_record.dart';
 
 /// Immutable State untuk halaman Progress
 class ProgressState {
@@ -13,7 +16,11 @@ class ProgressState {
   final double bmiValue;
   final String bmiStatus;
   final List<WorkoutHistoryItem> recentWorkouts;
+  final List<WeightRecord> weightHistory;
   final List<DayActivity> weeklyActivity;
+  final List<MovementVolumeData> movementVolume;
+  final List<ProgressionMilestone> milestones;
+  final bool hasActiveProgram;
   final String activeProgramTitle;
   final int activeProgramWeek;
   final int activeProgramTotalWeeks;
@@ -23,19 +30,23 @@ class ProgressState {
 
   const ProgressState({
     this.metrics = const ProgressMetrics(),
-    this.currentWeight = 58.0,
-    this.heightCm = 174.0,
-    this.weightChange = -1.0,
-    this.startLabel = '60 kg\n(Oct 25)',
-    this.endLabel = '58 kg\n(Nov 5)',
-    this.bmiValue = 19.2,
-    this.bmiStatus = 'Healthy',
+    this.currentWeight = 0,
+    this.heightCm = 0,
+    this.weightChange = 0,
+    this.startLabel = '',
+    this.endLabel = '',
+    this.bmiValue = 0,
+    this.bmiStatus = '',
     this.recentWorkouts = const [],
+    this.weightHistory = const [],
     this.weeklyActivity = const [],
-    this.activeProgramTitle = 'Upper Body Strength',
-    this.activeProgramWeek = 3,
-    this.activeProgramTotalWeeks = 8,
-    this.activeProgramPercent = 37,
+    this.movementVolume = const [],
+    this.milestones = const [],
+    this.hasActiveProgram = false,
+    this.activeProgramTitle = '',
+    this.activeProgramWeek = 0,
+    this.activeProgramTotalWeeks = 0,
+    this.activeProgramPercent = 0,
     this.isLoading = false,
     this.errorMessage,
   });
@@ -50,7 +61,11 @@ class ProgressState {
     double? bmiValue,
     String? bmiStatus,
     List<WorkoutHistoryItem>? recentWorkouts,
+    List<WeightRecord>? weightHistory,
     List<DayActivity>? weeklyActivity,
+    List<MovementVolumeData>? movementVolume,
+    List<ProgressionMilestone>? milestones,
+    bool? hasActiveProgram,
     String? activeProgramTitle,
     int? activeProgramWeek,
     int? activeProgramTotalWeeks,
@@ -68,14 +83,18 @@ class ProgressState {
       bmiValue: bmiValue ?? this.bmiValue,
       bmiStatus: bmiStatus ?? this.bmiStatus,
       recentWorkouts: recentWorkouts ?? this.recentWorkouts,
+      weightHistory: weightHistory ?? this.weightHistory,
       weeklyActivity: weeklyActivity ?? this.weeklyActivity,
+      movementVolume: movementVolume ?? this.movementVolume,
+      milestones: milestones ?? this.milestones,
+      hasActiveProgram: hasActiveProgram ?? this.hasActiveProgram,
       activeProgramTitle: activeProgramTitle ?? this.activeProgramTitle,
       activeProgramWeek: activeProgramWeek ?? this.activeProgramWeek,
-      activeProgramTotalWeeks: activeProgramTotalWeeks ?? this.activeProgramTotalWeeks,
+      activeProgramTotalWeeks:
+          activeProgramTotalWeeks ?? this.activeProgramTotalWeeks,
       activeProgramPercent: activeProgramPercent ?? this.activeProgramPercent,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage,
     );
   }
 }
-

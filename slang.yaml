@@ -1,0 +1,33 @@
+# Konfigurasi slang (i18n)
+# Docs: https://pub.dev/packages/slang
+#
+# Bahasa Indonesia adalah sumber utama (base locale), karena seluruh
+# copywriting asli aplikasi ditulis dalam Bahasa Indonesia.
+base_locale: id
+fallback_strategy: base_locale
+
+input_directory: lib/i18n
+input_file_pattern: .i18n.json
+output_directory: lib/i18n
+output_file_name: strings.g.dart
+
+# Satu file per feature (namespace), mengikuti struktur lib/features/.
+namespaces: true
+
+key_case: camel
+
+# Semua locale dimuat langsung. Dengan hanya 2 bahasa, deferred loading
+# tidak memberi keuntungan dan justru bermasalah di `flutter test`
+# (loadLibrary() pada deferred import tidak pernah selesai).
+lazy: false
+
+# Komentar otomatis berisi teks base locale -> memudahkan review teks.
+autodoc:
+  enabled: true
+  locales:
+    - id
+
+# Format generated file agar diff tetap rapi.
+format:
+  enabled: true
+  width: 100

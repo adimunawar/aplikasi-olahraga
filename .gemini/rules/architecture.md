@@ -1,32 +1,20 @@
 ---
-description: Aturan Arsitektur & Pola Desain Wajib untuk Aplikasi Olahraga Rumah
-globs: lib/**/*.dart, test/**/*.dart
+description: Repository engineering instructions. AGENTS.md is the authoritative source.
+globs: lib/**/*.dart, test/**/*.dart, supabase/**/*.sql, .github/workflows/**
 ---
 
-# Aturan Arsitektur & Desain Wajib
+# Repository rules
 
-Setiap perubahan atau pembuatan kode di proyek ini **WAJIB** mengikuti panduan yang telah ditetapkan di `ARCHITECTURE.md`:
+Before making any code, test, database, workflow, or documentation change:
 
-1. **Pola Arsitektur**: Terapkan **Feature-First Layered Architecture** (Presentation, Application, Domain, Data) untuk setiap fitur di dalam folder `lib/features/<nama_fitur>/`.
-2. **Pemisahan Lapisan**:
-   - Widget dilarang mengakses I/O, database, SharedPreferences, atau JSON secara langsung. Harus melalui Riverpod Notifier / Controller.
-   - Lapisan Domain harus murni Dart dan immutable.
-   - Lapisan Application menangani rumus dan logika bisnis (seperti TargetCalculator, StreakEngine).
-3. **Desain Sistem & Token**:
-   - Selalu gunakan `AppColors`, `AppTypography`, dan `AppTheme` dari `lib/core/theme/`. Dilarang hardcoding warna hex atau font ad-hoc di dalam widget.
-   - Font metrik dan timer wajib `Barlow Condensed` (dengan tabular figures). Font body wajib `Plus Jakarta Sans`.
-4. **State Management**: Gunakan Riverpod 2.x dengan immutable state.
-5. **Prinsip DRY (Don't Repeat Yourself) & Komponen Global Reusable (`lib/core/widgets/core_widgets.dart`)**:
-   - Dilarang keras menduplikasi styling widget umum secara berulang-ulang di berbagai layar.
-   - **Tombol**: WAJIB menggunakan [`AppButton`](file:///d:/ADI/aplikasi-olahraga/lib/core/widgets/app_button.dart) (`AppButton.primary`, `AppButton.secondary`, `AppButton.outline`). Dilarang menulis styling `ElevatedButton.styleFrom` ad-hoc secara manual di widget.
-   - **Gambar**: WAJIB menggunakan [`AppSmartImage`](file:///d:/ADI/aplikasi-olahraga/lib/core/widgets/app_smart_image.dart) yang secara otomatis mendeteksi URL cloud (`http/https`) vs file lokal (`assets/`) tanpa menyebabkan error loop atau kedipan layar.
-   - **Header Bagian / Section**: WAJIB menggunakan [`AppSectionHeader`](file:///d:/ADI/aplikasi-olahraga/lib/core/widgets/app_section_header.dart) untuk kombinasi icon + judul + tombol aksi trailing ("See All" / Subtitle info).
-   - **Kartu & Kontainer**: WAJIB menggunakan [`AppCard`](file:///d:/ADI/aplikasi-olahraga/lib/core/widgets/app_card.dart) atau [`AppCard.tinted`](file:///d:/ADI/aplikasi-olahraga/lib/core/widgets/app_card.dart) untuk kontainer seragam beradius 18/20 dp, border lembut, dan shadow standar.
-   - **Badges & Label**: WAJIB menggunakan [`AppBadge`](file:///d:/ADI/aplikasi-olahraga/lib/core/widgets/app_badge.dart) (`AppBadge.currentPlan`, `AppBadge.category`, `AppBadge.difficulty`).
-6. **Navigasi & Routing**:
-   - WAJIB menggunakan **GoRouter** melalui `appRouterProvider` (`lib/core/router/app_router.dart`).
-   - Dilarang keras menggunakan `Navigator.push(MaterialPageRoute(...))` secara ad-hoc.
-   - Gunakan `context.push(AppRoutes.<name>, extra: ...)` atau `context.go(AppRoutes.<name>)` dan `context.pop()`.
-   - Bottom navigation dikelola melalui `StatefulShellRoute.indexedStack` di dalam `HomeScaffold`.
-7. **Kualitas Kode**: Sebelum menyelesaikan tugas, pastikan `flutter analyze` menghasilkan **0 issues (No issues found)**.
+1. Read the root AGENTS.md in full.
+2. Read the relevant sections of ARCHITECTURE.md and docs/.
+3. Inspect current callers, providers, routes, data sources, persistence, and tests.
+4. Follow the mandatory dependency, data ownership, privacy, testing, and documentation rules in AGENTS.md.
+5. Report the exact changes and checks actually performed.
 
+AGENTS.md takes precedence over this file. This file intentionally contains no duplicate architecture rules so that instructions cannot drift.
+
+Do not use machine-specific absolute file links. Prefer repository-relative paths.
+
+Do not claim tests, analysis, or builds passed unless they were executed and passed. Do not bypass CI, suppress analyzer failures broadly, introduce production mock data, or silently swallow errors.

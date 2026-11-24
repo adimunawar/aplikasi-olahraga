@@ -1,63 +1,328 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
+
+import '../services/app_data_sync.dart';
 import 'database_tables.dart';
 import 'models/user_profile_entity.dart';
 import 'models/workout_session_entity.dart';
 import 'models/workout_set_entity.dart';
 import 'models/body_measurement_entity.dart';
 import 'models/user_settings_entity.dart';
+import 'models/exercise_entity.dart';
+import 'models/dynamic_program_entity.dart';
+import 'models/progression_decision_entity.dart';
 
 /// AppDatabase: Single Source of Truth untuk Local Persistence (PRD Bagian 7 & 14).
-/// - Native (Android / iOS): Menggunakan database SQLite riil via `sqflite`.
-/// - Web / Desktop Preview: Menggunakan in-memory reactive fallback agar tidak crash saat di-run di Chrome.
+/// - Native (Android / iOS): SQLite melalui plugin `sqflite`.
+/// - Web: SQLite WebAssembly dengan penyimpanan persisten di IndexedDB.
 class AppDatabase {
   static final AppDatabase instance = AppDatabase._internal();
   AppDatabase._internal();
 
   static Database? _database;
 
-  // --- Web In-Memory Fallback State ---
+  // --- Legacy in-memory fallback state ---
   UserProfileEntity? _webProfile;
   UserSettingsEntity? _webSettings;
   final List<WorkoutSessionEntity> _webSessions = [];
   final List<WorkoutSetEntity> _webSets = [];
   final List<BodyMeasurementEntity> _webMeasurements = [];
+  final List<ExerciseEntity> _webExercises = [];
+  final List<ProgressionDecisionEntity> _webProgressionDecisions = [];
+  TrainingProgramEntity? _webActiveProgram;
+  final List<ProgramSessionDetail> _webProgramSessionDetails = [];
 
   Future<Database?> get database async {
-    if (kIsWeb) return null; // Web tidak menggunakan native SQLite driver
     if (_database != null) return _database!;
-    _database = await _initDatabase();
+    try {
+      _database = await _initDatabase();
+    } catch (e) {
+      debugPrint(
+        '[AppDatabase] Warning: SQLite initialization failed, using in-memory fallback: $e',
+      );
+      return null;
+    }
     return _database;
   }
 
+  static const int currentDatabaseVersion = 3;
+
   Future<Database> _initDatabase() async {
-    final dbPath = await getDatabasesPath();
-    final path = p.join(dbPath, 'home_bulking_coach.db');
+    final path = kIsWeb
+        ? 'home_bulking_coach.db'
+        : p.join(await getDatabasesPath(), 'home_bulking_coach.db');
 
     final db = await openDatabase(
       path,
-      version: 1,
+      version: currentDatabaseVersion,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
 
-    // Pastikan tabel user_settings dibuat jika database versi 1 sudah ada sebelumnya
-    await db.execute(DatabaseTables.createUserSettingsTable);
+    // Pastikan kolom thumbnail_url selalu ada di SQLite bahkan jika onUpgrade tidak terpanggil (idempotent)
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.exercises,
+      column: 'thumbnail_url',
+      definition: 'TEXT',
+    );
 
     return db;
   }
 
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await _migrateToV2(db);
+    }
+    if (oldVersion < 3) {
+      await _migrateToV3(db);
+    }
+  }
+
+  Future<void> _migrateToV3(Database db) async {
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.exercises,
+      column: 'thumbnail_url',
+      definition: 'TEXT',
+    );
+  }
+
+  Future<void> _migrateToV2(Database db) async {
+    // 1. Buat tabel-tabel baru jika belum ada
+    await db.execute(DatabaseTables.createUsersTable);
+    await db.execute(DatabaseTables.createUserSettingsTable);
+    await db.execute(DatabaseTables.createExercisesTable);
+    await db.execute(DatabaseTables.createExerciseProgressionsTable);
+    await db.execute(DatabaseTables.createTrainingProgramsTable);
+    await db.execute(DatabaseTables.createProgramSessionsTable);
+    await db.execute(DatabaseTables.createProgramExercisesTable);
+    await db.execute(DatabaseTables.createProgressionDecisionsTable);
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_progression_decisions_user ON ${DatabaseTables.progressionDecisions} (user_id, exercise_id)',
+    );
+
+    // 2. Tambahkan kolom baru yang hilang secara aman dan deterministik
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.exercises,
+      column: 'movement_pattern',
+      definition: "TEXT NOT NULL DEFAULT 'other'",
+    );
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.exercises,
+      column: 'equipments',
+      definition: "TEXT NOT NULL DEFAULT '[\"none\"]'",
+    );
+
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.userProfiles,
+      column: 'gender',
+      definition: "TEXT NOT NULL DEFAULT 'male'",
+    );
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.userProfiles,
+      column: 'target_weight_kg',
+      definition: "REAL NOT NULL DEFAULT 82.0",
+    );
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.userProfiles,
+      column: 'target_timeframe_weeks',
+      definition: "INTEGER NOT NULL DEFAULT 12",
+    );
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.userProfiles,
+      column: 'weekly_frequency',
+      definition: "INTEGER NOT NULL DEFAULT 3",
+    );
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.userProfiles,
+      column: 'available_days',
+      definition:
+          "TEXT NOT NULL DEFAULT '[\"monday\",\"wednesday\",\"friday\"]'",
+    );
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.userProfiles,
+      column: 'training_limitations',
+      definition: "TEXT NOT NULL DEFAULT '[]'",
+    );
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.userProfiles,
+      column: 'timezone',
+      definition: "TEXT",
+    );
+
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.workoutSessions,
+      column: 'elapsed_seconds',
+      definition: "INTEGER NOT NULL DEFAULT 0",
+    );
+
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.workoutSets,
+      column: 'rir',
+      definition: "INTEGER DEFAULT 2",
+    );
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.workoutSets,
+      column: 'is_warmup',
+      definition: "INTEGER NOT NULL DEFAULT 0",
+    );
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.workoutSets,
+      column: 'form_score',
+      definition: "REAL DEFAULT 1.0",
+    );
+    await _addColumnIfNotExists(
+      db,
+      table: DatabaseTables.workoutSets,
+      column: 'data_source',
+      definition: "TEXT NOT NULL DEFAULT 'manual'",
+    );
+
+    await _seedExerciseProgressions(db);
+  }
+
+  Future<void> _addColumnIfNotExists(
+    Database db, {
+    required String table,
+    required String column,
+    required String definition,
+  }) async {
+    try {
+      final info = await db.rawQuery('PRAGMA table_info($table)');
+      final columnExists = info.any((row) => row['name'] == column);
+      if (!columnExists) {
+        await db.execute('ALTER TABLE $table ADD COLUMN $column $definition');
+      }
+    } catch (e) {
+      debugPrint('[AppDatabase] Error adding column $column to $table: $e');
+    }
+  }
+
+  Future<void> _seedExerciseProgressions(Database db) async {
+    final progressions = [
+      {
+        'id': 'prog_incline_to_knee',
+        'from_exercise_id': 'incline_push_up',
+        'to_exercise_id': 'knee_push_up',
+        'progression_type': 'difficulty_increase',
+        'min_success_sessions': 2,
+      },
+      {
+        'id': 'prog_knee_to_pushup',
+        'from_exercise_id': 'knee_push_up',
+        'to_exercise_id': 'push_up',
+        'progression_type': 'difficulty_increase',
+        'min_success_sessions': 2,
+      },
+      {
+        'id': 'prog_pushup_to_diamond',
+        'from_exercise_id': 'push_up',
+        'to_exercise_id': 'diamond_push_up',
+        'progression_type': 'difficulty_increase',
+        'min_success_sessions': 2,
+      },
+      {
+        'id': 'prog_pushup_to_decline',
+        'from_exercise_id': 'push_up',
+        'to_exercise_id': 'decline_push_up',
+        'progression_type': 'difficulty_increase',
+        'min_success_sessions': 2,
+      },
+      {
+        'id': 'prog_squat_to_split',
+        'from_exercise_id': 'squat',
+        'to_exercise_id': 'split_squat',
+        'progression_type': 'difficulty_increase',
+        'min_success_sessions': 2,
+      },
+      {
+        'id': 'prog_split_to_lunges',
+        'from_exercise_id': 'split_squat',
+        'to_exercise_id': 'lunges',
+        'progression_type': 'difficulty_increase',
+        'min_success_sessions': 2,
+      },
+      {
+        'id': 'prog_lunges_to_jump',
+        'from_exercise_id': 'lunges',
+        'to_exercise_id': 'squat_jump',
+        'progression_type': 'difficulty_increase',
+        'min_success_sessions': 2,
+      },
+      {
+        'id': 'prog_plank_to_situp',
+        'from_exercise_id': 'plank',
+        'to_exercise_id': 'sit_up',
+        'progression_type': 'difficulty_increase',
+        'min_success_sessions': 2,
+      },
+      {
+        'id': 'prog_situp_to_climber',
+        'from_exercise_id': 'sit_up',
+        'to_exercise_id': 'mountain_climber',
+        'progression_type': 'difficulty_increase',
+        'min_success_sessions': 2,
+      },
+    ];
+
+    final batch = db.batch();
+    for (final p in progressions) {
+      batch.insert(
+        DatabaseTables.exerciseProgressions,
+        p,
+        conflictAlgorithm: ConflictAlgorithm.ignore,
+      );
+    }
+    await batch.commit(noResult: true);
+  }
+
   Future<void> _onCreate(Database db, int version) async {
+    await db.execute(DatabaseTables.createUsersTable);
     await db.execute(DatabaseTables.createUserProfilesTable);
     await db.execute(DatabaseTables.createWorkoutSessionsTable);
     await db.execute(DatabaseTables.createWorkoutSetsTable);
     await db.execute(DatabaseTables.createBodyMeasurementsTable);
     await db.execute(DatabaseTables.createUserProgramsTable);
     await db.execute(DatabaseTables.createUserSettingsTable);
+    await db.execute(DatabaseTables.createExercisesTable);
+    await db.execute(DatabaseTables.createExerciseProgressionsTable);
+    await db.execute(DatabaseTables.createTrainingProgramsTable);
+    await db.execute(DatabaseTables.createProgramSessionsTable);
+    await db.execute(DatabaseTables.createProgramExercisesTable);
+    await db.execute(DatabaseTables.createProgressionDecisionsTable);
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_progression_decisions_user ON ${DatabaseTables.progressionDecisions} (user_id, exercise_id)',
+    );
 
-    // Initial Seeder Profil Default (Adi, 67.5 kg, Beginner)
     final now = DateTime.now();
+
+    // Initial Seeder User Root
+    await db.insert(DatabaseTables.users, {
+      'id': 'default_user',
+      'email': 'adi@local.app',
+      'created_at': now.toIso8601String(),
+      'updated_at': now.toIso8601String(),
+    });
+
+    // Create an empty profile record for the local guest. Actual profile values
+    // are supplied by onboarding; never seed personal-looking sample data.
     final defaultUser = _createDefaultUser(now);
     await db.insert(DatabaseTables.userProfiles, defaultUser.toMap());
 
@@ -65,30 +330,28 @@ class AppDatabase {
     final defaultSettings = UserSettingsEntity(updatedAt: now);
     await db.insert(DatabaseTables.userSettings, defaultSettings.toMap());
 
-    // Initial Seeder Body Measurement
-    final defaultWeight = BodyMeasurementEntity(
-      id: 'initial_weight',
-      measurementType: 'weight',
-      value: 67.5,
-      unit: 'kg',
-      recordedAt: now,
-    );
-    await db.insert(DatabaseTables.bodyMeasurements, defaultWeight.toMap());
+    // Initial Seeder Exercise Progressions
+    await _seedExerciseProgressions(db);
   }
 
   UserProfileEntity _createDefaultUser(DateTime now) {
     return UserProfileEntity(
       id: 'default_user',
-      displayName: 'Adi',
-      age: 24,
-      heightCm: 172.0,
-      currentWeightKg: 67.5,
-      goal: 'muscle_gain',
-      experienceLevel: 'beginner',
-      preferredDurationMin: 45,
-      preferredDaysPerWeek: 4,
+      displayName: '',
+      age: 0,
+      heightCm: 0,
+      currentWeightKg: 0,
+      targetWeightKg: 0,
+      targetTimeframeWeeks: 0,
+      goal: '',
+      experienceLevel: '',
+      preferredDurationMin: 0,
+      preferredDaysPerWeek: 0,
+      weeklyFrequency: 0,
+      availableDays: const [],
+      trainingLimitations: const [],
       unitPreference: 'metric',
-      equipments: const ['bodyweight', 'dumbbells', 'mat'],
+      equipments: const [],
       createdAt: now,
       updatedAt: now,
     );
@@ -99,18 +362,13 @@ class AppDatabase {
   // ==========================================
 
   Future<UserProfileEntity> getUserProfile() async {
-    if (kIsWeb) {
+    final db = await database;
+    if (db == null) {
       _webProfile ??= _createDefaultUser(DateTime.now());
       return _webProfile!;
     }
 
-    final db = await database;
-    if (db == null) return _createDefaultUser(DateTime.now());
-
-    final maps = await db.query(
-      DatabaseTables.userProfiles,
-      limit: 1,
-    );
+    final maps = await db.query(DatabaseTables.userProfiles, limit: 1);
 
     if (maps.isNotEmpty) {
       return UserProfileEntity.fromMap(maps.first);
@@ -124,19 +382,18 @@ class AppDatabase {
   }
 
   Future<void> saveUserProfile(UserProfileEntity profile) async {
-    if (kIsWeb) {
+    final db = await database;
+    if (db == null) {
       _webProfile = profile;
       return;
     }
-
-    final db = await database;
-    if (db == null) return;
 
     await db.insert(
       DatabaseTables.userProfiles,
       profile.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+    AppDataSync.instance.notifyDataChanged();
   }
 
   /// Memperbarui nama tampilan profil pengguna
@@ -150,18 +407,13 @@ class AppDatabase {
   // ==========================================
 
   Future<UserSettingsEntity> getUserSettings() async {
-    if (kIsWeb) {
+    final db = await database;
+    if (db == null) {
       _webSettings ??= UserSettingsEntity(updatedAt: DateTime.now());
       return _webSettings!;
     }
 
-    final db = await database;
-    if (db == null) return UserSettingsEntity(updatedAt: DateTime.now());
-
-    final maps = await db.query(
-      DatabaseTables.userSettings,
-      limit: 1,
-    );
+    final maps = await db.query(DatabaseTables.userSettings, limit: 1);
 
     if (maps.isNotEmpty) {
       return UserSettingsEntity.fromMap(maps.first);
@@ -174,13 +426,11 @@ class AppDatabase {
   }
 
   Future<void> saveUserSettings(UserSettingsEntity settings) async {
-    if (kIsWeb) {
+    final db = await database;
+    if (db == null) {
       _webSettings = settings;
       return;
     }
-
-    final db = await database;
-    if (db == null) return;
 
     await db.insert(
       DatabaseTables.userSettings,
@@ -195,15 +445,13 @@ class AppDatabase {
 
   /// Mendapatkan sesi yang sedang aktif jika ada (WKO-10: Crash recovery)
   Future<WorkoutSessionEntity?> getActiveSession() async {
-    if (kIsWeb) {
+    final db = await database;
+    if (db == null) {
       for (final s in _webSessions) {
         if (s.status == WorkoutSessionStatus.inProgress) return s;
       }
       return null;
     }
-
-    final db = await database;
-    if (db == null) return null;
 
     final maps = await db.query(
       DatabaseTables.workoutSessions,
@@ -219,9 +467,36 @@ class AppDatabase {
     return null;
   }
 
+  /// Memperbarui akumulasi waktu aktif sesi in_progress secara berkala.
+  /// Sengaja TIDAK memanggil AppDataSync agar tick periodik tidak memicu
+  /// reload seluruh layar.
+  Future<void> updateSessionElapsedSeconds(
+    String sessionId,
+    int elapsedSeconds,
+  ) async {
+    final db = await database;
+    if (db == null) {
+      final index = _webSessions.indexWhere((s) => s.id == sessionId);
+      if (index >= 0) {
+        _webSessions[index] = _webSessions[index].copyWith(
+          elapsedSeconds: elapsedSeconds,
+        );
+      }
+      return;
+    }
+
+    await db.update(
+      DatabaseTables.workoutSessions,
+      {'elapsed_seconds': elapsedSeconds},
+      where: 'id = ? AND status = ?',
+      whereArgs: [sessionId, WorkoutSessionStatus.inProgress.toDbString()],
+    );
+  }
+
   /// Menyimpan atau memperbarui status sesi latihan
   Future<void> saveWorkoutSession(WorkoutSessionEntity session) async {
-    if (kIsWeb) {
+    final db = await database;
+    if (db == null) {
       final index = _webSessions.indexWhere((s) => s.id == session.id);
       if (index >= 0) {
         _webSessions[index] = session;
@@ -231,19 +506,18 @@ class AppDatabase {
       return;
     }
 
-    final db = await database;
-    if (db == null) return;
-
     await db.insert(
       DatabaseTables.workoutSessions,
       session.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+    AppDataSync.instance.notifyDataChanged();
   }
 
   /// Menyimpan set yang baru diselesaikan
   Future<void> saveWorkoutSet(WorkoutSetEntity workoutSet) async {
-    if (kIsWeb) {
+    final db = await database;
+    if (db == null) {
       final index = _webSets.indexWhere((s) => s.id == workoutSet.id);
       if (index >= 0) {
         _webSets[index] = workoutSet;
@@ -253,9 +527,6 @@ class AppDatabase {
       return;
     }
 
-    final db = await database;
-    if (db == null) return;
-
     await db.insert(
       DatabaseTables.workoutSets,
       workoutSet.toMap(),
@@ -263,14 +534,39 @@ class AppDatabase {
     );
   }
 
-  /// Mengambil semua set dalam satu sesi latihan
-  Future<List<WorkoutSetEntity>> getSetsForSession(String sessionId) async {
-    if (kIsWeb) {
-      return _webSets.where((s) => s.sessionId == sessionId).toList();
+  /// Menyimpan sekumpulan set latihan sekaligus secara batch (Fase 3: RIR & Tracking)
+  Future<void> saveWorkoutSets(List<WorkoutSetEntity> sets) async {
+    if (sets.isEmpty) return;
+    final db = await database;
+    if (db == null) {
+      for (final s in sets) {
+        final idx = _webSets.indexWhere((item) => item.id == s.id);
+        if (idx >= 0) {
+          _webSets[idx] = s;
+        } else {
+          _webSets.add(s);
+        }
+      }
+      return;
     }
 
+    final batch = db.batch();
+    for (final s in sets) {
+      batch.insert(
+        DatabaseTables.workoutSets,
+        s.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+    await batch.commit(noResult: true);
+  }
+
+  /// Mengambil semua set dalam satu sesi latihan
+  Future<List<WorkoutSetEntity>> getSetsForSession(String sessionId) async {
     final db = await database;
-    if (db == null) return [];
+    if (db == null) {
+      return _webSets.where((s) => s.sessionId == sessionId).toList();
+    }
 
     final maps = await db.query(
       DatabaseTables.workoutSets,
@@ -284,24 +580,26 @@ class AppDatabase {
   /// Mengambil set nomor hari yang telah selesai untuk program tertentu (atau semua jika null)
   Future<Set<int>> getCompletedDayNumbers([String? programId]) async {
     final completedDays = <int>{};
-    if (kIsWeb) {
+    final db = await database;
+    if (db == null) {
       for (final s in _webSessions) {
         if ((programId == null || s.programId == programId) &&
             s.status == WorkoutSessionStatus.completed) {
           completedDays.add(s.programDayId);
         }
       }
-      return completedDays.isNotEmpty ? completedDays : {1, 2};
+      return completedDays;
     }
 
-    final db = await database;
-    if (db == null) return {1, 2};
+    await database;
 
     try {
       final rows = await db.query(
         DatabaseTables.workoutSessions,
         columns: ['program_day_id'],
-        where: programId != null ? 'program_id = ? AND status = ?' : 'status = ?',
+        where: programId != null
+            ? 'program_id = ? AND status = ?'
+            : 'status = ?',
         whereArgs: programId != null
             ? [programId, WorkoutSessionStatus.completed.toDbString()]
             : [WorkoutSessionStatus.completed.toDbString()],
@@ -312,61 +610,102 @@ class AppDatabase {
       }
     } catch (_) {}
 
-    return completedDays.isNotEmpty ? completedDays : {1, 2};
+    return completedDays;
+  }
+
+  /// Mengambil seluruh riwayat workout untuk satu program.
+  /// Data ini dipakai untuk menentukan status tiap sesi pada masing-masing minggu.
+  Future<List<WorkoutSessionEntity>> getWorkoutSessionsForProgram(
+    String programId,
+  ) async {
+    final db = await database;
+    if (db == null) {
+      final sessions =
+          _webSessions
+              .where((session) => session.programId == programId)
+              .toList()
+            ..sort((a, b) => a.scheduledDate.compareTo(b.scheduledDate));
+      return sessions;
+    }
+
+    final rows = await db.query(
+      DatabaseTables.workoutSessions,
+      where: 'program_id = ?',
+      whereArgs: [programId],
+      orderBy: 'scheduled_date ASC, started_at ASC',
+    );
+
+    return rows.map(WorkoutSessionEntity.fromMap).toList();
   }
 
   /// Total sesi yang selesai secara keseluruhan (PRG-01)
   Future<int> getCompletedSessionsCount() async {
-    if (kIsWeb) {
-      final count = _webSessions.where((s) => s.status == WorkoutSessionStatus.completed).length;
-      return count > 0 ? count : 6; // Mock awal di web
-    }
-
     final db = await database;
-    if (db == null) return 6;
+    if (db == null) {
+      final count = _webSessions
+          .where((s) => s.status == WorkoutSessionStatus.completed)
+          .length;
+      return count;
+    }
 
     final result = await db.rawQuery(
       'SELECT COUNT(*) as count FROM ${DatabaseTables.workoutSessions} WHERE status = ?',
       [WorkoutSessionStatus.completed.toDbString()],
     );
     final count = Sqflite.firstIntValue(result) ?? 0;
-    return count > 0 ? count : 6;
+    return count;
   }
 
   /// Total sesi yang selesai pada minggu ini
   Future<int> getThisWeekCompletedCount() async {
-    if (kIsWeb) {
-      return 3;
-    }
-
     final db = await database;
-    if (db == null) return 3;
+    if (db == null) {
+      final now = DateTime.now();
+      final weekStart = DateTime(
+        now.year,
+        now.month,
+        now.day,
+      ).subtract(Duration(days: now.weekday - 1));
+      return _webSessions
+          .where(
+            (session) =>
+                session.status == WorkoutSessionStatus.completed &&
+                !session.startedAt.isBefore(weekStart),
+          )
+          .length;
+    }
 
     final now = DateTime.now();
     final weekStart = now.subtract(Duration(days: now.weekday - 1));
-    final weekStartStr = DateTime(weekStart.year, weekStart.month, weekStart.day).toIso8601String();
+    final weekStartStr = DateTime(
+      weekStart.year,
+      weekStart.month,
+      weekStart.day,
+    ).toIso8601String();
 
     final result = await db.rawQuery(
       'SELECT COUNT(*) as count FROM ${DatabaseTables.workoutSessions} WHERE status = ? AND started_at >= ?',
       [WorkoutSessionStatus.completed.toDbString(), weekStartStr],
     );
     final count = Sqflite.firstIntValue(result) ?? 0;
-    return count > 0 ? count : 3;
+    return count;
   }
 
   /// Mengambil daftar riwayat sesi latihan (HIS-04)
-  Future<List<WorkoutSessionEntity>> getRecentWorkoutSessions({int limit = 10}) async {
-    if (kIsWeb) {
+  Future<List<WorkoutSessionEntity>> getRecentWorkoutSessions({
+    int limit = 10,
+  }) async {
+    final db = await database;
+    if (db == null) {
       return _webSessions
-          .where((s) =>
-              s.status == WorkoutSessionStatus.completed ||
-              s.status == WorkoutSessionStatus.incomplete)
+          .where(
+            (s) =>
+                s.status == WorkoutSessionStatus.completed ||
+                s.status == WorkoutSessionStatus.incomplete,
+          )
           .take(limit)
           .toList();
     }
-
-    final db = await database;
-    if (db == null) return [];
 
     final maps = await db.query(
       DatabaseTables.workoutSessions,
@@ -386,19 +725,19 @@ class AppDatabase {
   // ==========================================
 
   Future<void> recordBodyWeight(double weightKg) async {
-    if (kIsWeb) {
-      _webMeasurements.add(BodyMeasurementEntity(
-        id: 'weight_${DateTime.now().millisecondsSinceEpoch}',
-        value: weightKg,
-        recordedAt: DateTime.now(),
-      ));
+    final db = await database;
+    if (db == null) {
+      _webMeasurements.add(
+        BodyMeasurementEntity(
+          id: 'weight_${DateTime.now().millisecondsSinceEpoch}',
+          value: weightKg,
+          recordedAt: DateTime.now(),
+        ),
+      );
       final p = await getUserProfile();
       await saveUserProfile(p.copyWith(currentWeightKg: weightKg));
       return;
     }
-
-    final db = await database;
-    if (db == null) return;
 
     final measurement = BodyMeasurementEntity(
       id: 'weight_${DateTime.now().millisecondsSinceEpoch}',
@@ -415,41 +754,58 @@ class AppDatabase {
   }
 
   /// Alias helper untuk insertWeightMeasurement
-  Future<void> insertWeightMeasurement(double weightKg) => recordBodyWeight(weightKg);
+  Future<void> insertWeightMeasurement(double weightKg) =>
+      recordBodyWeight(weightKg);
 
   Future<double> getLatestWeight() async {
-    if (kIsWeb) {
+    final db = await database;
+    if (db == null) {
       return _webProfile?.currentWeightKg ?? 67.5;
     }
 
-    final db = await database;
-    if (db == null) return 67.5;
-
     final maps = await db.query(
       DatabaseTables.bodyMeasurements,
-      where: 'measurement_type = ?',
-      whereArgs: ['weight'],
+      where: "measurement_type = ? AND id != ?",
+      whereArgs: ['weight', 'initial_weight'],
       orderBy: 'recorded_at DESC',
       limit: 1,
     );
 
     if (maps.isNotEmpty) {
-      return (maps.first['value'] as num?)?.toDouble() ?? 67.5;
+      return (maps.first['value'] as num?)?.toDouble() ?? 0;
     }
-    return 67.5;
+    return 0;
+  }
+
+  Future<List<BodyMeasurementEntity>> getWeightHistory() async {
+    final db = await database;
+    if (db == null) {
+      final list = _webMeasurements
+          .where((m) => m.measurementType == 'weight')
+          .toList();
+      list.sort((a, b) => a.recordedAt.compareTo(b.recordedAt));
+      return list;
+    }
+
+    final maps = await db.query(
+      DatabaseTables.bodyMeasurements,
+      where: "measurement_type = ? AND id != ?",
+      whereArgs: ['weight', 'initial_weight'],
+      orderBy: 'recorded_at ASC',
+    );
+
+    return maps.map(BodyMeasurementEntity.fromMap).toList();
   }
 
   // ==========================================
   // MULTI-PROGRAM & ANALYTICS OPERATIONS
   // ==========================================
 
-  String _webActiveProgramId = 'upper_body_strength';
+  String _webActiveProgramId = '';
 
   Future<String> getActiveProgramId() async {
-    if (kIsWeb) return _webActiveProgramId;
-
     final db = await database;
-    if (db == null) return 'upper_body_strength';
+    if (db == null) return _webActiveProgramId;
 
     final maps = await db.query(
       DatabaseTables.userPrograms,
@@ -459,19 +815,17 @@ class AppDatabase {
     );
 
     if (maps.isNotEmpty) {
-      return maps.first['program_id']?.toString() ?? 'upper_body_strength';
+      return maps.first['program_id']?.toString() ?? '';
     }
-    return 'upper_body_strength';
+    return '';
   }
 
   Future<void> setActiveProgramId(String programId) async {
-    if (kIsWeb) {
+    final db = await database;
+    if (db == null) {
       _webActiveProgramId = programId;
       return;
     }
-
-    final db = await database;
-    if (db == null) return;
 
     // Set yang lama menjadi paused
     await db.update(
@@ -482,28 +836,27 @@ class AppDatabase {
     );
 
     // Insert atau aktifkan program baru
-    await db.insert(
-      DatabaseTables.userPrograms,
-      {
-        'id': 'prog_${DateTime.now().millisecondsSinceEpoch}',
-        'program_id': programId,
-        'program_name': programId,
-        'status': 'active',
-        'total_weeks': 8,
-        'days_per_week': 4,
-        'current_week': 1,
-        'current_day': 1,
-        'started_at': DateTime.now().toIso8601String(),
-      },
-    );
+    await db.insert(DatabaseTables.userPrograms, {
+      'id': 'prog_${DateTime.now().millisecondsSinceEpoch}',
+      'program_id': programId,
+      'program_name': programId,
+      'status': 'active',
+      'total_weeks': 8,
+      'days_per_week': 4,
+      'current_week': 1,
+      'current_day': 1,
+      'started_at': DateTime.now().toIso8601String(),
+    });
   }
 
   /// Menghitung total kalori terbakar dari semua sesi latihan yang selesai
   Future<int> getTotalCaloriesBurned() async {
-    if (kIsWeb) return 2540;
-
     final db = await database;
-    if (db == null) return 2540;
+    if (db == null) {
+      return _webSessions
+          .where((s) => s.status == WorkoutSessionStatus.completed)
+          .fold<int>(0, (sum, s) => sum + s.caloriesBurned);
+    }
 
     final result = await db.rawQuery(
       'SELECT SUM(calories_burned) as total FROM ${DatabaseTables.workoutSessions} WHERE status = ?',
@@ -511,47 +864,68 @@ class AppDatabase {
     );
 
     final sum = Sqflite.firstIntValue(result) ?? 0;
-    return sum > 0 ? sum : 2540;
+    return sum;
   }
 
   /// Menghitung streak hari latihan beruntun
   Future<int> getCurrentStreak() async {
-    if (kIsWeb) return 3;
-
     final db = await database;
-    if (db == null) return 3;
+    if (db == null) return 0;
 
-    final sessions = await getRecentWorkoutSessions(limit: 15);
-    if (sessions.isEmpty) return 3;
+    final sessions = await getRecentWorkoutSessions(limit: 30);
+    final completedSessions = sessions
+        .where((s) => s.status == WorkoutSessionStatus.completed)
+        .toList();
+    if (completedSessions.isEmpty) return 0;
+
+    // Ambil set tanggal unik (YYYY-MM-DD)
+    final uniqueDates =
+        completedSessions
+            .map((s) {
+              return DateTime(
+                s.startedAt.year,
+                s.startedAt.month,
+                s.startedAt.day,
+              );
+            })
+            .toSet()
+            .toList()
+          ..sort((a, b) => b.compareTo(a));
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+
+    // Jika latihan terakhir lebih lama dari kemarin, streak putus (0)
+    if (uniqueDates.first.isBefore(yesterday)) {
+      return 0;
+    }
 
     int streak = 0;
-    DateTime checkDate = DateTime.now();
+    DateTime expectedDate = uniqueDates.first;
 
-    for (final s in sessions) {
-      final diff = checkDate.difference(s.startedAt).inDays;
-      if (diff <= 1) {
+    for (final date in uniqueDates) {
+      if (date == expectedDate) {
         streak++;
-        checkDate = s.startedAt;
+        expectedDate = expectedDate.subtract(const Duration(days: 1));
       } else {
         break;
       }
     }
-    return streak > 0 ? streak : 3;
+    return streak;
   }
 
   /// Mengambil total menit latihan per hari dalam minggu ini (Mon - Sun)
   Future<Map<String, int>> getWeeklyActivityMinutes() async {
     final Map<String, int> weekMap = {
-      'Mon': 35,
-      'Tue': 52,
-      'Wed': 38,
-      'Thu': 48,
+      'Mon': 0,
+      'Tue': 0,
+      'Wed': 0,
+      'Thu': 0,
       'Fri': 0,
       'Sat': 0,
       'Sun': 0,
     };
-
-    if (kIsWeb) return weekMap;
 
     final db = await database;
     if (db == null) return weekMap;
@@ -559,7 +933,11 @@ class AppDatabase {
     try {
       final now = DateTime.now();
       final weekStart = now.subtract(Duration(days: now.weekday - 1));
-      final weekStartStr = DateTime(weekStart.year, weekStart.month, weekStart.day).toIso8601String();
+      final weekStartStr = DateTime(
+        weekStart.year,
+        weekStart.month,
+        weekStart.day,
+      ).toIso8601String();
 
       final result = await db.rawQuery(
         'SELECT started_at, duration_seconds FROM ${DatabaseTables.workoutSessions} WHERE status = ? AND started_at >= ?',
@@ -580,19 +958,469 @@ class AppDatabase {
     return weekMap;
   }
 
+  /// Mengambil akumulasi volume latihan mingguan (Sets & Reps) per movement pattern (Fase 5)
+  Future<List<Map<String, dynamic>>> getWeeklyMovementVolume() async {
+    final db = await database;
+    if (db == null) return [];
+
+    try {
+      final now = DateTime.now();
+      final weekStart = now.subtract(Duration(days: now.weekday - 1));
+      final weekStartStr = DateTime(
+        weekStart.year,
+        weekStart.month,
+        weekStart.day,
+      ).toIso8601String();
+
+      final result = await db.rawQuery(
+        '''
+        SELECT e.movement_pattern, COUNT(ws.id) as sets_count, SUM(COALESCE(ws.actual_reps, 0)) as reps_sum
+        FROM ${DatabaseTables.workoutSets} ws
+        JOIN ${DatabaseTables.exercises} e ON ws.exercise_id = e.id
+        JOIN ${DatabaseTables.workoutSessions} s ON ws.session_id = s.id
+        WHERE s.started_at >= ?
+        GROUP BY e.movement_pattern
+      ''',
+        [weekStartStr],
+      );
+
+      if (result.isNotEmpty) {
+        return result.map((r) => Map<String, dynamic>.from(r)).toList();
+      }
+    } catch (_) {}
+
+    return [];
+  }
+
+  /// Mengambil daftar rekomendasi keputusan adaptasi terbaru dari Coach Adi untuk milestone (Fase 5)
+  Future<List<ProgressionDecisionEntity>> getRecentProgressionMilestones({
+    int limit = 5,
+  }) async {
+    final db = await database;
+    if (db == null) return _webProgressionDecisions.take(limit).toList();
+
+    final results = await db.query(
+      DatabaseTables.progressionDecisions,
+      orderBy: 'created_at DESC',
+      limit: limit,
+    );
+
+    return results.map(ProgressionDecisionEntity.fromMap).toList();
+  }
+
+  // ==========================================
+  // EXERCISES OPERATIONS (OFFLINE-FIRST)
+  // ==========================================
+
+  Future<List<ExerciseEntity>> getAllExercises() async {
+    final db = await database;
+    if (db == null) return _webExercises;
+
+    final maps = await db.query(DatabaseTables.exercises);
+    return maps.map((m) => ExerciseEntity.fromMap(m)).toList();
+  }
+
+  Future<ExerciseEntity?> getExerciseById(String id) async {
+    final db = await database;
+    if (db == null) {
+      try {
+        return _webExercises.firstWhere((e) => e.id == id);
+      } catch (_) {
+        return null;
+      }
+    }
+
+    final maps = await db.query(
+      DatabaseTables.exercises,
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+    if (maps.isEmpty) return null;
+    return ExerciseEntity.fromMap(maps.first);
+  }
+
+  Future<int> getExerciseCount() async {
+    final db = await database;
+    if (db == null) return _webExercises.length;
+
+    final result = await db.rawQuery(
+      'SELECT COUNT(*) as count FROM ${DatabaseTables.exercises}',
+    );
+    return Sqflite.firstIntValue(result) ?? 0;
+  }
+
+  Future<void> insertExercises(List<ExerciseEntity> exercises) async {
+    final db = await database;
+    if (db == null) {
+      for (final ex in exercises) {
+        _webExercises.removeWhere((e) => e.id == ex.id);
+        _webExercises.add(ex);
+      }
+      return;
+    }
+
+    final batch = db.batch();
+    for (final ex in exercises) {
+      batch.insert(
+        DatabaseTables.exercises,
+        ex.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+    await batch.commit(noResult: true);
+  }
+
+  Future<void> toggleExerciseFavorite(String id, bool isFavorite) async {
+    final db = await database;
+    if (db == null) {
+      final idx = _webExercises.indexWhere((e) => e.id == id);
+      if (idx != -1) {
+        final existing = _webExercises[idx];
+        _webExercises[idx] = ExerciseEntity(
+          id: existing.id,
+          nameId: existing.nameId,
+          nameEn: existing.nameEn,
+          category: existing.category,
+          stage: existing.stage,
+          difficulty: existing.difficulty,
+          trackingType: existing.trackingType,
+          primaryMusclesJson: existing.primaryMusclesJson,
+          stabilizerMusclesJson: existing.stabilizerMusclesJson,
+          stepsIdJson: existing.stepsIdJson,
+          stepsEnJson: existing.stepsEnJson,
+          commonMistakesIdJson: existing.commonMistakesIdJson,
+          commonMistakesEnJson: existing.commonMistakesEnJson,
+          breathingTipsId: existing.breathingTipsId,
+          breathingTipsEn: existing.breathingTipsEn,
+          startPoseAsset: existing.startPoseAsset,
+          endPoseAsset: existing.endPoseAsset,
+          animationAsset: existing.animationAsset,
+          videoUrl: existing.videoUrl,
+          thumbnailUrl: existing.thumbnailUrl,
+          isCustom: existing.isCustom,
+          isFavorite: isFavorite,
+          createdByUserId: existing.createdByUserId,
+          createdAt: existing.createdAt,
+          updatedAt: DateTime.now(),
+        );
+      }
+      return;
+    }
+
+    await db.update(
+      DatabaseTables.exercises,
+      {
+        'is_favorite': isFavorite ? 1 : 0,
+        'updated_at': DateTime.now().toIso8601String(),
+      },
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  // ==========================================
+  // DYNAMIC TRAINING PROGRAMS (FASE 2)
+  // ==========================================
+
+  /// Menyimpan program dinamis hasil racikan Generator Engine
+  Future<void> saveDynamicProgram({
+    required TrainingProgramEntity program,
+    required List<ProgramSessionDetail> sessions,
+  }) async {
+    final db = await database;
+    if (db == null) {
+      _webActiveProgram = program;
+      _webProgramSessionDetails.clear();
+      _webProgramSessionDetails.addAll(sessions);
+      AppDataSync.instance.notifyDataChanged();
+      return;
+    }
+
+    final batch = db.batch();
+
+    // 1. Nonaktifkan program aktif sebelumnya
+    batch.update(
+      DatabaseTables.trainingPrograms,
+      {'status': 'archived', 'updated_at': DateTime.now().toIso8601String()},
+      where: 'user_id = ? AND status = ?',
+      whereArgs: [program.userId, 'active'],
+    );
+
+    // 2. Simpan program utama
+    batch.insert(
+      DatabaseTables.trainingPrograms,
+      program.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+
+    // 3. Simpan sesi-sesi dan latihan di dalamnya
+    for (final s in sessions) {
+      batch.insert(
+        DatabaseTables.programSessions,
+        s.session.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+
+      for (final exItem in s.exercises) {
+        batch.insert(
+          DatabaseTables.programExercises,
+          exItem.prescription.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
+    }
+
+    await batch.commit(noResult: true);
+    AppDataSync.instance.notifyDataChanged();
+  }
+
+  /// Onboarding selesai setelah pengguna pernah mengaktifkan sebuah program.
+  /// Keberadaan program tersimpan menjadi sumber kebenaran yang persisten.
+  Future<bool> hasCompletedOnboarding() async {
+    final db = await database;
+    if (db == null) return _webActiveProgram != null;
+
+    final result = await db.query(
+      DatabaseTables.trainingPrograms,
+      columns: ['id'],
+      where: 'user_id = ?',
+      whereArgs: ['default_user'],
+      limit: 1,
+    );
+
+    return result.isNotEmpty;
+  }
+
+  /// Mengambil program yang sedang aktif untuk user
+  Future<TrainingProgramEntity?> getActiveTrainingProgram(String userId) async {
+    final db = await database;
+    if (db == null) return _webActiveProgram;
+
+    final result = await db.query(
+      DatabaseTables.trainingPrograms,
+      where: 'user_id = ? AND status = ?',
+      whereArgs: [userId, 'active'],
+      limit: 1,
+    );
+
+    if (result.isEmpty) return null;
+    return TrainingProgramEntity.fromMap(result.first);
+  }
+
+  /// Mengambil seluruh sesi dari suatu program
+  Future<List<ProgramSessionEntity>> getProgramSessions(
+    String programId,
+  ) async {
+    final db = await database;
+    if (db == null) {
+      final matches = _webProgramSessionDetails
+          .where((d) => d.session.programId == programId)
+          .map((d) => d.session)
+          .toList();
+      matches.sort((a, b) => a.dayNumber.compareTo(b.dayNumber));
+      return matches.isNotEmpty
+          ? matches
+          : _webProgramSessionDetails.map((d) => d.session).toList();
+    }
+
+    final result = await db.query(
+      DatabaseTables.programSessions,
+      where: 'program_id = ?',
+      whereArgs: [programId],
+      orderBy: 'day_number ASC',
+    );
+
+    return result.map((m) => ProgramSessionEntity.fromMap(m)).toList();
+  }
+
+  /// Mengambil detail sesi lengkap dengan resep & informasi gerakan
+  Future<ProgramSessionDetail?> getProgramSessionDetail(
+    String programSessionId,
+  ) async {
+    final db = await database;
+    if (db == null) {
+      try {
+        return _webProgramSessionDetails.firstWhere(
+          (d) => d.session.id == programSessionId,
+        );
+      } catch (_) {
+        return _webProgramSessionDetails.isNotEmpty
+            ? _webProgramSessionDetails.first
+            : null;
+      }
+    }
+
+    // 1. Ambil data sesi
+    final sessionRows = await db.query(
+      DatabaseTables.programSessions,
+      where: 'id = ?',
+      whereArgs: [programSessionId],
+      limit: 1,
+    );
+    if (sessionRows.isEmpty) return null;
+    final session = ProgramSessionEntity.fromMap(sessionRows.first);
+
+    // 2. Ambil data resep latihan
+    final exerciseRows = await db.query(
+      DatabaseTables.programExercises,
+      where: 'program_session_id = ?',
+      whereArgs: [programSessionId],
+      orderBy: 'sort_order ASC',
+    );
+
+    // 3. Gabungkan dengan master Exercise
+    final List<ProgramExerciseDetailItem> items = [];
+    for (final row in exerciseRows) {
+      final prescription = ProgramExerciseEntity.fromMap(row);
+      final exEntityRows = await db.query(
+        DatabaseTables.exercises,
+        where: 'id = ?',
+        whereArgs: [prescription.exerciseId],
+        limit: 1,
+      );
+      if (exEntityRows.isNotEmpty) {
+        final exEntity = ExerciseEntity.fromMap(exEntityRows.first);
+        if (exEntity.id.contains('knee') || exEntity.id.contains('push')) {
+          debugPrint(
+            '[AppDatabase.getProgramSessionDetail] 📦 SQLite Exercise row:',
+          );
+          debugPrint('   id           : "${exEntity.id}"');
+          debugPrint('   thumbnail_url: "${exEntity.thumbnailUrl}"');
+          debugPrint('   start_pose   : "${exEntity.startPoseAsset}"');
+        }
+        items.add(
+          ProgramExerciseDetailItem(
+            prescription: prescription,
+            exercise: exEntity.toDomain(),
+          ),
+        );
+      }
+    }
+
+    return ProgramSessionDetail(session: session, exercises: items);
+  }
+
+  // ==========================================
+  // PROGRESSION DECISIONS & ENGINE DAO (FASE 4)
+  // ==========================================
+
+  /// Menyimpan log keputusan evaluasi adaptif dari Progression Engine
+  Future<void> saveProgressionDecision(
+    ProgressionDecisionEntity decision,
+  ) async {
+    final db = await database;
+    if (db == null) {
+      _webProgressionDecisions.removeWhere((d) => d.id == decision.id);
+      _webProgressionDecisions.add(decision);
+      return;
+    }
+
+    await db.insert(
+      DatabaseTables.progressionDecisions,
+      decision.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  /// Mengambil keputusan adaptasi terakhir untuk latihan tertentu
+  Future<ProgressionDecisionEntity?> getLatestProgressionDecision(
+    String exerciseId, {
+    String userId = 'default_user',
+  }) async {
+    final db = await database;
+    if (db == null) {
+      final matches =
+          _webProgressionDecisions
+              .where((d) => d.exerciseId == exerciseId && d.userId == userId)
+              .toList()
+            ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return matches.isNotEmpty ? matches.first : null;
+    }
+
+    final results = await db.query(
+      DatabaseTables.progressionDecisions,
+      where: 'exercise_id = ? AND user_id = ?',
+      whereArgs: [exerciseId, userId],
+      orderBy: 'created_at DESC',
+      limit: 1,
+    );
+
+    if (results.isEmpty) return null;
+    return ProgressionDecisionEntity.fromMap(results.first);
+  }
+
+  /// Mengambil riwayat keputusan adaptasi latihan
+  Future<List<ProgressionDecisionEntity>> getProgressionHistory(
+    String exerciseId, {
+    String userId = 'default_user',
+    int limit = 10,
+  }) async {
+    final db = await database;
+    if (db == null) {
+      final matches =
+          _webProgressionDecisions
+              .where((d) => d.exerciseId == exerciseId && d.userId == userId)
+              .toList()
+            ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return matches.take(limit).toList();
+    }
+
+    final results = await db.query(
+      DatabaseTables.progressionDecisions,
+      where: 'exercise_id = ? AND user_id = ?',
+      whereArgs: [exerciseId, userId],
+      orderBy: 'created_at DESC',
+      limit: limit,
+    );
+
+    return results.map(ProgressionDecisionEntity.fromMap).toList();
+  }
+
+  /// Mendapatkan id variasi latihan berikutnya dari progression ladder
+  Future<String?> getNextExerciseInProgression(String exerciseId) async {
+    final db = await database;
+    if (db == null) return null;
+
+    final results = await db.query(
+      DatabaseTables.exerciseProgressions,
+      where: 'from_exercise_id = ?',
+      whereArgs: [exerciseId],
+      limit: 1,
+    );
+
+    if (results.isEmpty) return null;
+    return results.first['to_exercise_id'] as String?;
+  }
+
+  /// Mendapatkan id variasi latihan sebelumnya (untuk regresi) dari progression ladder
+  Future<String?> getPreviousExerciseInProgression(String exerciseId) async {
+    final db = await database;
+    if (db == null) return null;
+
+    final results = await db.query(
+      DatabaseTables.exerciseProgressions,
+      where: 'to_exercise_id = ?',
+      whereArgs: [exerciseId],
+      limit: 1,
+    );
+
+    if (results.isEmpty) return null;
+    return results.first['from_exercise_id'] as String?;
+  }
+
   // ==========================================
   // DATA MANAGEMENT & PRIVACY (SET-06)
   // ==========================================
 
   /// Menghapus semua data lokal dan mereset ke state awal
   Future<void> clearAllLocalData() async {
-    if (kIsWeb) {
-      _webSessions.clear();
-      _webSets.clear();
-      _webMeasurements.clear();
-      _webProfile = _createDefaultUser(DateTime.now());
-      return;
-    }
+    _webSessions.clear();
+    _webSets.clear();
+    _webMeasurements.clear();
+    _webActiveProgram = null;
+    _webProgramSessionDetails.clear();
+    _webProfile = _createDefaultUser(DateTime.now());
 
     final db = await database;
     if (db == null) return;
@@ -600,6 +1428,10 @@ class AppDatabase {
     await db.delete(DatabaseTables.workoutSets);
     await db.delete(DatabaseTables.workoutSessions);
     await db.delete(DatabaseTables.bodyMeasurements);
+    await db.delete(DatabaseTables.programExercises);
+    await db.delete(DatabaseTables.programSessions);
+    await db.delete(DatabaseTables.trainingPrograms);
+    await db.delete(DatabaseTables.userPrograms);
     await db.delete(DatabaseTables.userProfiles);
 
     // Re-seed default profile

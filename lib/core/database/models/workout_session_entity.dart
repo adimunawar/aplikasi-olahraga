@@ -47,6 +47,11 @@ class WorkoutSessionEntity {
   final WorkoutSessionStatus status;
   final String? notes;
 
+  /// Akumulasi detik waktu AKTIF sesi (pause tidak dihitung). Disimpan
+  /// berkala supaya resume menghitung durasi dari progres nyata, bukan
+  /// selisih wall-clock sejak startedAt.
+  final int elapsedSeconds;
+
   const WorkoutSessionEntity({
     required this.id,
     required this.programId,
@@ -59,6 +64,7 @@ class WorkoutSessionEntity {
     this.caloriesBurned = 0,
     required this.status,
     this.notes,
+    this.elapsedSeconds = 0,
   });
 
   Map<String, dynamic> toMap() {
@@ -74,6 +80,7 @@ class WorkoutSessionEntity {
       'calories_burned': caloriesBurned,
       'status': status.toDbString(),
       'notes': notes,
+      'elapsed_seconds': elapsedSeconds,
     };
   }
 
@@ -96,6 +103,7 @@ class WorkoutSessionEntity {
       caloriesBurned: (map['calories_burned'] as num?)?.toInt() ?? 0,
       status: WorkoutSessionStatus.fromDbString(map['status']?.toString()),
       notes: map['notes']?.toString(),
+      elapsedSeconds: (map['elapsed_seconds'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -105,6 +113,7 @@ class WorkoutSessionEntity {
     int? caloriesBurned,
     WorkoutSessionStatus? status,
     String? notes,
+    int? elapsedSeconds,
   }) {
     return WorkoutSessionEntity(
       id: id,
@@ -118,6 +127,7 @@ class WorkoutSessionEntity {
       caloriesBurned: caloriesBurned ?? this.caloriesBurned,
       status: status ?? this.status,
       notes: notes ?? this.notes,
+      elapsedSeconds: elapsedSeconds ?? this.elapsedSeconds,
     );
   }
 }

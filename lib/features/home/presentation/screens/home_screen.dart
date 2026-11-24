@@ -1,23 +1,22 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../../../core/database/app_database.dart';
-import '../../../../core/database/models/user_profile_entity.dart';
 import '../../../../core/router/app_router.dart';
-import '../../../exercises/domain/models/exercise.dart';
-import '../../../exercises/data/datasources/exercise_local_datasource.dart';
-import '../../../exercises/data/repositories/exercise_repository_impl.dart';
-import '../../../program/domain/models/program_day.dart';
-import '../../../program/data/datasources/program_local_datasource.dart';
-import '../../../program/data/repositories/program_repository_impl.dart';
-import '../widgets/home_header.dart';
-import '../widgets/home_hero_banner.dart';
-import '../widgets/your_progress_section.dart';
-import '../widgets/next_workout_section.dart';
-import '../widgets/quick_access_section.dart';
+import '../controllers/home_controller.dart';
+import '../controllers/home_state.dart';
+import '../widgets/goal_progress_card.dart';
+import '../widgets/home_error_banner.dart';
+import '../widgets/home_greeting_header.dart';
+import '../widgets/home_loading_skeleton.dart';
+import '../widgets/home_notification_bottom_sheet.dart';
+import '../widgets/recovery_guide_bottom_sheet.dart';
+import '../widgets/recovery_routine_screen.dart';
+import '../widgets/support_goal_nutrition_card.dart';
+import '../widgets/today_workout/today_workout_section.dart';
+import '../widgets/weekly_progress_calendar_card.dart';
 
-/// Halaman Home Utama (v2) - Bersih, modular, dan terhubung ke Local Database.
-class HomeScreen extends StatefulWidget {
+/// Halaman Home Utama Redesign (Phase B: ConsumerWidget dengan Riverpod HomeController)
+class HomeScreen extends ConsumerWidget {
   final VoidCallback onNavigateToCalendar;
   final VoidCallback onNavigateToExercises;
   final VoidCallback onNavigateToNutrition;
@@ -32,130 +31,170 @@ class HomeScreen extends StatefulWidget {
   });
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(homeControllerProvider);
+    final controller = ref.read(homeControllerProvider.notifier);
 
-class _HomeScreenState extends State<HomeScreen> {
-  final _programRepo = ProgramRepositoryImpl(ProgramLocalDatasource());
-  final _exerciseRepo = ExerciseRepositoryImpl(ExerciseLocalDatasource());
-  final _db = AppDatabase.instance;
-
-  ProgramDay? _todayProgram;
-  List<Exercise> _todayExercises = [];
-  UserProfileEntity? _userProfile;
-  int _completedWorkouts = 0;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadTodayData();
-  }
-
-  Future<void> _loadTodayData() async {
-    final dayNum = await _programRepo.getCurrentProgramDay();
-    final programDay = await _programRepo.getDay(dayNum);
-    final allExercises = await _exerciseRepo.getExercises();
-    final profile = await _db.getUserProfile();
-    final completedCount = await _db.getCompletedSessionsCount();
-
-    final exercisesMap = {for (final e in allExercises) e.id: e};
-    final resolvedExercises =
-        programDay?.items
-            .map((item) => exercisesMap[item.exerciseId])
-            .whereType<Exercise>()
-            .toList() ??
-        [];
-
-    if (mounted) {
-      setState(() {
-        _todayProgram = programDay;
-        _todayExercises = resolvedExercises;
-        _userProfile = profile;
-        _completedWorkouts = completedCount;
-        _isLoading = false;
-      });
-    }
-  }
-
-  void _startWorkoutSession() {
-    final day = _todayProgram;
-    if (day != null && !day.isRest) {
-      context.push(
-        AppRoutes.workoutSession,
-        extra: WorkoutSessionArgs(day: day, exercises: _todayExercises),
-      );
-    } else {
-      widget.onNavigateToCalendar();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Scaffold(
-        backgroundColor: Color(0xFFF8F9FA),
-        body: Center(
-          child: CircularProgressIndicator(color: Color(0xFFB8E66B)),
+    if (state.isLoading) {
+      return Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: SafeArea(
+          child: HomeLoadingSkeleton(),
         ),
       );
     }
 
-    final day = _todayProgram;
+    final profile = state.userProfile;
+    final userName = profile?.displayName.isNotEmpty == true
+        ? profile!.displayName
+        : 'Adi';
+
+    Future<void> openHydrationGuide() =>
+        showRecoveryGuideBottomSheet(context, RecoveryGuideType.hydration);
+
+    Future<void> openSleepGuide() =>
+        showRecoveryGuideBottomSheet(context, RecoveryGuideType.sleep);
+
+    void openRecoveryRoutine() {
+      Navigator.of(context, rootNavigator: true).push(
+        MaterialPageRoute<void>(
+          builder: (_) => const RecoveryRoutineScreen(),
+        ),
+      );
+    }
+
+    Future<void> startWorkoutSession() async {
+      final day = state.todayProgram;
+      if (day != null && !day.isRest) {
+        await context.push(
+          AppRoutes.workoutSession,
+          extra: WorkoutSessionArgs(
+            day: day,
+            exercises: state.todayExercises,
+            programId: state.activeProgram?.id,
+            scheduledDate: DateTime.now(),
+          ),
+        );
+        controller.refresh();
+      } else {
+        onNavigateToCalendar();
+      }
+    }
+
+    Future<void> viewWorkoutDetail() async {
+      final day = state.todayProgram;
+      if (day != null) {
+        await context.push(
+          AppRoutes.workoutDetail,
+          extra: WorkoutDetailArgs(
+            dayNumber: day.day,
+            weekDayText: 'Week ${day.week} • Day ${day.day}',
+            workoutTitle: state.sessionFocus,
+            targetMusclesText: state.targetMuscles,
+            durationText: '${state.sessionDurationMinutes} min',
+            levelText: state.userProfile?.experienceLevel ?? 'Beginner',
+            programId: state.activeProgram?.id,
+            scheduledDate: DateTime.now(),
+          ),
+        );
+        controller.refresh();
+      } else {
+        onNavigateToCalendar();
+      }
+    }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 1. Header: Sapaan "Hi, Adi 👋" & Notifikasi
-              HomeHeader(
-                userName: _userProfile?.displayName ?? '',
-                onNotificationTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Belum ada notifikasi baru.')),
-                  );
-                },
-              ),
+        child: RefreshIndicator(
+          color: Theme.of(context).colorScheme.primary,
+          onRefresh: controller.refresh,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.only(top: 6, bottom: 32),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 1. Header Sapaan & Notifikasi (Mockup 1:1 - Phase C Point 1 & 2)
+                HomeGreetingHeader(
+                  userName: userName,
+                  hasUnreadNotification: state.hasUnreadNotifications,
+                  onNotificationTap: () {
+                    HomeNotificationBottomSheet.show(
+                      context,
+                      sessionFocus: state.sessionFocus,
+                      durationMinutes: state.sessionDurationMinutes,
+                      targetMuscles: state.targetMuscles,
+                      onStartWorkout: startWorkoutSession,
+                      onOpenRecoveryGuide: openHydrationGuide,
+                      onAllRead: controller.markNotificationsAsRead,
+                    );
+                  },
+                  onProfileTap: () {
+                    context.push(AppRoutes.profile);
+                  },
+                ),
 
-              const SizedBox(height: 28),
+                // Offline / Connection Issue Banner jika terjadi error
+                if (state.errorType == HomeErrorType.network ||
+                    state.errorType == HomeErrorType.database)
+                  HomeErrorBanner(
+                    lastSyncedTime: state.lastSyncedTime,
+                    onRetry: controller.refresh,
+                  ),
 
-              // 2. Hero Banner: Bulking Program dengan Karakter Coach
-              HomeHeroBanner(onStartToday: _startWorkoutSession),
+                const SizedBox(height: 10),
 
-              const SizedBox(height: 24),
+                // 2. Goal Progress Card (Mockup 1:1)
+                GoalProgressCard(
+                  goalTitle: 'Goal: ${state.programTitle}',
+                  targetWeightKg: profile?.targetWeightKg ?? 82.0,
+                  currentWeightKg: profile?.currentWeightKg ?? 75.8,
+                  totalWeeks: state.totalWeeks,
+                  currentWeek: state.currentWeek,
+                  onTap: onNavigateToProgress,
+                ),
 
-              // 3. Your Progress: Workouts, Calories, Weight
-              YourProgressSection(
-                completedWorkouts: _completedWorkouts,
-                currentWeightKg: _userProfile?.currentWeightKg ?? 67.5,
-              ),
+                const SizedBox(height: 22),
 
-              const SizedBox(height: 24),
+                // 3. Today's Workout Section (Active / Completed / Rest Day / No Program)
+                TodayWorkoutSection(
+                  state: state.workoutCardState,
+                  sessionTitle: state.sessionFocus,
+                  targetMuscles: state.targetMuscles,
+                  durationMinutes: state.sessionDurationMinutes,
+                  estimatedCalories: state.estimatedCalories,
+                  onStartWorkout: startWorkoutSession,
+                  onViewPlan: viewWorkoutDetail,
+                  onCreateProgram: onNavigateToCalendar,
+                  onHydrationTap: openHydrationGuide,
+                  onSleepTap: openSleepGuide,
+                  onStretchingTap: openRecoveryRoutine,
+                ),
 
-              // 4. Next Workout: Upper Body (A)
-              NextWorkoutSection(
-                programDay: day,
-                exercises: _todayExercises,
-                onStartWorkout: _startWorkoutSession,
-              ),
+                const SizedBox(height: 22),
 
-              const SizedBox(height: 24),
+                // 4. This Week Progress (Kalender 7 Hari, 5 Status - Mockup 1:1)
+                WeeklyProgressCalendarCard(
+                  days: state.weeklyDays,
+                  onSeeDetails: () {
+                    if (onNavigateToProgress != null) {
+                      onNavigateToProgress!();
+                    } else {
+                      onNavigateToCalendar();
+                    }
+                  },
+                ),
 
-              // 5. Quick Access: Workouts, Meal Plan, Progress, Learn
-              QuickAccessSection(
-                onWorkoutsTap: widget.onNavigateToCalendar,
-                onMealPlanTap: widget.onNavigateToNutrition,
-                onProgressTap: widget.onNavigateToProgress ?? () {},
-                onLearnTap: widget.onNavigateToExercises,
-              ),
+                const SizedBox(height: 22),
 
-              const SizedBox(height: 32),
-            ],
+                // 5. Support Your Goal - Panduan Nutrisi (Mockup 1:1)
+                SupportGoalNutritionCard(
+                  userGoal: profile?.goal ?? 'muscle_gain',
+                  onTap: onNavigateToNutrition,
+                ),
+              ],
+            ),
           ),
         ),
       ),

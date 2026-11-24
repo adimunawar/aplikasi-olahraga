@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../theme/app_colors.dart';
+import '../utils/media_url_resolver.dart';
 
 /// AppSmartImage: Widget Global Reusable untuk rendering gambar fleksibel (DRY Principle).
 ///
@@ -57,19 +58,22 @@ class AppSmartImage extends StatelessWidget {
     );
   }
 
-  bool get _isNetwork =>
-      imagePathOrUrl != null &&
-      (imagePathOrUrl!.startsWith('http://') ||
-          imagePathOrUrl!.startsWith('https://'));
-
   @override
   Widget build(BuildContext context) {
-    Widget content;
-    final path = imagePathOrUrl?.trim() ?? '';
+    final raw = imagePathOrUrl?.trim() ?? '';
+    final path = MediaUrlResolver.resolve(imagePathOrUrl)?.trim() ?? '';
+    final isNetwork = path.startsWith('http://') || path.startsWith('https://');
 
+    if (raw.contains('knee') || raw.contains('thumbnail') || raw.contains('.webp')) {
+      debugPrint('[AppSmartImage] 🖼️ Loading image:');
+      debugPrint('   raw : "$raw"');
+      debugPrint('   path: "$path" (isNetwork: $isNetwork)');
+    }
+
+    Widget content;
     if (path.isEmpty) {
       content = _buildFallback();
-    } else if (_isNetwork) {
+    } else if (isNetwork) {
       content = Image.network(
         path,
         width: width,
@@ -81,6 +85,8 @@ class AppSmartImage extends StatelessWidget {
           return placeholder ?? _buildDefaultPlaceholder();
         },
         errorBuilder: (context, error, stackTrace) {
+          debugPrint('[AppSmartImage] ❌ GAGAL memuat Image.network: "$path"');
+          debugPrint('   Error: $error');
           return errorWidget ?? _buildFallback();
         },
       );
@@ -92,6 +98,7 @@ class AppSmartImage extends StatelessWidget {
         fit: fit,
         alignment: alignment,
         errorBuilder: (context, error, stackTrace) {
+          debugPrint('[AppSmartImage] ❌ Gagal memuat Image.asset: "$path" (Error: $error)');
           return errorWidget ?? _buildFallback();
         },
       );

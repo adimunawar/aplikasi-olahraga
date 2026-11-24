@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../../../../core/theme/app_typography.dart';
 
 /// Card Kutipan Motivasi Coach Adi pada Akhir Sesi (Mockup 1:1):
@@ -61,7 +61,7 @@ class CoachMotivationQuoteCard extends StatelessWidget {
                   height: 110,
                   fit: BoxFit.contain,
                   alignment: Alignment.bottomCenter,
-                  errorBuilder: (_, __, ___) => Image.asset(
+                  errorBuilder: (_, _, _) => Image.asset(
                     'assets/images/coach_pointing.png',
                     height: 110,
                     fit: BoxFit.contain,

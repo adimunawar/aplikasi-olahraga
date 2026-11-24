@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../../../../core/theme/app_typography.dart';
 
 /// Card Statistik Sesi Selesai (Judul Sesi + 4 Metrik: Durasi, Gerakan, Sets, Kalori)
@@ -161,7 +161,7 @@ class WorkoutSummaryStatsCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(5),
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.12),
+              color: iconColor.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, size: 16, color: iconColor),

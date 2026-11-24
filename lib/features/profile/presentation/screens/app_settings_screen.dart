@@ -1,7 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/config/supabase_config.dart';
+import '../../../../core/localization/app_locale.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../controllers/profile_controller.dart';
@@ -32,12 +34,81 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
   void initState() {
     super.initState();
     final profile = ref.read(profileControllerProvider);
-    _language = profile.language;
+    // Tampilkan bahasa yang benar-benar aktif (bukan default kolom DB).
+    _language = profileLanguageFromAppLocale(ref.read(appLocaleProvider));
     _theme = profile.theme;
     _units = profile.unitPreference;
     _hapticFeedback = profile.hapticFeedback;
     _soundEffects = profile.soundEffects;
-    _dataSync = profile.dataSync;
+    // The consented Supabase account is the source of truth. A saved UI
+    // preference alone must never enable remote reads or writes.
+    _dataSync = SupabaseConfig.canSyncToCloud;
+  }
+
+  Future<void> _handleDataSyncChanged(bool enabled) async {
+    if (!enabled) {
+      // Disable in-memory authorization first; even if preferences storage
+      // fails, this app session must stop all remote reads and writes.
+      setState(() => _dataSync = false);
+      try {
+        await SupabaseConfig.disableCloudSync();
+      } catch (error) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Cloud Sync was disabled for this session, but its preference could not be saved: $error')),
+          );
+        }
+      }
+      await _updateSettings();
+      return;
+    }
+
+    final user = SupabaseConfig.currentUser;
+    if (user == null || user.isAnonymous) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Sign in with an account before enabling Cloud Sync.'),
+        ),
+      );
+      return;
+    }
+
+    final accepted = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Enable Cloud Sync?'),
+        content: const Text(
+          'Your profile, settings, workout history, and progress data will be '
+          'synced to your Supabase account. Local SQLite data will remain on '
+          'this device. You can turn Cloud Sync off at any time.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Not now'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Agree and enable'),
+          ),
+        ],
+      ),
+    );
+
+    if (accepted != true || !mounted) return;
+
+    try {
+      await SupabaseConfig.enableCloudSync();
+      if (!mounted) return;
+      setState(() => _dataSync = true);
+      await _updateSettings();
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _dataSync = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not enable Cloud Sync: $error')),
+      );
+    }
   }
 
   Future<void> _updateSettings() async {
@@ -97,6 +168,9 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
                   onTap: () {
                     setState(() => _language = lang);
                     _updateSettings();
+                    ref
+                        .read(appLocaleProvider.notifier)
+                        .setLocale(appLocaleFromProfileLanguage(lang));
                     Navigator.pop(ctx);
                   },
                 );
@@ -322,10 +396,7 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
                 title: 'Data Sync',
                 subtitle: 'Back up your data to your account',
                 value: _dataSync,
-                onChanged: (val) {
-                  setState(() => _dataSync = val);
-                  _updateSettings();
-                },
+                onChanged: _handleDataSyncChanged,
               ),
             ],
           ),
@@ -426,7 +497,7 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
           ),
           Switch(
             value: value,
-            activeColor: Colors.white,
+            activeThumbColor: Colors.white,
             activeTrackColor: AppColors.primary,
             inactiveThumbColor: Colors.white,
             inactiveTrackColor: const Color(0xFFE2E8F0),

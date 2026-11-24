@@ -1,165 +1,278 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../../core/database/app_database.dart';
+import '../../../../core/database/models/body_measurement_entity.dart';
+import '../../../../core/database/models/dynamic_program_entity.dart';
+import '../../../../core/database/models/user_profile_entity.dart';
+import '../../../../core/router/app_router.dart';
+import '../../../../features/workout_session/domain/models/exercise_prescription.dart';
+import '../../../../core/services/app_data_sync.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../core/widgets/core_widgets.dart';
-import '../../../program/domain/models/workout_program.dart';
-import '../controllers/plans_controller.dart';
-import '../widgets/plans_header.dart';
-import '../widgets/current_plan_hero_card.dart';
-import '../widgets/weekly_schedule_days_section.dart';
-import '../widgets/workouts_in_this_plan_section.dart';
-import '../widgets/other_programs_section.dart';
-import 'plans_3tabs_screen_backup.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../exercises/data/datasources/exercise_local_datasource.dart';
+import '../../../exercises/data/repositories/exercise_repository_impl.dart';
+import '../../../program/domain/models/program_day.dart';
+import '../../../program/domain/services/dynamic_program_generator.dart';
+import '../widgets/plans_overview_tab.dart';
+import '../widgets/plans_workout_split_tab.dart';
+import '../widgets/plans_progress_tab.dart';
 
-/// Halaman Plans (Desain 1:1 Mockup dengan Riverpod 2.x & Clean Layered Architecture)
-class PlansScreen extends ConsumerWidget {
+class SessionWithDetail {
+  final ProgramSessionEntity session;
+  final ProgramSessionDetail detail;
+
+  const SessionWithDetail({required this.session, required this.detail});
+}
+
+/// Halaman Your Training Plan
+/// 100% Sesuai Mockup Row 2: Overview, Workout Split, Progress
+class PlansScreen extends ConsumerStatefulWidget {
   final int initialTabIndex;
+  final bool isOnboarding;
 
-  const PlansScreen({super.key, this.initialTabIndex = 0});
+  const PlansScreen({
+    super.key,
+    this.initialTabIndex = 0,
+    this.isOnboarding = false,
+  });
 
-  // Toggle cadangan untuk desain lama 3-tab jika dibutuhkan
-  static const bool _showOld3TabsDesign = false;
+  @override
+  ConsumerState<PlansScreen> createState() => _PlansScreenState();
+}
 
-  void _showProgramDetailModal(
-    BuildContext context,
-    WidgetRef ref,
-    WorkoutProgram program,
-  ) {
-    String title = program.title.en.isNotEmpty ? program.title.en : program.title.id;
-    if (title.trim().isEmpty) {
-      title = program.id
-          .replaceAll('_', ' ')
-          .split(' ')
-          .map((w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '')
-          .join(' ');
+class _PlansScreenState extends ConsumerState<PlansScreen>
+    with SingleTickerProviderStateMixin {
+  final _db = AppDatabase.instance;
+  late final ExerciseLocalDatasource _exerciseDatasource;
+  late final ExerciseRepositoryImpl _exerciseRepository;
+  late TabController _tabController;
+
+  UserProfileEntity? _profile;
+  TrainingProgramEntity? _program;
+  List<SessionWithDetail> _sessions = [];
+  List<BodyMeasurementEntity> _weightHistory = [];
+  int _completedTotalWorkouts = 0;
+
+  int _currentActiveWeek = 1;
+  int _totalWeeks = 12;
+  bool _isLoading = true;
+  bool _isFetching = false;
+  bool _hasError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(
+      length: 3,
+      vsync: this,
+      initialIndex: widget.initialTabIndex.clamp(0, 2),
+    );
+    _exerciseDatasource = ExerciseLocalDatasource(db: _db);
+    _exerciseRepository = ExerciseRepositoryImpl(_exerciseDatasource);
+    _loadPlanData();
+    AppDataSync.instance.dataRevision.addListener(_onDataSync);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    AppDataSync.instance.dataRevision.removeListener(_onDataSync);
+    super.dispose();
+  }
+
+  void _onDataSync() {
+    if (mounted) {
+      _loadPlanData();
     }
+  }
 
-    String desc = program.description.en.isNotEmpty ? program.description.en : program.description.id;
-    if (desc.trim().isEmpty) {
-      desc = 'Program latihan terstruktur untuk membangun massa otot di rumah.';
+  Future<void> _loadPlanData() async {
+    if (_isFetching) return;
+    _isFetching = true;
+
+    try {
+      // Keep program details on the latest cloud catalog, with SQLite fallback.
+      final exerciseCatalog = await _exerciseRepository.getExercises();
+      final profile = await _db.getUserProfile();
+      final userId = profile.id.isNotEmpty ? profile.id : 'default_user';
+
+      var program = await _db.getActiveTrainingProgram(userId);
+      program ??= await _db.getActiveTrainingProgram('default_user');
+
+      final List<SessionWithDetail> sessionList = [];
+      List<ProgramSessionEntity> rawSessions = const [];
+      if (program != null) {
+        rawSessions = await _db.getProgramSessions(program.id);
+        for (final s in rawSessions) {
+          final detail = await _db.getProgramSessionDetail(s.id);
+          if (detail != null) {
+            sessionList.add(SessionWithDetail(session: s, detail: detail));
+          }
+        }
+      }
+
+      // Auto-generate HANYA jika program belum ada atau database sama sekali tidak memiliki sesi
+      final targetWeekly = profile.weeklyFrequency > 0
+          ? profile.weeklyFrequency
+          : 4;
+      final bool needsGeneration = program == null ||
+          (rawSessions.isEmpty && sessionList.isEmpty);
+
+      if (needsGeneration) {
+        try {
+          final catalog = exerciseCatalog;
+          final startingPushId = profile.experienceLevel == 'advanced'
+              ? 'diamond_push_up'
+              : profile.experienceLevel == 'intermediate'
+              ? 'push_up'
+              : 'knee_push_up';
+
+          final generated = const DynamicProgramGenerator().generate(
+            userProfile: profile,
+            catalogExercises: catalog,
+            startingPushExerciseId: startingPushId,
+          );
+
+          await _db.saveDynamicProgram(
+            program: generated.program,
+            sessions: generated.sessions,
+          );
+          program = generated.program;
+
+          sessionList.clear();
+          final newRawSessions = await _db.getProgramSessions(program.id);
+          for (final s in newRawSessions) {
+            final detail = await _db.getProgramSessionDetail(s.id);
+            if (detail != null) {
+              sessionList.add(SessionWithDetail(session: s, detail: detail));
+            }
+          }
+        } catch (e) {
+          debugPrint('[PlansScreen] Error generating dynamic program: $e');
+        }
+      }
+
+      await _db.getThisWeekCompletedCount();
+      final totalCompleted = await _db.getCompletedSessionsCount();
+      final weightLogs = await _db.getWeightHistory();
+
+      final totalWeeks = profile.targetTimeframeWeeks > 0
+          ? profile.targetTimeframeWeeks
+          : (program?.durationWeeks ?? 12);
+
+      // Hitung minggu aktif secara deterministik berdasarkan program.startDate
+      final int activeWeek;
+      if (program != null) {
+        final now = DateTime.now();
+        final startDay = DateTime(
+          program.startDate.year,
+          program.startDate.month,
+          program.startDate.day,
+        );
+        final currentDay = DateTime(now.year, now.month, now.day);
+        final daysElapsed = currentDay.difference(startDay).inDays;
+        final calendarWeek = daysElapsed >= 0 ? (daysElapsed ~/ 7) + 1 : 1;
+        activeWeek = calendarWeek.clamp(1, totalWeeks);
+      } else {
+        activeWeek = ((totalCompleted ~/ targetWeekly) + 1).clamp(1, totalWeeks);
+      }
+
+      if (mounted) {
+        setState(() {
+          _profile = profile;
+          _program = program;
+          _sessions = sessionList;
+          _weightHistory = weightLogs;
+          _completedTotalWorkouts = totalCompleted;
+          _currentActiveWeek = activeWeek;
+          _totalWeeks = totalWeeks;
+          _hasError = false;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('[PlansScreen] Error loading data: $e');
+      if (mounted) {
+        setState(() {
+          _hasError = true;
+          _isLoading = false;
+        });
+      }
+    } finally {
+      _isFetching = false;
     }
+  }
 
+  void _showSwitchProgramModal() {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (ctx) {
         return Container(
           decoration: const BoxDecoration(
-            color: AppColors.surface,
+            color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
           ),
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Drag handle
+              // Drag Handle
               Center(
                 child: Container(
-                  width: 44,
+                  width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.neutral200,
+                    color: const Color(0xFFE5E7EB),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 18),
 
-              // Badges (DRY via AppBadge)
-              Row(
-                children: [
-                  AppBadge.category(label: program.category.name),
-                  const SizedBox(width: 8),
-                  AppBadge.difficulty(label: program.difficulty.name),
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              // Title
               Text(
-                title,
-                style: AppTypography.headlineMedium.copyWith(
+                'Switch Training Focus',
+                style: AppTypography.headlineSmall.copyWith(
                   fontWeight: FontWeight.w900,
-                  fontSize: 22,
+                  fontSize: 18,
                   color: AppColors.darkCharcoal,
                 ),
               ),
-              const SizedBox(height: 8),
-
-              // Description
+              const SizedBox(height: 4),
               Text(
-                desc,
-                style: AppTypography.bodyMedium.copyWith(
-                  color: AppColors.neutral500,
-                  fontSize: 14,
-                  height: 1.4,
+                'Customize your program focus or re-align with your current fitness goal.',
+                style: AppTypography.bodySmall.copyWith(
+                  color: const Color(0xFF6B7280),
+                  fontSize: 12,
                 ),
               ),
               const SizedBox(height: 16),
 
-              // Duration stats
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: AppColors.neutral50,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.neutral100),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildModalStat(Icons.calendar_today_rounded, '${program.totalWeeks} Weeks', 'Duration'),
-                    Container(width: 1, height: 32, color: AppColors.neutral200),
-                    _buildModalStat(Icons.fitness_center_rounded, '${program.daysPerWeek} Days/Week', 'Frequency'),
-                    Container(width: 1, height: 32, color: AppColors.neutral200),
-                    _buildModalStat(Icons.speed_rounded, program.difficulty.name, 'Difficulty'),
-                  ],
-                ),
+              _buildProgramOption(
+                title: 'Gain Weight & Build Muscle',
+                desc: 'Hypertrophy focused volume • 12 Weeks',
+                goalKey: 'bulking',
+                icon: Icons.fitness_center_rounded,
               ),
-              const SizedBox(height: 24),
-
-              // Tombol Mulai Program Ini (DRY via AppButton)
-              AppButton.primary(
-                text: 'Mulai Program Ini',
-                onPressed: () async {
-                  Navigator.pop(ctx);
-                  try {
-                    await ref
-                        .read(plansControllerProvider.notifier)
-                        .switchActiveProgram(program);
-
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Row(
-                            children: [
-                              const Icon(Icons.check_circle_rounded, color: AppColors.limeAccent),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  'Program aktif berhasil diubah ke $title!',
-                                  style: const TextStyle(fontWeight: FontWeight.w600),
-                                ),
-                              ),
-                            ],
-                          ),
-                          backgroundColor: AppColors.darkCharcoal,
-                          behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                      );
-                    }
-                  } catch (e) {
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Gagal mengganti program: $e')),
-                      );
-                    }
-                  }
-                },
+              const SizedBox(height: 10),
+              _buildProgramOption(
+                title: 'Lose Weight & Reduce Fat',
+                desc: 'Metabolic conditioning & fat burning • 12 Weeks',
+                goalKey: 'fat_loss',
+                icon: Icons.local_fire_department_rounded,
+              ),
+              const SizedBox(height: 10),
+              _buildProgramOption(
+                title: 'Maintain & Stay Fit',
+                desc: 'Functional calisthenics & core strength • 12 Weeks',
+                goalKey: 'maintenance',
+                icon: Icons.favorite_rounded,
               ),
             ],
           ),
@@ -168,121 +281,660 @@ class PlansScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildModalStat(IconData icon, String val, String label) {
-    return Column(
-      children: [
-        Icon(icon, size: 18, color: AppColors.darkCharcoal),
-        const SizedBox(height: 4),
-        Text(
-          val,
-          style: AppTypography.labelMedium.copyWith(
-            fontWeight: FontWeight.w800,
-            fontSize: 12.5,
-            color: AppColors.darkCharcoal,
+  Widget _buildProgramOption({
+    required String title,
+    required String desc,
+    required String goalKey,
+    required IconData icon,
+  }) {
+    final isSelected = _profile?.goal.toLowerCase().contains(goalKey) == true;
+
+    return Material(
+      color: isSelected ? const Color(0xFFF4F9ED) : const Color(0xFFF9FAFB),
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: () async {
+          Navigator.pop(context);
+          if (_profile != null) {
+            setState(() => _isLoading = true);
+            final updatedProfile = _profile!.copyWith(goal: goalKey);
+            await _db.saveUserProfile(updatedProfile);
+
+            // Re-generate program dinamis
+            final exerciseDatasource = ExerciseLocalDatasource(db: _db);
+            final catalog = await exerciseDatasource.loadExercises();
+            final startingPushId = updatedProfile.experienceLevel == 'advanced'
+                ? 'diamond_push_up'
+                : updatedProfile.experienceLevel == 'intermediate'
+                ? 'push_up'
+                : 'knee_push_up';
+
+            final generated = const DynamicProgramGenerator().generate(
+              userProfile: updatedProfile,
+              catalogExercises: catalog,
+              startingPushExerciseId: startingPushId,
+            );
+
+            await _db.saveDynamicProgram(
+              program: generated.program,
+              sessions: generated.sessions,
+            );
+
+            await _loadPlanData();
+
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Program updated to $title!'),
+                  backgroundColor: AppColors.darkCharcoal,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              );
+            }
+          }
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isSelected
+                  ? const Color(0xFF84CC16)
+                  : const Color(0xFFE5E7EB),
+              width: isSelected ? 1.8 : 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? const Color(0xFF84CC16)
+                      : const Color(0xFFE5E7EB),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  icon,
+                  color: isSelected
+                      ? AppColors.darkCharcoal
+                      : const Color(0xFF4B5563),
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: AppTypography.labelLarge.copyWith(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 13,
+                        color: AppColors.darkCharcoal,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      desc,
+                      style: AppTypography.bodySmall.copyWith(
+                        color: const Color(0xFF6B7280),
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (isSelected)
+                const Icon(
+                  Icons.check_circle_rounded,
+                  color: Color(0xFF84CC16),
+                  size: 20,
+                ),
+            ],
           ),
         ),
-        Text(
-          label,
-          style: AppTypography.bodySmall.copyWith(
-            fontSize: 10.5,
-            color: AppColors.neutral400,
-          ),
-        ),
-      ],
+      ),
     );
   }
 
+  void _showEditScheduleModal() {
+    if (_profile == null) return;
+    final currentDays = List<String>.from(_profile!.availableDays);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (modalCtx, setModalState) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+              ),
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE5E7EB),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Text(
+                    'Edit Schedule',
+                    style: AppTypography.headlineSmall.copyWith(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 18,
+                      color: AppColors.darkCharcoal,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Select workout days per week (${currentDays.length} days selected)',
+                    style: AppTypography.bodySmall.copyWith(
+                      color: const Color(0xFF6B7280),
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 10,
+                    children:
+                        [
+                          {'key': 'monday', 'label': 'Mon'},
+                          {'key': 'tuesday', 'label': 'Tue'},
+                          {'key': 'wednesday', 'label': 'Wed'},
+                          {'key': 'thursday', 'label': 'Thu'},
+                          {'key': 'friday', 'label': 'Fri'},
+                          {'key': 'saturday', 'label': 'Sat'},
+                          {'key': 'sunday', 'label': 'Sun'},
+                        ].map((day) {
+                          final isSelected = currentDays.any(
+                            (d) => d.toLowerCase() == day['key']!.toLowerCase(),
+                          );
+                          return FilterChip(
+                            label: Text(day['label']!),
+                            selected: isSelected,
+                            selectedColor: const Color(0xFFD4F836),
+                            checkmarkColor: AppColors.darkCharcoal,
+                            labelStyle: TextStyle(
+                              color: AppColors.darkCharcoal,
+                              fontWeight: isSelected
+                                  ? FontWeight.w800
+                                  : FontWeight.w600,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              side: BorderSide(
+                                color: isSelected
+                                    ? Colors.transparent
+                                    : const Color(0xFFE2E8F0),
+                              ),
+                            ),
+                            onSelected: (selected) {
+                              setModalState(() {
+                                if (selected) {
+                                  if (!currentDays.contains(day['key'])) {
+                                    currentDays.add(day['key']!);
+                                  }
+                                } else {
+                                  if (currentDays.length > 1) {
+                                    currentDays.removeWhere(
+                                      (d) =>
+                                          d.toLowerCase() ==
+                                          day['key']!.toLowerCase(),
+                                    );
+                                  }
+                                }
+                              });
+                            },
+                          );
+                        }).toList(),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        Navigator.pop(ctx);
+                        setState(() => _isLoading = true);
+                        final updatedProfile = _profile!.copyWith(
+                          availableDays: currentDays,
+                          weeklyFrequency: currentDays.length,
+                          preferredDaysPerWeek: currentDays.length,
+                        );
+                        await _db.saveUserProfile(updatedProfile);
+                        await _loadPlanData();
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Schedule updated: ${currentDays.length} workout days / week!',
+                              ),
+                              backgroundColor: AppColors.darkCharcoal,
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF84CC16),
+                        foregroundColor: AppColors.darkCharcoal,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: const Text(
+                        'Save Schedule',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showLogWeightModal() {
+    double tempWeight = _profile?.currentWeightKg ?? 75.0;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (modalCtx, setModalState) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+              ),
+              padding: EdgeInsets.fromLTRB(
+                24,
+                16,
+                24,
+                32 + MediaQuery.of(context).viewInsets.bottom,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE5E7EB),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    "Log Today's Weight",
+                    style: AppTypography.headlineSmall.copyWith(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 18,
+                      color: AppColors.darkCharcoal,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Track your progress to keep your plan adaptive.',
+                    style: AppTypography.bodySmall.copyWith(
+                      color: const Color(0xFF6B7280),
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Weight Stepper
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton.filledTonal(
+                        onPressed: () {
+                          if (tempWeight > 35) {
+                            setModalState(() => tempWeight -= 0.5);
+                          }
+                        },
+                        icon: const Icon(Icons.remove_rounded),
+                        style: IconButton.styleFrom(
+                          backgroundColor: const Color(0xFFF3F4F6),
+                          foregroundColor: AppColors.darkCharcoal,
+                        ),
+                      ),
+                      const SizedBox(width: 24),
+                      Text(
+                        '${tempWeight.toStringAsFixed(1)} kg',
+                        style: AppTypography.headlineLarge.copyWith(
+                          fontSize: 32,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.darkCharcoal,
+                        ),
+                      ),
+                      const SizedBox(width: 24),
+                      IconButton.filledTonal(
+                        onPressed: () {
+                          if (tempWeight < 250) {
+                            setModalState(() => tempWeight += 0.5);
+                          }
+                        },
+                        icon: const Icon(Icons.add_rounded),
+                        style: IconButton.styleFrom(
+                          backgroundColor: const Color(0xFFF3F4F6),
+                          foregroundColor: AppColors.darkCharcoal,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 28),
+
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        Navigator.pop(ctx);
+                        await _db.recordBodyWeight(tempWeight);
+                        AppDataSync.instance.notifyDataChanged();
+                        await _loadPlanData();
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Weight logged: ${tempWeight.toStringAsFixed(1)} kg!',
+                              ),
+                              backgroundColor: AppColors.darkCharcoal,
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.limeAccent,
+                        foregroundColor: AppColors.darkCharcoal,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: const Text(
+                        'Save Weight',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _startWorkoutSession(SessionWithDetail s) async {
+    final exercises = s.detail.exercises.map((e) => e.exercise).toList();
+    final workoutItems = s.detail.exercises.map((e) {
+      return WorkoutItem(
+        exerciseId: e.exercise.id,
+        sets: e.prescription.targetSets,
+        reps: e.prescription.minReps,
+        restSeconds: e.prescription.restSeconds,
+        isMain: e.prescription.stage == 'main',
+        stage: e.prescription.stage,
+      );
+    }).toList();
+
+    final programDay = ProgramDay(
+      day: s.session.dayNumber,
+      week: _currentActiveWeek,
+      type: WorkoutTypeCode.f,
+      focus: s.session.focusLabel,
+      isRest: false,
+      isRetestMilestone: false,
+      items: workoutItems,
+    );
+
+    await context.push(
+      AppRoutes.workoutSession,
+      extra: WorkoutSessionArgs(
+        day: programDay,
+        exercises: exercises,
+        prescriptions: {
+          for (final e in s.detail.exercises)
+            e.exercise.id: WorkoutExercisePrescription.fromProgramExercise(
+              e.prescription,
+            ),
+        },
+      ),
+    );
+    if (mounted) {
+      _loadPlanData();
+    }
+  }
+
+  Future<void> _previewSession(SessionWithDetail s) async {
+    await context.push(
+      AppRoutes.workoutDetail,
+      extra: WorkoutDetailArgs(
+        dayNumber: s.session.dayNumber,
+        weekDayText: 'Week $_currentActiveWeek • Day ${s.session.dayNumber}',
+        workoutTitle: s.session.focusLabel,
+        targetMusclesText: _program?.name ?? 'Full Body',
+        durationText: '${s.session.targetDurationMinutes} min',
+        levelText: _profile?.experienceLevel ?? 'Beginner',
+      ),
+    );
+    if (mounted) {
+      _loadPlanData();
+    }
+  }
+
+  Future<void> _completeOnboardingAndGoHome() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('has_completed_onboarding', true);
+    ref.read(hasCompletedOnboardingProvider.notifier).state = true;
+    if (mounted) {
+      context.go(AppRoutes.home);
+    }
+  }
+
+  Future<void> _completeOnboardingAndStartWorkout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('has_completed_onboarding', true);
+    ref.read(hasCompletedOnboardingProvider.notifier).state = true;
+    if (_sessions.isNotEmpty) {
+      _startWorkoutSession(_sessions.first);
+    }
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    if (_showOld3TabsDesign) {
-      return Plans3TabsScreenBackup(initialTabIndex: initialTabIndex);
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: CircularProgressIndicator(color: Color(0xFF84CC16)),
+        ),
+      );
     }
 
-    final state = ref.watch(plansControllerProvider);
-    final active = state.activeProgram;
-
-    String title = active?.title.en.isNotEmpty == true
-        ? active!.title.en
-        : (active?.title.id.isNotEmpty == true ? active!.title.id : '');
-    if (title.trim().isEmpty) {
-      final id = active?.id ?? '';
-      title = id.isNotEmpty
-          ? id.replaceAll('_', ' ').split(' ').map((w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '').join(' ')
-          : 'Upper Body Strength';
-    }
-
-    String desc = active?.description.en.isNotEmpty == true
-        ? active!.description.en
-        : (active?.description.id.isNotEmpty == true ? active!.description.id : '');
-    if (desc.trim().isEmpty) {
-      desc = 'Build a stronger chest, back, arms, and shoulders at home.';
-    }
-    final totalWeeks = active?.totalWeeks ?? 8;
+    final totalScheduledWorkouts =
+        (_profile?.weeklyFrequency ?? 4) * _totalWeeks;
 
     return Scaffold(
-      backgroundColor: AppColors.scaffoldBackground,
-      body: SafeArea(
-        bottom: false,
-        child: RefreshIndicator(
-          color: AppColors.darkCharcoal,
-          backgroundColor: AppColors.limeAccent,
-          onRefresh: () => ref.read(plansControllerProvider.notifier).loadPrograms(),
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(
-              parent: BouncingScrollPhysics(),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: widget.isOnboarding
+            ? IconButton(
+                icon: const Icon(
+                  Icons.arrow_back_rounded,
+                  color: Color(0xFF141718),
+                ),
+                onPressed: () {
+                  if (context.canPop()) {
+                    context.pop();
+                  } else {
+                    context.pushReplacement(AppRoutes.planReady);
+                  }
+                },
+              )
+            : (context.canPop()
+                  ? IconButton(
+                      icon: const Icon(
+                        Icons.arrow_back_rounded,
+                        color: Color(0xFF141718),
+                      ),
+                      onPressed: () => context.pop(),
+                    )
+                  : null),
+        title: Text(
+          'Your Training Plan',
+          style: AppTypography.headlineMedium.copyWith(
+            fontWeight: FontWeight.w900,
+            fontSize: 18,
+            color: const Color(0xFF141718),
+          ),
+        ),
+        centerTitle: false,
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.more_horiz_rounded,
+              color: Color(0xFF141718),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 1. Header Plans
-                const PlansHeader(),
-                const SizedBox(height: 16),
-
-                // 2. Current Plan Hero Card (Reaktif dari Riverpod State)
-                CurrentPlanHeroCard(
-                  title: title,
-                  description: desc,
-                  currentWeek: state.currentWeek,
-                  totalWeeks: totalWeeks,
-                  progressPercent: state.progressPercent,
-                ),
-                const SizedBox(height: 22),
-
-                // 3. Weekly Schedule (Mon - Sun dinamis sesuai minggu yang dipilih)
-                WeeklyScheduleDaysSection(
-                  selectedWeek: state.selectedWeekNumber,
-                  currentWeek: state.currentWeek,
-                  totalWeeks: totalWeeks,
-                  days: state.currentWeekDays,
-                  completedDayNumbers: state.completedDaysForSelectedWeek,
-                  onSelectWeek: (weekNum) {
-                    ref.read(plansControllerProvider.notifier).selectWeek(weekNum);
-                  },
-                ),
-                const SizedBox(height: 22),
-
-                // 4. Workouts in This Plan (Daftar sesi dinamis sesuai minggu terpilih)
-                WorkoutsInThisPlanSection(
-                  totalWeeks: totalWeeks,
-                  daysPerWeek: active?.daysPerWeek ?? 4,
-                  selectedWeek: state.selectedWeekNumber,
-                  days: state.currentWeekDays,
-                  completedDayNumbers: state.completedDaysForSelectedWeek,
-                ),
-                const SizedBox(height: 22),
-
-                // 5. Other Programs (Carousel Program Lain)
-                OtherProgramsSection(
-                  programs: state.otherPrograms,
-                  onSelectProgram: (p) => _showProgramDetailModal(context, ref, p),
-                  onSeeAll: () {},
-                ),
-                const SizedBox(height: 32),
+            onPressed: _showSwitchProgramModal,
+          ),
+        ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: Container(
+            decoration: const BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: Color(0xFFF3F4F6), width: 1.2),
+              ),
+            ),
+            child: TabBar(
+              controller: _tabController,
+              indicatorColor: const Color(0xFF84CC16),
+              indicatorWeight: 3.0,
+              indicatorSize: TabBarIndicatorSize.tab,
+              labelColor: const Color(0xFF141718),
+              unselectedLabelColor: const Color(0xFF9CA3AF),
+              labelStyle: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+              tabs: const [
+                Tab(text: 'Overview'),
+                Tab(text: 'Workout Split'),
+                Tab(text: 'Progress'),
               ],
             ),
           ),
         ),
+      ),
+      bottomNavigationBar: widget.isOnboarding
+          ? Container(
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.06),
+                    blurRadius: 10,
+                    offset: const Offset(0, -4),
+                  ),
+                ],
+              ),
+              child: AppButton.primary(
+                text: 'Get Started ➔',
+                size: AppButtonSize.large,
+                onPressed: _completeOnboardingAndGoHome,
+              ),
+            )
+          : null,
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          // Tab 1: Overview
+          PlansOverviewTab(
+            profile: _profile,
+            program: _program,
+            onSwitchProgram: _showSwitchProgramModal,
+          ),
+
+          // Tab 2: Workout Split
+          PlansWorkoutSplitTab(
+            profile: _profile,
+            program: _program,
+            sessions: _sessions,
+            onSessionTap: _previewSession,
+            onEditSchedule: _showEditScheduleModal,
+          ),
+
+          // Tab 3: Progress
+          PlansProgressTab(
+            profile: _profile,
+            weightHistory: _weightHistory,
+            completedWorkouts: _completedTotalWorkouts,
+            totalScheduledWorkouts: totalScheduledWorkouts,
+            currentWeek: _currentActiveWeek,
+            totalWeeks: _totalWeeks,
+            hasError: _hasError,
+            onRetry: _loadPlanData,
+            onLogWeight: _showLogWeightModal,
+            onStartWorkout: () {
+              if (widget.isOnboarding) {
+                _completeOnboardingAndStartWorkout();
+              } else if (_sessions.isNotEmpty) {
+                _startWorkoutSession(_sessions.first);
+              }
+            },
+          ),
+        ],
       ),
     );
   }

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -10,7 +10,10 @@ import '../../features/home/presentation/screens/home_scaffold.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/nutrition/presentation/screens/nutrition_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
-import '../../features/plans/presentation/screens/plans_screen.dart';
+import '../../features/onboarding/presentation/screens/creating_plan_screen.dart';
+import '../../features/onboarding/presentation/screens/plan_ready_screen.dart';
+import '../../features/onboarding/presentation/screens/plan_preview_screen.dart';
+import '../../features/workouts/presentation/screens/workouts_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/profile/presentation/screens/personal_information_screen.dart';
 import '../../features/profile/presentation/screens/body_information_screen.dart';
@@ -20,10 +23,15 @@ import '../../features/profile/presentation/screens/reminders_screen.dart';
 import '../../features/profile/presentation/screens/app_settings_screen.dart';
 import '../../features/profile/presentation/screens/help_about_screen.dart';
 import '../../features/program/domain/models/program_day.dart';
+import '../../features/program/presentation/screens/program_detail_screen.dart';
 import '../../features/progress/presentation/screens/progress_screen.dart';
 import '../../features/workout_detail/presentation/screens/workout_detail_screen.dart';
+import '../../features/workout_session/domain/models/exercise_prescription.dart';
+import '../../features/workout_session/domain/models/workout_session_result.dart';
+import '../../features/workout_session/presentation/screens/workout_completed_screen.dart';
 import '../../features/workout_session/presentation/screens/workout_session_screen.dart';
 import '../../features/workout_summary/presentation/screens/workout_summary_screen.dart';
+import '../../features/progression/domain/models/progression_models.dart';
 
 /// Definisi nama dan path route seluruh aplikasi
 class AppRoutes {
@@ -32,13 +40,18 @@ class AppRoutes {
   static const String progress = '/progress';
   static const String profile = '/profile';
   static const String onboarding = '/onboarding';
+  static const String creatingPlan = '/creating-plan';
+  static const String planReady = '/plan-ready';
+  static const String onboardingPlan = '/onboarding-plan';
   static const String workoutDetail = '/workout-detail';
   static const String workoutSession = '/workout-session';
+  static const String workoutCompleted = '/workout-completed';
   static const String workoutSummary = '/workout-summary';
   static const String exerciseDetail = '/exercise-detail';
   static const String calendar = '/calendar';
   static const String exercises = '/exercises';
   static const String nutrition = '/nutrition';
+  static const String programDetail = '/program-detail';
 
   // Sub-halaman Edit Profile (Mockup Resolusi Tinggi)
   static const String personalInfo = '/profile/personal-info';
@@ -53,6 +66,8 @@ class AppRoutes {
 /// DTO Arguments untuk WorkoutDetailScreen
 class WorkoutDetailArgs {
   final int dayNumber;
+  final int? weekNumber;
+  final String? programId;
   final String weekDayText;
   final String workoutTitle;
   final String targetMusclesText;
@@ -60,14 +75,29 @@ class WorkoutDetailArgs {
   final String levelText;
   final String description;
 
+  /// Tanggal jadwal sesi ini. Dipakai saat memulai/melanjutkan sesi agar
+  /// card di Workouts bisa mencocokkan record in_progress.
+  final DateTime? scheduledDate;
+
+  /// Pratinjau saja: daftar exercise terlihat, tombol mulai dinonaktifkan.
+  final bool readOnly;
+
+  /// Sesi in_progress yang bisa dilanjutkan untuk jadwal ini.
+  final String? activeSessionId;
+
   const WorkoutDetailArgs({
     this.dayNumber = 1,
-    this.weekDayText = 'Week 1 • Day 1',
-    this.workoutTitle = 'Upper Body',
-    this.targetMusclesText = 'Chest',
-    this.durationText = '45 min',
-    this.levelText = 'Intermediate',
+    this.weekNumber,
+    this.programId,
+    this.weekDayText = '',
+    this.workoutTitle = '',
+    this.targetMusclesText = '',
+    this.durationText = '',
+    this.levelText = '',
     this.description = '',
+    this.scheduledDate,
+    this.readOnly = false,
+    this.activeSessionId,
   });
 }
 
@@ -75,10 +105,51 @@ class WorkoutDetailArgs {
 class WorkoutSessionArgs {
   final ProgramDay day;
   final List<Exercise> exercises;
+  final String? programId;
+
+  /// Tanggal jadwal sesi (bukan selalu hari ini).
+  final DateTime? scheduledDate;
+
+  /// Jika diisi, sesi yang sudah berjalan dilanjutkan, bukan dibuat baru.
+  final String? activeSessionId;
+
+  /// Preskripsi per exercise (target set, reps, rest). Kunci = exerciseId.
+  final Map<String, WorkoutExercisePrescription> prescriptions;
 
   const WorkoutSessionArgs({
     required this.day,
     required this.exercises,
+    this.programId,
+    this.scheduledDate,
+    this.activeSessionId,
+    this.prescriptions = const {},
+  });
+}
+
+/// DTO Arguments untuk WorkoutCompletedScreen
+class WorkoutCompletedArgs {
+  final String userName;
+  final String workoutTitle;
+  final String focusText;
+  final int durationMinutes;
+  final int exercisesCount;
+  final int caloriesBurned;
+  final WorkoutSessionResult? result;
+  final String? weekDayText;
+  final String? setsCountText;
+  final List<ProgressionDecision> progressionDecisions;
+
+  const WorkoutCompletedArgs({
+    this.userName = 'athlete',
+    this.workoutTitle = 'Workout',
+    this.focusText = '',
+    this.durationMinutes = 0,
+    this.exercisesCount = 0,
+    this.caloriesBurned = 0,
+    this.result,
+    this.weekDayText,
+    this.setsCountText,
+    this.progressionDecisions = const [],
   });
 }
 
@@ -92,6 +163,7 @@ class WorkoutSummaryArgs {
   final String setsCountText;
   final String caloriesText;
   final String? quoteText;
+  final List<ProgressionDecision> progressionDecisions;
 
   const WorkoutSummaryArgs({
     this.userName = 'Adi',
@@ -102,6 +174,7 @@ class WorkoutSummaryArgs {
     this.setsCountText = '15',
     this.caloriesText = '≈ 185 kcal',
     this.quoteText,
+    this.progressionDecisions = const [],
   });
 }
 
@@ -116,9 +189,36 @@ final hasCompletedOnboardingProvider = StateProvider<bool>((ref) => false);
 final appRouterProvider = Provider<GoRouter>((ref) {
   final hasCompletedOnboarding = ref.watch(hasCompletedOnboardingProvider);
 
+  const onboardingFlowPaths = {
+    AppRoutes.onboarding,
+    AppRoutes.creatingPlan,
+    AppRoutes.planReady,
+    AppRoutes.onboardingPlan,
+  };
+
   return GoRouter(
     navigatorKey: rootNavigatorKey,
-    initialLocation: hasCompletedOnboarding ? AppRoutes.home : AppRoutes.onboarding,
+    initialLocation: hasCompletedOnboarding
+        ? AppRoutes.home
+        : AppRoutes.onboarding,
+    // Initial location alone does not protect against platform deep links.
+    // Keep the onboarding flow accessible until the user activates a plan,
+    // and prevent completed users from re-entering the onboarding flow.
+    redirect: (context, state) {
+      final isOnboardingFlow = onboardingFlowPaths.contains(
+        state.matchedLocation,
+      );
+
+      if (!hasCompletedOnboarding && !isOnboardingFlow) {
+        return AppRoutes.onboarding;
+      }
+
+      if (hasCompletedOnboarding && isOnboardingFlow) {
+        return AppRoutes.home;
+      }
+
+      return null;
+    },
     routes: [
       // 1. Stateful Shell Route untuk Bottom Navigation (Home, Plans, Progress, Profile)
       StatefulShellRoute.indexedStack(
@@ -133,19 +233,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 path: AppRoutes.home,
                 builder: (context, state) => HomeScreen(
                   onNavigateToCalendar: () => context.push(AppRoutes.calendar),
-                  onNavigateToExercises: () => context.push(AppRoutes.exercises),
-                  onNavigateToNutrition: () => context.push(AppRoutes.nutrition),
+                  onNavigateToExercises: () =>
+                      context.push(AppRoutes.exercises),
+                  onNavigateToNutrition: () =>
+                      context.push(AppRoutes.nutrition),
                   onNavigateToProgress: () => context.go(AppRoutes.progress),
                 ),
               ),
             ],
           ),
-          // Branch 1: Plans
+          // Branch 1: Workouts
           StatefulShellBranch(
             routes: [
               GoRoute(
                 path: AppRoutes.plans,
-                builder: (context, state) => const PlansScreen(),
+                builder: (context, state) => const WorkoutsScreen(),
               ),
             ],
           ),
@@ -180,15 +282,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.workoutDetail,
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
-          final args = state.extra as WorkoutDetailArgs? ?? const WorkoutDetailArgs();
+          final args =
+              state.extra as WorkoutDetailArgs? ?? const WorkoutDetailArgs();
           return WorkoutDetailScreen(
             dayNumber: args.dayNumber,
+            weekNumber: args.weekNumber,
+            programId: args.programId,
             weekDayText: args.weekDayText,
             workoutTitle: args.workoutTitle,
             targetMusclesText: args.targetMusclesText,
             durationText: args.durationText,
             levelText: args.levelText,
             description: args.description,
+            scheduledDate: args.scheduledDate,
+            readOnly: args.readOnly,
+            activeSessionId: args.activeSessionId,
           );
         },
       ),
@@ -200,14 +308,29 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           return WorkoutSessionScreen(
             day: args.day,
             exercises: args.exercises,
+            programId: args.programId,
+            scheduledDate: args.scheduledDate,
+            activeSessionId: args.activeSessionId,
+            prescriptions: args.prescriptions,
           );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.workoutCompleted,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) {
+          final args =
+              state.extra as WorkoutCompletedArgs? ??
+              const WorkoutCompletedArgs();
+          return WorkoutCompletedScreen(args: args);
         },
       ),
       GoRoute(
         path: AppRoutes.workoutSummary,
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
-          final args = state.extra as WorkoutSummaryArgs? ?? const WorkoutSummaryArgs();
+          final args =
+              state.extra as WorkoutSummaryArgs? ?? const WorkoutSummaryArgs();
           return WorkoutSummaryScreen(
             userName: args.userName,
             workoutTitle: args.workoutTitle,
@@ -216,8 +339,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             exercisesCountText: args.exercisesCountText,
             setsCountText: args.setsCountText,
             caloriesText: args.caloriesText,
-            quoteText: args.quoteText ??
-                'Latihan yang konsisten seperti ini akan membantu kamu membangun massa otot dan tubuh yang lebih kuat. Pertahankan!',
+            progressionDecisions: args.progressionDecisions,
+            quoteText: args.quoteText ?? 'Latihan yang konsisten seperti ini akan membantu kamu membangun massa otot dan tubuh yang lebih kuat. Pertahankan!',
           );
         },
       ),
@@ -243,6 +366,29 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.nutrition,
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const NutritionScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.programDetail,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) {
+          final programId = (state.extra as String?) ?? 'upper_body_strength';
+          return ProgramDetailScreen(programId: programId);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.creatingPlan,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const CreatingPlanScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.planReady,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const PlanReadyScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.onboardingPlan,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const PlanPreviewScreen(),
       ),
 
       // Sub-halaman Edit Profile
