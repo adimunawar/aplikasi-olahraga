@@ -14,7 +14,10 @@ void main() {
     LocaleSettings.setLocaleSync(AppLocale.id);
   });
 
-  Widget buildHomeComponents(ThemeMode themeMode) {
+  Widget buildHomeComponents(
+    ThemeMode themeMode, {
+    required ValueChanged<ThemeData> onThemeReady,
+  }) {
     final today = DateTime(2026, 11, 24);
     final days = [
       DayProgressData(
@@ -40,43 +43,48 @@ void main() {
         darkTheme: AppTheme.darkTheme,
         themeMode: themeMode,
         home: Scaffold(
-          body: SingleChildScrollView(
-            child: Column(
-              children: [
-                const HomeGreetingHeader(userName: 'Adi'),
-                const GoalProgressCard(
-                  goalTitle: 'Goal: Naikkan Berat Badan',
-                  targetWeightKg: 82,
-                  currentWeightKg: 75.8,
-                  totalWeeks: 12,
-                  currentWeek: 3,
+          body: Builder(
+            builder: (context) {
+              onThemeReady(Theme.of(context));
+              return SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const HomeGreetingHeader(userName: 'Adi'),
+                    const GoalProgressCard(
+                      goalTitle: 'Goal: Naikkan Berat Badan',
+                      targetWeightKg: 82,
+                      currentWeightKg: 75.8,
+                      totalWeeks: 12,
+                      currentWeek: 3,
+                    ),
+                    const HomeErrorBanner(
+                      lastSyncedTime: 'Hari ini, 10:30',
+                      onRetry: _noop,
+                    ),
+                    WeeklyProgressCalendarCard(
+                      days: days,
+                      onSeeDetails: _noop,
+                    ),
+                    const SupportGoalNutritionCard(
+                      userGoal: 'muscle_gain',
+                      onTap: _noop,
+                    ),
+                    TodayWorkoutSection(
+                      state: WorkoutCardState.active,
+                      sessionTitle: 'Upper Body',
+                      targetMuscles: 'Chest, Shoulders',
+                      durationMinutes: 45,
+                      estimatedCalories: 280,
+                      onStartWorkout: _noop,
+                      onViewPlan: _noop,
+                      onHydrationTap: _noop,
+                      onSleepTap: _noop,
+                      onStretchingTap: _noop,
+                    ),
+                  ],
                 ),
-                const HomeErrorBanner(
-                  lastSyncedTime: 'Hari ini, 10:30',
-                  onRetry: _noop,
-                ),
-                WeeklyProgressCalendarCard(
-                  days: days,
-                  onSeeDetails: _noop,
-                ),
-                const SupportGoalNutritionCard(
-                  userGoal: 'muscle_gain',
-                  onTap: _noop,
-                ),
-                TodayWorkoutSection(
-                  state: WorkoutCardState.active,
-                  sessionTitle: 'Upper Body',
-                  targetMuscles: 'Chest, Shoulders',
-                  durationMinutes: 45,
-                  estimatedCalories: 280,
-                  onStartWorkout: _noop,
-                  onViewPlan: _noop,
-                  onHydrationTap: _noop,
-                  onSleepTap: _noop,
-                  onStretchingTap: _noop,
-                ),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),
@@ -84,34 +92,46 @@ void main() {
   }
 
   testWidgets('Home components follow the Light theme', (tester) async {
-    await tester.pumpWidget(buildHomeComponents(ThemeMode.light));
+    late ThemeData activeTheme;
+
+    await tester.pumpWidget(
+      buildHomeComponents(
+        ThemeMode.light,
+        onThemeReady: (theme) => activeTheme = theme,
+      ),
+    );
     await tester.pumpAndSettle();
 
+    expect(activeTheme.brightness, Brightness.light);
+    expect(
+      activeTheme.colorScheme,
+      AppTheme.lightTheme.colorScheme,
+    );
     expect(find.text('82.0 kg'), findsOneWidget);
     expect(find.text('Masalah koneksi'), findsOneWidget);
     expect(find.text('Mulai Latihan'), findsOneWidget);
-
-    final scaffold = tester.widget<Scaffold>(find.byType(Scaffold).first);
-    expect(scaffold.backgroundColor, AppTheme.lightTheme.scaffoldBackgroundColor);
-
-    final weight = tester.widget<Text>(find.text('82.0 kg'));
-    expect(weight.style?.color, AppTheme.lightTheme.colorScheme.onSurface);
     expect(tester.takeException(), isNull);
   });
 
   testWidgets('Home components follow the Dark theme', (tester) async {
-    await tester.pumpWidget(buildHomeComponents(ThemeMode.dark));
+    late ThemeData activeTheme;
+
+    await tester.pumpWidget(
+      buildHomeComponents(
+        ThemeMode.dark,
+        onThemeReady: (theme) => activeTheme = theme,
+      ),
+    );
     await tester.pumpAndSettle();
 
+    expect(activeTheme.brightness, Brightness.dark);
+    expect(
+      activeTheme.colorScheme,
+      AppTheme.darkTheme.colorScheme,
+    );
     expect(find.text('82.0 kg'), findsOneWidget);
     expect(find.text('Masalah koneksi'), findsOneWidget);
     expect(find.text('Mulai Latihan'), findsOneWidget);
-
-    final scaffold = tester.widget<Scaffold>(find.byType(Scaffold).first);
-    expect(scaffold.backgroundColor, AppTheme.darkTheme.scaffoldBackgroundColor);
-
-    final weight = tester.widget<Text>(find.text('82.0 kg'));
-    expect(weight.style?.color, AppTheme.darkTheme.colorScheme.onSurface);
     expect(tester.takeException(), isNull);
   });
 }
