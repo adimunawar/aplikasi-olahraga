@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import '../../../../core/theme/home_theme.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -63,7 +62,7 @@ class HomeGreetingHeader extends StatelessWidget {
                   style: AppTypography.titleMedium.copyWith(
                     fontWeight: FontWeight.w800,
                     fontSize: 18,
-                    color: HomeTheme.text(context),
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -72,7 +71,7 @@ class HomeGreetingHeader extends StatelessWidget {
                 Text(
                   t.home.greeting.subtitle,
                   style: AppTypography.bodySmall.copyWith(
-                    color: HomeTheme.muted(context),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -91,12 +90,12 @@ class HomeGreetingHeader extends StatelessWidget {
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: HomeTheme.surface(context),
+                color: Theme.of(context).colorScheme.surface,
                 shape: BoxShape.circle,
-                border: Border.all(color: HomeTheme.border(context), width: 1.2),
+                border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.2),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
+                    color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.04),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
@@ -107,7 +106,7 @@ class HomeGreetingHeader extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.notifications_none_rounded,
-                    color: HomeTheme.text(context),
+                    color: Theme.of(context).colorScheme.onSurface,
                     size: 22,
                   ),
                   if (hasUnreadNotification)

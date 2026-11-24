@@ -8,7 +8,7 @@ This changelog starts with the documentation baseline for the current portfolio 
 
 ### Changed
 
-- Updated the Home screen surfaces, cards, text, and loading/error states to follow the active Light or Dark theme while preserving the lime accent.
+- Refactored Home widgets to consume the shared Material color scheme directly, matching the Workout screen theme pattern and removing the feature-specific HomeTheme helper.
 
 ### Added
 

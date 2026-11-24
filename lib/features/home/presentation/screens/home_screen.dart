@@ -1,10 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../../../core/theme/home_theme.dart';
 import '../../../../core/router/app_router.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../controllers/home_controller.dart';
 import '../controllers/home_state.dart';
 import '../widgets/goal_progress_card.dart';
@@ -40,7 +37,7 @@ class HomeScreen extends ConsumerWidget {
 
     if (state.isLoading) {
       return Scaffold(
-        backgroundColor: HomeTheme.background(context),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: SafeArea(
           child: HomeLoadingSkeleton(),
         ),
@@ -107,10 +104,10 @@ class HomeScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      backgroundColor: HomeTheme.background(context),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: RefreshIndicator(
-          color: AppColors.primary,
+          color: Theme.of(context).colorScheme.primary,
           onRefresh: controller.refresh,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
