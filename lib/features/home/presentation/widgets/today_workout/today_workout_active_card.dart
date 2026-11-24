@@ -1,6 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import '../../../../../core/theme/app_colors.dart';
-import '../../../../../core/theme/home_theme.dart';
 import '../../../../../core/theme/app_typography.dart';
 import '../../../../../i18n/strings.g.dart';
 
@@ -41,7 +39,7 @@ class TodayWorkoutActiveCard extends StatelessWidget {
                 style: AppTypography.titleMedium.copyWith(
                   fontWeight: FontWeight.w800,
                   fontSize: 18,
-                  color: HomeTheme.text(context),
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               InkWell(
@@ -55,7 +53,7 @@ class TodayWorkoutActiveCard extends StatelessWidget {
                       Text(
                         t.home.todayWorkout.viewPlan,
                         style: AppTypography.bodySmall.copyWith(
-                          color: const Color(0xFF65A30D),
+                          color: Theme.of(context).colorScheme.primary,
                           fontWeight: FontWeight.w700,
                           fontSize: 13,
                         ),
@@ -72,15 +70,15 @@ class TodayWorkoutActiveCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: HomeTheme.surface(context),
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(22),
               border: Border.all(
-                color: HomeTheme.border(context),
+                color: Theme.of(context).colorScheme.outlineVariant,
                 width: 1.2,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
+                  color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.04),
                   blurRadius: 10,
                   offset: const Offset(0, 3),
                 ),
@@ -97,13 +95,13 @@ class TodayWorkoutActiveCard extends StatelessWidget {
                       width: 52,
                       height: 52,
                       decoration: BoxDecoration(
-                        color: HomeTheme.accentSurface(context),
+                        color: Theme.of(context).colorScheme.primaryContainer,
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Center(
                         child: Icon(
                           Icons.fitness_center_rounded,
-                          color: Color(0xFF65A30D),
+                          color: Theme.of(context).colorScheme.primary,
                           size: 26,
                         ),
                       ),
@@ -120,7 +118,7 @@ class TodayWorkoutActiveCard extends StatelessWidget {
                             style: AppTypography.titleMedium.copyWith(
                               fontWeight: FontWeight.w800,
                               fontSize: 16,
-                              color: HomeTheme.text(context),
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -129,7 +127,7 @@ class TodayWorkoutActiveCard extends StatelessWidget {
                           Text(
                             targetMuscles,
                             style: AppTypography.bodySmall.copyWith(
-                              color: HomeTheme.muted(context),
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                               fontSize: 12.5,
                               fontWeight: FontWeight.w500,
                             ),
@@ -142,13 +140,13 @@ class TodayWorkoutActiveCard extends StatelessWidget {
                               Icon(
                                 Icons.access_time_rounded,
                                 size: 14,
-                                color: HomeTheme.muted(context),
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                               const SizedBox(width: 4),
                               Text(
                                 t.home.todayWorkout.approxMin(min: durationMinutes),
                                 style: AppTypography.bodySmall.copyWith(
-                                  color: HomeTheme.muted(context),
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   fontSize: 11.5,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -163,7 +161,7 @@ class TodayWorkoutActiveCard extends StatelessWidget {
                               Text(
                                 t.home.todayWorkout.approxKcal(kcal: estimatedCalories),
                                 style: AppTypography.bodySmall.copyWith(
-                                  color: HomeTheme.muted(context),
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   fontSize: 11.5,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -184,13 +182,13 @@ class TodayWorkoutActiveCard extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: onStartWorkout,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF84CC16),
-                      foregroundColor: AppColors.darkCharcoal,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      shadowColor: const Color(0xFF84CC16).withValues(alpha: 0.3),
+                      shadowColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -198,7 +196,7 @@ class TodayWorkoutActiveCard extends StatelessWidget {
                         Icon(
                           Icons.play_arrow_rounded,
                           size: 24,
-                          color: AppColors.darkCharcoal,
+                          color: Theme.of(context).colorScheme.onPrimary,
                         ),
                         const SizedBox(width: 6),
                         Text(
@@ -206,7 +204,7 @@ class TodayWorkoutActiveCard extends StatelessWidget {
                           style: AppTypography.titleMedium.copyWith(
                             fontWeight: FontWeight.w800,
                             fontSize: 15,
-                            color: AppColors.darkCharcoal,
+                            color: Theme.of(context).colorScheme.onPrimary,
                           ),
                         ),
                       ],

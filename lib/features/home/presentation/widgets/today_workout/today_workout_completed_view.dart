@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import '../../../../../core/theme/home_theme.dart';
 
 import '../../../../../core/theme/app_typography.dart';
 import '../recovery_tips_section.dart';
@@ -34,12 +33,12 @@ class TodayWorkoutCompletedView extends StatelessWidget {
                   width: 72,
                   height: 72,
                   decoration: BoxDecoration(
-                    color: Color(0xFFF1FADC),
+                    color: Theme.of(context).colorScheme.primaryContainer,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.check_circle_rounded,
-                    color: Color(0xFF65A30D),
+                    color: Theme.of(context).colorScheme.primary,
                     size: 42,
                   ),
                 ),
@@ -50,7 +49,7 @@ class TodayWorkoutCompletedView extends StatelessWidget {
                   style: AppTypography.titleLarge.copyWith(
                     fontWeight: FontWeight.w900,
                     fontSize: 21,
-                    color: HomeTheme.text(context),
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -62,7 +61,7 @@ class TodayWorkoutCompletedView extends StatelessWidget {
                         : 'Great work. Give your body time to recover before your next session.',
                     textAlign: TextAlign.center,
                     style: AppTypography.bodySmall.copyWith(
-                      color: HomeTheme.muted(context),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 13.5,
                       height: 1.35,
                       fontWeight: FontWeight.w500,

@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import '../../../../core/theme/home_theme.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../i18n/strings.g.dart';
 
@@ -37,15 +36,15 @@ class SupportGoalNutritionCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: HomeTheme.accentSurface(context),
+            color: Theme.of(context).colorScheme.primaryContainer,
             borderRadius: BorderRadius.circular(22),
             border: Border.all(
-              color: const Color(0xFFD4EBA8),
+              color: Theme.of(context).colorScheme.outlineVariant,
               width: 1.2,
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF84CC16).withValues(alpha: 0.06),
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.06),
                 blurRadius: 10,
                 offset: const Offset(0, 3),
               ),
@@ -63,7 +62,7 @@ class SupportGoalNutritionCard extends StatelessWidget {
                         Icon(
                           Icons.restaurant_rounded,
                           size: 18,
-                          color: Color(0xFF65A30D),
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                         const SizedBox(width: 8),
                         Text(
@@ -71,7 +70,7 @@ class SupportGoalNutritionCard extends StatelessWidget {
                           style: AppTypography.titleMedium.copyWith(
                             fontWeight: FontWeight.w800,
                             fontSize: 16,
-                            color: HomeTheme.text(context),
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                       ],
@@ -80,7 +79,7 @@ class SupportGoalNutritionCard extends StatelessWidget {
                     Text(
                       _getSubtitle(t),
                       style: AppTypography.bodySmall.copyWith(
-                        color: HomeTheme.muted(context),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 12.5,
                         height: 1.35,
                       ),
@@ -90,14 +89,14 @@ class SupportGoalNutritionCard extends StatelessWidget {
                       width: 28,
                       height: 28,
                       decoration: BoxDecoration(
-                        color: HomeTheme.surface(context),
+                        color: Theme.of(context).colorScheme.surface,
                         shape: BoxShape.circle,
                       ),
                       child: Center(
                         child: Icon(
                           Icons.chevron_right_rounded,
                           size: 18,
-                          color: HomeTheme.text(context),
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ),
@@ -112,11 +111,11 @@ class SupportGoalNutritionCard extends StatelessWidget {
                 height: 90,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: HomeTheme.surface(context),
-                  border: Border.all(color: const Color(0xFFD4EBA8), width: 2),
+                  color: Theme.of(context).colorScheme.surface,
+                  border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 2),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
+                      color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.06),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -124,12 +123,12 @@ class SupportGoalNutritionCard extends StatelessWidget {
                 ),
                 child: ClipOval(
                   child: Container(
-                    color: HomeTheme.accentSurface(context),
+                    color: Theme.of(context).colorScheme.primaryContainer,
                     child: Center(
                       child: Icon(
                         Icons.lunch_dining_rounded,
                         size: 44,
-                        color: Color(0xFF65A30D),
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ),

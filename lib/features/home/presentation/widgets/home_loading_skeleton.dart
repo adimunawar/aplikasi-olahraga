@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import '../../../../core/theme/home_theme.dart';
 
 /// Loading Shimmer Skeleton dengan Animasi Halus untuk Home Screen (Mockup 1:1)
 class HomeLoadingSkeleton extends StatefulWidget {
@@ -155,7 +154,7 @@ class _HomeLoadingSkeletonState extends State<HomeLoadingSkeleton>
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: HomeTheme.subtleSurface(context).withValues(alpha: opacity),
+        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: opacity),
         shape: shape,
         borderRadius:
             shape == BoxShape.rectangle ? BorderRadius.circular(radius) : null,

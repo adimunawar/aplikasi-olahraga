@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import '../../../../../core/theme/home_theme.dart';
 import '../../../../../core/theme/app_typography.dart';
 import '../../../../../i18n/strings.g.dart';
 
@@ -22,12 +21,12 @@ class TodayWorkoutNoProgramView extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
         decoration: BoxDecoration(
-          color: HomeTheme.surface(context),
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: HomeTheme.border(context), width: 1.2),
+          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.2),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
+              color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.04),
               blurRadius: 10,
               offset: const Offset(0, 3),
             ),
@@ -39,14 +38,14 @@ class TodayWorkoutNoProgramView extends StatelessWidget {
               width: 68,
               height: 68,
               decoration: BoxDecoration(
-                color: HomeTheme.accentSurface(context),
+                color: Theme.of(context).colorScheme.primaryContainer,
                 borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: const Color(0xFFD4EBA8), width: 1.2),
+                border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.2),
               ),
               child: Center(
                 child: Icon(
                   Icons.assignment_outlined,
-                  color: Color(0xFF65A30D),
+                  color: Theme.of(context).colorScheme.primary,
                   size: 34,
                 ),
               ),
@@ -57,7 +56,7 @@ class TodayWorkoutNoProgramView extends StatelessWidget {
               style: AppTypography.titleMedium.copyWith(
                 fontWeight: FontWeight.w900,
                 fontSize: 17,
-                color: HomeTheme.text(context),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               textAlign: TextAlign.center,
             ),
@@ -65,7 +64,7 @@ class TodayWorkoutNoProgramView extends StatelessWidget {
             Text(
               t.home.noProgram.subtitle,
               style: AppTypography.bodySmall.copyWith(
-                color: HomeTheme.muted(context),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontSize: 12.5,
                 height: 1.4,
               ),
@@ -78,8 +77,8 @@ class TodayWorkoutNoProgramView extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: onCreateProgram,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF84CC16),
-                  foregroundColor: HomeTheme.text(context),
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -90,7 +89,7 @@ class TodayWorkoutNoProgramView extends StatelessWidget {
                   style: AppTypography.titleMedium.copyWith(
                     fontWeight: FontWeight.w800,
                     fontSize: 15,
-                    color: HomeTheme.text(context),
+                    color: Theme.of(context).colorScheme.onPrimary,
                   ),
                 ),
               ),

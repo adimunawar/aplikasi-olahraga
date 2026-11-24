@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import '../../../../core/theme/home_theme.dart';
 
 import '../../../../core/theme/app_typography.dart';
 import '../../../../i18n/strings.g.dart';
@@ -29,7 +28,7 @@ class RecoveryTipsSection extends StatelessWidget {
           style: AppTypography.titleMedium.copyWith(
             fontWeight: FontWeight.w800,
             fontSize: 15.5,
-            color: HomeTheme.text(context),
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 10),
@@ -73,12 +72,12 @@ class _RecoveryTipTile extends StatelessWidget {
       borderRadius: BorderRadius.circular(16),
       child: Ink(
         decoration: BoxDecoration(
-          color: HomeTheme.surface(context),
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: HomeTheme.border(context), width: 1.2),
+          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.2),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
+              color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.02),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),
@@ -96,7 +95,7 @@ class _RecoveryTipTile extends StatelessWidget {
                   SizedBox(
                     width: 28,
                     height: 28,
-                    child: Icon(icon, color: const Color(0xFF65A30D), size: 24),
+                    child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 24),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
@@ -105,14 +104,14 @@ class _RecoveryTipTile extends StatelessWidget {
                       style: AppTypography.bodyMedium.copyWith(
                         fontWeight: FontWeight.w700,
                         fontSize: 13.5,
-                        color: HomeTheme.text(context),
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ),
                   Icon(
                     Icons.chevron_right_rounded,
                     size: 20,
-                    color: HomeTheme.text(context),
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ],
               ),
