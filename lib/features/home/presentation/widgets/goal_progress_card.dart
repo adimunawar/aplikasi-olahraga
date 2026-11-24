@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import '../../../../core/theme/home_theme.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -132,7 +133,7 @@ class GoalProgressCard extends StatelessWidget {
                         vertical: 5,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.9),
+                        color: HomeTheme.surface(context).withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: const Color(0xFFD4EBA8),
@@ -142,7 +143,7 @@ class GoalProgressCard extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.track_changes_rounded,
                             size: 15,
                             color: Color(0xFF65A30D),
@@ -155,7 +156,7 @@ class GoalProgressCard extends StatelessWidget {
                               style: AppTypography.bodySmall.copyWith(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 11.5,
-                                color: AppColors.darkCharcoal,
+                                color: HomeTheme.text(context),
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -176,7 +177,7 @@ class GoalProgressCard extends StatelessWidget {
                             Text(
                               t.home.goalCard.target,
                               style: AppTypography.bodySmall.copyWith(
-                                color: AppColors.neutral500,
+                                color: HomeTheme.muted(context),
                                 fontSize: 11,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -187,7 +188,7 @@ class GoalProgressCard extends StatelessWidget {
                               style: AppTypography.titleLarge.copyWith(
                                 fontWeight: FontWeight.w900,
                                 fontSize: 18,
-                                color: AppColors.darkCharcoal,
+                                color: HomeTheme.text(context),
                               ),
                             ),
                           ],
@@ -201,7 +202,7 @@ class GoalProgressCard extends StatelessWidget {
                             Text(
                               t.home.goalCard.current,
                               style: AppTypography.bodySmall.copyWith(
-                                color: AppColors.neutral500,
+                                color: HomeTheme.muted(context),
                                 fontSize: 11,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -212,7 +213,7 @@ class GoalProgressCard extends StatelessWidget {
                               style: AppTypography.titleLarge.copyWith(
                                 fontWeight: FontWeight.w900,
                                 fontSize: 18,
-                                color: AppColors.darkCharcoal,
+                                color: HomeTheme.text(context),
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -273,7 +274,7 @@ class GoalProgressCard extends StatelessWidget {
                     // D. Program Timeline Info
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.calendar_today_rounded,
                           size: 13,
                           color: Color(0xFF65A30D),
@@ -282,7 +283,7 @@ class GoalProgressCard extends StatelessWidget {
                         Text(
                           t.home.goalCard.programDuration(weeks: totalWeeks),
                           style: AppTypography.bodySmall.copyWith(
-                            color: AppColors.neutral600,
+                            color: HomeTheme.muted(context),
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                           ),
@@ -294,7 +295,7 @@ class GoalProgressCard extends StatelessWidget {
                             total: totalWeeks,
                           ),
                           style: AppTypography.bodySmall.copyWith(
-                            color: AppColors.darkCharcoal,
+                            color: HomeTheme.text(context),
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
                           ),

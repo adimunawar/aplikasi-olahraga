@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/home_theme.dart';
 
 /// Loading Shimmer Skeleton dengan Animasi Halus untuk Home Screen (Mockup 1:1)
 class HomeLoadingSkeleton extends StatefulWidget {
@@ -57,6 +58,7 @@ class _HomeLoadingSkeletonState extends State<HomeLoadingSkeleton>
                     height: 46,
                     shape: BoxShape.circle,
                     opacity: opacity,
+                    context: context,
                   ),
                   const SizedBox(width: 12),
                   Column(
@@ -67,6 +69,7 @@ class _HomeLoadingSkeletonState extends State<HomeLoadingSkeleton>
                         height: 16,
                         radius: 6,
                         opacity: opacity,
+                    context: context,
                       ),
                       const SizedBox(height: 6),
                       _buildBox(
@@ -74,6 +77,7 @@ class _HomeLoadingSkeletonState extends State<HomeLoadingSkeleton>
                         height: 12,
                         radius: 4,
                         opacity: opacity,
+                    context: context,
                       ),
                     ],
                   ),
@@ -83,6 +87,7 @@ class _HomeLoadingSkeletonState extends State<HomeLoadingSkeleton>
                     height: 42,
                     shape: BoxShape.circle,
                     opacity: opacity,
+                    context: context,
                   ),
                 ],
               ),
@@ -94,6 +99,7 @@ class _HomeLoadingSkeletonState extends State<HomeLoadingSkeleton>
                 height: 175,
                 radius: 24,
                 opacity: opacity,
+                    context: context,
               ),
               const SizedBox(height: 24),
 
@@ -103,6 +109,7 @@ class _HomeLoadingSkeletonState extends State<HomeLoadingSkeleton>
                 height: 18,
                 radius: 6,
                 opacity: opacity,
+                    context: context,
               ),
               const SizedBox(height: 12),
               _buildBox(
@@ -110,6 +117,7 @@ class _HomeLoadingSkeletonState extends State<HomeLoadingSkeleton>
                 height: 160,
                 radius: 22,
                 opacity: opacity,
+                    context: context,
               ),
               const SizedBox(height: 24),
 
@@ -119,6 +127,7 @@ class _HomeLoadingSkeletonState extends State<HomeLoadingSkeleton>
                 height: 18,
                 radius: 6,
                 opacity: opacity,
+                    context: context,
               ),
               const SizedBox(height: 12),
               _buildBox(
@@ -126,6 +135,7 @@ class _HomeLoadingSkeletonState extends State<HomeLoadingSkeleton>
                 height: 80,
                 radius: 22,
                 opacity: opacity,
+                    context: context,
               ),
             ],
           ),
@@ -135,6 +145,7 @@ class _HomeLoadingSkeletonState extends State<HomeLoadingSkeleton>
   }
 
   Widget _buildBox({
+    required BuildContext context,
     required double width,
     required double height,
     double radius = 12,
@@ -145,7 +156,7 @@ class _HomeLoadingSkeletonState extends State<HomeLoadingSkeleton>
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: AppColors.neutral200.withValues(alpha: opacity),
+        color: HomeTheme.subtleSurface(context).withValues(alpha: opacity),
         shape: shape,
         borderRadius:
             shape == BoxShape.rectangle ? BorderRadius.circular(radius) : null,

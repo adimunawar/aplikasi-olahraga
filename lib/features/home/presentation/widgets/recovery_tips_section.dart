@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import '../../../../core/theme/home_theme.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -29,7 +30,7 @@ class RecoveryTipsSection extends StatelessWidget {
           style: AppTypography.titleMedium.copyWith(
             fontWeight: FontWeight.w800,
             fontSize: 15.5,
-            color: AppColors.darkCharcoal,
+            color: HomeTheme.text(context),
           ),
         ),
         const SizedBox(height: 10),
@@ -73,9 +74,9 @@ class _RecoveryTipTile extends StatelessWidget {
       borderRadius: BorderRadius.circular(16),
       child: Ink(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: HomeTheme.surface(context),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFF1F3F5), width: 1.2),
+          border: Border.all(color: HomeTheme.border(context), width: 1.2),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.02),
@@ -105,14 +106,14 @@ class _RecoveryTipTile extends StatelessWidget {
                       style: AppTypography.bodyMedium.copyWith(
                         fontWeight: FontWeight.w700,
                         fontSize: 13.5,
-                        color: AppColors.darkCharcoal,
+                        color: HomeTheme.text(context),
                       ),
                     ),
                   ),
-                  const Icon(
+                  Icon(
                     Icons.chevron_right_rounded,
                     size: 20,
-                    color: AppColors.darkCharcoal,
+                    color: HomeTheme.text(context),
                   ),
                 ],
               ),
