@@ -75,9 +75,7 @@ class GoalProgressCard extends StatelessWidget {
                 : [Theme.of(context).colorScheme.surfaceContainerLow, Theme.of(context).colorScheme.surface],
           ),
           border: Border.all(
-            color: Theme.of(context).brightness == Brightness.dark
-                ? Theme.of(context).colorScheme.outlineVariant
-                : const Color(0xFFD4EBA8),
+            color: Theme.of(context).colorScheme.outlineVariant,
             width: 1.2,
           ),
           boxShadow: [
@@ -104,9 +102,9 @@ class GoalProgressCard extends StatelessWidget {
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        const Color(0xFFDDF2B4).withValues(alpha: 0.72),
-                        const Color(0xFFDDF2B4).withValues(alpha: 0.28),
-                        const Color(0xFFDDF2B4).withValues(alpha: 0.0),
+                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.18),
+                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
+                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.0),
                       ],
                       stops: [0.0, 0.58, 1.0],
                     ),
@@ -144,9 +142,7 @@ class GoalProgressCard extends StatelessWidget {
                         color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: Theme.of(context).brightness == Brightness.dark
-                              ? Theme.of(context).colorScheme.outlineVariant
-                              : const Color(0xFFD4EBA8),
+                          color: Theme.of(context).colorScheme.outlineVariant,
                           width: 1.0,
                         ),
                       ),

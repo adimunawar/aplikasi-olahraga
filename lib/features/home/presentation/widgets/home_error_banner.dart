@@ -22,7 +22,7 @@ class HomeErrorBanner extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.tertiaryContainer,
+        color: Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.35), width: 1.0),
       ),
@@ -42,7 +42,7 @@ class HomeErrorBanner extends StatelessWidget {
                 style: AppTypography.titleSmall.copyWith(
                   fontWeight: FontWeight.w800,
                   fontSize: 14,
-                  color: Theme.of(context).colorScheme.onTertiaryContainer,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
