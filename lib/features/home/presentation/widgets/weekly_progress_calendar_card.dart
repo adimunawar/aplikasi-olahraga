@@ -199,7 +199,7 @@ class WeeklyProgressCalendarCard extends StatelessWidget {
           child: Center(
             child: Icon(
               Icons.check_rounded,
-              color: HomeTheme.text(context),
+              color: AppColors.darkCharcoal,
               size: 16,
             ),
           ),

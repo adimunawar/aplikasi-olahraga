@@ -66,12 +66,22 @@ class GoalProgressCard extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFFFCFDF9), Color(0xFFF7FAF1)],
+            colors: HomeTheme.isDark(context)
+                ? [
+                    HomeTheme.elevatedSurface(context),
+                    HomeTheme.surface(context),
+                  ]
+                : [const Color(0xFFFCFDF9), const Color(0xFFF7FAF1)],
           ),
-          border: Border.all(color: const Color(0xFFD4EBA8), width: 1.2),
+          border: Border.all(
+            color: HomeTheme.isDark(context)
+                ? HomeTheme.border(context)
+                : const Color(0xFFD4EBA8),
+            width: 1.2,
+          ),
           boxShadow: [
             BoxShadow(
               color: const Color(0xFF84CC16).withValues(alpha: 0.12),
@@ -136,7 +146,9 @@ class GoalProgressCard extends StatelessWidget {
                         color: HomeTheme.surface(context).withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: const Color(0xFFD4EBA8),
+                          color: HomeTheme.isDark(context)
+                              ? HomeTheme.border(context)
+                              : const Color(0xFFD4EBA8),
                           width: 1.0,
                         ),
                       ),
