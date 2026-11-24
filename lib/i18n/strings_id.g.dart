@@ -116,6 +116,28 @@ class Translations$home$id {
       Translations$home$error$id.internal(_root);
 }
 
+// Path: home
+class Translations$home$id {
+  Translations$home$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+  late final Translations$home$greeting$id greeting = Translations$home$greeting$id.internal(_root);
+  late final Translations$home$goalCard$id goalCard = Translations$home$goalCard$id.internal(_root);
+  late final Translations$home$todayWorkout$id todayWorkout =
+      Translations$home$todayWorkout$id.internal(_root);
+  late final Translations$home$restDay$id restDay = Translations$home$restDay$id.internal(_root);
+  late final Translations$home$noProgram$id noProgram = Translations$home$noProgram$id.internal(
+    _root,
+  );
+  late final Translations$home$weeklyProgress$id weeklyProgress =
+      Translations$home$weeklyProgress$id.internal(_root);
+  late final Translations$home$supportGoal$id supportGoal =
+      Translations$home$supportGoal$id.internal(_root);
+  late final Translations$home$error$id error = Translations$home$error$id.internal(_root);
+}
+
 // Path: onboarding
 class Translations$onboarding$id {
   Translations$onboarding$id.internal(this._root);
@@ -1826,6 +1848,241 @@ class Translations$core$progress$error$id {
 
   /// id: 'Coba lagi'
   String get retry => 'Coba lagi';
+}
+
+// Path: home.weeklyProgress.states
+class Translations$home$weeklyProgress$states$id {
+  Translations$home$weeklyProgress$states$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Selesai (latihan tuntas)'
+  String get completed => 'Selesai (latihan tuntas)';
+
+  /// id: 'Hari Ini (jadwal latihan)'
+  String get today => 'Hari Ini (jadwal latihan)';
+
+  /// id: 'Hari istirahat'
+  String get rest => 'Hari istirahat';
+
+  /// id: 'Mendatang (belum)'
+  String get upcoming => 'Mendatang (belum)';
+
+  /// id: 'Terlewat'
+  String get missed => 'Terlewat';
+}
+
+// Path: workouts.tabs
+class Translations$workouts$tabs$id {
+  Translations$workouts$tabs$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Program Saya'
+  String get myProgram => 'Program Saya';
+
+  /// id: 'Semua Latihan'
+  String get allWorkouts => 'Semua Latihan';
+}
+
+// Path: workouts.activeProgram
+class Translations$workouts$activeProgram$id {
+  Translations$workouts$activeProgram$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Program Aktif'
+  String get title => 'Program Aktif';
+
+  /// id: '$weeks minggu • Latihan di rumah'
+  String weeksHomeWorkout({required Object weeks}) => '${weeks} minggu • Latihan di rumah';
+
+  /// id: 'Minggu $current dari $total'
+  String weekOf({required Object current, required Object total}) =>
+      'Minggu ${current} dari ${total}';
+
+  late final Translations$workouts$activeProgram$status$id status =
+      Translations$workouts$activeProgram$status$id.internal(_root);
+}
+
+// Path: workouts.weeklySchedule
+class Translations$workouts$weeklySchedule$id {
+  Translations$workouts$weeklySchedule$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Jadwal Mingguan'
+  String get title => 'Jadwal Mingguan';
+
+  /// id: '$completed/$total latihan'
+  String workoutCount({required Object completed, required Object total}) =>
+      '${completed}/${total} latihan';
+
+  /// id: 'Saat Ini'
+  String get current => 'Saat Ini';
+
+  /// id: 'W$n'
+  String weekShort({required Object n}) => 'W${n}';
+
+  /// id: 'Tidak ada sesi latihan yang dijadwalkan untuk minggu ini.'
+  String get empty => 'Tidak ada sesi latihan yang dijadwalkan untuk minggu ini.';
+
+  /// id: 'Mode pratinjau'
+  String get previewTitle => 'Mode pratinjau';
+
+  /// id: 'Kamu bisa melihat rencana minggu ini, tapi latihan baru bisa dimulai sesuai jadwalnya.'
+  String get previewNotice =>
+      'Kamu bisa melihat rencana minggu ini, tapi latihan baru bisa dimulai sesuai jadwalnya.';
+
+  /// id: 'Pratinjau minggu mendatang'
+  String get previewTooltip => 'Pratinjau minggu mendatang';
+
+  late final Translations$workouts$weeklySchedule$statusTooltip$id statusTooltip =
+      Translations$workouts$weeklySchedule$statusTooltip$id.internal(_root);
+}
+
+// Path: workouts.emptyState
+class Translations$workouts$emptyState$id {
+  Translations$workouts$emptyState$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Belum ada program aktif'
+  String get noProgramTitle => 'Belum ada program aktif';
+
+  /// id: 'Buat program untuk melihat jadwal latihan mingguanmu di sini.'
+  String get noProgramSubtitle => 'Buat program untuk melihat jadwal latihan mingguanmu di sini.';
+}
+
+// Path: workouts.allWorkouts
+class Translations$workouts$allWorkouts$id {
+  Translations$workouts$allWorkouts$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Tidak ada latihan ditemukan'
+  String get emptyTitle => 'Tidak ada latihan ditemukan';
+
+  /// id: 'Coba kata kunci lain atau ubah filter otot.'
+  String get emptySubtitle => 'Coba kata kunci lain atau ubah filter otot.';
+
+  /// id: 'Hapus pencarian & filter'
+  String get clearFilters => 'Hapus pencarian & filter';
+}
+
+// Path: workouts.errorState
+class Translations$workouts$errorState$id {
+  Translations$workouts$errorState$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Gagal memuat data'
+  String get title => 'Gagal memuat data';
+
+  /// id: 'Terjadi kesalahan saat membaca data latihan. Coba lagi.'
+  String get subtitle => 'Terjadi kesalahan saat membaca data latihan. Coba lagi.';
+
+  /// id: 'Coba Lagi'
+  String get retry => 'Coba Lagi';
+
+  /// id: 'Gagal memperbarui data. Menampilkan data terakhir.'
+  String get refreshFailed => 'Gagal memperbarui data. Menampilkan data terakhir.';
+}
+
+// Path: workouts.session
+class Translations$workouts$session$id {
+  Translations$workouts$session$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Hari $n'
+  String day({required Object n}) => 'Hari ${n}';
+
+  /// id: 'Hari $n • $date'
+  String date({required Object n, required Object date}) => 'Hari ${n} • ${date}';
+
+  /// id: '$min mnt'
+  String min({required Object min}) => '${min} mnt';
+
+  late final Translations$workouts$session$status$id status =
+      Translations$workouts$session$status$id.internal(_root);
+}
+
+// Path: workouts.workoutDetail
+class Translations$workouts$workoutDetail$id {
+  Translations$workouts$workoutDetail$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Mode pratinjau'
+  String get readOnlyTitle => 'Mode pratinjau';
+
+  /// id: 'Rencana latihan ini hanya bisa dilihat. Tombol mulai aktif pada hari yang dijadwalkan.'
+  String get readOnlyNotice =>
+      'Rencana latihan ini hanya bisa dilihat. Tombol mulai aktif pada hari yang dijadwalkan.';
+
+  /// id: 'Lanjutkan Latihan'
+  String get resume => 'Lanjutkan Latihan';
+}
+
+// Path: workouts.filter
+class Translations$workouts$filter$id {
+  Translations$workouts$filter$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Filter Berdasarkan Otot'
+  String get title => 'Filter Berdasarkan Otot';
+}
+
+// Path: workouts.categories
+class Translations$workouts$categories$id {
+  Translations$workouts$categories$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Semua'
+  String get all => 'Semua';
+
+  /// id: 'Dada'
+  String get chest => 'Dada';
+
+  /// id: 'Punggung'
+  String get back => 'Punggung';
+
+  /// id: 'Kaki'
+  String get legs => 'Kaki';
+
+  /// id: 'Perut'
+  String get core => 'Perut';
+
+  /// id: 'Lengan'
+  String get arms => 'Lengan';
+
+  /// id: 'Bahu'
+  String get shoulders => 'Bahu';
 }
 
 // Path: home.weeklyProgress.states

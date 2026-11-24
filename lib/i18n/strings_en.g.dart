@@ -120,6 +120,36 @@ class _Translations$home$en extends Translations$home$id {
   late final _Translations$home$error$en error = _Translations$home$error$en._(_root);
 }
 
+// Path: home
+class _Translations$home$en extends Translations$home$id {
+  _Translations$home$en._(TranslationsEn root) : this._root = root, super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  late final _Translations$home$greeting$en greeting = _Translations$home$greeting$en._(_root);
+  @override
+  late final _Translations$home$goalCard$en goalCard = _Translations$home$goalCard$en._(_root);
+  @override
+  late final _Translations$home$todayWorkout$en todayWorkout = _Translations$home$todayWorkout$en._(
+    _root,
+  );
+  @override
+  late final _Translations$home$restDay$en restDay = _Translations$home$restDay$en._(_root);
+  @override
+  late final _Translations$home$noProgram$en noProgram = _Translations$home$noProgram$en._(_root);
+  @override
+  late final _Translations$home$weeklyProgress$en weeklyProgress =
+      _Translations$home$weeklyProgress$en._(_root);
+  @override
+  late final _Translations$home$supportGoal$en supportGoal = _Translations$home$supportGoal$en._(
+    _root,
+  );
+  @override
+  late final _Translations$home$error$en error = _Translations$home$error$en._(_root);
+}
+
 // Path: onboarding
 class _Translations$onboarding$en extends Translations$onboarding$id {
   _Translations$onboarding$en._(TranslationsEn root) : this._root = root, super.internal(root);
