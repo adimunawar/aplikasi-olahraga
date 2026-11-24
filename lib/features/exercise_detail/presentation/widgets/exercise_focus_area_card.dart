@@ -28,19 +28,41 @@ class ExerciseFocusAreaCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final active = _activeMuscleKeywords;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final cardBgColor = isDark ? theme.colorScheme.surface : Colors.white;
+    final cardBorderColor = isDark
+        ? theme.colorScheme.outlineVariant.withValues(alpha: 0.4)
+        : const Color(0xFFF1F3F5);
+    final titleColor = theme.colorScheme.onSurface;
+    final anatomyBgColor = isDark
+        ? theme.colorScheme.surfaceContainerHigh
+        : const Color(0xFFFAFCF8);
+    final anatomyBorderColor = isDark
+        ? theme.colorScheme.outlineVariant.withValues(alpha: 0.3)
+        : const Color(0xFFF1F5EB);
+    final dividerColor = isDark
+        ? theme.colorScheme.outlineVariant
+        : const Color(0xFFE9ECEF);
+    final labelColor = isDark
+        ? theme.colorScheme.onSurfaceVariant
+        : const Color(0xFF64748B);
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBgColor,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFFF1F3F5), width: 1.2),
-        boxShadow: const [
+        border: Border.all(color: cardBorderColor, width: 1.2),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x06000000),
+            color: isDark
+                ? Colors.black.withValues(alpha: 0.2)
+                : const Color(0x06000000),
             blurRadius: 10,
-            offset: Offset(0, 3),
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -64,7 +86,7 @@ class ExerciseFocusAreaCard extends StatelessWidget {
                 style: AppTypography.headlineSmall.copyWith(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: const Color(0xFF141718),
+                  color: titleColor,
                 ),
               ),
             ],
@@ -78,12 +100,22 @@ class ExerciseFocusAreaCard extends StatelessWidget {
             children: [
               // Otot Utama (Primary) - Hijau Muda
               ...exercise.primaryMuscles.map((muscle) {
-                return _buildMusclePill(name: muscle.en, isPrimary: true);
+                return _buildMusclePill(
+                  name: muscle.en.isNotEmpty ? muscle.en : muscle.id,
+                  isPrimary: true,
+                  theme: theme,
+                  isDark: isDark,
+                );
               }),
 
               // Otot Sekunder (Stabilizer) - Abu-abu Muda
               ...exercise.stabilizerMuscles.map((muscle) {
-                return _buildMusclePill(name: muscle.en, isPrimary: false);
+                return _buildMusclePill(
+                  name: muscle.en.isNotEmpty ? muscle.en : muscle.id,
+                  isPrimary: false,
+                  theme: theme,
+                  isDark: isDark,
+                );
               }),
             ],
           ),
@@ -96,9 +128,9 @@ class ExerciseFocusAreaCard extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
-              color: const Color(0xFFFAFCF8),
+              color: anatomyBgColor,
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: const Color(0xFFF1F5EB), width: 1.2),
+              border: Border.all(color: anatomyBorderColor, width: 1.2),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -119,7 +151,7 @@ class ExerciseFocusAreaCard extends StatelessWidget {
                       style: AppTypography.labelSmall.copyWith(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF64748B),
+                        color: labelColor,
                       ),
                     ),
                   ],
@@ -129,7 +161,7 @@ class ExerciseFocusAreaCard extends StatelessWidget {
                 Container(
                   width: 1,
                   height: 140,
-                  color: const Color(0xFFE9ECEF),
+                  color: dividerColor,
                   margin: const EdgeInsets.symmetric(horizontal: 8),
                 ),
 
@@ -149,7 +181,7 @@ class ExerciseFocusAreaCard extends StatelessWidget {
                       style: AppTypography.labelSmall.copyWith(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF64748B),
+                        color: labelColor,
                       ),
                     ),
                   ],
@@ -162,16 +194,37 @@ class ExerciseFocusAreaCard extends StatelessWidget {
     );
   }
 
-  Widget _buildMusclePill({required String name, required bool isPrimary}) {
+  Widget _buildMusclePill({
+    required String name,
+    required bool isPrimary,
+    required ThemeData theme,
+    required bool isDark,
+  }) {
+    final pillBg = isPrimary
+        ? (isDark ? theme.colorScheme.primaryContainer : AppColors.limeCardSurface)
+        : (isDark ? theme.colorScheme.surfaceContainerHighest : const Color(0xFFF1F3F5));
+    final pillBorder = isPrimary
+        ? (isDark
+            ? theme.colorScheme.primary.withValues(alpha: 0.5)
+            : AppColors.limeAccent.withValues(alpha: 0.6))
+        : (isDark ? theme.colorScheme.outlineVariant : const Color(0xFFE2E8F0));
+    final checkBg = isPrimary
+        ? (isDark ? theme.colorScheme.primary : AppColors.limeAccent)
+        : (isDark ? theme.colorScheme.outlineVariant : const Color(0xFFCBD5E1));
+    final checkIconColor = isPrimary
+        ? (isDark ? theme.colorScheme.onPrimary : const Color(0xFF141718))
+        : (isDark ? theme.colorScheme.onSurface : const Color(0xFF141718));
+    final textColor = isPrimary
+        ? (isDark ? theme.colorScheme.onPrimaryContainer : const Color(0xFF141718))
+        : (isDark ? theme.colorScheme.onSurface : const Color(0xFF141718));
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: isPrimary ? AppColors.limeCardSurface : const Color(0xFFF1F3F5),
+        color: pillBg,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isPrimary
-              ? AppColors.limeAccent.withValues(alpha: 0.6)
-              : const Color(0xFFE2E8F0),
+          color: pillBorder,
           width: 1,
         ),
       ),
@@ -182,13 +235,13 @@ class ExerciseFocusAreaCard extends StatelessWidget {
             width: 16,
             height: 16,
             decoration: BoxDecoration(
-              color: isPrimary ? AppColors.limeAccent : const Color(0xFFCBD5E1),
+              color: checkBg,
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.check_rounded,
               size: 11,
-              color: Color(0xFF141718),
+              color: checkIconColor,
             ),
           ),
           const SizedBox(width: 6),
@@ -198,7 +251,7 @@ class ExerciseFocusAreaCard extends StatelessWidget {
               style: AppTypography.labelSmall.copyWith(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF141718),
+                color: textColor,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

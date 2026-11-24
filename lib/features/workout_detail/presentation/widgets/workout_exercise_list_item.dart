@@ -57,6 +57,13 @@ class WorkoutExerciseListItem extends StatelessWidget {
       reps: _prescriptionLabel(t),
     );
 
+    if (title.toLowerCase().contains('knee') ||
+        title.toLowerCase().contains('push')) {
+      debugPrint(
+        '[WorkoutExerciseListItem] 📋 Building item "$title" with thumbnailAsset: "$thumbnailAsset"',
+      );
+    }
+
     return Material(
       color: cardColor,
       borderRadius: BorderRadius.circular(14),

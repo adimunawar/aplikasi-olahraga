@@ -13,6 +13,20 @@ class ExerciseCommonMistakesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final cardBgColor = isDark ? theme.colorScheme.surface : Colors.white;
+    final cardBorderColor = isDark
+        ? theme.colorScheme.outlineVariant.withValues(alpha: 0.4)
+        : const Color(0xFFF1F3F5);
+    final titleColor = theme.colorScheme.onSurface;
+    final mistakeTextColor = isDark ? theme.colorScheme.onSurface : const Color(0xFF334155);
+
+    final iconBgColor = isDark ? const Color(0xFF3B1515) : const Color(0xFFFEE2E2);
+    final iconBorderColor = isDark ? const Color(0xFF7F1D1D) : const Color(0xFFFCA5A5);
+    final iconColor = isDark ? const Color(0xFFF87171) : const Color(0xFFEF4444);
+
     final mistakes = exercise.commonMistakes.id.isNotEmpty
         ? exercise.commonMistakes.id
         : (exercise.commonMistakes.en.isNotEmpty ? exercise.commonMistakes.en : [
@@ -25,14 +39,16 @@ class ExerciseCommonMistakesCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBgColor,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFFF1F3F5), width: 1.2),
-        boxShadow: const [
+        border: Border.all(color: cardBorderColor, width: 1.2),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x06000000),
+            color: isDark
+                ? Colors.black.withValues(alpha: 0.2)
+                : const Color(0x06000000),
             blurRadius: 10,
-            offset: Offset(0, 3),
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -56,7 +72,7 @@ class ExerciseCommonMistakesCard extends StatelessWidget {
                 style: AppTypography.headlineSmall.copyWith(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: const Color(0xFF141718),
+                  color: titleColor,
                 ),
               ),
             ],
@@ -76,18 +92,18 @@ class ExerciseCommonMistakesCard extends StatelessWidget {
                     width: 26,
                     height: 26,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFEE2E2), // Soft red background
+                      color: iconBgColor,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: const Color(0xFFFCA5A5),
+                        color: iconBorderColor,
                         width: 1,
                       ),
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Icon(
                         Icons.close_rounded,
                         size: 15,
-                        color: Color(0xFFEF4444),
+                        color: iconColor,
                       ),
                     ),
                   ),
@@ -99,7 +115,7 @@ class ExerciseCommonMistakesCard extends StatelessWidget {
                       mistakes[index],
                       style: AppTypography.bodyMedium.copyWith(
                         fontSize: 13.5,
-                        color: const Color(0xFF334155),
+                        color: mistakeTextColor,
                         height: 1.45,
                         fontWeight: FontWeight.w500,
                       ),

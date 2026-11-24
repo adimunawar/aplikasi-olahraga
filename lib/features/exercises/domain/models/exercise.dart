@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import '../../../../core/utils/media_url_resolver.dart';
 
 enum ExerciseCategory {
@@ -124,7 +125,8 @@ class LocalizedString {
     return const LocalizedString(id: '', en: '');
   }
 
-  String get(String langCode) => langCode.toLowerCase().startsWith('en') ? en : id;
+  String get(String langCode) =>
+      langCode.toLowerCase().startsWith('en') ? en : id;
 
   Map<String, dynamic> toJson() => {'id': id, 'en': en};
 }
@@ -142,8 +144,10 @@ class LocalizedList {
       return LocalizedList(id: list, en: list);
     }
     if (json is Map) {
-      final idList = (json['id'] as List?)?.map((e) => e.toString()).toList() ?? [];
-      final enList = (json['en'] as List?)?.map((e) => e.toString()).toList() ?? idList;
+      final idList =
+          (json['id'] as List?)?.map((e) => e.toString()).toList() ?? [];
+      final enList =
+          (json['en'] as List?)?.map((e) => e.toString()).toList() ?? idList;
       return LocalizedList(id: idList, en: enList);
     }
     return const LocalizedList(id: [], en: []);
@@ -168,8 +172,10 @@ class ExerciseVariationGroup {
   factory ExerciseVariationGroup.fromJson(dynamic json) {
     if (json is Map) {
       return ExerciseVariationGroup(
-        easier: (json['easier'] as List?)?.map((e) => e.toString()).toList() ?? [],
-        harder: (json['harder'] as List?)?.map((e) => e.toString()).toList() ?? [],
+        easier:
+            (json['easier'] as List?)?.map((e) => e.toString()).toList() ?? [],
+        harder:
+            (json['harder'] as List?)?.map((e) => e.toString()).toList() ?? [],
       );
     }
     if (json is List) {
@@ -186,18 +192,24 @@ class ExerciseMedia {
   final String startPose;
   final String endPose;
   final String? videoUrl;
+  final String? thumbnailUrl;
 
   const ExerciseMedia({
     required this.startPose,
     required this.endPose,
     this.videoUrl,
+    this.thumbnailUrl,
   });
 
   factory ExerciseMedia.fromJson(Map<String, dynamic>? json) {
     return ExerciseMedia(
-      startPose: MediaUrlResolver.resolve(json?['start_pose']?.toString()) ?? '',
+      startPose:
+          MediaUrlResolver.resolve(json?['start_pose']?.toString()) ?? '',
       endPose: MediaUrlResolver.resolve(json?['end_pose']?.toString()) ?? '',
       videoUrl: MediaUrlResolver.resolve(json?['video_url']?.toString()),
+      thumbnailUrl: MediaUrlResolver.resolve(
+        json?['thumbnail_url']?.toString(),
+      ),
     );
   }
 }
@@ -219,6 +231,7 @@ class Exercise {
   final ExerciseVariationGroup variations;
   final ExerciseMedia media;
   final String? videoUrl;
+  final String? thumbnailUrl;
 
   const Exercise({
     required this.id,
@@ -236,6 +249,7 @@ class Exercise {
     required this.variations,
     required this.media,
     this.videoUrl,
+    this.thumbnailUrl,
   });
 
   /// URL video demonstrasi (di-resolve dari R2 ke Vercel proxy jika ada)
@@ -245,8 +259,18 @@ class Exercise {
     return MediaUrlResolver.resolve(raw);
   }
 
+  /// URL thumbnail (.webp / gambar) (di-resolve dari R2 ke Vercel proxy jika ada)
+  String? get resolvedThumbnailUrl {
+    final raw = thumbnailUrl ?? media.thumbnailUrl;
+    if (raw == null || raw.trim().isEmpty) return null;
+    return MediaUrlResolver.resolve(raw);
+  }
+
   /// URL gambar poster (di-resolve dari R2 ke Vercel proxy jika ada)
   String get resolvedImageUrl {
+    final thumb = resolvedThumbnailUrl;
+    if (thumb != null && thumb.isNotEmpty) return thumb;
+
     if (media.startPose.isNotEmpty) {
       final resolved = MediaUrlResolver.resolve(media.startPose);
       if (resolved != null && resolved.isNotEmpty) return resolved;
@@ -261,23 +285,35 @@ class Exercise {
       parsedEquipments = rawEquipments.map((e) => e.toString()).toList();
     }
 
-    final parsedMedia = ExerciseMedia.fromJson(json['media'] as Map<String, dynamic>?);
+    final parsedMedia = ExerciseMedia.fromJson(
+      json['media'] as Map<String, dynamic>?,
+    );
     final rawVideoUrl = json['video_url']?.toString() ?? parsedMedia.videoUrl;
     final videoUrl = MediaUrlResolver.resolve(rawVideoUrl);
+
+    final rawThumbnailUrl =
+        json['thumbnail_url']?.toString() ?? parsedMedia.thumbnailUrl;
+    final thumbnailUrl = MediaUrlResolver.resolve(rawThumbnailUrl);
 
     return Exercise(
       id: json['id'] as String,
       name: LocalizedString.fromJson(json['name']),
       category: ExerciseCategory.fromString(json['category'] as String? ?? ''),
-      difficulty: ExerciseDifficulty.fromString(json['difficulty'] as String? ?? ''),
-      trackingType: TrackingType.fromString(json['tracking_type'] as String? ?? 'reps'),
+      difficulty: ExerciseDifficulty.fromString(
+        json['difficulty'] as String? ?? '',
+      ),
+      trackingType: TrackingType.fromString(
+        json['tracking_type'] as String? ?? 'reps',
+      ),
       movementPattern: json['movement_pattern']?.toString() ?? 'other',
       equipments: parsedEquipments,
-      primaryMuscles: (json['primary_muscles'] as List?)
+      primaryMuscles:
+          (json['primary_muscles'] as List?)
               ?.map((e) => LocalizedString.fromJson(e))
               .toList() ??
           [],
-      stabilizerMuscles: (json['stabilizer_muscles'] as List?)
+      stabilizerMuscles:
+          (json['stabilizer_muscles'] as List?)
               ?.map((e) => LocalizedString.fromJson(e))
               .toList() ??
           [],
@@ -289,9 +325,10 @@ class Exercise {
         startPose: parsedMedia.startPose,
         endPose: parsedMedia.endPose,
         videoUrl: videoUrl,
+        thumbnailUrl: thumbnailUrl,
       ),
       videoUrl: videoUrl,
+      thumbnailUrl: thumbnailUrl,
     );
   }
 }
-

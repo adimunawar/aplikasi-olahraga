@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/models/dynamic_program_entity.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
@@ -65,15 +67,29 @@ class WorkoutDetailDataLoader {
                     : '${prescription.minReps} – ${prescription.maxReps} Reps';
                 final restStr = '${prescription.restSeconds} sec';
 
+                final resolvedImg = ex.resolvedImageUrl;
+                final fallbackAsset = ex.media.startPose.isNotEmpty
+                    ? ex.media.startPose
+                    : 'assets/images/Detail Gerakan.png';
+                final finalThumbnail = resolvedImg.isNotEmpty ? resolvedImg : fallbackAsset;
+
+                if (ex.id.contains('knee') || ex.id.contains('push')) {
+                  debugPrint('[WorkoutDetailDataLoader] 🔍 Detail item "${ex.id}":');
+                  debugPrint('   raw ex.thumbnailUrl     : "${ex.thumbnailUrl}"');
+                  debugPrint('   raw media.thumbnailUrl  : "${ex.media.thumbnailUrl}"');
+                  debugPrint('   resolvedThumbnailUrl    : "${ex.resolvedThumbnailUrl}"');
+                  debugPrint('   resolvedImageUrl        : "${ex.resolvedImageUrl}"');
+                  debugPrint('   startPose               : "${ex.media.startPose}"');
+                  debugPrint('   final thumbnailAsset    : "$finalThumbnail"');
+                }
+
                 list.add(
                   WorkoutDetailExerciseData(
                     title: ex.name.en.isNotEmpty ? ex.name.en : ex.name.id,
                     categoryTag: ex.primaryMuscles.isNotEmpty
                         ? ex.primaryMuscles.first.en
                         : 'Bodyweight',
-                    thumbnailAsset: ex.media.startPose.isNotEmpty
-                        ? ex.media.startPose
-                        : 'assets/images/Detail Gerakan.png',
+                    thumbnailAsset: finalThumbnail,
                     sets: prescription.targetSets,
                     reps: repsStr,
                     rest: restStr,

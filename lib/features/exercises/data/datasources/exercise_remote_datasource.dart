@@ -33,11 +33,21 @@ class ExerciseRemoteDatasource {
       );
       for (final item in data) {
         final m = Map<String, dynamic>.from(item as Map);
+        final id = m['id']?.toString().toLowerCase() ?? '';
         final vUrl =
             m['video_url'] ??
             (m['media'] is Map ? m['media']['video_url'] : null);
-        if (vUrl != null) {
-          debugPrint('  👉 [Supabase Cloud] ${m['id']} video_url: $vUrl');
+        final tUrl =
+            m['thumbnail_url'] ??
+            (m['media'] is Map ? m['media']['thumbnail_url'] : null);
+
+        if (id.contains('knee') || id.contains('push')) {
+          debugPrint('  👉 [Supabase Cloud] Match found: id="${m['id']}"');
+          debugPrint('     thumbnail_url: "$tUrl"');
+          debugPrint('     video_url    : "$vUrl"');
+          debugPrint('     media map    : "${m['media']}"');
+        } else if (vUrl != null || tUrl != null) {
+          debugPrint('  👉 [Supabase Cloud] ${m['id']} media: video=$vUrl, thumb=$tUrl');
         }
       }
 
@@ -46,6 +56,10 @@ class ExerciseRemoteDatasource {
         final vUrl =
             (map['video_url'] ??
                     (map['media'] is Map ? map['media']['video_url'] : null))
+                ?.toString();
+        final tUrl =
+            (map['thumbnail_url'] ??
+                    (map['media'] is Map ? map['media']['thumbnail_url'] : null))
                 ?.toString();
         return ExerciseEntity(
           id: map['id']?.toString() ?? '',
@@ -87,6 +101,7 @@ class ExerciseRemoteDatasource {
           endPoseAsset: map['end_pose_asset']?.toString(),
           animationAsset: map['animation_asset']?.toString(),
           videoUrl: vUrl,
+          thumbnailUrl: tUrl,
           isCustom: map['is_custom'] == true || map['is_custom'] == 1,
           isFavorite: map['is_favorite'] == true || map['is_favorite'] == 1,
           createdByUserId: map['created_by_user_id']?.toString(),

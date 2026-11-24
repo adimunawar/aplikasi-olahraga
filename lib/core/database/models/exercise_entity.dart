@@ -26,6 +26,7 @@ class ExerciseEntity {
   final String? endPoseAsset;
   final String? animationAsset;
   final String? videoUrl;
+  final String? thumbnailUrl;
   final bool isCustom;
   final bool isFavorite;
   final String? createdByUserId;
@@ -54,6 +55,7 @@ class ExerciseEntity {
     this.endPoseAsset,
     this.animationAsset,
     this.videoUrl,
+    this.thumbnailUrl,
     this.isCustom = false,
     this.isFavorite = false,
     this.createdByUserId,
@@ -84,6 +86,7 @@ class ExerciseEntity {
       'end_pose_asset': endPoseAsset,
       'animation_asset': animationAsset,
       'video_url': videoUrl,
+      'thumbnail_url': thumbnailUrl,
       'is_custom': isCustom ? 1 : 0,
       'is_favorite': isFavorite ? 1 : 0,
       'created_by_user_id': createdByUserId,
@@ -115,6 +118,7 @@ class ExerciseEntity {
       endPoseAsset: map['end_pose_asset'] as String?,
       animationAsset: map['animation_asset'] as String?,
       videoUrl: map['video_url'] as String?,
+      thumbnailUrl: map['thumbnail_url'] as String?,
       isCustom: (map['is_custom'] as int? ?? 0) == 1,
       isFavorite: (map['is_favorite'] as int? ?? 0) == 1,
       createdByUserId: map['created_by_user_id'] as String?,
@@ -155,6 +159,7 @@ class ExerciseEntity {
       endPoseAsset: exercise.media.endPose,
       animationAsset: 'assets/images/exercises/${exercise.id}.webp',
       videoUrl: exercise.videoUrl ?? exercise.media.videoUrl,
+      thumbnailUrl: exercise.thumbnailUrl ?? exercise.media.thumbnailUrl,
       isCustom: false,
       isFavorite: false,
       createdAt: timestamp,
@@ -234,8 +239,10 @@ class ExerciseEntity {
         startPose: startPoseAsset ?? '',
         endPose: endPoseAsset ?? '',
         videoUrl: videoUrl,
+        thumbnailUrl: thumbnailUrl,
       ),
       videoUrl: videoUrl,
+      thumbnailUrl: thumbnailUrl,
     );
   }
 }
