@@ -11,6 +11,7 @@ on:
   push:
     branches:
       - main
+      - staging
   workflow_dispatch:
 
 permissions:
@@ -206,3 +207,36 @@ jobs:
 
       - name: Build Flutter Web (WASM)
         run: flutter build web --wasm --release --no-pub
+
+      # Deploy only after a successful push to staging.
+      # Pull requests targeting staging still run the build but never deploy.
+      - name: Prepare Vercel static output
+        if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p .vercel/output/static
+          cp -R build/web/. .vercel/output/static/
+
+          cat > .vercel/output/config.json <<'EOF'
+          {
+            "version": 3,
+            "routes": [
+              { "handle": "filesystem" },
+              { "src": "/(.*)", "dest": "/index.html" }
+            ]
+          }
+          EOF
+
+      - name: Install Vercel CLI
+        if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+        run: npm install --global vercel@latest
+
+      - name: Deploy Flutter Web to Vercel Preview
+        if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: vercel deploy --prebuilt --yes
