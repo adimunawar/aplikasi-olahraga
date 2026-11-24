@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/theme/home_theme.dart';
 import '../../../../i18n/strings.g.dart';
 
 /// Banner Peringatan Gangguan Koneksi / Offline Cache (Mockup 1:1)
@@ -22,19 +23,19 @@ class HomeErrorBanner extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFFEF9C3),
+        color: HomeTheme.warningSurface(context),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFFDE047), width: 1.0),
+        border: Border.all(color: HomeTheme.isDark(context) ? const Color(0xFF854D0E) : const Color(0xFFFDE047), width: 1.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.wifi_off_rounded,
                 size: 20,
-                color: Color(0xFFB45309),
+                color: HomeTheme.isDark(context) ? const Color(0xFFFBBF24) : const Color(0xFFB45309),
               ),
               const SizedBox(width: 8),
               Text(
@@ -42,7 +43,7 @@ class HomeErrorBanner extends StatelessWidget {
                 style: AppTypography.titleSmall.copyWith(
                   fontWeight: FontWeight.w800,
                   fontSize: 14,
-                  color: const Color(0xFF78350F),
+                  color: HomeTheme.isDark(context) ? const Color(0xFFFEF3C7) : const Color(0xFF78350F),
                 ),
               ),
             ],
@@ -51,7 +52,7 @@ class HomeErrorBanner extends StatelessWidget {
           Text(
             t.home.error.connectionDesc,
             style: AppTypography.bodySmall.copyWith(
-              color: const Color(0xFF92400E),
+              color: HomeTheme.isDark(context) ? const Color(0xFFFDE68A) : const Color(0xFF92400E),
               fontSize: 12,
               height: 1.35,
             ),
@@ -79,7 +80,7 @@ class HomeErrorBanner extends StatelessWidget {
                   child: Text(
                     t.home.error.retry,
                     style: AppTypography.bodySmall.copyWith(
-                      color: const Color(0xFF15803D),
+                      color: HomeTheme.isDark(context) ? const Color(0xFF86EFAC) : const Color(0xFF15803D),
                       fontWeight: FontWeight.w800,
                       fontSize: 12,
                     ),

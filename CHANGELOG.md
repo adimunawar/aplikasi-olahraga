@@ -6,6 +6,10 @@ This changelog starts with the documentation baseline for the current portfolio 
 
 ## Unreleased
 
+### Changed
+
+- Updated the Home screen surfaces, cards, text, and loading/error states to follow the active Light or Dark theme while preserving the lime accent.
+
 ### Added
 
 - Added full-screen `WorkoutCompletedScreen` with celebration scalloped badge, confetti decorations, key workout metrics (duration, exercises, calories), and interactive workout feedback selector ("How was the workout?"), replacing the temporary celebration modal.

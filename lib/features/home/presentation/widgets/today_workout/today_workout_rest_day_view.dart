@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
+import '../../../../../core/theme/home_theme.dart';
 
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
 import '../../../../../i18n/strings.g.dart';
 import '../recovery_tips_section.dart';
@@ -34,11 +34,11 @@ class TodayWorkoutRestDayView extends StatelessWidget {
                 Container(
                   width: 72,
                   height: 72,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: Color(0xFFF1FADC),
                     shape: BoxShape.circle,
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Icon(
                       Icons.weekend_rounded,
                       color: Color(0xFF65A30D),
@@ -52,7 +52,7 @@ class TodayWorkoutRestDayView extends StatelessWidget {
                   style: AppTypography.titleLarge.copyWith(
                     fontWeight: FontWeight.w900,
                     fontSize: 21,
-                    color: AppColors.darkCharcoal,
+                    color: HomeTheme.text(context),
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -62,7 +62,7 @@ class TodayWorkoutRestDayView extends StatelessWidget {
                   child: Text(
                     t.home.restDay.subtitle,
                     style: AppTypography.bodySmall.copyWith(
-                      color: AppColors.neutral500,
+                      color: HomeTheme.muted(context),
                       fontSize: 13.5,
                       height: 1.35,
                       fontWeight: FontWeight.w500,

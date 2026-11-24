@@ -1,6 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+import '../../../../core/theme/home_theme.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../controllers/home_controller.dart';
@@ -37,8 +39,8 @@ class HomeScreen extends ConsumerWidget {
     final controller = ref.read(homeControllerProvider.notifier);
 
     if (state.isLoading) {
-      return const Scaffold(
-        backgroundColor: Color(0xFFF9FAFB),
+      return Scaffold(
+        backgroundColor: HomeTheme.background(context),
         body: SafeArea(
           child: HomeLoadingSkeleton(),
         ),
@@ -105,7 +107,7 @@ class HomeScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: HomeTheme.background(context),
       body: SafeArea(
         child: RefreshIndicator(
           color: AppColors.primary,
