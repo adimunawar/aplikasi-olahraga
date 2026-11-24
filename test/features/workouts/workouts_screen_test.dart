@@ -241,7 +241,10 @@ void main() {
 
       await pumpScreen(
         tester,
-        () async => WorkoutsSnapshot(program: program),
+        () async => WorkoutsSnapshot(
+          profile: makeProfile(availableDays: [], weeks: 4),
+          program: program,
+        ),
       );
 
       expect(find.text('Program Aktif'), findsOneWidget);
