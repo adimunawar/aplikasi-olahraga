@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:workout_app/core/theme/app_theme.dart';
@@ -23,7 +23,9 @@ void main() {
   }
 
   group('ExerciseDetailScreen & ExerciseDetailHeader Tests', () {
-    testWidgets('Renders all cards and header cleanly in Dark Mode without MaterialLocalizations error', (tester) async {
+    testWidgets(
+        'Renders all cards and header cleanly in Dark Mode without MaterialLocalizations error',
+        (tester) async {
       await tester.pumpWidget(createSubject(themeMode: ThemeMode.dark));
       await tester.pumpAndSettle();
 
