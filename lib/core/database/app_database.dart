@@ -638,7 +638,6 @@ class AppDatabase {
     return rows.map(WorkoutSessionEntity.fromMap).toList();
   }
 
-
   /// Total sesi yang selesai secara keseluruhan (PRG-01)
   Future<int> getCompletedSessionsCount() async {
     final db = await database;

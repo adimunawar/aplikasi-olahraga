@@ -215,7 +215,11 @@ class _Translations$workoutSession$en extends Translations$workoutSession$id {
   @override
   String get exerciseLabel => 'Exercises';
   @override
-  String exerciseCount({required Object count}) => '${count} exercises';
+  String exerciseCount({required Object count}) {
+    final countNum = num.tryParse(count.toString());
+    if (countNum == 1) return '1 exercise';
+    return '${count} exercises';
+  }
   @override
   String get totalSetsLabel => 'Total Sets';
   @override
@@ -1185,16 +1189,92 @@ class _Translations$workouts$workoutDetail$en extends Translations$workouts$work
   String get defaultDescription =>
       'Build strength and stability with a focused mix of bodyweight exercises.';
   @override
-  String exerciseCount({required Object count}) => '${count} exercises';
+  String exerciseCount({required Object count}) {
+    final countNum = num.tryParse(count.toString());
+    if (countNum == 1) return '1 exercise';
+    return '${count} exercises';
+  }
   @override
   String exerciseListTitle({required Object count}) => 'Exercises (${count})';
+
   @override
   late final _Translations$workouts$workoutDetail$stages$en stages =
       _Translations$workouts$workoutDetail$stages$en._(_root);
+
   @override
   String setReps({required Object sets, required Object reps}) => '${sets} sets × ${reps}';
+
   @override
   String get repsUnit => 'reps';
+}
+
+// Path: workouts.workoutDetail.stages
+class _Translations$workouts$workoutDetail$stages$en
+    extends Translations$workouts$workoutDetail$stages$id {
+  _Translations$workouts$workoutDetail$stages$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  late final _Translations$workouts$workoutDetail$stages$warmup$en warmup =
+      _Translations$workouts$workoutDetail$stages$warmup$en._(_root);
+  @override
+  late final _Translations$workouts$workoutDetail$stages$main$en main =
+      _Translations$workouts$workoutDetail$stages$main$en._(_root);
+  @override
+  late final _Translations$workouts$workoutDetail$stages$cooldown$en cooldown =
+      _Translations$workouts$workoutDetail$stages$cooldown$en._(_root);
+}
+
+// Path: workouts.workoutDetail.stages.warmup
+class _Translations$workouts$workoutDetail$stages$warmup$en
+    extends Translations$workouts$workoutDetail$stages$warmup$id {
+  _Translations$workouts$workoutDetail$stages$warmup$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Warm up';
+  @override
+  String get subtitle => 'Warm-up';
+}
+
+// Path: workouts.workoutDetail.stages.main
+class _Translations$workouts$workoutDetail$stages$main$en
+    extends Translations$workouts$workoutDetail$stages$main$id {
+  _Translations$workouts$workoutDetail$stages$main$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Training';
+  @override
+  String get subtitle => 'Main Workout';
+}
+
+// Path: workouts.workoutDetail.stages.cooldown
+class _Translations$workouts$workoutDetail$stages$cooldown$en
+    extends Translations$workouts$workoutDetail$stages$cooldown$id {
+  _Translations$workouts$workoutDetail$stages$cooldown$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Cool down';
+  @override
+  String get subtitle => 'Recovery';
 }
 
 // Path: workouts.filter
@@ -1967,27 +2047,6 @@ class _Translations$workouts$session$status$en extends Translations$workouts$ses
   String get scheduled => 'Scheduled';
 }
 
-// Path: workouts.workoutDetail.stages
-class _Translations$workouts$workoutDetail$stages$en
-    extends Translations$workouts$workoutDetail$stages$id {
-  _Translations$workouts$workoutDetail$stages$en._(TranslationsEn root)
-    : this._root = root,
-      super.internal(root);
-
-  final TranslationsEn _root; // ignore: unused_field
-
-  // Translations
-  @override
-  late final _Translations$workouts$workoutDetail$stages$warmup$en warmup =
-      _Translations$workouts$workoutDetail$stages$warmup$en._(_root);
-  @override
-  late final _Translations$workouts$workoutDetail$stages$main$en main =
-      _Translations$workouts$workoutDetail$stages$main$en._(_root);
-  @override
-  late final _Translations$workouts$workoutDetail$stages$cooldown$en cooldown =
-      _Translations$workouts$workoutDetail$stages$cooldown$en._(_root);
-}
-
 // Path: core.progress.workout.noPerformance
 class _Translations$core$progress$workout$noPerformance$en
     extends Translations$core$progress$workout$noPerformance$id {
@@ -2099,54 +2158,6 @@ class _Translations$onboarding$ready$program$maintain$en
   String get title => 'Maintain & Stay Fit';
   @override
   String get subtitle => 'Strength & General Fitness';
-}
-
-// Path: workouts.workoutDetail.stages.warmup
-class _Translations$workouts$workoutDetail$stages$warmup$en
-    extends Translations$workouts$workoutDetail$stages$warmup$id {
-  _Translations$workouts$workoutDetail$stages$warmup$en._(TranslationsEn root)
-    : this._root = root,
-      super.internal(root);
-
-  final TranslationsEn _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Warm up';
-  @override
-  String get subtitle => 'Warm-up';
-}
-
-// Path: workouts.workoutDetail.stages.main
-class _Translations$workouts$workoutDetail$stages$main$en
-    extends Translations$workouts$workoutDetail$stages$main$id {
-  _Translations$workouts$workoutDetail$stages$main$en._(TranslationsEn root)
-    : this._root = root,
-      super.internal(root);
-
-  final TranslationsEn _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Training';
-  @override
-  String get subtitle => 'Main Workout';
-}
-
-// Path: workouts.workoutDetail.stages.cooldown
-class _Translations$workouts$workoutDetail$stages$cooldown$en
-    extends Translations$workouts$workoutDetail$stages$cooldown$id {
-  _Translations$workouts$workoutDetail$stages$cooldown$en._(TranslationsEn root)
-    : this._root = root,
-      super.internal(root);
-
-  final TranslationsEn _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Cool down';
-  @override
-  String get subtitle => 'Recovery';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -2654,8 +2665,11 @@ extension on TranslationsEn {
       'workouts.workoutDetail.copiedMessage' => 'Workout details copied.',
       'workouts.workoutDetail.defaultDescription' =>
         'Build strength and stability with a focused mix of bodyweight exercises.',
-      'workouts.workoutDetail.exerciseCount' =>
-          ({required Object count}) => '${count} exercises',
+      'workouts.workoutDetail.exerciseCount' => ({required Object count}) {
+        final countNum = num.tryParse(count.toString());
+        if (countNum == 1) return '1 exercise';
+        return '${count} exercises';
+      },
       'workouts.workoutDetail.exerciseListTitle' => ({
         required Object count,
       }) => 'Exercises (${count})',

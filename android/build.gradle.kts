@@ -3,12 +3,6 @@ allprojects {
         google()
         mavenCentral()
     }
-
-    // Disable lintVital tasks across all modules (including Flutter plugins like firebase_core)
-    // to prevent Android Lint crash caused by JDK incompatibilities on release builds.
-    tasks.matching { it.name.startsWith("lintVital") }.configureEach {
-        enabled = false
-    }
 }
 
 val newBuildDir: Directory =

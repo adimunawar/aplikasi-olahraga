@@ -67,7 +67,10 @@
     "bookmarkRemove": "Remove bookmark",
     "copiedMessage": "Workout details copied.",
     "defaultDescription": "Build strength and stability with a focused mix of bodyweight exercises.",
-    "exerciseCount": "$count exercises",
+    "exerciseCount": {
+      "one": "1 exercise",
+      "other": "$count exercises"
+    },
     "exerciseListTitle": "Exercises ($count)",
     "stages": {
       "warmup": {

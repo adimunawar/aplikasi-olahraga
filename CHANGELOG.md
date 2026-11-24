@@ -6,6 +6,10 @@ This changelog starts with the documentation baseline for the current portfolio 
 
 ## Unreleased
 
+### Changed
+
+- Refactored Home widgets to consume the shared Material color scheme directly, matching the Workout screen theme pattern and removing the feature-specific HomeTheme helper.
+
 ### Added
 
 - Added full-screen `WorkoutCompletedScreen` with celebration scalloped badge, confetti decorations, key workout metrics (duration, exercises, calories), and interactive workout feedback selector ("How was the workout?"), replacing the temporary celebration modal.

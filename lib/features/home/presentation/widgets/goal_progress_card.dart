@@ -1,6 +1,5 @@
 import 'package:material_ui/material_ui.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../i18n/strings.g.dart';
 
@@ -65,15 +64,23 @@ class GoalProgressCard extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFFFCFDF9), Color(0xFFF7FAF1)],
+            colors: Theme.of(context).brightness == Brightness.dark
+                ? [
+                    Theme.of(context).colorScheme.surfaceContainer,
+                    Theme.of(context).colorScheme.surface,
+                  ]
+                : [Theme.of(context).colorScheme.surfaceContainerLow, Theme.of(context).colorScheme.surface],
           ),
-          border: Border.all(color: const Color(0xFFD4EBA8), width: 1.2),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outlineVariant,
+            width: 1.2,
+          ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF84CC16).withValues(alpha: 0.12),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
               blurRadius: 18,
               offset: const Offset(0, 6),
             ),
@@ -95,9 +102,9 @@ class GoalProgressCard extends StatelessWidget {
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        const Color(0xFFDDF2B4).withValues(alpha: 0.72),
-                        const Color(0xFFDDF2B4).withValues(alpha: 0.28),
-                        const Color(0xFFDDF2B4).withValues(alpha: 0.0),
+                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.18),
+                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
+                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.0),
                       ],
                       stops: [0.0, 0.58, 1.0],
                     ),
@@ -132,20 +139,20 @@ class GoalProgressCard extends StatelessWidget {
                         vertical: 5,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.9),
+                        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: const Color(0xFFD4EBA8),
+                          color: Theme.of(context).colorScheme.outlineVariant,
                           width: 1.0,
                         ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.track_changes_rounded,
                             size: 15,
-                            color: Color(0xFF65A30D),
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                           const SizedBox(width: 6),
                           ConstrainedBox(
@@ -155,7 +162,7 @@ class GoalProgressCard extends StatelessWidget {
                               style: AppTypography.bodySmall.copyWith(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 11.5,
-                                color: AppColors.darkCharcoal,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -176,7 +183,7 @@ class GoalProgressCard extends StatelessWidget {
                             Text(
                               t.home.goalCard.target,
                               style: AppTypography.bodySmall.copyWith(
-                                color: AppColors.neutral500,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -187,7 +194,7 @@ class GoalProgressCard extends StatelessWidget {
                               style: AppTypography.titleLarge.copyWith(
                                 fontWeight: FontWeight.w900,
                                 fontSize: 18,
-                                color: AppColors.darkCharcoal,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                           ],
@@ -201,7 +208,7 @@ class GoalProgressCard extends StatelessWidget {
                             Text(
                               t.home.goalCard.current,
                               style: AppTypography.bodySmall.copyWith(
-                                color: AppColors.neutral500,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -212,7 +219,7 @@ class GoalProgressCard extends StatelessWidget {
                               style: AppTypography.titleLarge.copyWith(
                                 fontWeight: FontWeight.w900,
                                 fontSize: 18,
-                                color: AppColors.darkCharcoal,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -261,9 +268,9 @@ class GoalProgressCard extends StatelessWidget {
                         child: LinearProgressIndicator(
                           value: progressPercent,
                           minHeight: 7,
-                          backgroundColor: const Color(0xFFE2EAD6),
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                            Color(0xFF84CC16),
+                          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Theme.of(context).colorScheme.primary,
                           ),
                         ),
                       ),
@@ -273,16 +280,16 @@ class GoalProgressCard extends StatelessWidget {
                     // D. Program Timeline Info
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.calendar_today_rounded,
                           size: 13,
-                          color: Color(0xFF65A30D),
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                         const SizedBox(width: 5),
                         Text(
                           t.home.goalCard.programDuration(weeks: totalWeeks),
                           style: AppTypography.bodySmall.copyWith(
-                            color: AppColors.neutral600,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                           ),
@@ -294,7 +301,7 @@ class GoalProgressCard extends StatelessWidget {
                             total: totalWeeks,
                           ),
                           style: AppTypography.bodySmall.copyWith(
-                            color: AppColors.darkCharcoal,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
                           ),
