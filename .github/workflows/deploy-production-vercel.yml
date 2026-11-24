@@ -5,6 +5,7 @@ on:
     branches:
       - main
     paths:
+      # Flutter application source and build inputs.
       - "lib/**"
       - "assets/**"
       - "fonts/**"
@@ -16,6 +17,9 @@ on:
       - "analysis_options.yaml"
       - "l10n.yaml"
       - "slang.yaml"
+      # Keep deployment behavior changes verifiable through the same pipeline.
+      - ".github/workflows/deploy-production-vercel.yml"
+      - "vercel.json"
   workflow_dispatch:
 
 permissions:
