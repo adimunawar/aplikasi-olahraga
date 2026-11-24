@@ -148,5 +148,4 @@ class WorkoutExerciseListItem extends StatelessWidget {
       ),
     );
   }
-
 }

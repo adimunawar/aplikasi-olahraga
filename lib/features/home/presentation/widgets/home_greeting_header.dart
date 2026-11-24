@@ -62,7 +62,7 @@ class HomeGreetingHeader extends StatelessWidget {
                   style: AppTypography.titleMedium.copyWith(
                     fontWeight: FontWeight.w800,
                     fontSize: 18,
-                    color: AppColors.darkCharcoal,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -71,7 +71,7 @@ class HomeGreetingHeader extends StatelessWidget {
                 Text(
                   t.home.greeting.subtitle,
                   style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.neutral500,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -90,12 +90,12 @@ class HomeGreetingHeader extends StatelessWidget {
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 shape: BoxShape.circle,
-                border: Border.all(color: AppColors.neutral200, width: 1.2),
+                border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.2),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
+                    color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.04),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
@@ -104,9 +104,9 @@ class HomeGreetingHeader extends StatelessWidget {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.notifications_none_rounded,
-                    color: AppColors.darkCharcoal,
+                    color: Theme.of(context).colorScheme.onSurface,
                     size: 22,
                   ),
                   if (hasUnreadNotification)
@@ -116,7 +116,7 @@ class HomeGreetingHeader extends StatelessWidget {
                       child: Container(
                         width: 7,
                         height: 7,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           color: AppColors.vibrantCoral,
                           shape: BoxShape.circle,
                         ),
