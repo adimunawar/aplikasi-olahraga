@@ -1,6 +1,5 @@
 import 'package:material_ui/material_ui.dart';
 import '../../../../../core/theme/home_theme.dart';
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
 import '../../../../../i18n/strings.g.dart';
 

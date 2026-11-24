@@ -35,4 +35,8 @@ class HomeTheme {
   static Color successSurface(BuildContext context) => isDark(context)
       ? const Color(0xFF17351F)
       : const Color(0xFFE9F5DA);
+
+  static Color warningSurface(BuildContext context) => isDark(context)
+      ? const Color(0xFF422006)
+      : const Color(0xFFFFFBEB);
 }
