@@ -1,7 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/models/user_profile_entity.dart';
@@ -11,7 +10,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../i18n/strings.g.dart';
-import '../../../exercises/domain/models/exercise.dart';
 import '../../../plans/presentation/screens/plans_screen.dart';
 import '../../../plans/presentation/widgets/plans_overview_tab.dart';
 import '../../../plans/presentation/widgets/plans_workout_split_tab.dart';
@@ -244,9 +242,8 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
         sessions: draft.sessions,
       );
 
-      // 2. Tandai onboarding selesai
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('has_completed_onboarding', true);
+      // 2. Tandai onboarding selesai di state aplikasi.
+      // Status persisten diturunkan dari program aktif di SQLite.
       ref.read(hasCompletedOnboardingProvider.notifier).state = true;
 
       // 3. Siapkan argumen Workout Session 1
@@ -270,10 +267,7 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
           day: firstSession.session.dayNumber,
           week: 1,
           type: WorkoutTypeCode.f,
-          focus: LocalizedString(
-            id: firstSession.session.focusLabel,
-            en: firstSession.session.focusLabel,
-          ),
+          focus: firstSession.session.focusLabel,
           isRest: false,
           isRetestMilestone: false,
           items: workoutItems,
@@ -290,9 +284,10 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
               programId: draft.program.id,
               prescriptions: {
                 for (final e in firstSession.exercises)
-                  e.exercise.id: WorkoutExercisePrescription.fromProgramExercise(
-                    e.prescription,
-                  ),
+                  e.exercise.id:
+                      WorkoutExercisePrescription.fromProgramExercise(
+                        e.prescription,
+                      ),
               },
             ),
           );
@@ -326,8 +321,6 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
         sessions: draft.sessions,
       );
 
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('has_completed_onboarding', true);
       ref.read(hasCompletedOnboardingProvider.notifier).state = true;
 
       if (mounted) {

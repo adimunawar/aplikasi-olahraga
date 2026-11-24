@@ -8,12 +8,15 @@ This changelog starts with the documentation baseline for the current portfolio 
 
 ### Added
 
+- Added full-screen `WorkoutCompletedScreen` with celebration scalloped badge, confetti decorations, key workout metrics (duration, exercises, calories), and interactive workout feedback selector ("How was the workout?"), replacing the temporary celebration modal.
 - Added `WorkoutPrescriptionResolver` to dynamically resolve exercise prescriptions (target sets, rep ranges, target duration, and rest intervals) from program day items and explicit program configurations.
 - Added duration-based exercise tracking support (`TrackingType.duration`), displaying target seconds and duration units instead of repetition counts for isometric exercises.
 - Added `WorkoutSessionEmptyState` to present an honest, recoverable empty state when an active workout is opened with no exercises, eliminating fake dummy exercise generation.
 
 ### Changed
 
+- Localized the Progress dashboard cards (weight trend, current weight summary, program summary, highlights, untracked metrics) so their copy follows the active app language.
+- Split the monolithic Progress dashboard widgets file into one component per file, exposed through shared and screen-level barrel files.
 - Updated `RestTimerScreen` back navigation: the top-left back button now safely exits the session (`onExitSession`) while preserving the `in_progress` state for later resumption, separating it from the "Skip Rest" action.
 - Added responsive layout scaling to `RestTimerScreen` using adaptive progress ring sizing and scrollable layout to prevent vertical overflows on small viewports and large accessibility text scaling.
 

@@ -51,10 +51,6 @@ class _ExerciseDemoCardState extends State<ExerciseDemoCard> {
 
   Future<void> _initializeVideo() async {
     final url = _videoUrl?.trim();
-    debugPrint('[ExerciseDemoCard] 🎬 Cek media untuk "${widget.exercise.id}":');
-    debugPrint('[ExerciseDemoCard] 👉 Raw video_url: ${widget.exercise.videoUrl}');
-    debugPrint('[ExerciseDemoCard] 👉 Resolved Video URL: $url');
-    debugPrint('[ExerciseDemoCard] 👉 Poster Image: $_imageUrl');
 
     if (url == null || url.isEmpty) {
       debugPrint(
@@ -167,6 +163,18 @@ class _ExerciseDemoCardState extends State<ExerciseDemoCard> {
         _controller != null && _controller!.value.isInitialized && !_hasError;
     final isPlaying = hasVideo && (_controller?.value.isPlaying ?? false);
 
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final cardBgColor = isDark ? theme.colorScheme.surface : Colors.white;
+    final cardBorderColor = isDark
+        ? theme.colorScheme.outlineVariant.withValues(alpha: 0.4)
+        : AppColors.cardBorder;
+    final headingColor = isDark ? theme.colorScheme.onSurface : AppColors.darkCharcoal;
+    final buttonBgColor = isDark ? theme.colorScheme.surfaceContainerHigh : AppColors.surface;
+    final buttonTextColor = isDark ? theme.colorScheme.onSurface : AppColors.darkCharcoal;
+    final playerBgColor = isDark ? theme.colorScheme.surfaceContainerHighest : AppColors.surface;
+
     // Rasio proporsional dinamis mengikuti video native (biasanya 16:9),
     // dibatasi clamp(1.2, 1.85) agar tidak terlalu tinggi atau gepeng.
     final videoAspectRatio = hasVideo
@@ -177,12 +185,14 @@ class _ExerciseDemoCardState extends State<ExerciseDemoCard> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cardBgColor,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        border: Border.all(color: cardBorderColor, width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: AppColors.neutral800.withValues(alpha: 0.04),
+            color: isDark
+                ? Colors.black.withValues(alpha: 0.2)
+                : AppColors.neutral800.withValues(alpha: 0.04),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -211,56 +221,57 @@ class _ExerciseDemoCardState extends State<ExerciseDemoCard> {
                     style: AppTypography.headlineSmall.copyWith(
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
-                      color: AppColors.darkCharcoal,
+                      color: headingColor,
                     ),
                   ),
                 ],
               ),
-              GestureDetector(
-                onTap: () {
-                  if (hasVideo) {
-                    _togglePlayPause();
-                  } else {
-                    _initializeVideo();
-                  }
-                },
-                child: Container(
-                  constraints: const BoxConstraints(minHeight: 36),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 7,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: AppColors.limeAccent,
-                      width: 1.2,
+              if (hasVideo)
+                GestureDetector(
+                  onTap: () {
+                    if (hasVideo) {
+                      _togglePlayPause();
+                    } else {
+                      _initializeVideo();
+                    }
+                  },
+                  child: Container(
+                    constraints: const BoxConstraints(minHeight: 36),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 7,
+                    ),
+                    decoration: BoxDecoration(
+                      color: buttonBgColor,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: AppColors.limeAccent,
+                        width: 1.2,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          isPlaying
+                              ? Icons.pause_circle_filled_rounded
+                              : Icons.play_circle_fill_rounded,
+                          size: 16,
+                          color: buttonTextColor,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          isPlaying ? 'Pause Demo' : 'Watch Demo',
+                          style: AppTypography.labelSmall.copyWith(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            color: buttonTextColor,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        isPlaying
-                            ? Icons.pause_circle_filled_rounded
-                            : Icons.play_circle_fill_rounded,
-                        size: 16,
-                        color: AppColors.darkCharcoal,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        isPlaying ? 'Pause Demo' : 'Watch Demo',
-                        style: AppTypography.labelSmall.copyWith(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.darkCharcoal,
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
-              ),
             ],
           ),
           const SizedBox(height: 14),
@@ -271,10 +282,9 @@ class _ExerciseDemoCardState extends State<ExerciseDemoCard> {
             child: Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                // Warna putih serasi dengan latar studio video, bebas bar hitam!
-                color: AppColors.surface,
+                color: playerBgColor,
                 borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: AppColors.cardBorder, width: 1.2),
+                border: Border.all(color: cardBorderColor, width: 1.2),
               ),
               clipBehavior: Clip.antiAlias,
               child: Stack(
@@ -399,9 +409,7 @@ class _ExerciseDemoCardState extends State<ExerciseDemoCard> {
                             return FractionallySizedBox(
                               alignment: Alignment.centerLeft,
                               widthFactor: factor,
-                              child: Container(
-                                color: AppColors.limeAccent,
-                              ),
+                              child: Container(color: AppColors.limeAccent),
                             );
                           },
                         ),
@@ -468,6 +476,9 @@ class _ExerciseDemoCardState extends State<ExerciseDemoCard> {
   }
 
   Widget _buildFallbackImage() {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return AppSmartImage(
       imagePathOrUrl: _imageUrl,
       fit: BoxFit.contain,
@@ -480,16 +491,20 @@ class _ExerciseDemoCardState extends State<ExerciseDemoCard> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
+                Icon(
                   Icons.fitness_center_rounded,
                   size: 48,
-                  color: AppColors.neutral400,
+                  color: isDark
+                      ? theme.colorScheme.onSurfaceVariant
+                      : AppColors.neutral400,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   widget.exercise.name.get('id'),
                   style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.neutral500,
+                    color: isDark
+                        ? theme.colorScheme.onSurfaceVariant
+                        : AppColors.neutral500,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

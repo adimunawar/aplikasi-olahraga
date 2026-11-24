@@ -50,6 +50,7 @@ class ExerciseRepositoryImpl implements ExerciseRepository {
           for (final ex in pushUps) {
             debugPrint('  📌 ID           : "${ex.id}"');
             debugPrint('     Name         : "${ex.nameId}" / "${ex.nameEn}"');
+            debugPrint('     thumbnail_url: "${ex.thumbnailUrl}"');
             debugPrint('     video_url    : "${ex.videoUrl}"');
             debugPrint('     startPose    : "${ex.startPoseAsset}"');
             debugPrint('     endPose      : "${ex.endPoseAsset}"');

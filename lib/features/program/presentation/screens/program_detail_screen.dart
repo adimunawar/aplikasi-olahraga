@@ -126,7 +126,7 @@ class ProgramDetailScreen extends ConsumerWidget {
                         dayNumber: day.day,
                         weekDayText: 'Week ${day.week} • Day ${day.day}',
                         workoutTitle: day.title ?? 'Upper Body Workout',
-                        targetMusclesText: day.focus.en,
+                        targetMusclesText: day.focus,
                         durationText: '${day.estimatedDurationMinutes} min',
                         levelText: state.program.difficulty.label,
                       ),

@@ -138,11 +138,15 @@ void main() {
       expect(profile.id, equals('minimal_user'));
       expect(profile.currentWeightKg, equals(60.0));
       expect(profile.heightCm, equals(168.0));
-      expect(profile.displayName, equals('User'));
-      expect(profile.goal, equals('muscle_gain'));
-      expect(profile.experienceLevel, equals('beginner'));
-      expect(profile.weeklyFrequency, equals(3));
-      expect(profile.availableDays, contains('monday'));
+      expect(profile.displayName, isEmpty);
+      expect(profile.goal, isEmpty);
+      expect(profile.experienceLevel, isEmpty);
+      expect(profile.weeklyFrequency, equals(0));
+      expect(profile.targetWeightKg, equals(0));
+      expect(profile.targetTimeframeWeeks, equals(0));
+      expect(profile.preferredDurationMin, equals(0));
+      expect(profile.availableDays, isEmpty);
+      expect(profile.equipments, isEmpty);
     });
   });
 }

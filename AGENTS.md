@@ -12,7 +12,7 @@ Before making any change:
 3. Inspect the current implementation, callers, providers, routes, persistence paths, and tests. Never implement from a filename or assumption alone.
 4. Identify behavior that must remain unchanged and the failure cases the change must handle.
 5. Make the smallest coherent change that solves the requirement. Do not combine unrelated refactors with a feature or bug fix.
-6. Add or update tests for the behavior.
+6. Add or update tests for the behavior. Every new feature, modification, or bug fix MUST be backed by corresponding automated tests (unit, widget, or integration). No change is complete without automated test verification.
 7. Run the applicable quality checks in Section 11.
 8. Update documentation when architecture, data contracts, setup, configuration, behavior, or operations change.
 9. In the final change summary, state what changed, what was tested, and what was not tested. Never claim a check passed unless it was actually run and passed.
@@ -65,13 +65,28 @@ Do not introduce an application/use-case class for a trivial one-line operation.
 
 The application currently uses Riverpod 2.x (flutter_riverpod 2.6.1) and includes StateNotifierProvider patterns. Follow the established provider lifecycle in touched features. Do not mix state-management styles in the same feature without a documented migration decision.
 
-### 3.3 Screen and class size
+### 3.3 Screen and class size (Mandatory Component Splitting)
 
-- Keep screens focused on composition, rendering, and event forwarding.
-- Extract independent sections, dialogs, and reusable interactions into widgets.
-- Move orchestration out of build methods and large StatefulWidget classes.
-- Split classes when they have multiple reasons to change; do not split solely to hit an arbitrary line count.
-- Avoid adding new responsibilities to large legacy files such as AppDatabase, WorkoutsScreen, PlansScreen, and WorkoutSessionScreen. Prefer extracting a cohesive component or service first.
+- **Pure Composition Only:** Screen files (`*_screen.dart` / `*_page.dart`) MUST only handle high-level composition: `Scaffold`, `AppBar`, `ref.watch` on controllers, and arranging extracted sub-widgets.
+- **Strict Size Limits:** Screen files SHOULD NOT exceed 150–200 lines. If a screen is approaching this size, its sub-widgets, forms, lists, or headers MUST be extracted into separate files.
+- **STRICT PROHIBITION — No Inline/Private Sub-Widget Stacking:**
+  - AI agents and contributors MUST NOT define multiple private widget classes (e.g., `class _HeaderSection extends StatelessWidget`, `class _CardTile extends StatelessWidget`) within the same screen file.
+  - Every distinct visual section, custom card, bottom sheet, modal, list item, or action bar MUST live in its own dedicated file under `presentation/widgets/`.
+- **Mandatory Feature UI Structure:**
+  ```
+  features/<feature>/presentation/
+  ├── controllers/
+  │   └── <feature>_controller.dart
+  ├── screens/
+  │   └── <feature>_screen.dart       # High-level composition ONLY
+  └── widgets/
+      ├── <feature>_header.dart       # Dedicated widget file
+      ├── <feature>_card.dart         # Dedicated widget file
+      ├── <feature>_action_bar.dart   # Dedicated widget file
+      └── <feature>_widgets.dart      # Barrel file exporting all widgets in this folder
+  ```
+- **Avoid Monolithic Legacy Growth:** Do NOT add new responsibilities or inline widgets to large files such as `AppDatabase`, `WorkoutsScreen`, `PlansScreen`, or `WorkoutSessionScreen`. Always extract a cohesive component or service first.
+- **Rejection Criteria:** Any pull request or generated code containing a monolithic screen file that inlines multiple component widgets or exceeds the size limit MUST be rejected and split before completion.
 
 ### 3.4 Import organization and barrel files
 
@@ -126,6 +141,14 @@ Never display sample workout counts, calories, streaks, progress, or history as 
 - Support text scaling, screen sizes, semantic labels, and sufficient contrast.
 - User-facing text MUST use the localization system. Do not add hard-coded UI copy when a translation key is appropriate.
 - Do not change the product design system implicitly. Update design documentation when the system intentionally changes.
+
+### 4.5 Dark mode and theme fidelity
+
+- All UI components, screens, dialogs, bottom sheets, cards, and custom widgets MUST fully support both Dark Mode and Light Mode.
+- NEVER hard-code raw color literals (e.g., `Colors.black`, `Colors.white`, or unmanaged hex codes) for backgrounds, surfaces, text, icons, dividers, or borders that assume a single theme mode.
+- All colors MUST resolve dynamically through `Theme.of(context).colorScheme`, `AppTheme`, semantic tokens in `AppColors`, or theme extensions.
+- Ensure strict contrast and legibility in both Dark and Light themes across all text hierarchies, icons, interactive states (hovered, focused, pressed, disabled), and outlines.
+- When introducing or refactoring UI features, explicitly verify visual appearance and contrast in both Light and Dark themes.
 
 ## 5. Data ownership, persistence, and synchronization
 
@@ -254,6 +277,7 @@ Do not weaken analyzer rules, delete/skip tests, suppress lints broadly, or chan
 - Keep a pull request focused and explain motivation, implementation, user impact, migration impact, and verification.
 - Include screenshots/video for UI changes when practical.
 - Include a regression test for a bug fix.
+- Include comprehensive automated tests (unit and/or widget tests) for every new feature, screen, controller, or changed user flow. Untested features or bug fixes MUST NOT be approved or merged.
 - Call out known limitations, behavior changes, and follow-ups explicitly.
 - Do not commit generated build output, local machine paths, credentials, or unrelated formatting churn.
 
@@ -264,8 +288,10 @@ A change is complete only when:
 - The acceptance behavior is implemented.
 - Existing behavior and data are preserved unless intentionally changed.
 - Error, empty, loading, and offline states are handled where relevant.
+- Dark mode and light mode visual fidelity and contrast are confirmed.
+- UI screens adhere strictly to the modular component rule: high-level composition only (under 150–200 lines) with distinct sections, cards, and dialogs extracted into separate widget files in `widgets/`.
 - Code follows the dependency and ownership rules above.
-- Relevant tests are added/updated and pass, or unrun checks are clearly disclosed.
+- Mandatory test coverage is provided: all new or modified features include unit/widget tests, all bug fixes include regression tests, and all relevant tests pass.
 - No secrets or personal data are exposed.
 - Documentation and changelog are updated where required.
 - The pull request summary accurately reports the work and verification.

@@ -313,7 +313,7 @@ class HomeController extends StateNotifier<HomeState> {
             day: nextSession.dayNumber,
             week: currentWeek,
             type: WorkoutTypeCode.f,
-            focus: LocalizedString(id: focusLabel, en: focusLabel),
+            focus: focusLabel,
             isRest: false,
             isRetestMilestone: false,
             items: workoutItems,

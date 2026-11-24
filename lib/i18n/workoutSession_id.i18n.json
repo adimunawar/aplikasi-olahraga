@@ -65,5 +65,21 @@
   "emptySessionDescription": "Daftar latihan untuk sesi ini tidak ditemukan. Silakan kembali untuk memuat ulang program latihan Anda.",
   "backButtonLabel": "Kembali",
   "finishSessionFailed": "Sesi latihan gagal disimpan. Progres yang sudah tercatat tetap tersedia. Silakan coba lagi.",
-  "defaultProgramTitle": "Latihan Kekuatan"
+  "defaultProgramTitle": "Latihan Kekuatan",
+  "completedScreen": {
+    "title": "Workout Selesai! 🎉",
+    "subtitle": "Kerja bagus! Kamu telah menyelesaikan $focus.",
+    "duration": "Durasi",
+    "exercises": "Latihan",
+    "estCalories": "Est. Kalori",
+    "minUnit": "menit",
+    "howWasWorkout": "Bagaimana latihannya?",
+    "tooEasy": "Terlalu Mudah",
+    "easy": "Mudah",
+    "justRight": "Pas Banget",
+    "hard": "Berat",
+    "tooHard": "Terlalu Berat",
+    "saveAndContinue": "Simpan & Lanjutkan",
+    "viewWorkoutSummary": "Lihat Ringkasan Latihan"
+  }
 }

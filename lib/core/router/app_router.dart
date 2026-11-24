@@ -27,6 +27,8 @@ import '../../features/program/presentation/screens/program_detail_screen.dart';
 import '../../features/progress/presentation/screens/progress_screen.dart';
 import '../../features/workout_detail/presentation/screens/workout_detail_screen.dart';
 import '../../features/workout_session/domain/models/exercise_prescription.dart';
+import '../../features/workout_session/domain/models/workout_session_result.dart';
+import '../../features/workout_session/presentation/screens/workout_completed_screen.dart';
 import '../../features/workout_session/presentation/screens/workout_session_screen.dart';
 import '../../features/workout_summary/presentation/screens/workout_summary_screen.dart';
 import '../../features/progression/domain/models/progression_models.dart';
@@ -43,6 +45,7 @@ class AppRoutes {
   static const String onboardingPlan = '/onboarding-plan';
   static const String workoutDetail = '/workout-detail';
   static const String workoutSession = '/workout-session';
+  static const String workoutCompleted = '/workout-completed';
   static const String workoutSummary = '/workout-summary';
   static const String exerciseDetail = '/exercise-detail';
   static const String calendar = '/calendar';
@@ -82,14 +85,15 @@ class WorkoutDetailArgs {
   /// Sesi in_progress yang bisa dilanjutkan untuk jadwal ini.
   final String? activeSessionId;
 
-  const WorkoutDetailArgs({    this.dayNumber = 1,
+  const WorkoutDetailArgs({
+    this.dayNumber = 1,
     this.weekNumber,
     this.programId,
-    this.weekDayText = 'Week 1 • Day 1',
-    this.workoutTitle = 'Upper Body',
-    this.targetMusclesText = 'Chest',
-    this.durationText = '45 min',
-    this.levelText = 'Intermediate',
+    this.weekDayText = '',
+    this.workoutTitle = '',
+    this.targetMusclesText = '',
+    this.durationText = '',
+    this.levelText = '',
     this.description = '',
     this.scheduledDate,
     this.readOnly = false,
@@ -119,6 +123,33 @@ class WorkoutSessionArgs {
     this.scheduledDate,
     this.activeSessionId,
     this.prescriptions = const {},
+  });
+}
+
+/// DTO Arguments untuk WorkoutCompletedScreen
+class WorkoutCompletedArgs {
+  final String userName;
+  final String workoutTitle;
+  final String focusText;
+  final int durationMinutes;
+  final int exercisesCount;
+  final int caloriesBurned;
+  final WorkoutSessionResult? result;
+  final String? weekDayText;
+  final String? setsCountText;
+  final List<ProgressionDecision> progressionDecisions;
+
+  const WorkoutCompletedArgs({
+    this.userName = 'athlete',
+    this.workoutTitle = 'Workout',
+    this.focusText = '',
+    this.durationMinutes = 0,
+    this.exercisesCount = 0,
+    this.caloriesBurned = 0,
+    this.result,
+    this.weekDayText,
+    this.setsCountText,
+    this.progressionDecisions = const [],
   });
 }
 
@@ -158,9 +189,36 @@ final hasCompletedOnboardingProvider = StateProvider<bool>((ref) => false);
 final appRouterProvider = Provider<GoRouter>((ref) {
   final hasCompletedOnboarding = ref.watch(hasCompletedOnboardingProvider);
 
+  const onboardingFlowPaths = {
+    AppRoutes.onboarding,
+    AppRoutes.creatingPlan,
+    AppRoutes.planReady,
+    AppRoutes.onboardingPlan,
+  };
+
   return GoRouter(
     navigatorKey: rootNavigatorKey,
-    initialLocation: hasCompletedOnboarding ? AppRoutes.home : AppRoutes.onboarding,
+    initialLocation: hasCompletedOnboarding
+        ? AppRoutes.home
+        : AppRoutes.onboarding,
+    // Initial location alone does not protect against platform deep links.
+    // Keep the onboarding flow accessible until the user activates a plan,
+    // and prevent completed users from re-entering the onboarding flow.
+    redirect: (context, state) {
+      final isOnboardingFlow = onboardingFlowPaths.contains(
+        state.matchedLocation,
+      );
+
+      if (!hasCompletedOnboarding && !isOnboardingFlow) {
+        return AppRoutes.onboarding;
+      }
+
+      if (hasCompletedOnboarding && isOnboardingFlow) {
+        return AppRoutes.home;
+      }
+
+      return null;
+    },
     routes: [
       // 1. Stateful Shell Route untuk Bottom Navigation (Home, Plans, Progress, Profile)
       StatefulShellRoute.indexedStack(
@@ -175,8 +233,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 path: AppRoutes.home,
                 builder: (context, state) => HomeScreen(
                   onNavigateToCalendar: () => context.push(AppRoutes.calendar),
-                  onNavigateToExercises: () => context.push(AppRoutes.exercises),
-                  onNavigateToNutrition: () => context.push(AppRoutes.nutrition),
+                  onNavigateToExercises: () =>
+                      context.push(AppRoutes.exercises),
+                  onNavigateToNutrition: () =>
+                      context.push(AppRoutes.nutrition),
                   onNavigateToProgress: () => context.go(AppRoutes.progress),
                 ),
               ),
@@ -222,7 +282,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.workoutDetail,
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
-          final args = state.extra as WorkoutDetailArgs? ?? const WorkoutDetailArgs();
+          final args =
+              state.extra as WorkoutDetailArgs? ?? const WorkoutDetailArgs();
           return WorkoutDetailScreen(
             dayNumber: args.dayNumber,
             weekNumber: args.weekNumber,
@@ -255,10 +316,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
+        path: AppRoutes.workoutCompleted,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) {
+          final args =
+              state.extra as WorkoutCompletedArgs? ??
+              const WorkoutCompletedArgs();
+          return WorkoutCompletedScreen(args: args);
+        },
+      ),
+      GoRoute(
         path: AppRoutes.workoutSummary,
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
-          final args = state.extra as WorkoutSummaryArgs? ?? const WorkoutSummaryArgs();
+          final args =
+              state.extra as WorkoutSummaryArgs? ?? const WorkoutSummaryArgs();
           return WorkoutSummaryScreen(
             userName: args.userName,
             workoutTitle: args.workoutTitle,
@@ -268,8 +340,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             setsCountText: args.setsCountText,
             caloriesText: args.caloriesText,
             progressionDecisions: args.progressionDecisions,
-            quoteText: args.quoteText ??
-                'Latihan yang konsisten seperti ini akan membantu kamu membangun massa otot dan tubuh yang lebih kuat. Pertahankan!',
+            quoteText: args.quoteText ?? 'Latihan yang konsisten seperti ini akan membantu kamu membangun massa otot dan tubuh yang lebih kuat. Pertahankan!',
           );
         },
       ),

@@ -24,11 +24,12 @@ class ProgressRepositoryImpl implements ProgressRepository {
 
   @override
   Future<ProgressMetrics> getMetrics() async {
-    int workoutCount = 6;
-    int caloriesBurned = 1250;
-    int streakDays = 2;
-    int completedThisWeek = 2;
-    int weeklyTarget = 3;
+    var workoutCount = 0;
+    var caloriesBurned = 0;
+    var streakDays = 0;
+    var completedThisWeek = 0;
+    var weeklyTarget = 0;
+    var totalMinutes = 0;
 
     try {
       final completed = await localDatabase.getCompletedSessionsCount();
@@ -37,19 +38,21 @@ class ProgressRepositoryImpl implements ProgressRepository {
       final thisWeek = await localDatabase.getThisWeekCompletedCount();
       final profile = await localDatabase.getUserProfile();
 
-      if (completed > 0) workoutCount = completed;
-      if (calories > 0) caloriesBurned = calories;
-      if (streak > 0) streakDays = streak;
-      if (thisWeek > 0) completedThisWeek = thisWeek;
-      if (profile.weeklyFrequency > 0) {
-        weeklyTarget = profile.weeklyFrequency;
-      }
+      workoutCount = completed;
+      caloriesBurned = calories;
+      streakDays = streak;
+      completedThisWeek = thisWeek;
+      weeklyTarget = profile.weeklyFrequency;
+      final sessions = await localDatabase.getRecentWorkoutSessions(limit: 10000);
+      totalMinutes = sessions
+          .where((session) => session.status.name == 'completed')
+          .fold<int>(0, (sum, session) => sum + session.durationSeconds) ~/ 60;
     } catch (_) {}
 
     return ProgressMetrics(
       workoutCount: workoutCount,
       caloriesBurned: caloriesBurned,
-      totalMinutes: workoutCount * 25,
+      totalMinutes: totalMinutes,
       streakDays: streakDays,
       completedThisWeek: completedThisWeek,
       weeklyTarget: weeklyTarget,
@@ -79,16 +82,6 @@ class ProgressRepositoryImpl implements ProgressRepository {
         )).toList();
       }
 
-      final latest = await localDatabase.getLatestWeight();
-      if (latest > 0) {
-        return [
-          WeightRecord(
-            id: 'local_latest',
-            weightKg: latest,
-            recordedAt: DateTime.now(),
-          ),
-        ];
-      }
     } catch (_) {}
 
     return [];
@@ -122,22 +115,8 @@ class ProgressRepositoryImpl implements ProgressRepository {
       } catch (_) {}
     }
 
-    return [
-      const WorkoutHistoryItem(
-        id: 'mock_1',
-        title: 'Upper Body Focus',
-        dateText: 'Hari ini',
-        durationText: '25 min',
-        caloriesText: '185 kcal',
-      ),
-      const WorkoutHistoryItem(
-        id: 'mock_2',
-        title: 'Lower Body & Core',
-        dateText: '2 hari lalu',
-        durationText: '30 min',
-        caloriesText: '220 kcal',
-      ),
-    ];
+    return [];
+
   }
 
   @override
@@ -149,17 +128,9 @@ class ProgressRepositoryImpl implements ProgressRepository {
         day: day,
         minutes: localActivity[day] ?? 0,
       )).toList();
-    } catch (_) {}
-
-    return const [
-      DayActivity(day: 'Mon', minutes: 35),
-      DayActivity(day: 'Tue', minutes: 25),
-      DayActivity(day: 'Wed', minutes: 30),
-      DayActivity(day: 'Thu', minutes: 0),
-      DayActivity(day: 'Fri', minutes: 0),
-      DayActivity(day: 'Sat', minutes: 0),
-      DayActivity(day: 'Sun', minutes: 0),
-    ];
+    } catch (_) {
+      return const [];
+    }
   }
 
   @override
@@ -168,13 +139,7 @@ class ProgressRepositoryImpl implements ProgressRepository {
       final rows = await localDatabase.getWeeklyMovementVolume();
       return rows.map((r) => MovementVolumeData.fromMap(r)).toList();
     } catch (_) {
-      return const [
-        MovementVolumeData(pattern: 'push', totalSets: 6, totalReps: 60),
-        MovementVolumeData(pattern: 'pull', totalSets: 4, totalReps: 40),
-        MovementVolumeData(pattern: 'squat', totalSets: 6, totalReps: 72),
-        MovementVolumeData(pattern: 'hinge', totalSets: 3, totalReps: 36),
-        MovementVolumeData(pattern: 'core', totalSets: 4, totalReps: 45),
-      ];
+      return const [];
     }
   }
 

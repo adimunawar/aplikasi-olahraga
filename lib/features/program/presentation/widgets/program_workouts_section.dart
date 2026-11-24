@@ -127,7 +127,7 @@ class _WorkoutSessionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final title = day.title ?? 'Day ${day.day} – Workout';
-    final focusText = day.focus.en;
+    final focusText = day.focus;
     final isRest = day.isRest;
     final thumbnail = day.thumbnailAsset ??
         (isRest

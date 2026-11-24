@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_smart_image.dart';
+import '../../../../i18n/strings.g.dart';
 import '../../../exercises/domain/models/exercise.dart';
 
 /// Compact exercise card used by the Workout Detail screen.
@@ -23,18 +24,48 @@ class WorkoutExerciseListItem extends StatelessWidget {
     required this.exercise,
   });
 
-  String get _prescriptionLabel {
+  String _prescriptionLabel(Translations t) {
     final value = reps.trim();
     final lower = value.toLowerCase();
     final alreadyHasUnit =
-        lower.contains('rep') || lower.contains('sec') || lower.endsWith('s');
-    return alreadyHasUnit ? value : '$value reps';
+        lower.contains('rep') ||
+        lower.contains('sec') ||
+        lower.endsWith('s') ||
+        lower.contains('mnt') ||
+        lower.contains('detik');
+    if (alreadyHasUnit) return value;
+    return '$value ${t.workouts.workoutDetail.repsUnit}';
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final cardColor = theme.colorScheme.surface;
+    final borderColor = isDark
+        ? theme.colorScheme.outlineVariant.withValues(alpha: 0.3)
+        : const Color(0xFFF0F2F0);
+    final titleColor = theme.colorScheme.onSurface;
+    final subtitleColor = theme.colorScheme.onSurfaceVariant;
+    final fallbackBg = isDark
+        ? theme.colorScheme.surfaceContainerHighest
+        : const Color(0xFFF3F5F2);
+
+    final setLabel = t.workouts.workoutDetail.setReps(
+      sets: sets,
+      reps: _prescriptionLabel(t),
+    );
+
+    if (title.toLowerCase().contains('knee') ||
+        title.toLowerCase().contains('push')) {
+      debugPrint(
+        '[WorkoutExerciseListItem] 📋 Building item "$title" with thumbnailAsset: "$thumbnailAsset"',
+      );
+    }
+
     return Material(
-      color: Colors.white,
+      color: cardColor,
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         onTap: () {
@@ -44,16 +75,18 @@ class WorkoutExerciseListItem extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: cardColor,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: const Color(0xFFF0F2F0)),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x07000000),
-                blurRadius: 7,
-                offset: Offset(0, 2),
-              ),
-            ],
+            border: Border.all(color: borderColor),
+            boxShadow: isDark
+                ? null
+                : const [
+                    BoxShadow(
+                      color: Color(0x07000000),
+                      blurRadius: 7,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
           ),
           child: Row(
             children: [
@@ -66,11 +99,11 @@ class WorkoutExerciseListItem extends StatelessWidget {
                     imagePathOrUrl: thumbnailAsset,
                     fit: BoxFit.cover,
                     errorWidget: Container(
-                      color: const Color(0xFFF3F5F2),
+                      color: fallbackBg,
                       alignment: Alignment.center,
-                      child: const Icon(
+                      child: Icon(
                         Icons.fitness_center_rounded,
-                        color: Color(0xFF94A3B8),
+                        color: subtitleColor.withValues(alpha: 0.6),
                         size: 22,
                       ),
                     ),
@@ -88,18 +121,18 @@ class WorkoutExerciseListItem extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTypography.labelLarge.copyWith(
-                        color: const Color(0xFF141718),
+                        color: titleColor,
                         fontWeight: FontWeight.w800,
                         fontSize: 13.5,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '$sets sets × $_prescriptionLabel',
+                      setLabel,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTypography.labelSmall.copyWith(
-                        color: const Color(0xFF64748B),
+                        color: subtitleColor,
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
                       ),
@@ -108,11 +141,7 @@ class WorkoutExerciseListItem extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              const Icon(
-                Icons.chevron_right_rounded,
-                color: Color(0xFF64748B),
-                size: 21,
-              ),
+              Icon(Icons.chevron_right_rounded, color: subtitleColor, size: 21),
             ],
           ),
         ),

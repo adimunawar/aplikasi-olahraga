@@ -30,5 +30,126 @@
     "sets": "set",
     "seconds": "detik",
     "kg": "kg"
+  },
+  "streak": {
+    "daySingular": "$count hari",
+    "dayPlural": "$count hari",
+    "activeDaySingular": "$count hari aktif",
+    "activeDayPlural": "$count hari aktif"
+  },
+  "progress": {
+    "title": "Progres",
+    "rangeWeeks": "$weeks Minggu Terakhir",
+    "tabs": {
+      "overview": "Ringkasan",
+      "body": "Tubuh",
+      "workout": "Latihan",
+      "history": "Riwayat"
+    },
+    "overviewTitle": "Progres Anda",
+    "overviewSubtitle": "Ringkasan latihan dan progres tubuh Anda.",
+    "metrics": {
+      "workouts": "Latihan",
+      "completion": "Penyelesaian",
+      "trainingTime": "Waktu Latihan",
+      "currentStreak": "Konsistensi Saat Ini"
+    },
+    "programProgress": "Progres Program",
+    "noWorkoutData": {
+      "title": "Belum ada data latihan",
+      "message": "Selesaikan latihan pertama Anda untuk melihat progres di sini."
+    },
+    "noActiveProgram": {
+      "title": "Belum ada program aktif",
+      "message": "Pilih program latihan untuk melacak progres mingguan Anda."
+    },
+    "recentHighlights": "Sorotan Terbaru",
+    "keepGoing": "Terus Semangat!",
+    "keepGoingMessage": "Tetap konsisten. Setiap latihan membawa Anda lebih dekat ke tujuan.",
+    "weightTrend": {
+      "title": "Berat Badan (kg)",
+      "weekValue": "M$week · $value kg",
+      "weekShort": "M$week",
+      "empty": "Belum ada pengukuran berat badan pada periode ini.",
+      "vsWeeksAgo": "dibanding $weeks minggu lalu",
+      "increase": "↑ +$value kg",
+      "decrease": "↓ $value kg"
+    },
+    "notTracked": {
+      "title": "Pelacakan $metric belum tersedia",
+      "message": "Metrik ini belum tersimpan dalam pengukuran Anda."
+    },
+    "programCard": {
+      "weekOf": "Minggu $week dari $total",
+      "active": "Aktif",
+      "completion": "Penyelesaian program"
+    },
+    "highlights": {
+      "completed": "Menyelesaikan $completed dari $target latihan minggu ini",
+      "weightIncrease": "Berat badan naik $value kg",
+      "weightDecrease": "Berat badan turun $value kg",
+      "emptyTitle": "Belum ada sorotan",
+      "emptyMessage": "Pencapaian Anda akan muncul saat Anda mencatat latihan dan pengukuran."
+    },
+    "body": {
+      "title": "Progres Tubuh",
+      "subtitle": "Pantau perubahan tubuh Anda dari waktu ke waktu.",
+      "weight": "Berat Badan",
+      "muscleMass": "Massa Otot",
+      "bodyFat": "Lemak Tubuh",
+      "logMeasurement": "Catat Pengukuran",
+      "recordWeight": "Catat Berat Badan",
+      "currentWeight": "Berat Badan Saat Ini"
+    },
+    "workout": {
+      "title": "Performa Latihan",
+      "subtitle": "Progres dan konsistensi latihan Anda.",
+      "noPerformance": {
+        "title": "Belum ada performa latihan",
+        "message": "Aktivitas mingguan dan volume latihan akan muncul setelah Anda menyelesaikan latihan."
+      },
+      "weeklyActivity": "Aktivitas Mingguan",
+      "noActivity": {
+        "title": "Belum ada aktivitas minggu ini",
+        "message": "Durasi latihan yang selesai akan dirangkum di sini."
+      },
+      "trainingVolume": "Volume Latihan",
+      "noVolume": {
+        "title": "Belum ada volume latihan",
+        "message": "Total set dan repetisi akan muncul setelah Anda mencatat set yang selesai."
+      },
+      "recentWorkouts": "Latihan Terbaru",
+      "noRecentWorkouts": {
+        "title": "Belum ada latihan terbaru",
+        "message": "Sesi yang telah Anda selesaikan akan muncul di sini."
+      },
+      "minutesPerDay": "Menit per hari",
+      "minutesTotal": "$minutes menit total",
+      "trainingMinutesThisWeek": "$minutes menit latihan minggu ini",
+      "totalTime": "Total Waktu"
+    },
+    "history": {
+      "all": "Semua",
+      "workout": "Latihan",
+      "measurement": "Pengukuran",
+      "oldestFirst": "Terlama dahulu",
+      "newestFirst": "Terbaru dahulu",
+      "recordWeight": "Catat berat badan"
+    },
+    "duration": {
+      "minutes": "${minutes} mnt",
+      "hours": "${hours}j",
+      "hoursMinutes": "${hours}j ${minutes}mnt"
+    },
+    "weightDialog": {
+      "title": "Catat berat badan",
+      "currentWeight": "Berat badan saat ini",
+      "cancel": "Batal",
+      "save": "Simpan"
+    },
+    "error": {
+      "title": "Gagal memuat progres",
+      "retry": "Coba lagi"
+    }
   }
 }
