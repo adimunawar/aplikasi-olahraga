@@ -194,7 +194,10 @@ jobs:
       - test
     # Build and deploy Web only after changes are merged into staging.
     # PR validation is handled by Analyze and Test above.
-    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+    if: >-
+      always() &&
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/staging'
     timeout-minutes: 35
 
     steps:
