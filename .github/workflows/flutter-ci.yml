@@ -24,11 +24,13 @@ concurrency:
 jobs:
   # --------------------------------------------------
   # 1. ANALYZE
-  # Always runs for pull requests and pushes.
+  # Run during PR validation and non-staging-push workflows.
+  # Staging pushes reuse the successful PR validation.
   # --------------------------------------------------
   analyze:
     name: Analyze Dart & Flutter
     runs-on: ubuntu-latest
+    if: github.event_name != 'push' || github.ref != 'refs/heads/staging'
     timeout-minutes: 20
 
     steps:
@@ -51,11 +53,13 @@ jobs:
 
   # --------------------------------------------------
   # 2. TEST
-  # Always runs for pull requests and pushes.
+  # Run during PR validation and non-staging-push workflows.
+  # Staging pushes reuse the successful PR validation.
   # --------------------------------------------------
   test:
     name: Run Flutter tests
     runs-on: ubuntu-latest
+    if: github.event_name != 'push' || github.ref != 'refs/heads/staging'
     timeout-minutes: 30
 
     steps:
@@ -179,7 +183,8 @@ jobs:
   # --------------------------------------------------
   # 3. WEB BUILD
   # Ensures SQLite Web assets are generated and Flutter Web builds cleanly.
-  # Configured to only run for staging (PRs targeting staging or staging branch refs).
+  # PRs targeting staging build for validation; staging pushes build and deploy.
+  # On staging pushes, Analyze and Test are skipped to avoid duplicate work.
   # --------------------------------------------------
   build_web:
     name: Build Flutter Web
@@ -187,7 +192,13 @@ jobs:
     needs:
       - analyze
       - test
-    if: github.base_ref == 'staging' || github.ref == 'refs/heads/staging'
+    if: >-
+      always() &&
+      (
+        (github.event_name == 'pull_request' && github.base_ref == 'staging' &&
+          needs.analyze.result == 'success' && needs.test.result == 'success') ||
+        (github.event_name == 'push' && github.ref == 'refs/heads/staging')
+      )
     timeout-minutes: 35
 
     steps:
