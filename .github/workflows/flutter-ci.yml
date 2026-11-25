@@ -183,8 +183,8 @@ jobs:
   # --------------------------------------------------
   # 3. WEB BUILD
   # Ensures SQLite Web assets are generated and Flutter Web builds cleanly.
-  # PRs targeting staging build for validation; staging pushes build and deploy.
-  # On staging pushes, Analyze and Test are skipped to avoid duplicate work.
+  # Build Web only on staging pushes, after PR validation has passed.
+  # Analyze and Test are skipped on staging pushes to avoid duplicate work.
   # --------------------------------------------------
   build_web:
     name: Build Flutter Web
@@ -192,13 +192,9 @@ jobs:
     needs:
       - analyze
       - test
-    if: >-
-      always() &&
-      (
-        (github.event_name == 'pull_request' && github.base_ref == 'staging' &&
-          needs.analyze.result == 'success' && needs.test.result == 'success') ||
-        (github.event_name == 'push' && github.ref == 'refs/heads/staging')
-      )
+    # Build and deploy Web only after changes are merged into staging.
+    # PR validation is handled by Analyze and Test above.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
     timeout-minutes: 35
 
     steps:
