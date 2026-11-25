@@ -3,7 +3,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../i18n/strings.g.dart';
 
-/// Step 4 of 7: What's your experience level? (Mockup 1:1)
+/// Step 4 of 7: What's your experience level? (Light & Dark Mode)
 class StepExperience extends StatelessWidget {
   final String selectedLevel;
   final ValueChanged<String> onLevelSelected;
@@ -23,6 +23,7 @@ class StepExperience extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Translations.of(context).onboarding.experience;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
@@ -34,21 +35,21 @@ class StepExperience extends StatelessWidget {
             style: AppTypography.displayMedium.copyWith(
               fontWeight: FontWeight.w900,
               fontSize: 24,
-              color: AppColors.darkCharcoal,
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 6),
           Text(
             t.subtitle,
             style: AppTypography.bodySmall.copyWith(
-              color: AppColors.neutral500,
+              color: colorScheme.onSurfaceVariant,
               fontSize: 13,
             ),
           ),
           const SizedBox(height: 24),
-
           for (final option in t.options) ...[
             _buildLevelCard(
+              context: context,
               option: option,
               icon: _icons[option.id] ?? Icons.fitness_center_rounded,
             ),
@@ -60,10 +61,15 @@ class StepExperience extends StatelessWidget {
   }
 
   Widget _buildLevelCard({
+    required BuildContext context,
     required ExperienceOption option,
     required IconData icon,
   }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
     final isSelected = selectedLevel == option.id;
+    final accentColor = isDark ? colorScheme.primary : AppColors.greenBrand;
 
     return InkWell(
       onTap: () => onLevelSelected(option.id),
@@ -72,21 +78,25 @@ class StepExperience extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFF4F9ED) : AppColors.surface,
+          color: isSelected
+              ? colorScheme.primaryContainer
+              : colorScheme.surface,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isSelected ? const Color(0xFF84CC16) : AppColors.neutral200,
+            color: isSelected ? accentColor : colorScheme.outline,
             width: isSelected ? 1.8 : 1.2,
           ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppColors.limeAccent.withValues(alpha: 0.2),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : AppColors.cardShadow,
+          boxShadow: isDark
+              ? null
+              : (isSelected
+                  ? [
+                      BoxShadow(
+                        color: AppColors.limeAccent.withValues(alpha: 0.2),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ]
+                  : AppColors.cardShadow),
         ),
         child: Row(
           children: [
@@ -94,14 +104,16 @@ class StepExperience extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? AppColors.limeCardSurface
-                    : const Color(0xFFF1F5F9),
+                    ? colorScheme.primary.withValues(alpha: 0.18)
+                    : colorScheme.surfaceContainerHighest,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 icon,
                 size: 24,
-                color: isSelected ? AppColors.greenDark : AppColors.neutral600,
+                color: isSelected
+                    ? (isDark ? colorScheme.primary : AppColors.greenDark)
+                    : colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(width: 14),
@@ -114,14 +126,14 @@ class StepExperience extends StatelessWidget {
                     style: AppTypography.titleSmall.copyWith(
                       fontWeight: FontWeight.w800,
                       fontSize: 15,
-                      color: AppColors.darkCharcoal,
+                      color: colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     option.description,
                     style: AppTypography.bodySmall.copyWith(
-                      color: AppColors.neutral500,
+                      color: colorScheme.onSurfaceVariant,
                       fontSize: 12,
                       height: 1.35,
                     ),
@@ -134,14 +146,14 @@ class StepExperience extends StatelessWidget {
               Container(
                 width: 24,
                 height: 24,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF84CC16),
+                decoration: BoxDecoration(
+                  color: colorScheme.primary,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.check_rounded,
                   size: 16,
-                  color: AppColors.darkCharcoal,
+                  color: colorScheme.onPrimary,
                 ),
               ),
             ],
@@ -151,4 +163,3 @@ class StepExperience extends StatelessWidget {
     );
   }
 }
-

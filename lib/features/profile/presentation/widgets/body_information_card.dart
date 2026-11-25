@@ -1,12 +1,10 @@
 import 'package:material_ui/material_ui.dart';
-import '../../../../core/theme/app_typography.dart';
 
-/// Card "Body Information" pada Halaman Profile (Mockup 1:1):
-/// - Header: Icon timbangan, judul "Body Information", subtitle, & tombol "Edit"
-/// - 3 Kolom Metrik Tubuh:
-///   1. Weight: "58.0 kg", badge "↓ -1.0 kg", "from last update"
-///   2. Height: "174 cm" dengan icon penggaris/pita ukur
-///   3. BMI: "19.2", badge "Healthy", spektrum 4 warna dengan pointer segitiga hitam
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/core_widgets.dart';
+
+/// Card "Body Information" pada Halaman Profile (Light & Dark Mode).
 class BodyInformationCard extends StatelessWidget {
   final double weight;
   final double height;
@@ -38,20 +36,32 @@ class BodyInformationCard extends StatelessWidget {
     return 'Obese';
   }
 
-  Color get _bmiBadgeColor {
+  Color _bmiBadgeColor(bool isDark) {
     final val = _effectiveBmi;
-    if (val < 18.5) return const Color(0xFF2563EB); // Blue
-    if (val < 25.0) return const Color(0xFF4D7C0F); // Green
-    if (val < 30.0) return const Color(0xFFD97706); // Orange
-    return const Color(0xFFDC2626); // Red
+    if (val < 18.5) {
+      return isDark ? const Color(0xFF93C5FD) : const Color(0xFF2563EB);
+    }
+    if (val < 25.0) {
+      return isDark ? AppColors.limeAccent : AppColors.greenDark;
+    }
+    if (val < 30.0) {
+      return isDark ? const Color(0xFFFCD34D) : const Color(0xFFD97706);
+    }
+    return isDark ? const Color(0xFFFCA5A5) : AppColors.error;
   }
 
-  Color get _bmiBadgeBgColor {
+  Color _bmiBadgeBgColor(bool isDark) {
     final val = _effectiveBmi;
-    if (val < 18.5) return const Color(0xFFDBEAFE);
-    if (val < 25.0) return const Color(0xFFEAF8D5);
-    if (val < 30.0) return const Color(0xFFFEF3C7);
-    return const Color(0xFFFEE2E2);
+    if (val < 18.5) {
+      return isDark ? const Color(0xFF1E3A8A) : const Color(0xFFDBEAFE);
+    }
+    if (val < 25.0) {
+      return isDark ? const Color(0xFF28390A) : AppColors.limeSurface;
+    }
+    if (val < 30.0) {
+      return isDark ? const Color(0xFF78350F) : const Color(0xFFFEF3C7);
+    }
+    return isDark ? const Color(0xFF7F1D1D) : const Color(0xFFFEE2E2);
   }
 
   double get _bmiPointerFraction {
@@ -61,37 +71,34 @@ class BodyInformationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
+
+    final iconBg = isDark ? colorScheme.primaryContainer : AppColors.limeSurface;
+    final iconFg = isDark ? colorScheme.primary : colorScheme.onSurface;
+    final editBg = isDark ? colorScheme.primaryContainer : AppColors.limeCardSurface;
+    final editFg = isDark ? colorScheme.onPrimaryContainer : colorScheme.onSurface;
+
+    return AppCard(
+      borderRadius: 22,
       padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFFF1F3F5), width: 1.2),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x06000000),
-            blurRadius: 10,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Card: Icon + Judul/Subtitle + Tombol Edit
           Row(
             children: [
               Container(
                 width: 34,
                 height: 34,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEAF8D5),
+                  color: iconBg,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.monitor_weight_outlined,
                   size: 18,
-                  color: Color(0xFF141718),
+                  color: iconFg,
                 ),
               ),
               const SizedBox(width: 10),
@@ -104,14 +111,14 @@ class BodyInformationCard extends StatelessWidget {
                       style: AppTypography.labelLarge.copyWith(
                         fontWeight: FontWeight.w800,
                         fontSize: 15,
-                        color: const Color(0xFF141718),
+                        color: colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 1),
                     Text(
                       'Your current body data',
                       style: AppTypography.bodySmall.copyWith(
-                        color: const Color(0xFF6B7280),
+                        color: colorScheme.onSurfaceVariant,
                         fontSize: 12,
                       ),
                     ),
@@ -126,16 +133,16 @@ class BodyInformationCard extends StatelessWidget {
                     vertical: 5,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF3FADC),
+                    color: editBg,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.edit_outlined,
                         size: 13,
-                        color: Color(0xFF141718),
+                        color: editFg,
                       ),
                       const SizedBox(width: 4),
                       Text(
@@ -143,7 +150,7 @@ class BodyInformationCard extends StatelessWidget {
                         style: AppTypography.labelSmall.copyWith(
                           fontWeight: FontWeight.w800,
                           fontSize: 11.5,
-                          color: const Color(0xFF141718),
+                          color: editFg,
                         ),
                       ),
                     ],
@@ -153,33 +160,22 @@ class BodyInformationCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 18),
-
-          // 3 Kolom Metrik Tubuh (Weight, Height, BMI)
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Kolom 1: Weight
               Expanded(
                 flex: 10,
-                child: _buildWeightColumn(),
+                child: _buildWeightColumn(context, isDark, colorScheme, iconBg),
               ),
-
-              // Garis Pemisah Halus
-              _buildVerticalDivider(),
-
-              // Kolom 2: Height
+              _buildVerticalDivider(colorScheme),
               Expanded(
                 flex: 9,
-                child: _buildHeightColumn(),
+                child: _buildHeightColumn(colorScheme, iconBg, iconFg),
               ),
-
-              // Garis Pemisah Halus
-              _buildVerticalDivider(),
-
-              // Kolom 3: BMI
+              _buildVerticalDivider(colorScheme),
               Expanded(
                 flex: 14,
-                child: _buildBmiColumn(),
+                child: _buildBmiColumn(isDark, colorScheme, iconBg, iconFg),
               ),
             ],
           ),
@@ -188,7 +184,12 @@ class BodyInformationCard extends StatelessWidget {
     );
   }
 
-  Widget _buildWeightColumn() {
+  Widget _buildWeightColumn(
+    BuildContext context,
+    bool isDark,
+    ColorScheme colorScheme,
+    Color iconBg,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -198,21 +199,21 @@ class BodyInformationCard extends StatelessWidget {
               width: 24,
               height: 24,
               decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
+                color: colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                border: Border.all(color: colorScheme.outline),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.scale_rounded,
                 size: 14,
-                color: Color(0xFF141718),
+                color: colorScheme.onSurface,
               ),
             ),
             const SizedBox(width: 6),
             Text(
               'Weight',
               style: AppTypography.bodySmall.copyWith(
-                color: const Color(0xFF6B7280),
+                color: colorScheme.onSurfaceVariant,
                 fontSize: 11.5,
                 fontWeight: FontWeight.w500,
               ),
@@ -225,7 +226,7 @@ class BodyInformationCard extends StatelessWidget {
           style: AppTypography.titleLarge.copyWith(
             fontWeight: FontWeight.w900,
             fontSize: 17,
-            color: const Color(0xFF141718),
+            color: colorScheme.onSurface,
             letterSpacing: -0.4,
           ),
         ),
@@ -233,13 +234,13 @@ class BodyInformationCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
           decoration: BoxDecoration(
-            color: const Color(0xFFEAF8D5),
+            color: iconBg,
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
             '↓ -1.0 kg',
             style: AppTypography.labelSmall.copyWith(
-              color: const Color(0xFF4D7C0F),
+              color: isDark ? AppColors.limeAccent : AppColors.greenDark,
               fontWeight: FontWeight.w800,
               fontSize: 10.5,
             ),
@@ -249,7 +250,7 @@ class BodyInformationCard extends StatelessWidget {
         Text(
           'from last update',
           style: AppTypography.bodySmall.copyWith(
-            color: const Color(0xFF94A3B8),
+            color: colorScheme.onSurfaceVariant,
             fontSize: 9.5,
           ),
         ),
@@ -257,7 +258,11 @@ class BodyInformationCard extends StatelessWidget {
     );
   }
 
-  Widget _buildHeightColumn() {
+  Widget _buildHeightColumn(
+    ColorScheme colorScheme,
+    Color iconBg,
+    Color iconFg,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -267,20 +272,20 @@ class BodyInformationCard extends StatelessWidget {
               width: 24,
               height: 24,
               decoration: BoxDecoration(
-                color: const Color(0xFFEAF8D5),
+                color: iconBg,
                 borderRadius: BorderRadius.circular(6),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.straighten_rounded,
                 size: 14,
-                color: Color(0xFF141718),
+                color: iconFg,
               ),
             ),
             const SizedBox(width: 6),
             Text(
               'Height',
               style: AppTypography.bodySmall.copyWith(
-                color: const Color(0xFF6B7280),
+                color: colorScheme.onSurfaceVariant,
                 fontSize: 11.5,
                 fontWeight: FontWeight.w500,
               ),
@@ -293,7 +298,7 @@ class BodyInformationCard extends StatelessWidget {
           style: AppTypography.titleLarge.copyWith(
             fontWeight: FontWeight.w900,
             fontSize: 17,
-            color: const Color(0xFF141718),
+            color: colorScheme.onSurface,
             letterSpacing: -0.4,
           ),
         ),
@@ -301,7 +306,12 @@ class BodyInformationCard extends StatelessWidget {
     );
   }
 
-  Widget _buildBmiColumn() {
+  Widget _buildBmiColumn(
+    bool isDark,
+    ColorScheme colorScheme,
+    Color iconBg,
+    Color iconFg,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -311,20 +321,20 @@ class BodyInformationCard extends StatelessWidget {
               width: 24,
               height: 24,
               decoration: BoxDecoration(
-                color: const Color(0xFFEAF8D5),
+                color: iconBg,
                 borderRadius: BorderRadius.circular(6),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.favorite_border_rounded,
                 size: 14,
-                color: Color(0xFF141718),
+                color: iconFg,
               ),
             ),
             const SizedBox(width: 6),
             Text(
               'BMI',
               style: AppTypography.bodySmall.copyWith(
-                color: const Color(0xFF6B7280),
+                color: colorScheme.onSurfaceVariant,
                 fontSize: 11.5,
                 fontWeight: FontWeight.w500,
               ),
@@ -340,7 +350,7 @@ class BodyInformationCard extends StatelessWidget {
               style: AppTypography.titleLarge.copyWith(
                 fontWeight: FontWeight.w900,
                 fontSize: 17,
-                color: const Color(0xFF141718),
+                color: colorScheme.onSurface,
                 letterSpacing: -0.4,
               ),
             ),
@@ -348,13 +358,13 @@ class BodyInformationCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: _bmiBadgeBgColor,
+                color: _bmiBadgeBgColor(isDark),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
                 _bmiCategory,
                 style: AppTypography.labelSmall.copyWith(
-                  color: _bmiBadgeColor,
+                  color: _bmiBadgeColor(isDark),
                   fontWeight: FontWeight.w800,
                   fontSize: 10,
                 ),
@@ -363,14 +373,12 @@ class BodyInformationCard extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 8),
-
-        // Spektrum Bar Mini dengan Pointer Segitiga Hitam
-        _buildBmiSpectrumMini(),
+        _buildBmiSpectrumMini(colorScheme),
       ],
     );
   }
 
-  Widget _buildBmiSpectrumMini() {
+  Widget _buildBmiSpectrumMini(ColorScheme colorScheme) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final totalWidth = constraints.maxWidth;
@@ -380,17 +388,14 @@ class BodyInformationCard extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Pointer Segitiga Hitam Dinamis
             Padding(
               padding: EdgeInsets.only(left: pointerPos),
               child: CustomPaint(
                 size: const Size(8, 5),
-                painter: _SmallDownTrianglePainter(),
+                painter: _SmallDownTrianglePainter(color: colorScheme.onSurface),
               ),
             ),
             const SizedBox(height: 1),
-
-            // Spektrum 4 Warna
             ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: SizedBox(
@@ -421,8 +426,6 @@ class BodyInformationCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 4),
-
-            // Label Rentang
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: const [
@@ -438,11 +441,11 @@ class BodyInformationCard extends StatelessWidget {
     );
   }
 
-  Widget _buildVerticalDivider() {
+  Widget _buildVerticalDivider(ColorScheme colorScheme) {
     return Container(
       width: 1,
       height: 60,
-      color: const Color(0xFFF1F3F5),
+      color: colorScheme.outlineVariant,
       margin: const EdgeInsets.symmetric(horizontal: 8),
     );
   }
@@ -457,7 +460,7 @@ class _SpectrumLabel extends StatelessWidget {
     return Text(
       text,
       style: AppTypography.bodySmall.copyWith(
-        color: const Color(0xFF94A3B8),
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
         fontSize: 8,
         fontWeight: FontWeight.w500,
         letterSpacing: -0.3,
@@ -467,10 +470,14 @@ class _SpectrumLabel extends StatelessWidget {
 }
 
 class _SmallDownTrianglePainter extends CustomPainter {
+  final Color color;
+
+  const _SmallDownTrianglePainter({required this.color});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFF141718)
+      ..color = color
       ..style = PaintingStyle.fill;
 
     final path = Path()
@@ -483,6 +490,6 @@ class _SmallDownTrianglePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _SmallDownTrianglePainter oldDelegate) =>
+      oldDelegate.color != color;
 }
-

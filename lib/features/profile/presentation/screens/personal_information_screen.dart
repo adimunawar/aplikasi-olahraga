@@ -6,13 +6,9 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/core_widgets.dart';
 import '../controllers/profile_controller.dart';
+import '../widgets/profile_form_widgets.dart';
 
-/// Screen 2 Mockup: Personal Information
-/// - Profile Photo preview
-/// - Full Name input
-/// - Age picker
-/// - Gender segmented toggle (Male, Female, Other)
-/// - Bottom Save Changes button
+/// Screen 2 Mockup: Personal Information (Light & Dark Mode)
 class PersonalInformationScreen extends ConsumerStatefulWidget {
   const PersonalInformationScreen({super.key});
 
@@ -43,13 +39,17 @@ class _PersonalInformationScreenState
   }
 
   void _showAgePicker() {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (ctx) {
+        final theme = Theme.of(ctx);
+        final isDark = theme.brightness == Brightness.dark;
+        final colorScheme = theme.colorScheme;
+
         return SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -61,6 +61,7 @@ class _PersonalInformationScreenState
                   style: AppTypography.headlineSmall.copyWith(
                     fontWeight: FontWeight.w800,
                     fontSize: 18,
+                    color: colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -77,17 +78,18 @@ class _PersonalInformationScreenState
                         '$age years',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontWeight: isSelected
-                              ? FontWeight.bold
-                              : FontWeight.normal,
+                          fontWeight:
+                              isSelected ? FontWeight.bold : FontWeight.normal,
                           color: isSelected
-                              ? AppColors.darkCharcoal
-                              : AppColors.neutral500,
+                              ? colorScheme.onSurface
+                              : colorScheme.onSurfaceVariant,
                           fontSize: 16,
                         ),
                       ),
                       tileColor: isSelected
-                          ? AppColors.limeCardSurface
+                          ? (isDark
+                              ? colorScheme.primaryContainer
+                              : AppColors.limeCardSurface)
                           : Colors.transparent,
                       onTap: () {
                         setState(() => _selectedAge = age);
@@ -120,7 +122,6 @@ class _PersonalInformationScreenState
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Personal information updated successfully!'),
-          backgroundColor: AppColors.darkCharcoal,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -130,16 +131,22 @@ class _PersonalInformationScreenState
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_rounded,
-            color: Color(0xFF141718),
+            color: colorScheme.onSurface,
             size: 24,
           ),
           onPressed: () => context.pop(),
@@ -149,7 +156,7 @@ class _PersonalInformationScreenState
           style: AppTypography.headlineSmall.copyWith(
             fontWeight: FontWeight.w800,
             fontSize: 18,
-            color: const Color(0xFF141718),
+            color: colorScheme.onSurface,
           ),
         ),
       ),
@@ -169,25 +176,17 @@ class _PersonalInformationScreenState
                     Text(
                       'Your basic account information.',
                       style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.neutral500,
+                        color: colorScheme.onSurfaceVariant,
                         fontSize: 13,
                       ),
                     ),
                     const SizedBox(height: 20),
-
-                    // 1. Profile Photo Card
-                    Container(
+                    AppCard(
+                      variant: AppCardVariant.flat,
+                      borderRadius: 16,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 12,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: const Color(0xFFE9ECEF),
-                          width: 1.2,
-                        ),
                       ),
                       child: Row(
                         children: [
@@ -195,13 +194,13 @@ class _PersonalInformationScreenState
                             width: 36,
                             height: 36,
                             decoration: BoxDecoration(
-                              color: AppColors.neutral100,
+                              color: colorScheme.surfaceContainerHighest,
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.camera_alt_outlined,
                               size: 20,
-                              color: Color(0xFF141718),
+                              color: colorScheme.onSurface,
                             ),
                           ),
                           const SizedBox(width: 14),
@@ -210,18 +209,20 @@ class _PersonalInformationScreenState
                             style: AppTypography.labelLarge.copyWith(
                               fontWeight: FontWeight.w700,
                               fontSize: 14.5,
-                              color: const Color(0xFF141718),
+                              color: colorScheme.onSurface,
                             ),
                           ),
                           const Spacer(),
                           Container(
                             width: 44,
                             height: 44,
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: AppColors.limeCardSurface,
+                              color: isDark
+                                  ? colorScheme.primaryContainer
+                                  : AppColors.limeCardSurface,
                             ),
-                            child: ClipOval(
+                            child: const ClipOval(
                               child: AppSmartImage(
                                 imagePathOrUrl:
                                     'assets/images/coach_crossed_arms.png',
@@ -230,41 +231,34 @@ class _PersonalInformationScreenState
                             ),
                           ),
                           const SizedBox(width: 8),
-                          const Icon(
+                          Icon(
                             Icons.chevron_right_rounded,
-                            color: AppColors.neutral400,
+                            color: colorScheme.onSurfaceVariant,
                             size: 20,
                           ),
                         ],
                       ),
                     ),
                     const SizedBox(height: 20),
-
-                    // 2. Full Name
                     Text(
                       'Full Name',
                       style: AppTypography.labelLarge.copyWith(
                         fontWeight: FontWeight.w700,
                         fontSize: 13.5,
-                        color: const Color(0xFF141718),
+                        color: colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: const Color(0xFFE9ECEF),
-                          width: 1.2,
-                        ),
-                      ),
+                    AppCard(
+                      variant: AppCardVariant.flat,
+                      borderRadius: 14,
+                      padding: EdgeInsets.zero,
                       child: TextField(
                         controller: _nameController,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14.5,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF141718),
+                          color: colorScheme.onSurface,
                         ),
                         decoration: const InputDecoration(
                           border: InputBorder.none,
@@ -276,114 +270,40 @@ class _PersonalInformationScreenState
                       ),
                     ),
                     const SizedBox(height: 20),
-
-                    // 3. Age
                     Text(
                       'Age',
                       style: AppTypography.labelLarge.copyWith(
                         fontWeight: FontWeight.w700,
                         fontSize: 13.5,
-                        color: const Color(0xFF141718),
+                        color: colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    InkWell(
+                    ProfileDropdownField(
+                      valueText: '$_selectedAge years',
                       onTap: _showAgePicker,
-                      borderRadius: BorderRadius.circular(14),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                            color: const Color(0xFFE9ECEF),
-                            width: 1.2,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              '$_selectedAge years',
-                              style: const TextStyle(
-                                fontSize: 14.5,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF141718),
-                              ),
-                            ),
-                            const Icon(
-                              Icons.keyboard_arrow_down_rounded,
-                              color: AppColors.neutral500,
-                              size: 22,
-                            ),
-                          ],
-                        ),
-                      ),
                     ),
                     const SizedBox(height: 20),
-
-                    // 4. Gender (Segmented Pills: Male, Female, Other)
                     Text(
                       'Gender',
                       style: AppTypography.labelLarge.copyWith(
                         fontWeight: FontWeight.w700,
                         fontSize: 13.5,
-                        color: const Color(0xFF141718),
+                        color: colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Row(
-                      children: ['Male', 'Female', 'Other'].map((gender) {
-                        final isSelected =
-                            _selectedGender.toLowerCase() ==
-                            gender.toLowerCase();
-                        return Expanded(
-                          child: GestureDetector(
-                            onTap: () =>
-                                setState(() => _selectedGender = gender),
-                            child: Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 4),
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? AppColors.primary
-                                    : const Color(0xFFF1F5F9),
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(
-                                  color: isSelected
-                                      ? AppColors.primary
-                                      : Colors.transparent,
-                                  width: 1.2,
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  gender,
-                                  style: TextStyle(
-                                    fontWeight: isSelected
-                                        ? FontWeight.w800
-                                        : FontWeight.w600,
-                                    fontSize: 13.5,
-                                    color: isSelected
-                                        ? const Color(0xFF141718)
-                                        : const Color(0xFF64748B),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
+                    ProfileChoiceChipRow<String>(
+                      options: const ['Male', 'Female', 'Other'],
+                      selectedValue: _selectedGender,
+                      labelBuilder: (g) => g,
+                      equals: (a, b) => a.toLowerCase() == b.toLowerCase(),
+                      onSelected: (g) => setState(() => _selectedGender = g),
                     ),
                   ],
                 ),
               ),
             ),
-
-            // Bottom Save Changes Button (Sticky)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               child: AppButton.primary(

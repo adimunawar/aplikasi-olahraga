@@ -126,8 +126,11 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
   }
 
   Widget _buildErrorState(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
@@ -137,13 +140,13 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
               Container(
                 width: 76,
                 height: 76,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFFF1F0),
+                decoration: BoxDecoration(
+                  color: colorScheme.error.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.error_outline_rounded,
-                  color: Color(0xFFDC2626),
+                  color: colorScheme.error,
                   size: 38,
                 ),
               ),
@@ -153,7 +156,7 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
                 textAlign: TextAlign.center,
                 style: AppTypography.headlineMedium.copyWith(
                   fontWeight: FontWeight.w900,
-                  color: AppColors.darkCharcoal,
+                  color: colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 10),
@@ -161,7 +164,7 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
                 _errorMessage!,
                 textAlign: TextAlign.center,
                 style: AppTypography.bodySmall.copyWith(
-                  color: AppColors.neutral500,
+                  color: colorScheme.onSurfaceVariant,
                   height: 1.45,
                 ),
               ),
@@ -174,8 +177,8 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
                   icon: const Icon(Icons.refresh_rounded),
                   label: const Text('Try Again'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.limeAccent,
-                    foregroundColor: AppColors.darkCharcoal,
+                    backgroundColor: colorScheme.primary,
+                    foregroundColor: colorScheme.onPrimary,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
@@ -198,13 +201,16 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
   @override
   Widget build(BuildContext context) {
     final t = Translations.of(context).onboarding.creating;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
 
     if (_errorMessage != null) {
       return _buildErrorState(context);
     }
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 20),
@@ -220,25 +226,25 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
                   width: 140,
                   height: 140,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF4F9ED),
+                    color: colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(32),
                     border: Border.all(
-                      color: const Color(0xFFE2EED3),
+                      color: colorScheme.primary.withValues(alpha: 0.35),
                       width: 1.5,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.limeAccent.withValues(alpha: 0.35),
+                        color: colorScheme.primary.withValues(alpha: 0.25),
                         blurRadius: 28,
                         spreadRadius: 4,
                       ),
                     ],
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Icon(
                       Icons.fitness_center_rounded,
                       size: 56,
-                      color: Color(0xFF84CC16),
+                      color: isDark ? colorScheme.primary : AppColors.greenBrand,
                     ),
                   ),
                 ),
@@ -254,7 +260,7 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
                     fontWeight: FontWeight.w900,
                     fontSize: 26,
                     height: 1.2,
-                    color: AppColors.darkCharcoal,
+                    color: colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -264,7 +270,7 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
                   t.subtitle,
                   textAlign: TextAlign.center,
                   style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.neutral500,
+                    color: colorScheme.onSurfaceVariant,
                     fontSize: 13,
                     height: 1.4,
                   ),
@@ -276,15 +282,17 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: colorScheme.surface,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.neutral200, width: 1.2),
-                  boxShadow: AppColors.cardShadow,
+                  border: Border.all(color: colorScheme.outline, width: 1.2),
+                  boxShadow: isDark ? null : AppColors.cardShadow,
                 ),
                 child: Column(
                   children: List.generate(t.steps.length, (index) {
                     final isChecked = index < _activeStepIndex;
                     final isCurrent = index == _activeStepIndex;
+                    final accentColor =
+                        isDark ? colorScheme.primary : AppColors.greenBrand;
 
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -297,33 +305,31 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: isChecked
-                                  ? const Color(0xFF84CC16)
+                                  ? accentColor
                                   : (isCurrent
-                                      ? const Color(0xFFF4F9ED)
-                                      : const Color(0xFFF1F5F9)),
+                                      ? colorScheme.primaryContainer
+                                      : colorScheme.surfaceContainerHighest),
                               border: Border.all(
-                                color: isChecked
-                                    ? const Color(0xFF84CC16)
-                                    : (isCurrent
-                                        ? const Color(0xFF84CC16)
-                                        : AppColors.neutral300),
+                                color: isChecked || isCurrent
+                                    ? accentColor
+                                    : colorScheme.outline,
                                 width: 1.5,
                               ),
                             ),
                             child: isChecked
-                                ? const Icon(
+                                ? Icon(
                                     Icons.check_rounded,
                                     size: 16,
-                                    color: AppColors.darkCharcoal,
+                                    color: colorScheme.onPrimary,
                                   )
                                 : (isCurrent
-                                    ? const Center(
+                                    ? Center(
                                         child: SizedBox(
                                           width: 12,
                                           height: 12,
                                           child: CircularProgressIndicator(
                                             strokeWidth: 2,
-                                            color: Color(0xFF84CC16),
+                                            color: accentColor,
                                           ),
                                         ),
                                       )
@@ -338,8 +344,8 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
                                   : FontWeight.w500,
                               fontSize: 13.5,
                               color: isChecked || isCurrent
-                                  ? AppColors.darkCharcoal
-                                  : AppColors.neutral400,
+                                  ? colorScheme.onSurface
+                                  : colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ],

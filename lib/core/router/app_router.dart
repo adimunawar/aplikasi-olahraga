@@ -2,7 +2,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../features/calendar/presentation/screens/calendar_screen.dart';
 import '../../features/exercise_detail/presentation/screens/exercise_detail_screen.dart';
 import '../../features/exercises/domain/models/exercise.dart';
 import '../../features/exercises/presentation/screens/exercise_list_screen.dart';
@@ -48,7 +47,6 @@ class AppRoutes {
   static const String workoutCompleted = '/workout-completed';
   static const String workoutSummary = '/workout-summary';
   static const String exerciseDetail = '/exercise-detail';
-  static const String calendar = '/calendar';
   static const String exercises = '/exercises';
   static const String nutrition = '/nutrition';
   static const String programDetail = '/program-detail';
@@ -232,7 +230,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.home,
                 builder: (context, state) => HomeScreen(
-                  onNavigateToCalendar: () => context.push(AppRoutes.calendar),
+                  onNavigateToCalendar: () => context.go(AppRoutes.plans),
                   onNavigateToExercises: () =>
                       context.push(AppRoutes.exercises),
                   onNavigateToNutrition: () =>
@@ -351,11 +349,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final exercise = state.extra as Exercise;
           return ExerciseDetailScreen(exercise: exercise);
         },
-      ),
-      GoRoute(
-        path: AppRoutes.calendar,
-        parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => const CalendarScreen(),
       ),
       GoRoute(
         path: AppRoutes.exercises,

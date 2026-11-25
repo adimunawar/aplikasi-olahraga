@@ -8,6 +8,7 @@ import '../../../../core/database/models/user_profile_entity.dart';
 import '../../../../core/database/models/workout_session_entity.dart';
 import '../../../../core/services/app_data_sync.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../i18n/strings.g.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
 import '../../../exercises/data/repositories/exercise_repository_impl.dart';
@@ -228,16 +229,29 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
   Widget build(BuildContext context) {
     final t = Translations.of(context);
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            WorkoutsHeader(
-              isAllWorkoutsTab: _isAllWorkoutsTab,
+      appBar: AppBar(
+        backgroundColor: theme.scaffoldBackgroundColor,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        centerTitle: false,
+        title: Text(
+          t.workouts.title,
+          style: AppTypography.headlineLarge.copyWith(
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.7,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        actions: [
+          if (_isAllWorkoutsTab)
+            WorkoutsAppBarActions(
               isSearchActive: _isSearchActive,
-              searchQuery: _searchQuery,
               selectedMuscleFilter: _selectedMuscleFilter,
               onToggleSearch: () {
                 setState(() {
@@ -245,7 +259,6 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
                   _searchQuery = '';
                 });
               },
-              onSearchChanged: (val) => setState(() => _searchQuery = val),
               onOpenFilter: () {
                 showMuscleFilterSheet(
                   context: context,
@@ -255,7 +268,12 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
                 );
               },
             ),
-            WorkoutsPillToggle(
+        ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(56),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: WorkoutsPillToggle(
               selectedTabIndex: _selectedTabIndex,
               onTabChanged: (index) {
                 setState(() {
@@ -269,7 +287,17 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
               myProgramTitle: t.workouts.tabs.myProgram,
               allWorkoutsTitle: t.workouts.tabs.allWorkouts,
             ),
-            const SizedBox(height: 18),
+          ),
+        ),
+      ),
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            if (_isAllWorkoutsTab && _isSearchActive)
+              WorkoutsSearchBar(
+                onSearchChanged: (val) => setState(() => _searchQuery = val),
+              ),
             Expanded(child: _buildBody(t)),
           ],
         ),
@@ -293,24 +321,41 @@ class _WorkoutsScreenState extends State<WorkoutsScreen>
       onRefresh: _loadData,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.only(bottom: 32),
-        child: _selectedTabIndex == 0
-            ? WorkoutsMyProgramTab(
-                activeProgram: _activeProgram,
-                profile: _profile,
-                programSessions: _programSessions,
-                programWorkoutHistory: _programWorkoutHistory,
-                activeSession: _activeSession,
-                selectedWeek: _selectedWeek,
-                onWeekSelected: (week) => setState(() => _selectedWeek = week),
-              )
-            : WorkoutsAllWorkoutsTab(
-                exercises: _filteredExercises,
-                selectedMuscleFilter: _selectedMuscleFilter,
-                onMuscleFilterSelected: (filter) =>
-                    setState(() => _selectedMuscleFilter = filter),
-                onClearFilters: _clearFilters,
-              ),
+        padding: const EdgeInsets.only(top: 12, bottom: 32),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          switchInCurve: Curves.easeOut,
+          switchOutCurve: Curves.easeIn,
+          layoutBuilder: (currentChild, previousChildren) {
+            return Stack(
+              alignment: Alignment.topCenter,
+              children: [...previousChildren, ?currentChild],
+            );
+          },
+          transitionBuilder: (child, animation) =>
+              FadeTransition(opacity: animation, child: child),
+          child: KeyedSubtree(
+            key: ValueKey(_selectedTabIndex),
+            child: _selectedTabIndex == 0
+                ? WorkoutsMyProgramTab(
+                    activeProgram: _activeProgram,
+                    profile: _profile,
+                    programSessions: _programSessions,
+                    programWorkoutHistory: _programWorkoutHistory,
+                    activeSession: _activeSession,
+                    selectedWeek: _selectedWeek,
+                    onWeekSelected: (week) =>
+                        setState(() => _selectedWeek = week),
+                  )
+                : WorkoutsAllWorkoutsTab(
+                    exercises: _filteredExercises,
+                    selectedMuscleFilter: _selectedMuscleFilter,
+                    onMuscleFilterSelected: (filter) =>
+                        setState(() => _selectedMuscleFilter = filter),
+                    onClearFilters: _clearFilters,
+                  ),
+          ),
+        ),
       ),
     );
   }

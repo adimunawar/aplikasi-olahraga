@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:workout_app/core/theme/app_typography.dart';
+import 'package:workout_app/core/widgets/core_widgets.dart';
 import 'package:workout_app/i18n/strings.g.dart';
 
 import '../controllers/progress_controller.dart';
@@ -60,10 +61,17 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(54),
+          preferredSize: const Size.fromHeight(56),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: _tabsBar(colorScheme),
+            child: AppSegmentedTabs<int>(
+              selectedValue: _selectedTab,
+              onChanged: (index) => setState(() => _selectedTab = index),
+              tabs: [
+                for (var i = 0; i < _tabs.length; i++)
+                  AppSegmentedTabItem<int>(value: i, label: _tabs[i]),
+              ],
+            ),
           ),
         ),
       ),
@@ -100,42 +108,6 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
       ),
     );
   }
-
-  Widget _tabsBar(ColorScheme colorScheme) => Container(
-    padding: const EdgeInsets.all(4),
-    decoration: BoxDecoration(
-      color: colorScheme.surfaceContainerHighest,
-      borderRadius: BorderRadius.circular(28),
-    ),
-    child: Row(
-      children: List.generate(_tabs.length, (index) {
-        final selected = _selectedTab == index;
-        return Expanded(
-          child: GestureDetector(
-            onTap: () => setState(() => _selectedTab = index),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              decoration: BoxDecoration(
-                color: selected ? colorScheme.primary : Colors.transparent,
-                borderRadius: BorderRadius.circular(24),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                _tabs[index],
-                style: AppTypography.labelSmall.copyWith(
-                  color: selected
-                      ? colorScheme.onPrimary
-                      : colorScheme.onSurfaceVariant,
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                ),
-              ),
-            ),
-          ),
-        );
-      }),
-    ),
-  );
 
   Widget _tabContent(ProgressState state) {
     final Widget content = switch (_selectedTab) {

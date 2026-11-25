@@ -17,16 +17,10 @@ import '../../../exercises/data/datasources/exercise_local_datasource.dart';
 import '../../../exercises/data/repositories/exercise_repository_impl.dart';
 import '../../../program/domain/models/program_day.dart';
 import '../../../program/domain/services/dynamic_program_generator.dart';
+import '../../domain/models/session_with_detail.dart';
 import '../widgets/plans_overview_tab.dart';
 import '../widgets/plans_workout_split_tab.dart';
 import '../widgets/plans_progress_tab.dart';
-
-class SessionWithDetail {
-  final ProgramSessionEntity session;
-  final ProgramSessionDetail detail;
-
-  const SessionWithDetail({required this.session, required this.detail});
-}
 
 /// Halaman Your Training Plan
 /// 100% Sesuai Mockup Row 2: Overview, Workout Split, Progress

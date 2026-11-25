@@ -1,12 +1,14 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/theme/app_typography.dart';
-import 'home_screen.dart';
-import '../../../workouts/presentation/screens/workouts_screen.dart';
-import '../../../progress/presentation/screens/progress_screen.dart';
-import '../../../profile/presentation/screens/profile_screen.dart';
 
-/// HomeScaffold - Bottom Navigation Bar 1:1 sesuai Desain Mockup:
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
+import '../../../profile/presentation/screens/profile_screen.dart';
+import '../../../progress/presentation/screens/progress_screen.dart';
+import '../../../workouts/presentation/screens/workouts_screen.dart';
+import 'home_screen.dart';
+
+/// HomeScaffold - Bottom Navigation Bar dengan dukungan penuh Light Mode & Dark Mode:
 /// Mendukung GoRouter StatefulNavigationShell dan fallback IndexedStack.
 class HomeScaffold extends StatefulWidget {
   final StatefulNavigationShell? navigationShell;
@@ -39,6 +41,10 @@ class _HomeScaffoldState extends State<HomeScaffold> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
+
     final List<Widget> screens = [
       HomeScreen(
         onNavigateToCalendar: () => _onTabTapped(1),
@@ -52,17 +58,17 @@ class _HomeScaffoldState extends State<HomeScaffold> {
     ];
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: widget.navigationShell ??
           IndexedStack(
             index: _activeTab,
             children: screens,
           ),
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
           border: Border(
-            top: BorderSide(color: Color(0xFFE9ECEF), width: 1.2),
+            top: BorderSide(color: colorScheme.outline, width: 1.2),
           ),
         ),
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -75,21 +81,29 @@ class _HomeScaffoldState extends State<HomeScaffold> {
                 index: 0,
                 icon: Icons.home_rounded,
                 label: 'Home',
+                isDark: isDark,
+                colorScheme: colorScheme,
               ),
               _buildNavItem(
                 index: 1,
                 icon: Icons.fitness_center_rounded,
                 label: 'Workouts',
+                isDark: isDark,
+                colorScheme: colorScheme,
               ),
               _buildNavItem(
                 index: 2,
                 icon: Icons.bar_chart_rounded,
                 label: 'Progress',
+                isDark: isDark,
+                colorScheme: colorScheme,
               ),
               _buildNavItem(
                 index: 3,
                 icon: Icons.person_outline_rounded,
                 label: 'Profile',
+                isDark: isDark,
+                colorScheme: colorScheme,
               ),
             ],
           ),
@@ -102,6 +116,8 @@ class _HomeScaffoldState extends State<HomeScaffold> {
     required int index,
     required IconData icon,
     required String label,
+    required bool isDark,
+    required ColorScheme colorScheme,
   }) {
     final isSelected = _activeTab == index;
 
@@ -112,7 +128,7 @@ class _HomeScaffoldState extends State<HomeScaffold> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFE9F5DA) : Colors.transparent,
+          color: isSelected ? colorScheme.primaryContainer : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
@@ -121,13 +137,19 @@ class _HomeScaffoldState extends State<HomeScaffold> {
             Icon(
               icon,
               size: 22,
-              color: isSelected ? const Color(0xFF437014) : const Color(0xFF71767B),
+              color: isSelected
+                  ? (isDark ? colorScheme.primary : AppColors.greenDark)
+                  : colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: 4),
             Text(
               label,
               style: AppTypography.labelSmall.copyWith(
-                color: isSelected ? const Color(0xFF1A1D1E) : const Color(0xFF71767B),
+                color: isSelected
+                    ? (isDark
+                        ? colorScheme.onPrimaryContainer
+                        : colorScheme.onSurface)
+                    : colorScheme.onSurfaceVariant,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
                 fontSize: 11,
               ),
