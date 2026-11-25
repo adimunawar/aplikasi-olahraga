@@ -153,7 +153,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Upper Body Push'), findsOneWidget);
-      expect(find.text('1 exercise'), findsOneWidget);
+      expect(find.text('1 exercises'), findsOneWidget);
       expect(find.text('3 sets × 10 reps'), findsOneWidget);
       expect(find.text('Start Workout'), findsOneWidget);
       expect(find.byTooltip('Back'), findsOneWidget);
