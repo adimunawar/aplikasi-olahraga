@@ -7,12 +7,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/core_widgets.dart';
 import '../controllers/profile_controller.dart';
 
-/// Screen 3 Mockup: Body Information
-/// - Weight row (icon, label, value input, suffix kg)
-/// - Height row (icon, label, value input, suffix cm)
-/// - Interactive Live BMI Card (rainbow gauge bar with category label)
-/// - Last Updated date
-/// - Save Changes button
+/// Screen 3 Mockup: Body Information (Light & Dark Mode)
 class BodyInformationScreen extends ConsumerStatefulWidget {
   const BodyInformationScreen({super.key});
 
@@ -30,10 +25,12 @@ class _BodyInformationScreenState extends ConsumerState<BodyInformationScreen> {
   void initState() {
     super.initState();
     final profile = ref.read(profileControllerProvider);
-    _weightController =
-        TextEditingController(text: profile.currentWeight.toStringAsFixed(1));
-    _heightController =
-        TextEditingController(text: profile.currentHeight.toStringAsFixed(0));
+    _weightController = TextEditingController(
+      text: profile.currentWeight.toStringAsFixed(1),
+    );
+    _heightController = TextEditingController(
+      text: profile.currentHeight.toStringAsFixed(0),
+    );
     _calculatedBmi = profile.currentBmi;
 
     _weightController.addListener(_recalculateBmi);
@@ -65,14 +62,13 @@ class _BodyInformationScreenState extends ConsumerState<BodyInformationScreen> {
   }
 
   Color get _bmiColor {
-    if (_calculatedBmi < 18.5) return const Color(0xFF38BDF8); // Blue
-    if (_calculatedBmi < 25.0) return const Color(0xFF4ADE80); // Green
-    if (_calculatedBmi < 30.0) return const Color(0xFFFB923C); // Orange
-    return const Color(0xFFF87171); // Red
+    if (_calculatedBmi < 18.5) return const Color(0xFF38BDF8);
+    if (_calculatedBmi < 25.0) return const Color(0xFF4ADE80);
+    if (_calculatedBmi < 30.0) return const Color(0xFFFB923C);
+    return const Color(0xFFF87171);
   }
 
   double get _bmiPointerFraction {
-    // Range 15 to 35
     final clamped = _calculatedBmi.clamp(15.0, 35.0);
     return (clamped - 15.0) / (35.0 - 15.0);
   }
@@ -92,7 +88,6 @@ class _BodyInformationScreenState extends ConsumerState<BodyInformationScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Body information updated successfully!'),
-          backgroundColor: AppColors.darkCharcoal,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -103,17 +98,22 @@ class _BodyInformationScreenState extends ConsumerState<BodyInformationScreen> {
   @override
   Widget build(BuildContext context) {
     final profile = ref.watch(profileControllerProvider);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_rounded,
-            color: Color(0xFF141718),
+            color: colorScheme.onSurface,
             size: 24,
           ),
           onPressed: () => context.pop(),
@@ -123,7 +123,7 @@ class _BodyInformationScreenState extends ConsumerState<BodyInformationScreen> {
           style: AppTypography.headlineSmall.copyWith(
             fontWeight: FontWeight.w800,
             fontSize: 18,
-            color: const Color(0xFF141718),
+            color: colorScheme.onSurface,
           ),
         ),
       ),
@@ -133,22 +133,23 @@ class _BodyInformationScreenState extends ConsumerState<BodyInformationScreen> {
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Update your height, weight, and see your BMI.',
                       style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.neutral500,
+                        color: colorScheme.onSurfaceVariant,
                         fontSize: 13,
                       ),
                     ),
                     const SizedBox(height: 20),
-
-                    // 1. Weight Row
                     _buildInputRow(
+                      colorScheme: colorScheme,
                       icon: Icons.scale_outlined,
                       label: 'Weight',
                       controller: _weightController,
@@ -156,9 +157,8 @@ class _BodyInformationScreenState extends ConsumerState<BodyInformationScreen> {
                       isDecimal: true,
                     ),
                     const SizedBox(height: 14),
-
-                    // 2. Height Row
                     _buildInputRow(
+                      colorScheme: colorScheme,
                       icon: Icons.straighten_rounded,
                       label: 'Height',
                       controller: _heightController,
@@ -166,23 +166,9 @@ class _BodyInformationScreenState extends ConsumerState<BodyInformationScreen> {
                       isDecimal: false,
                     ),
                     const SizedBox(height: 22),
-
-                    // 3. BMI Card
-                    Container(
+                    AppCard(
+                      borderRadius: 20,
                       padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                            color: const Color(0xFFE9ECEF), width: 1.2),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0x06000000),
-                            blurRadius: 10,
-                            offset: Offset(0, 4),
-                          ),
-                        ],
-                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -192,12 +178,16 @@ class _BodyInformationScreenState extends ConsumerState<BodyInformationScreen> {
                                 width: 38,
                                 height: 38,
                                 decoration: BoxDecoration(
-                                  color: AppColors.limeCardSurface,
+                                  color: isDark
+                                      ? colorScheme.primaryContainer
+                                      : AppColors.limeCardSurface,
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.favorite_border_rounded,
-                                  color: AppColors.greenDark,
+                                  color: isDark
+                                      ? colorScheme.primary
+                                      : AppColors.greenDark,
                                   size: 20,
                                 ),
                               ),
@@ -208,7 +198,7 @@ class _BodyInformationScreenState extends ConsumerState<BodyInformationScreen> {
                                   Text(
                                     'Your BMI',
                                     style: AppTypography.bodySmall.copyWith(
-                                      color: AppColors.neutral500,
+                                      color: colorScheme.onSurfaceVariant,
                                       fontSize: 12,
                                     ),
                                   ),
@@ -218,19 +208,24 @@ class _BodyInformationScreenState extends ConsumerState<BodyInformationScreen> {
                                         _calculatedBmi.toStringAsFixed(1),
                                         style: AppTypography.tabularMetricLarge
                                             .copyWith(
-                                          fontWeight: FontWeight.w900,
-                                          fontSize: 22,
-                                          color: const Color(0xFF141718),
-                                        ),
+                                              fontWeight: FontWeight.w900,
+                                              fontSize: 22,
+                                              color: colorScheme.onSurface,
+                                            ),
                                       ),
                                       const SizedBox(width: 8),
                                       Container(
                                         padding: const EdgeInsets.symmetric(
-                                            horizontal: 8, vertical: 3),
+                                          horizontal: 8,
+                                          vertical: 3,
+                                        ),
                                         decoration: BoxDecoration(
-                                          color: _bmiColor.withValues(alpha: 0.18),
-                                          borderRadius:
-                                              BorderRadius.circular(10),
+                                          color: _bmiColor.withValues(
+                                            alpha: 0.18,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
                                         ),
                                         child: Text(
                                           _bmiCategory,
@@ -246,95 +241,104 @@ class _BodyInformationScreenState extends ConsumerState<BodyInformationScreen> {
                                 ],
                               ),
                               const Spacer(),
-                              const Icon(
+                              Icon(
                                 Icons.info_outline_rounded,
-                                color: AppColors.neutral400,
+                                color: colorScheme.onSurfaceVariant,
                                 size: 20,
                               ),
                             ],
                           ),
                           const SizedBox(height: 18),
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              final totalWidth = constraints.maxWidth;
+                              final pointerPos =
+                                  (totalWidth * _bmiPointerFraction).clamp(
+                                    4.0,
+                                    totalWidth - 12.0,
+                                  );
 
-                          // Rainbow BMI Progress Gauge
-                          LayoutBuilder(builder: (context, constraints) {
-                            final totalWidth = constraints.maxWidth;
-                            final pointerPos = (totalWidth * _bmiPointerFraction)
-                                .clamp(4.0, totalWidth - 12.0);
-
-                            return Column(
-                              children: [
-                                // Pointer Triangle
-                                SizedBox(
-                                  width: totalWidth,
-                                  height: 8,
-                                  child: Stack(
-                                    children: [
-                                      Positioned(
-                                        left: pointerPos,
-                                        child: const Icon(
-                                          Icons.arrow_drop_down_rounded,
-                                          size: 16,
-                                          color: Color(0xFF141718),
+                              return Column(
+                                children: [
+                                  SizedBox(
+                                    width: totalWidth,
+                                    height: 8,
+                                    child: Stack(
+                                      children: [
+                                        Positioned(
+                                          left: pointerPos,
+                                          child: Icon(
+                                            Icons.arrow_drop_down_rounded,
+                                            size: 16,
+                                            color: colorScheme.onSurface,
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                // Segmented Gradient Bar
-                                Container(
-                                  height: 8,
-                                  width: totalWidth,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(4),
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        Color(0xFF38BDF8), // Blue
-                                        Color(0xFF4ADE80), // Green
-                                        Color(0xFFFB923C), // Orange
-                                        Color(0xFFF87171), // Red
                                       ],
                                     ),
                                   ),
-                                ),
-                                const SizedBox(height: 8),
-                                // Labels Under Bar
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    _buildBmiScaleLabel(
-                                        '< 18.5', 'Underweight'),
-                                    _buildBmiScaleLabel(
-                                        '18.5 – 24.9', 'Healthy'),
-                                    _buildBmiScaleLabel(
-                                        '25 – 29.9', 'Overweight'),
-                                    _buildBmiScaleLabel('≥ 30', 'Obese'),
-                                  ],
-                                ),
-                              ],
-                            );
-                          }),
+                                  Container(
+                                    height: 8,
+                                    width: totalWidth,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(4),
+                                      gradient: const LinearGradient(
+                                        colors: [
+                                          Color(0xFF38BDF8),
+                                          Color(0xFF4ADE80),
+                                          Color(0xFFFB923C),
+                                          Color(0xFFF87171),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      _buildBmiScaleLabel(
+                                        colorScheme,
+                                        '< 18.5',
+                                        'Underweight',
+                                      ),
+                                      _buildBmiScaleLabel(
+                                        colorScheme,
+                                        '18.5 – 24.9',
+                                        'Healthy',
+                                      ),
+                                      _buildBmiScaleLabel(
+                                        colorScheme,
+                                        '25 – 29.9',
+                                        'Overweight',
+                                      ),
+                                      _buildBmiScaleLabel(
+                                        colorScheme,
+                                        '≥ 30',
+                                        'Obese',
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
                         ],
                       ),
                     ),
                     const SizedBox(height: 20),
-
-                    // 4. Last Updated Card
-                    Container(
+                    AppCard(
+                      variant: AppCardVariant.flat,
+                      borderRadius: 16,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 14),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                            color: const Color(0xFFE9ECEF), width: 1.2),
+                        horizontal: 16,
+                        vertical: 14,
                       ),
                       child: Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.calendar_today_outlined,
                             size: 18,
-                            color: Color(0xFF141718),
+                            color: colorScheme.onSurface,
                           ),
                           const SizedBox(width: 12),
                           Text(
@@ -342,14 +346,14 @@ class _BodyInformationScreenState extends ConsumerState<BodyInformationScreen> {
                             style: AppTypography.labelLarge.copyWith(
                               fontWeight: FontWeight.w700,
                               fontSize: 13.5,
-                              color: const Color(0xFF141718),
+                              color: colorScheme.onSurface,
                             ),
                           ),
                           const Spacer(),
                           Text(
                             profile.lastUpdatedDate,
                             style: AppTypography.bodySmall.copyWith(
-                              color: AppColors.neutral500,
+                              color: colorScheme.onSurfaceVariant,
                               fontWeight: FontWeight.w600,
                               fontSize: 13,
                             ),
@@ -361,8 +365,6 @@ class _BodyInformationScreenState extends ConsumerState<BodyInformationScreen> {
                 ),
               ),
             ),
-
-            // Bottom Save Changes Button (Sticky)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               child: AppButton.primary(
@@ -377,29 +379,27 @@ class _BodyInformationScreenState extends ConsumerState<BodyInformationScreen> {
   }
 
   Widget _buildInputRow({
+    required ColorScheme colorScheme,
     required IconData icon,
     required String label,
     required TextEditingController controller,
     required String suffix,
     required bool isDecimal,
   }) {
-    return Container(
+    return AppCard(
+      variant: AppCardVariant.flat,
+      borderRadius: 16,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE9ECEF), width: 1.2),
-      ),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: const Color(0xFF141718)),
+          Icon(icon, size: 20, color: colorScheme.onSurface),
           const SizedBox(width: 14),
           Text(
             label,
             style: AppTypography.labelLarge.copyWith(
               fontWeight: FontWeight.w700,
               fontSize: 14,
-              color: const Color(0xFF141718),
+              color: colorScheme.onSurface,
             ),
           ),
           const Spacer(),
@@ -407,18 +407,18 @@ class _BodyInformationScreenState extends ConsumerState<BodyInformationScreen> {
             width: 80,
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8F9FA),
+              color: colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
+              border: Border.all(color: colorScheme.outline),
             ),
             child: TextField(
               controller: controller,
               keyboardType: TextInputType.numberWithOptions(decimal: isDecimal),
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF141718),
+                color: colorScheme.onSurface,
               ),
               decoration: const InputDecoration(
                 isDense: true,
@@ -431,7 +431,7 @@ class _BodyInformationScreenState extends ConsumerState<BodyInformationScreen> {
           Text(
             suffix,
             style: AppTypography.bodySmall.copyWith(
-              color: AppColors.neutral500,
+              color: colorScheme.onSurfaceVariant,
               fontWeight: FontWeight.w600,
               fontSize: 13,
             ),
@@ -441,27 +441,30 @@ class _BodyInformationScreenState extends ConsumerState<BodyInformationScreen> {
     );
   }
 
-  Widget _buildBmiScaleLabel(String range, String label) {
+  Widget _buildBmiScaleLabel(
+    ColorScheme colorScheme,
+    String range,
+    String label,
+  ) {
     return Column(
       children: [
         Text(
           range,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 9.5,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF141718),
+            color: colorScheme.onSurface,
           ),
         ),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 9,
             fontWeight: FontWeight.w500,
-            color: Color(0xFF94A3B8),
+            color: colorScheme.onSurfaceVariant,
           ),
         ),
       ],
     );
   }
 }
-

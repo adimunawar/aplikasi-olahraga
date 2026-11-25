@@ -2,16 +2,12 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/core_widgets.dart';
 import '../controllers/profile_controller.dart';
+import '../widgets/app_settings_widgets.dart';
 
-/// Screen 6 Mockup: Reminders
-/// - Workout Reminder Switch
-/// - Reminder Time Picker (e.g. 08:00 PM)
-/// - Rest Day Reminder Switch
-/// - Progress Check-in Switch
-/// - Streak Reminder Switch
+/// Screen 6 Mockup: Reminders (Light & Dark Mode)
 class RemindersScreen extends ConsumerStatefulWidget {
   const RemindersScreen({super.key});
 
@@ -52,18 +48,6 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
     final picked = await showTimePicker(
       context: context,
       initialTime: now,
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: AppColors.greenBrand,
-              onPrimary: Colors.white,
-              onSurface: AppColors.darkCharcoal,
-            ),
-          ),
-          child: child!,
-        );
-      },
     );
 
     if (picked != null) {
@@ -79,16 +63,21 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_rounded,
-            color: Color(0xFF141718),
+            color: colorScheme.onSurface,
             size: 24,
           ),
           onPressed: () => context.pop(),
@@ -98,7 +87,7 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
           style: AppTypography.headlineSmall.copyWith(
             fontWeight: FontWeight.w800,
             fontSize: 18,
-            color: const Color(0xFF141718),
+            color: colorScheme.onSurface,
           ),
         ),
       ),
@@ -112,14 +101,12 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
               Text(
                 'Get notifications to stay consistent.',
                 style: AppTypography.bodySmall.copyWith(
-                  color: AppColors.neutral500,
+                  color: colorScheme.onSurfaceVariant,
                   fontSize: 13,
                 ),
               ),
               const SizedBox(height: 20),
-
-              // 1. Workout Reminder Switch
-              _buildSwitchCard(
+              AppSettingsSwitchCard(
                 icon: Icons.notifications_none_rounded,
                 title: 'Workout Reminder',
                 subtitle: 'Remind me when it\'s time to workout',
@@ -130,40 +117,37 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
                 },
               ),
               const SizedBox(height: 12),
-
-              // 2. Reminder Time Row
-              InkWell(
-                onTap: _workoutReminder ? _pickTime : null,
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                        color: const Color(0xFFE9ECEF), width: 1.2),
+              Opacity(
+                opacity: _workoutReminder ? 1.0 : 0.5,
+                child: AppCard(
+                  onTap: _workoutReminder ? _pickTime : null,
+                  variant: AppCardVariant.flat,
+                  borderRadius: 16,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.access_time_rounded,
-                          size: 20, color: Color(0xFF141718)),
+                      Icon(
+                        Icons.access_time_rounded,
+                        size: 20,
+                        color: colorScheme.onSurface,
+                      ),
                       const SizedBox(width: 14),
                       Text(
                         'Reminder Time',
                         style: AppTypography.labelLarge.copyWith(
                           fontWeight: FontWeight.w700,
                           fontSize: 14,
-                          color: const Color(0xFF141718),
+                          color: colorScheme.onSurface,
                         ),
                       ),
                       const Spacer(),
                       Text(
                         _reminderTime,
                         style: AppTypography.bodySmall.copyWith(
-                          color: _workoutReminder
-                              ? const Color(0xFF141718)
-                              : AppColors.neutral400,
+                          color: colorScheme.onSurface,
                           fontWeight: FontWeight.w700,
                           fontSize: 13.5,
                         ),
@@ -171,9 +155,7 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
                       const SizedBox(width: 6),
                       Icon(
                         Icons.chevron_right_rounded,
-                        color: _workoutReminder
-                            ? AppColors.neutral500
-                            : AppColors.neutral300,
+                        color: colorScheme.onSurfaceVariant,
                         size: 20,
                       ),
                     ],
@@ -181,9 +163,7 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-
-              // 3. Rest Day Reminder Switch
-              _buildSwitchCard(
+              AppSettingsSwitchCard(
                 icon: Icons.calendar_today_outlined,
                 title: 'Rest Day Reminder',
                 subtitle: 'A gentle reminder on rest days',
@@ -194,9 +174,7 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
                 },
               ),
               const SizedBox(height: 12),
-
-              // 4. Progress Check-in Switch
-              _buildSwitchCard(
+              AppSettingsSwitchCard(
                 icon: Icons.bar_chart_rounded,
                 title: 'Progress Check-in',
                 subtitle: 'Weekly summary and progress',
@@ -207,9 +185,7 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
                 },
               ),
               const SizedBox(height: 12),
-
-              // 5. Streak Reminder Switch
-              _buildSwitchCard(
+              AppSettingsSwitchCard(
                 icon: Icons.local_fire_department_outlined,
                 title: 'Streak Reminder',
                 subtitle: 'Keep your workout streak going',
@@ -225,59 +201,4 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
       ),
     );
   }
-
-  Widget _buildSwitchCard({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE9ECEF), width: 1.2),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: const Color(0xFF141718)),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: AppTypography.labelLarge.copyWith(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
-                    color: const Color(0xFF141718),
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.neutral500,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Switch(
-            value: value,
-            activeThumbColor: Colors.white,
-            activeTrackColor: AppColors.primary,
-            inactiveThumbColor: Colors.white,
-            inactiveTrackColor: const Color(0xFFE2E8F0),
-            onChanged: onChanged,
-          ),
-        ],
-      ),
-    );
-  }
 }
-

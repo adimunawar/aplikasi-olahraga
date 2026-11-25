@@ -2,7 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:workout_app/core/theme/app_colors.dart';
 
 import '../../../exercises/domain/models/exercise.dart';
-import '../screens/plans_screen.dart';
+import '../../domain/models/session_with_detail.dart';
 
 enum PlanSessionStatus { completed, activeToday, upcoming }
 

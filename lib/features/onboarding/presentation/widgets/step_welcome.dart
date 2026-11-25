@@ -11,6 +11,11 @@ class StepWelcome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Translations.of(context).onboarding.welcome;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
+    final accentColor = isDark ? colorScheme.primary : const Color(0xFF84CC16);
+    final canvasColor = theme.scaffoldBackgroundColor;
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -29,8 +34,8 @@ class StepWelcome extends StatelessWidget {
                   Container(
                     width: 10,
                     height: 10,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF84CC16),
+                    decoration: BoxDecoration(
+                      color: accentColor,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -38,8 +43,8 @@ class StepWelcome extends StatelessWidget {
                   Container(
                     width: 10,
                     height: 10,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF84CC16),
+                    decoration: BoxDecoration(
+                      color: accentColor,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -52,7 +57,7 @@ class StepWelcome extends StatelessWidget {
                   fontWeight: FontWeight.w900,
                   fontSize: 16,
                   letterSpacing: -0.3,
-                  color: AppColors.darkCharcoal,
+                  color: colorScheme.onSurface,
                 ),
               ),
             ],
@@ -74,14 +79,20 @@ class StepWelcome extends StatelessWidget {
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(32),
-                        gradient: const LinearGradient(
+                        gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFFE8F7CD),
-                            Color(0xFFF4FDE5),
-                            Color(0xFFE2F5BE),
-                          ],
+                          colors: isDark
+                              ? [
+                                  colorScheme.primaryContainer,
+                                  colorScheme.surfaceContainerHighest,
+                                  colorScheme.primaryContainer,
+                                ]
+                              : const [
+                                  Color(0xFFE8F7CD),
+                                  Color(0xFFF4FDE5),
+                                  Color(0xFFE2F5BE),
+                                ],
                         ),
                       ),
                     ),
@@ -98,7 +109,7 @@ class StepWelcome extends StatelessWidget {
                     ),
                   ),
 
-                  // Soft Fade Gradient di bagian bawah agar menyatu mulus ke kanvas putih
+                  // Soft Fade Gradient di bagian bawah agar menyatu mulus ke kanvas
                   Positioned(
                     left: 0,
                     right: 0,
@@ -110,9 +121,9 @@ class StepWelcome extends StatelessWidget {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Colors.white.withValues(alpha: 0.0),
-                            Colors.white.withValues(alpha: 0.8),
-                            Colors.white,
+                            canvasColor.withValues(alpha: 0.0),
+                            canvasColor.withValues(alpha: 0.8),
+                            canvasColor,
                           ],
                         ),
                       ),
@@ -124,7 +135,7 @@ class StepWelcome extends StatelessWidget {
           ),
           const SizedBox(height: 20),
 
-          // 3. Judul 2 Warna: Baris 1 (Hitam) & Baris 2 (Lime Green) sesuai Locale
+          // 3. Judul 2 Warna: Baris 1 & Baris 2 (Lime Green) sesuai Locale
           Builder(
             builder: (context) {
               final titleParts = t.title.split('\n');
@@ -142,15 +153,15 @@ class StepWelcome extends StatelessWidget {
                   children: [
                     TextSpan(
                       text: '$firstLine\n',
-                      style: const TextStyle(
-                        color: Color(0xFF141718),
+                      style: TextStyle(
+                        color: colorScheme.onSurface,
                       ),
                     ),
                     if (secondLine.isNotEmpty)
                       TextSpan(
                         text: secondLine,
-                        style: const TextStyle(
-                          color: Color(0xFF84CC16),
+                        style: TextStyle(
+                          color: accentColor,
                         ),
                       ),
                   ],
