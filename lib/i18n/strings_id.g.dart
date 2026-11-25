@@ -2894,7 +2894,9 @@ extension on Translations {
       }) => '${completed}/${total} latihan',
       'workouts.weeklySchedule.current' => 'Saat Ini',
       'workouts.weeklySchedule.weekShort' => ({required Object n}) => 'W${n}',
-      'workouts.weeklySchedule.weekNumber' => ({required Object n}) => 'Minggu ${n}',
+      'workouts.weeklySchedule.weekNumber' => ({
+        required Object n,
+      }) => 'Minggu ${n}',
       'workouts.weeklySchedule.empty' =>
         'Tidak ada sesi latihan yang dijadwalkan untuk minggu ini.',
       'workouts.weeklySchedule.previewTitle' => 'Mode pratinjau',

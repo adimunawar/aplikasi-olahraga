@@ -52,7 +52,9 @@ class WorkoutSessionRepositoryImpl implements WorkoutSessionRepository {
     final activeSession = sessionId != null
         ? await localDatabase.getActiveSession()
         : null;
-    final resumedSession = activeSession?.id == sessionId ? activeSession : null;
+    final resumedSession = activeSession?.id == sessionId
+        ? activeSession
+        : null;
     final resolvedSessionId =
         sessionId ?? 'session_${endedAt.millisecondsSinceEpoch}';
 
@@ -76,22 +78,26 @@ class WorkoutSessionRepositoryImpl implements WorkoutSessionRepository {
     // 2b. Simpan set-by-set detail log (Fase 3: RIR & Performa Nyata)
     List<WorkoutSetEntity> formattedSetLogs = [];
     if (setLogs.isNotEmpty) {
-      formattedSetLogs = setLogs.map((s) => WorkoutSetEntity(
-        id: '${sessionEntity.id}_${s.exerciseId}_${s.setNumber}',
-        sessionId: sessionEntity.id,
-        exerciseId: s.exerciseId,
-        setNumber: s.setNumber,
-        targetReps: s.targetReps,
-        actualReps: s.actualReps,
-        targetLoadKg: s.targetLoadKg,
-        actualLoadKg: s.actualLoadKg,
-        durationSeconds: s.durationSeconds,
-        rir: s.rir,
-        isWarmup: s.isWarmup,
-        formScore: s.formScore,
-        dataSource: s.dataSource,
-        status: s.status,
-      )).toList();
+      formattedSetLogs = setLogs
+          .map(
+            (s) => WorkoutSetEntity(
+              id: '${sessionEntity.id}_${s.exerciseId}_${s.setNumber}',
+              sessionId: sessionEntity.id,
+              exerciseId: s.exerciseId,
+              setNumber: s.setNumber,
+              targetReps: s.targetReps,
+              actualReps: s.actualReps,
+              targetLoadKg: s.targetLoadKg,
+              actualLoadKg: s.actualLoadKg,
+              durationSeconds: s.durationSeconds,
+              rir: s.rir,
+              isWarmup: s.isWarmup,
+              formScore: s.formScore,
+              dataSource: s.dataSource,
+              status: s.status,
+            ),
+          )
+          .toList();
 
       await localDatabase.saveWorkoutSets(formattedSetLogs);
     }
@@ -110,23 +116,32 @@ class WorkoutSessionRepositoryImpl implements WorkoutSessionRepository {
         final exerciseId = entry.key;
         final exSets = entry.value;
 
-        final nextExId = await localDatabase.getNextExerciseInProgression(exerciseId);
-        final prevExId = await localDatabase.getPreviousExerciseInProgression(exerciseId);
+        final nextExId = await localDatabase.getNextExerciseInProgression(
+          exerciseId,
+        );
+        final prevExId = await localDatabase.getPreviousExerciseInProgression(
+          exerciseId,
+        );
 
-        final history = await localDatabase.getProgressionHistory(exerciseId, limit: 3);
+        final history = await localDatabase.getProgressionHistory(
+          exerciseId,
+          limit: 3,
+        );
         int consecutiveMax = 0;
         int underperforming = 0;
         for (final h in history) {
-          if (h.decision == 'progress' || (h.decision == 'maintain' && h.reason.contains('target maksimal'))) {
+          if (h.decision == 'progress' ||
+              (h.decision == 'maintain' &&
+                  h.reason.contains('target maksimal'))) {
             consecutiveMax++;
-          } else if (h.decision == 'regress' || (h.decision == 'maintain' && h.reason.contains('menantang'))) {
+          } else if (h.decision == 'regress' ||
+              (h.decision == 'maintain' && h.reason.contains('menantang'))) {
             underperforming++;
           }
         }
 
         final firstSet = exSets.first;
-        final targetSets =
-            targetSetsPerExercise?[exerciseId] ?? exSets.length;
+        final targetSets = targetSetsPerExercise?[exerciseId] ?? exSets.length;
         final targetReps = firstSet.targetReps ?? 10;
         final prescription = ExercisePrescription(
           targetSets: targetSets,
@@ -135,13 +150,17 @@ class WorkoutSessionRepositoryImpl implements WorkoutSessionRepository {
           targetRir: 2,
         );
 
-        final performanceLogs = exSets.map((s) => SetPerformanceLog(
-          setNumber: s.setNumber,
-          reps: s.actualReps ?? s.durationSeconds ?? 0,
-          rir: s.rir,
-          formScore: s.formScore,
-          weightKg: s.actualLoadKg,
-        )).toList();
+        final performanceLogs = exSets
+            .map(
+              (s) => SetPerformanceLog(
+                setNumber: s.setNumber,
+                reps: s.actualReps ?? s.durationSeconds ?? 0,
+                rir: s.rir,
+                formScore: s.formScore,
+                weightKg: s.actualLoadKg,
+              ),
+            )
+            .toList();
 
         final input = ProgressionInput(
           exerciseId: exerciseId,
@@ -179,7 +198,9 @@ class WorkoutSessionRepositoryImpl implements WorkoutSessionRepository {
           await remoteDatasource.syncCompletedSets(formattedSetLogs);
         }
         if (savedDecisionEntities.isNotEmpty) {
-          await remoteDatasource.syncProgressionDecisions(savedDecisionEntities);
+          await remoteDatasource.syncProgressionDecisions(
+            savedDecisionEntities,
+          );
         }
       } catch (_) {}
     }
@@ -257,4 +278,3 @@ class WorkoutSessionRepositoryImpl implements WorkoutSessionRepository {
     return await localDatabase.getSetsForSession(sessionId);
   }
 }
-

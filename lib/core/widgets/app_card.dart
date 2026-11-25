@@ -78,7 +78,9 @@ class AppCard extends StatelessWidget {
     }
 
     final List<BoxShadow>? boxShadow =
-        (variant == AppCardVariant.flat || isDark) ? null : AppColors.cardShadow;
+        (variant == AppCardVariant.flat || isDark)
+        ? null
+        : AppColors.cardShadow;
 
     return BoxDecoration(
       color: backgroundColor,

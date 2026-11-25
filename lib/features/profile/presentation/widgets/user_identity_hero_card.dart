@@ -23,8 +23,12 @@ class UserIdentityHeroCard extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final colorScheme = theme.colorScheme;
 
-    final pillBg = isDark ? colorScheme.primaryContainer : AppColors.limeCardSurface;
-    final pillFg = isDark ? colorScheme.onPrimaryContainer : colorScheme.onSurface;
+    final pillBg = isDark
+        ? colorScheme.primaryContainer
+        : AppColors.limeCardSurface;
+    final pillFg = isDark
+        ? colorScheme.onPrimaryContainer
+        : colorScheme.onSurface;
 
     return AppCard(
       borderRadius: 22,
@@ -94,11 +98,7 @@ class UserIdentityHeroCard extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          Icons.edit_outlined,
-                          size: 14,
-                          color: pillFg,
-                        ),
+                        Icon(Icons.edit_outlined, size: 14, color: pillFg),
                         const SizedBox(width: 6),
                         Text(
                           'Edit Profile',

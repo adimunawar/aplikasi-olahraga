@@ -5,4 +5,3 @@ abstract class ExerciseRepository {
   Future<Exercise?> getExerciseById(String id);
   Future<List<Exercise>> getExercisesByCategory(ExerciseCategory category);
 }
-

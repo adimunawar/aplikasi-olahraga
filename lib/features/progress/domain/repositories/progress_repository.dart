@@ -29,4 +29,3 @@ abstract class ProgressRepository {
   /// Mencatat entri penimbangan berat badan baru ke database lokal & cloud
   Future<void> recordWeight(double weightKg);
 }
-

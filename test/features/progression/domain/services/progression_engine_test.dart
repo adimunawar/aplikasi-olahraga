@@ -28,20 +28,23 @@ void main() {
       expect(decision.reason, contains('Belum ada data set'));
     });
 
-    test('Safety Guard 0: Returns reassess when all completedSets have 0 reps', () {
-      final input = ProgressionInput(
-        exerciseId: 'knee_push_up',
-        prescription: defaultPrescription,
-        completedSets: [
-          const SetPerformanceLog(setNumber: 1, reps: 0),
-          const SetPerformanceLog(setNumber: 2, reps: 0),
-        ],
-      );
+    test(
+      'Safety Guard 0: Returns reassess when all completedSets have 0 reps',
+      () {
+        final input = ProgressionInput(
+          exerciseId: 'knee_push_up',
+          prescription: defaultPrescription,
+          completedSets: [
+            const SetPerformanceLog(setNumber: 1, reps: 0),
+            const SetPerformanceLog(setNumber: 2, reps: 0),
+          ],
+        );
 
-      final decision = engine.evaluate(input);
-      expect(decision.action, ProgressionAction.reassess);
-      expect(decision.reason, contains('Repetisi tercatat 0'));
-    });
+        final decision = engine.evaluate(input);
+        expect(decision.action, ProgressionAction.reassess);
+        expect(decision.reason, contains('Repetisi tercatat 0'));
+      },
+    );
 
     test('Safety Guard 1: Returns recover when pain or injury is reported', () {
       final input = ProgressionInput(
@@ -61,28 +64,32 @@ void main() {
       final decision = engine.evaluate(input);
       expect(decision.action, ProgressionAction.recover);
       expect(decision.reason, contains('rasa sakit atau keluhan sendi'));
-      expect(decision.nextPrescription.targetSets, lessThan(defaultPrescription.targetSets));
+      expect(
+        decision.nextPrescription.targetSets,
+        lessThan(defaultPrescription.targetSets),
+      );
       expect(decision.nextPrescription.targetRir, equals(3));
     });
 
-    test('Safety Guard 2: Returns recover when fatigue level is severe (>= 4)', () {
-      final input = ProgressionInput(
-        exerciseId: 'knee_push_up',
-        prescription: defaultPrescription,
-        completedSets: [
-          const SetPerformanceLog(setNumber: 1, reps: 10, rir: 1),
-          const SetPerformanceLog(setNumber: 2, reps: 9, rir: 1),
-          const SetPerformanceLog(setNumber: 3, reps: 8, rir: 1),
-        ],
-        recoveryFeedback: const RecoveryFeedback(
-          fatigueLevel: 5,
-        ),
-      );
+    test(
+      'Safety Guard 2: Returns recover when fatigue level is severe (>= 4)',
+      () {
+        final input = ProgressionInput(
+          exerciseId: 'knee_push_up',
+          prescription: defaultPrescription,
+          completedSets: [
+            const SetPerformanceLog(setNumber: 1, reps: 10, rir: 1),
+            const SetPerformanceLog(setNumber: 2, reps: 9, rir: 1),
+            const SetPerformanceLog(setNumber: 3, reps: 8, rir: 1),
+          ],
+          recoveryFeedback: const RecoveryFeedback(fatigueLevel: 5),
+        );
 
-      final decision = engine.evaluate(input);
-      expect(decision.action, ProgressionAction.recover);
-      expect(decision.reason, contains('Tingkat kelelahan'));
-    });
+        final decision = engine.evaluate(input);
+        expect(decision.action, ProgressionAction.recover);
+        expect(decision.reason, contains('Tingkat kelelahan'));
+      },
+    );
   });
 
   group('ProgressionEngine - Double Progression Rules', () {
@@ -160,23 +167,26 @@ void main() {
   });
 
   group('ProgressionEngine - Regression & Underperformance', () {
-    test('Rule 3 (Single Underperformance): Returns maintain with encouragement', () {
-      final input = ProgressionInput(
-        exerciseId: 'push_up',
-        prescription: defaultPrescription,
-        completedSets: [
-          const SetPerformanceLog(setNumber: 1, reps: 6, rir: 0),
-          const SetPerformanceLog(setNumber: 2, reps: 5, rir: 0),
-          const SetPerformanceLog(setNumber: 3, reps: 4, rir: 0),
-        ],
-        recentUnderperformingSessions: 0, // First struggle
-        previousExerciseId: 'knee_push_up',
-      );
+    test(
+      'Rule 3 (Single Underperformance): Returns maintain with encouragement',
+      () {
+        final input = ProgressionInput(
+          exerciseId: 'push_up',
+          prescription: defaultPrescription,
+          completedSets: [
+            const SetPerformanceLog(setNumber: 1, reps: 6, rir: 0),
+            const SetPerformanceLog(setNumber: 2, reps: 5, rir: 0),
+            const SetPerformanceLog(setNumber: 3, reps: 4, rir: 0),
+          ],
+          recentUnderperformingSessions: 0, // First struggle
+          previousExerciseId: 'knee_push_up',
+        );
 
-      final decision = engine.evaluate(input);
-      expect(decision.action, ProgressionAction.maintain);
-      expect(decision.reason, contains('cukup menantang'));
-    });
+        final decision = engine.evaluate(input);
+        expect(decision.action, ProgressionAction.maintain);
+        expect(decision.reason, contains('cukup menantang'));
+      },
+    );
 
     test('Rule 3 (Repeated Failure): Suggests regression to previous exercise after 2 failed sessions', () {
       final input = ProgressionInput(

@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 
 enum WorkoutGoal {
   hypertrophy, // Membentuk otot (default)
-  strength,    // Kekuatan
-  endurance;   // Daya tahan
+  strength, // Kekuatan
+  endurance; // Daya tahan
 
   static WorkoutGoal fromString(String val) {
     switch (val.toLowerCase()) {
@@ -68,7 +68,7 @@ class UserProfile {
   final double weightKg;
   final FitnessLevel fallbackLevel;
   final List<String> readinessFlags; // PAR-Q answers
-  final double proteinFactor;        // e.g. 1.6 g/kg
+  final double proteinFactor; // e.g. 1.6 g/kg
   final List<String> foodExclusions; // Allergens or preferences
 
   const UserProfile({
@@ -93,23 +93,32 @@ class UserProfile {
       age: json['age'] as int? ?? 25,
       heightCm: (json['height_cm'] as num?)?.toDouble() ?? 170.0,
       weightKg: (json['weight_kg'] as num?)?.toDouble() ?? 65.0,
-      fallbackLevel: FitnessLevel.fromString(json['fallback_level'] as String? ?? 'intermediate'),
-      readinessFlags: (json['readiness_flags'] as List?)?.map((e) => e.toString()).toList() ?? [],
+      fallbackLevel: FitnessLevel.fromString(
+        json['fallback_level'] as String? ?? 'intermediate',
+      ),
+      readinessFlags:
+          (json['readiness_flags'] as List?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
       proteinFactor: (json['protein_factor'] as num?)?.toDouble() ?? 1.6,
-      foodExclusions: (json['food_exclusions'] as List?)?.map((e) => e.toString()).toList() ?? [],
+      foodExclusions:
+          (json['food_exclusions'] as List?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'goal': goal.name,
-        'days_per_week': daysPerWeek,
-        'age': age,
-        'height_cm': heightCm,
-        'weight_kg': weightKg,
-        'fallback_level': fallbackLevel.name,
-        'readiness_flags': readinessFlags,
-        'protein_factor': proteinFactor,
-        'food_exclusions': foodExclusions,
-      };
+    'goal': goal.name,
+    'days_per_week': daysPerWeek,
+    'age': age,
+    'height_cm': heightCm,
+    'weight_kg': weightKg,
+    'fallback_level': fallbackLevel.name,
+    'readiness_flags': readinessFlags,
+    'protein_factor': proteinFactor,
+    'food_exclusions': foodExclusions,
+  };
 }
-

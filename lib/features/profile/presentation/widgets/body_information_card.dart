@@ -75,10 +75,16 @@ class BodyInformationCard extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final colorScheme = theme.colorScheme;
 
-    final iconBg = isDark ? colorScheme.primaryContainer : AppColors.limeSurface;
+    final iconBg = isDark
+        ? colorScheme.primaryContainer
+        : AppColors.limeSurface;
     final iconFg = isDark ? colorScheme.primary : colorScheme.onSurface;
-    final editBg = isDark ? colorScheme.primaryContainer : AppColors.limeCardSurface;
-    final editFg = isDark ? colorScheme.onPrimaryContainer : colorScheme.onSurface;
+    final editBg = isDark
+        ? colorScheme.primaryContainer
+        : AppColors.limeCardSurface;
+    final editFg = isDark
+        ? colorScheme.onPrimaryContainer
+        : colorScheme.onSurface;
 
     return AppCard(
       borderRadius: 22,
@@ -139,11 +145,7 @@ class BodyInformationCard extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        Icons.edit_outlined,
-                        size: 13,
-                        color: editFg,
-                      ),
+                      Icon(Icons.edit_outlined, size: 13, color: editFg),
                       const SizedBox(width: 4),
                       Text(
                         'Edit',
@@ -275,11 +277,7 @@ class BodyInformationCard extends StatelessWidget {
                 color: iconBg,
                 borderRadius: BorderRadius.circular(6),
               ),
-              child: Icon(
-                Icons.straighten_rounded,
-                size: 14,
-                color: iconFg,
-              ),
+              child: Icon(Icons.straighten_rounded, size: 14, color: iconFg),
             ),
             const SizedBox(width: 6),
             Text(
@@ -382,8 +380,10 @@ class BodyInformationCard extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final totalWidth = constraints.maxWidth;
-        final pointerPos =
-            (totalWidth * _bmiPointerFraction).clamp(0.0, totalWidth - 8.0);
+        final pointerPos = (totalWidth * _bmiPointerFraction).clamp(
+          0.0,
+          totalWidth - 8.0,
+        );
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -392,7 +392,9 @@ class BodyInformationCard extends StatelessWidget {
               padding: EdgeInsets.only(left: pointerPos),
               child: CustomPaint(
                 size: const Size(8, 5),
-                painter: _SmallDownTrianglePainter(color: colorScheme.onSurface),
+                painter: _SmallDownTrianglePainter(
+                  color: colorScheme.onSurface,
+                ),
               ),
             ),
             const SizedBox(height: 1),

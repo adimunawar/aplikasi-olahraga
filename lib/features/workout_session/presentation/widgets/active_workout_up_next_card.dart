@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_smart_image.dart';
 
@@ -106,7 +107,10 @@ class ActiveWorkoutUpNextCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 3),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 7,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFEDF8D6),
                       borderRadius: BorderRadius.circular(8),
@@ -136,4 +140,3 @@ class ActiveWorkoutUpNextCard extends StatelessWidget {
     );
   }
 }
-

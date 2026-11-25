@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../exercises/domain/models/exercise.dart';
@@ -8,10 +9,7 @@ import '../../../exercises/domain/models/exercise.dart';
 class ExerciseStepsSection extends StatelessWidget {
   final Exercise exercise;
 
-  const ExerciseStepsSection({
-    super.key,
-    required this.exercise,
-  });
+  const ExerciseStepsSection({super.key, required this.exercise});
 
   @override
   Widget build(BuildContext context) {
@@ -92,9 +90,17 @@ class ExerciseStepsSection extends StatelessWidget {
               flex: 4,
               child: Column(
                 children: [
-                  _buildPoseCard('Posisi Awal', Icons.accessibility_new_rounded, true),
+                  _buildPoseCard(
+                    'Posisi Awal',
+                    Icons.accessibility_new_rounded,
+                    true,
+                  ),
                   const SizedBox(height: 10),
-                  _buildPoseCard('Posisi Bawah', Icons.sports_gymnastics, false),
+                  _buildPoseCard(
+                    'Posisi Bawah',
+                    Icons.sports_gymnastics,
+                    false,
+                  ),
                 ],
               ),
             ),
@@ -147,4 +153,3 @@ class ExerciseStepsSection extends StatelessWidget {
     );
   }
 }
-

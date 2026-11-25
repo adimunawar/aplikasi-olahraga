@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../i18n/strings.g.dart';
@@ -76,16 +77,16 @@ class StepSchedule extends StatelessWidget {
                     boxShadow: isDark
                         ? null
                         : (isSelected
-                            ? [
-                                BoxShadow(
-                                  color: AppColors.limeAccent.withValues(
-                                    alpha: 0.2,
+                              ? [
+                                  BoxShadow(
+                                    color: AppColors.limeAccent.withValues(
+                                      alpha: 0.2,
+                                    ),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 3),
                                   ),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ]
-                            : AppColors.cardShadow),
+                                ]
+                              : AppColors.cardShadow),
                   ),
                   child: Row(
                     children: [
@@ -93,7 +94,9 @@ class StepSchedule extends StatelessWidget {
                         Icons.calendar_today_rounded,
                         size: 18,
                         color: isSelected
-                            ? (isDark ? colorScheme.primary : AppColors.greenDark)
+                            ? (isDark
+                                  ? colorScheme.primary
+                                  : AppColors.greenDark)
                             : colorScheme.onSurfaceVariant,
                       ),
                       const SizedBox(width: 14),
@@ -104,8 +107,8 @@ class StepSchedule extends StatelessWidget {
                           fontSize: 14.5,
                           color: isSelected
                               ? (isDark
-                                  ? colorScheme.onPrimaryContainer
-                                  : AppColors.greenDark)
+                                    ? colorScheme.onPrimaryContainer
+                                    : AppColors.greenDark)
                               : colorScheme.onSurface,
                         ),
                       ),

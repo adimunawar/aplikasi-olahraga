@@ -9,6 +9,7 @@ import 'package:workout_app/features/program/domain/models/program_lifecycle.dar
 import 'package:workout_app/features/program/domain/services/program_lifecycle_calculator.dart';
 import 'package:workout_app/features/program/domain/services/program_week_schedule.dart';
 import 'package:workout_app/features/workouts/domain/services/week_progress_calculator.dart';
+
 import '../workouts_empty_states.dart';
 import 'active_program_card.dart';
 import 'weekly_schedule_section.dart';

@@ -20,10 +20,7 @@ class AnalyticsService {
 
   /// Event custom. Nama event maksimal 40 karakter, parameter maksimal 25
   /// dan hanya mendukung tipe String/num.
-  Future<void> logEvent(
-    String name, {
-    Map<String, Object>? parameters,
-  }) async {
+  Future<void> logEvent(String name, {Map<String, Object>? parameters}) async {
     final analytics = _analytics;
     if (analytics == null) return;
 

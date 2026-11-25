@@ -39,7 +39,9 @@ class VideoPreviewCard extends StatelessWidget {
             color: const Color(0xFFE9EFE6),
             child: Center(
               child: Icon(
-                isShowingEndPose ? Icons.sports_gymnastics : Icons.accessibility_new_rounded,
+                isShowingEndPose
+                    ? Icons.sports_gymnastics
+                    : Icons.accessibility_new_rounded,
                 size: 64,
                 color: const Color(0xFF336C36).withValues(alpha: 0.35),
               ),
@@ -70,7 +72,10 @@ class VideoPreviewCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.black.withValues(alpha: 0.6),
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.8), width: 1.5),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.8),
+                    width: 1.5,
+                  ),
                 ),
                 child: Icon(
                   isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
@@ -99,9 +104,17 @@ class VideoPreviewCard extends StatelessWidget {
                 ),
                 const Row(
                   children: [
-                    Icon(Icons.closed_caption_outlined, color: Colors.white, size: 16),
+                    Icon(
+                      Icons.closed_caption_outlined,
+                      color: Colors.white,
+                      size: 16,
+                    ),
                     SizedBox(width: 8),
-                    Icon(Icons.fullscreen_rounded, color: Colors.white, size: 18),
+                    Icon(
+                      Icons.fullscreen_rounded,
+                      color: Colors.white,
+                      size: 18,
+                    ),
                   ],
                 ),
               ],
@@ -112,4 +125,3 @@ class VideoPreviewCard extends StatelessWidget {
     );
   }
 }
-

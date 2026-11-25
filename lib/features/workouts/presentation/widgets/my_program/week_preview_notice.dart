@@ -13,10 +13,18 @@ class WeekPreviewNotice extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     final bannerBg = isDark ? const Color(0xFF2C2210) : const Color(0xFFFFFBEB);
-    final bannerBorder = isDark ? const Color(0xFF78350F) : const Color(0xFFFDE68A);
-    final iconColor = isDark ? const Color(0xFFFBBF24) : const Color(0xFFB45309);
-    final titleColor = isDark ? const Color(0xFFFDE68A) : const Color(0xFF92400E);
-    final bodyColor = isDark ? const Color(0xFFFCD34D) : const Color(0xFFB45309);
+    final bannerBorder = isDark
+        ? const Color(0xFF78350F)
+        : const Color(0xFFFDE68A);
+    final iconColor = isDark
+        ? const Color(0xFFFBBF24)
+        : const Color(0xFFB45309);
+    final titleColor = isDark
+        ? const Color(0xFFFDE68A)
+        : const Color(0xFF92400E);
+    final bodyColor = isDark
+        ? const Color(0xFFFCD34D)
+        : const Color(0xFFB45309);
 
     return Container(
       width: double.infinity,
@@ -29,11 +37,7 @@ class WeekPreviewNotice extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            Icons.visibility_rounded,
-            size: 18,
-            color: iconColor,
-          ),
+          Icon(Icons.visibility_rounded, size: 18, color: iconColor),
           const SizedBox(width: 10),
           Expanded(
             child: Column(

@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_typography.dart';
 
 /// Hero Section pada Workout Summary (Mockup 1:1):
@@ -135,4 +136,3 @@ class WorkoutSummaryHeroSection extends StatelessWidget {
     );
   }
 }
-

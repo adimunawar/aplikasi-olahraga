@@ -48,4 +48,3 @@ abstract class WorkoutSessionRepository {
   /// Mengambil status crash recovery jika ada sesi yang belum selesai (WKO-10)
   Future<WorkoutSessionEntity?> getActiveInProgressSession();
 }
-

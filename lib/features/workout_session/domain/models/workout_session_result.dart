@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import '../../../progression/domain/models/progression_models.dart';
 
 /// Model hasil akhir sesi latihan (Domain Layer murni & immutable)
@@ -33,4 +34,3 @@ class WorkoutSessionResult {
   int get programDayId => dayNumber;
   int get durationMinutes => (durationSeconds / 60).round();
 }
-

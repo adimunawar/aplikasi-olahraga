@@ -170,10 +170,18 @@ class _ExerciseDemoCardState extends State<ExerciseDemoCard> {
     final cardBorderColor = isDark
         ? theme.colorScheme.outlineVariant.withValues(alpha: 0.4)
         : AppColors.cardBorder;
-    final headingColor = isDark ? theme.colorScheme.onSurface : AppColors.darkCharcoal;
-    final buttonBgColor = isDark ? theme.colorScheme.surfaceContainerHigh : AppColors.surface;
-    final buttonTextColor = isDark ? theme.colorScheme.onSurface : AppColors.darkCharcoal;
-    final playerBgColor = isDark ? theme.colorScheme.surfaceContainerHighest : AppColors.surface;
+    final headingColor = isDark
+        ? theme.colorScheme.onSurface
+        : AppColors.darkCharcoal;
+    final buttonBgColor = isDark
+        ? theme.colorScheme.surfaceContainerHigh
+        : AppColors.surface;
+    final buttonTextColor = isDark
+        ? theme.colorScheme.onSurface
+        : AppColors.darkCharcoal;
+    final playerBgColor = isDark
+        ? theme.colorScheme.surfaceContainerHighest
+        : AppColors.surface;
 
     // Rasio proporsional dinamis mengikuti video native (biasanya 16:9),
     // dibatasi clamp(1.2, 1.85) agar tidak terlalu tinggi atau gepeng.

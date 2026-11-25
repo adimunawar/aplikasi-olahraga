@@ -23,4 +23,3 @@ class CalorieCalculatorService {
     return total > 20 ? total : 45;
   }
 }
-

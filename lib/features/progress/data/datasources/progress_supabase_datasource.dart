@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import '../../../../core/config/supabase_config.dart';
 import '../../domain/models/day_activity.dart';
 import '../../domain/models/progress_metrics.dart';
@@ -88,17 +89,22 @@ class ProgressSupabaseDatasource {
           .order('recorded_at', ascending: true);
 
       final List<dynamic> list = response as List<dynamic>;
-      return list.map((item) {
-        final map = Map<String, dynamic>.from(item);
-        final val = (map['value'] as num?)?.toDouble();
-        final date = DateTime.tryParse(map['recorded_at']?.toString() ?? '');
-        if (val == null || val <= 0 || date == null) return null;
-        return WeightRecord(
-          id: map['id']?.toString() ?? '',
-          weightKg: val,
-          recordedAt: date,
-        );
-      }).whereType<WeightRecord>().toList();
+      return list
+          .map((item) {
+            final map = Map<String, dynamic>.from(item);
+            final val = (map['value'] as num?)?.toDouble();
+            final date = DateTime.tryParse(
+              map['recorded_at']?.toString() ?? '',
+            );
+            if (val == null || val <= 0 || date == null) return null;
+            return WeightRecord(
+              id: map['id']?.toString() ?? '',
+              weightKg: val,
+              recordedAt: date,
+            );
+          })
+          .whereType<WeightRecord>()
+          .toList();
     } catch (e) {
       debugPrint('[Supabase] Error fetchWeightHistory: $e');
       return [];
@@ -128,27 +134,31 @@ class ProgressSupabaseDatasource {
       final List<dynamic> list = response as List<dynamic>;
       if (list.isEmpty) return [];
 
-      return list.map((item) {
-        final map = Map<String, dynamic>.from(item);
-        final title = map['program_title']?.toString().trim() ?? '';
-        final durSeconds = (map['duration_seconds'] as num?)?.toInt();
-        final cals = (map['calories_burned'] as num?)?.toInt() ?? 0;
-        final startedAtStr = map['started_at']?.toString() ?? '';
-        final date = DateTime.tryParse(startedAtStr);
-        if (title.isEmpty || durSeconds == null || date == null) return null;
-        final minutes = (durSeconds / 60).round();
+      return list
+          .map((item) {
+            final map = Map<String, dynamic>.from(item);
+            final title = map['program_title']?.toString().trim() ?? '';
+            final durSeconds = (map['duration_seconds'] as num?)?.toInt();
+            final cals = (map['calories_burned'] as num?)?.toInt() ?? 0;
+            final startedAtStr = map['started_at']?.toString() ?? '';
+            final date = DateTime.tryParse(startedAtStr);
+            if (title.isEmpty || durSeconds == null || date == null)
+              return null;
+            final minutes = (durSeconds / 60).round();
 
-        return WorkoutHistoryItem(
-          id: map['id']?.toString() ?? '',
-          title: title,
-          dateText: _formatShortDate(date),
-          durationText: '$minutes minutes',
-          caloriesText: '$cals kcal',
-          thumbnailAsset: title.toLowerCase().contains('leg')
-              ? 'assets/images/coach_flex.png'
-              : 'assets/images/Home Workout Push-Up Guide.png',
-        );
-      }).whereType<WorkoutHistoryItem>().toList();
+            return WorkoutHistoryItem(
+              id: map['id']?.toString() ?? '',
+              title: title,
+              dateText: _formatShortDate(date),
+              durationText: '$minutes minutes',
+              caloriesText: '$cals kcal',
+              thumbnailAsset: title.toLowerCase().contains('leg')
+                  ? 'assets/images/coach_flex.png'
+                  : 'assets/images/Home Workout Push-Up Guide.png',
+            );
+          })
+          .whereType<WorkoutHistoryItem>()
+          .toList();
     } catch (e) {
       debugPrint('[Supabase] Error fetchRecentWorkouts: $e');
       return [];
@@ -166,7 +176,11 @@ class ProgressSupabaseDatasource {
     try {
       final now = DateTime.now();
       final monday = now.subtract(Duration(days: now.weekday - 1));
-      final mondayStart = DateTime(monday.year, monday.month, monday.day).toIso8601String();
+      final mondayStart = DateTime(
+        monday.year,
+        monday.month,
+        monday.day,
+      ).toIso8601String();
 
       final response = await client
           .from('workout_sessions')
@@ -193,7 +207,10 @@ class ProgressSupabaseDatasource {
       final dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
       return List.generate(7, (index) {
         final weekday = index + 1;
-        return DayActivity(day: dayLabels[index], minutes: dayMinutes[weekday] ?? 0);
+        return DayActivity(
+          day: dayLabels[index],
+          minutes: dayMinutes[weekday] ?? 0,
+        );
       });
     } catch (e) {
       debugPrint('[Supabase] Error fetchWeeklyActivity: $e');
@@ -202,10 +219,7 @@ class ProgressSupabaseDatasource {
   }
 
   /// Menambahkan pengukuran berat badan baru ke cloud
-  Future<void> recordWeight({
-    required double weightKg,
-    String? userId,
-  }) async {
+  Future<void> recordWeight({required double weightKg, String? userId}) async {
     final client = SupabaseConfig.client;
     final uid = _authorizedUserId(userId);
     if (client == null || uid == null || !SupabaseConfig.canSyncToCloud) {
@@ -223,12 +237,17 @@ class ProgressSupabaseDatasource {
         'recorded_at': now.toIso8601String(),
       });
 
-      await client.from('user_profiles').update({
-        'current_weight_kg': weightKg,
-        'updated_at': now.toIso8601String(),
-      }).eq('id', uid);
+      await client
+          .from('user_profiles')
+          .update({
+            'current_weight_kg': weightKg,
+            'updated_at': now.toIso8601String(),
+          })
+          .eq('id', uid);
 
-      debugPrint('[Supabase] Berhasil catat berat badan: $weightKg kg untuk user $uid');
+      debugPrint(
+        '[Supabase] Berhasil catat berat badan: $weightKg kg untuk user $uid',
+      );
     } catch (e) {
       debugPrint('[Supabase] Gagal catat berat badan: $e');
     }
@@ -236,13 +255,22 @@ class ProgressSupabaseDatasource {
 
   String _formatShortDate(DateTime date) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
 }
-
 
 String? _authorizedUserId(String? requestedUserId) {
   if (!SupabaseConfig.canSyncToCloud) return null;

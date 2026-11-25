@@ -108,7 +108,11 @@ class ProgramWeekSchedule {
     final result = <ProgramWeekSession>[];
     var sessionIndex = 0;
 
-    for (var offset = 0; offset < 7 && sessionIndex < sessions.length; offset++) {
+    for (
+      var offset = 0;
+      offset < 7 && sessionIndex < sessions.length;
+      offset++
+    ) {
       final date = weekStart.add(Duration(days: offset));
       final weekday = weekdayNames[date.weekday - 1];
 

@@ -1,6 +1,8 @@
 import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/models/exercise_entity.dart';
 import '../../domain/models/exercise.dart';
@@ -38,8 +40,9 @@ class ExerciseLocalDatasource {
       );
       final initialExercises = await _loadFromJsonAsset();
       if (initialExercises.isNotEmpty) {
-        final entitiesToInsert =
-            initialExercises.map((e) => ExerciseEntity.fromDomain(e)).toList();
+        final entitiesToInsert = initialExercises
+            .map((e) => ExerciseEntity.fromDomain(e))
+            .toList();
         await _db.insertExercises(entitiesToInsert);
         _cachedExercises = initialExercises;
         debugPrint(
@@ -63,10 +66,12 @@ class ExerciseLocalDatasource {
     final all = await loadExercises();
     if (stage.toLowerCase() == 'warmup') {
       return all
-          .where((e) =>
-              e.category == ExerciseCategory.warmup ||
-              e.id.toLowerCase().contains('warmup') ||
-              e.name.id.toLowerCase().contains('pemanasan'))
+          .where(
+            (e) =>
+                e.category == ExerciseCategory.warmup ||
+                e.id.toLowerCase().contains('warmup') ||
+                e.name.id.toLowerCase().contains('pemanasan'),
+          )
           .toList();
     }
     return all.where((e) => e.category != ExerciseCategory.warmup).toList();

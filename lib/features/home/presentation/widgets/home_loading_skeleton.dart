@@ -22,10 +22,7 @@ class _HomeLoadingSkeletonState extends State<HomeLoadingSkeleton>
     )..repeat(reverse: true);
 
     _shimmerAnimation = Tween<double>(begin: 0.45, end: 0.85).animate(
-      CurvedAnimation(
-        parent: _shimmerController,
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: _shimmerController, curve: Curves.easeInOut),
     );
   }
 
@@ -67,7 +64,7 @@ class _HomeLoadingSkeletonState extends State<HomeLoadingSkeleton>
                         height: 16,
                         radius: 6,
                         opacity: opacity,
-                    context: context,
+                        context: context,
                       ),
                       const SizedBox(height: 6),
                       _buildBox(
@@ -75,7 +72,7 @@ class _HomeLoadingSkeletonState extends State<HomeLoadingSkeleton>
                         height: 12,
                         radius: 4,
                         opacity: opacity,
-                    context: context,
+                        context: context,
                       ),
                     ],
                   ),
@@ -97,7 +94,7 @@ class _HomeLoadingSkeletonState extends State<HomeLoadingSkeleton>
                 height: 175,
                 radius: 24,
                 opacity: opacity,
-                    context: context,
+                context: context,
               ),
               const SizedBox(height: 24),
 
@@ -107,7 +104,7 @@ class _HomeLoadingSkeletonState extends State<HomeLoadingSkeleton>
                 height: 18,
                 radius: 6,
                 opacity: opacity,
-                    context: context,
+                context: context,
               ),
               const SizedBox(height: 12),
               _buildBox(
@@ -115,7 +112,7 @@ class _HomeLoadingSkeletonState extends State<HomeLoadingSkeleton>
                 height: 160,
                 radius: 22,
                 opacity: opacity,
-                    context: context,
+                context: context,
               ),
               const SizedBox(height: 24),
 
@@ -125,7 +122,7 @@ class _HomeLoadingSkeletonState extends State<HomeLoadingSkeleton>
                 height: 18,
                 radius: 6,
                 opacity: opacity,
-                    context: context,
+                context: context,
               ),
               const SizedBox(height: 12),
               _buildBox(
@@ -133,7 +130,7 @@ class _HomeLoadingSkeletonState extends State<HomeLoadingSkeleton>
                 height: 80,
                 radius: 22,
                 opacity: opacity,
-                    context: context,
+                context: context,
               ),
             ],
           ),
@@ -154,10 +151,12 @@ class _HomeLoadingSkeletonState extends State<HomeLoadingSkeleton>
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: opacity),
+        color: Theme.of(context).colorScheme.surfaceContainerHighest
+            .withValues(alpha: opacity),
         shape: shape,
-        borderRadius:
-            shape == BoxShape.rectangle ? BorderRadius.circular(radius) : null,
+        borderRadius: shape == BoxShape.rectangle
+            ? BorderRadius.circular(radius)
+            : null,
       ),
     );
   }

@@ -6,10 +6,11 @@ class ProgressionDecisionEntity {
   final String id;
   final String userId;
   final String exerciseId;
-  final String decision; // 'progress', 'maintain', 'regress', 'recover', 'reassess'
+  final String
+  decision; // 'progress', 'maintain', 'regress', 'recover', 'reassess'
   final String? previousPrescription; // JSON string
-  final String? nextPrescription;     // JSON string
-  final String reason;               // Penjelasan transparan dari Coach Adi
+  final String? nextPrescription; // JSON string
+  final String reason; // Penjelasan transparan dari Coach Adi
   final DateTime createdAt;
 
   const ProgressionDecisionEntity({
@@ -67,4 +68,3 @@ class ProgressionDecisionEntity {
     }
   }
 }
-

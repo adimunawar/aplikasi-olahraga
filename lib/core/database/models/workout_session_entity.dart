@@ -91,7 +91,8 @@ class WorkoutSessionEntity {
       programDayId: (map['program_day_id'] as num?)?.toInt() ?? 1,
       programTitle: map['program_title']?.toString() ?? 'Latihan',
       scheduledDate: map['scheduled_date'] != null
-          ? DateTime.tryParse(map['scheduled_date'].toString()) ?? DateTime.now()
+          ? DateTime.tryParse(map['scheduled_date'].toString()) ??
+                DateTime.now()
           : DateTime.now(),
       startedAt: map['started_at'] != null
           ? DateTime.tryParse(map['started_at'].toString()) ?? DateTime.now()
@@ -131,4 +132,3 @@ class WorkoutSessionEntity {
     );
   }
 }
-

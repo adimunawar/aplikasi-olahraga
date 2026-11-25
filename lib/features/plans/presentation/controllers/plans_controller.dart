@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../core/database/app_database.dart';
 import '../../../profile/data/datasources/user_supabase_datasource.dart';
 import '../../../program/data/repositories/programs_repository_impl.dart';
@@ -15,12 +16,12 @@ final plansUserDatasourceProvider = Provider<UserSupabaseDatasource>((ref) {
 
 final plansControllerProvider =
     StateNotifierProvider<PlansController, PlansState>((ref) {
-  return PlansController(
-    programsRepo: ref.watch(plansProgramsRepositoryProvider),
-    userDatasource: ref.watch(plansUserDatasourceProvider),
-    database: AppDatabase.instance,
-  );
-});
+      return PlansController(
+        programsRepo: ref.watch(plansProgramsRepositoryProvider),
+        userDatasource: ref.watch(plansUserDatasourceProvider),
+        database: AppDatabase.instance,
+      );
+    });
 
 /// Riverpod Controller untuk Halaman Plans
 class PlansController extends StateNotifier<PlansState> {
@@ -32,7 +33,7 @@ class PlansController extends StateNotifier<PlansState> {
     required this._programsRepo,
     required this._userDatasource,
     required this._database,
-  })  : super(const PlansState()) {
+  }) : super(const PlansState()) {
     loadPrograms();
   }
 

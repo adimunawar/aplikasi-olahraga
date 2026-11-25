@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/database/models/dynamic_program_entity.dart';
 import '../../../../core/database/models/user_profile_entity.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -38,16 +39,20 @@ class PlansOverviewTab extends StatelessWidget {
     if (equipments == null || equipments.isEmpty) {
       return 'Bodyweight';
     }
-    final labels = equipments.map((e) {
-      final key = e.toLowerCase();
-      if (key.contains('bodyweight')) return 'Bodyweight';
-      if (key.contains('dumbbell')) return 'Dumbbell';
-      if (key.contains('resistance') || key.contains('band')) return 'Resistance Band';
-      if (key.contains('kettlebell')) return 'Kettlebell';
-      if (key.contains('pull')) return 'Pull-up Bar';
-      if (key.contains('barbell')) return 'Barbell';
-      return e;
-    }).toSet().toList();
+    final labels = equipments
+        .map((e) {
+          final key = e.toLowerCase();
+          if (key.contains('bodyweight')) return 'Bodyweight';
+          if (key.contains('dumbbell')) return 'Dumbbell';
+          if (key.contains('resistance') || key.contains('band'))
+            return 'Resistance Band';
+          if (key.contains('kettlebell')) return 'Kettlebell';
+          if (key.contains('pull')) return 'Pull-up Bar';
+          if (key.contains('barbell')) return 'Barbell';
+          return e;
+        })
+        .toSet()
+        .toList();
 
     return labels.join(', ');
   }
@@ -55,7 +60,8 @@ class PlansOverviewTab extends StatelessWidget {
   String _generateExpectedProgressText() {
     final curWeight = profile?.currentWeightKg ?? 75.0;
     final tarWeight = profile?.targetWeightKg ?? 82.0;
-    final weeks = profile?.targetTimeframeWeeks ?? (program?.durationWeeks ?? 12);
+    final weeks =
+        profile?.targetTimeframeWeeks ?? (program?.durationWeeks ?? 12);
     final diff = tarWeight - curWeight;
 
     final goal = (profile?.goal ?? 'bulking').toLowerCase();
@@ -74,8 +80,10 @@ class PlansOverviewTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final goalText = _formatGoal(profile?.goal);
-    final durationWeeks = profile?.targetTimeframeWeeks ?? (program?.durationWeeks ?? 12);
-    final frequency = profile?.weeklyFrequency ?? (program?.weeklyFrequency ?? 4);
+    final durationWeeks =
+        profile?.targetTimeframeWeeks ?? (program?.durationWeeks ?? 12);
+    final frequency =
+        profile?.weeklyFrequency ?? (program?.weeklyFrequency ?? 4);
     final durationMinutes = profile?.preferredDurationMin ?? 45;
     final levelText = _formatLevel(profile?.experienceLevel);
     final equipmentText = _formatEquipment(profile?.equipments);
@@ -114,7 +122,10 @@ class PlansOverviewTab extends StatelessWidget {
                         onTap: onSwitchProgram,
                         borderRadius: BorderRadius.circular(12),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           child: Text(
                             'Edit',
                             style: AppTypography.labelMedium.copyWith(
@@ -251,11 +262,7 @@ class PlansOverviewTab extends StatelessWidget {
             color: const Color(0xFFF3F4F6),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(
-            icon,
-            size: 19,
-            color: const Color(0xFF4B5563),
-          ),
+          child: Icon(icon, size: 19, color: const Color(0xFF4B5563)),
         ),
         const SizedBox(width: 14),
         Expanded(
@@ -286,4 +293,3 @@ class PlansOverviewTab extends StatelessWidget {
     );
   }
 }
-

@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_card.dart';
@@ -78,7 +79,9 @@ class ProgramWorkoutsSection extends StatelessWidget {
                       color: isSelected
                           ? AppColors.darkCharcoal
                           : AppColors.neutral600,
-                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                      fontWeight: isSelected
+                          ? FontWeight.w800
+                          : FontWeight.w600,
                       fontSize: 13,
                     ),
                   ),
@@ -119,17 +122,15 @@ class _WorkoutSessionTile extends StatelessWidget {
   final ProgramDay day;
   final VoidCallback? onTap;
 
-  const _WorkoutSessionTile({
-    required this.day,
-    this.onTap,
-  });
+  const _WorkoutSessionTile({required this.day, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final title = day.title ?? 'Day ${day.day} – Workout';
     final focusText = day.focus;
     final isRest = day.isRest;
-    final thumbnail = day.thumbnailAsset ??
+    final thumbnail =
+        day.thumbnailAsset ??
         (isRest
             ? 'assets/images/onboarding_bg.jpg'
             : 'assets/images/exercises/push_up.webp');
@@ -243,4 +244,3 @@ class _WorkoutSessionTile extends StatelessWidget {
     );
   }
 }
-

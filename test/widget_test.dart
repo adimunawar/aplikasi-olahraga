@@ -6,11 +6,7 @@ import 'package:workout_app/main.dart';
 void main() {
   testWidgets('App smoke test', (WidgetTester tester) async {
     await tester.pumpWidget(
-      TranslationProvider(
-        child: const ProviderScope(
-          child: WorkoutApp(),
-        ),
-      ),
+      TranslationProvider(child: const ProviderScope(child: WorkoutApp())),
     );
     await tester.pumpAndSettle();
 

@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../../core/theme/app_typography.dart';
 import '../../../../../i18n/strings.g.dart';
 
@@ -6,10 +7,7 @@ import '../../../../../i18n/strings.g.dart';
 class TodayWorkoutNoProgramView extends StatelessWidget {
   final VoidCallback onCreateProgram;
 
-  const TodayWorkoutNoProgramView({
-    super.key,
-    required this.onCreateProgram,
-  });
+  const TodayWorkoutNoProgramView({super.key, required this.onCreateProgram});
 
   @override
   Widget build(BuildContext context) {
@@ -23,10 +21,14 @@ class TodayWorkoutNoProgramView extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.2),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outlineVariant,
+            width: 1.2,
+          ),
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.04),
+              color: Theme.of(context).colorScheme.shadow
+                  .withValues(alpha: 0.04),
               blurRadius: 10,
               offset: const Offset(0, 3),
             ),
@@ -40,7 +42,10 @@ class TodayWorkoutNoProgramView extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.primaryContainer,
                 borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.2),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                  width: 1.2,
+                ),
               ),
               child: Center(
                 child: Icon(

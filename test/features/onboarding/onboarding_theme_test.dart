@@ -32,10 +32,7 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.text('Coach'), findsOneWidget);
-        expect(
-          find.text(t.onboarding.nav.getStarted),
-          findsOneWidget,
-        );
+        expect(find.text(t.onboarding.nav.getStarted), findsOneWidget);
       }
     });
 

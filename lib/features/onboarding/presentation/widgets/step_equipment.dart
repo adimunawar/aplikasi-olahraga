@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../i18n/strings.g.dart';
@@ -85,16 +86,16 @@ class StepEquipment extends StatelessWidget {
                     boxShadow: isDark
                         ? null
                         : (isSelected
-                            ? [
-                                BoxShadow(
-                                  color: AppColors.limeAccent.withValues(
-                                    alpha: 0.2,
+                              ? [
+                                  BoxShadow(
+                                    color: AppColors.limeAccent.withValues(
+                                      alpha: 0.2,
+                                    ),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 3),
                                   ),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ]
-                            : AppColors.cardShadow),
+                                ]
+                              : AppColors.cardShadow),
                   ),
                   child: Stack(
                     children: [
@@ -107,8 +108,8 @@ class StepEquipment extends StatelessWidget {
                               size: 32,
                               color: isSelected
                                   ? (isDark
-                                      ? colorScheme.primary
-                                      : AppColors.greenDark)
+                                        ? colorScheme.primary
+                                        : AppColors.greenDark)
                                   : colorScheme.onSurfaceVariant,
                             ),
                             const SizedBox(height: 10),
@@ -120,8 +121,8 @@ class StepEquipment extends StatelessWidget {
                                 fontSize: 13,
                                 color: isSelected
                                     ? (isDark
-                                        ? colorScheme.onPrimaryContainer
-                                        : AppColors.greenDark)
+                                          ? colorScheme.onPrimaryContainer
+                                          : AppColors.greenDark)
                                     : colorScheme.onSurface,
                                 height: 1.2,
                               ),

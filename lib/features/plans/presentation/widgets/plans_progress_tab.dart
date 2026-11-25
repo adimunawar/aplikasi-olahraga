@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/database/models/body_measurement_entity.dart';
 import '../../../../core/database/models/user_profile_entity.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -104,8 +105,13 @@ class PlansProgressTab extends StatelessWidget {
                 backgroundColor: AppColors.limeAccent,
                 foregroundColor: AppColors.darkCharcoal,
                 elevation: 0,
-                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 28,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
               ),
             ),
           ],
@@ -138,7 +144,10 @@ class PlansProgressTab extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: const Color(0xFFF4F9ED),
                     shape: BoxShape.circle,
-                    border: Border.all(color: const Color(0xFFD4F836), width: 1.5),
+                    border: Border.all(
+                      color: const Color(0xFFD4F836),
+                      width: 1.5,
+                    ),
                   ),
                   child: const Icon(
                     Icons.bar_chart_rounded,
@@ -185,7 +194,10 @@ class PlansProgressTab extends StatelessWidget {
                     ),
                     child: const Text(
                       "Log Today's Weight",
-                      style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 14,
+                      ),
                     ),
                   ),
                 ),
@@ -200,11 +212,17 @@ class PlansProgressTab extends StatelessWidget {
                     icon: const Icon(Icons.play_arrow_rounded, size: 20),
                     label: const Text(
                       'Start Workout',
-                      style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 14,
+                      ),
                     ),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.darkCharcoal,
-                      side: const BorderSide(color: Color(0xFFE5E7EB), width: 1.5),
+                      side: const BorderSide(
+                        color: Color(0xFFE5E7EB),
+                        width: 1.5,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -234,7 +252,9 @@ class PlansProgressTab extends StatelessWidget {
     final diffText = '$diffSign${weightDiff.toStringAsFixed(1)} kg';
 
     // Workouts consistency
-    final totalWorkouts = totalScheduledWorkouts > 0 ? totalScheduledWorkouts : 12;
+    final totalWorkouts = totalScheduledWorkouts > 0
+        ? totalScheduledWorkouts
+        : 12;
     final completed = completedWorkouts.clamp(0, totalWorkouts);
     final consistencyPercent = ((completed / totalWorkouts) * 100).round();
 
@@ -284,10 +304,13 @@ class PlansProgressTab extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(6),
                   child: LinearProgressIndicator(
-                    value: (currentWeek / (totalWeeks > 0 ? totalWeeks : 12)).clamp(0.05, 1.0),
+                    value: (currentWeek / (totalWeeks > 0 ? totalWeeks : 12))
+                        .clamp(0.05, 1.0),
                     minHeight: 6,
                     backgroundColor: const Color(0xFFF3F4F6),
-                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF84CC16)),
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      Color(0xFF84CC16),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -309,7 +332,11 @@ class PlansProgressTab extends StatelessWidget {
                           children: [
                             Row(
                               children: [
-                                const Icon(Icons.scale_outlined, size: 16, color: Color(0xFF6B7280)),
+                                const Icon(
+                                  Icons.scale_outlined,
+                                  size: 16,
+                                  color: Color(0xFF6B7280),
+                                ),
                                 const SizedBox(width: 6),
                                 Text(
                                   'Current Weight',
@@ -359,7 +386,11 @@ class PlansProgressTab extends StatelessWidget {
                           children: [
                             Row(
                               children: [
-                                const Icon(Icons.track_changes_outlined, size: 16, color: Color(0xFF6B7280)),
+                                const Icon(
+                                  Icons.track_changes_outlined,
+                                  size: 16,
+                                  color: Color(0xFF6B7280),
+                                ),
                                 const SizedBox(width: 6),
                                 Text(
                                   'Target Weight',
@@ -518,7 +549,9 @@ class PlansProgressTab extends StatelessWidget {
                     value: (consistencyPercent / 100).clamp(0.05, 1.0),
                     minHeight: 8,
                     backgroundColor: const Color(0xFFF3F4F6),
-                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF84CC16)),
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      Color(0xFF84CC16),
+                    ),
                   ),
                 ),
               ],
@@ -542,7 +575,9 @@ class PlansProgressTab extends StatelessWidget {
                 backgroundColor: AppColors.limeAccent,
                 foregroundColor: AppColors.darkCharcoal,
                 elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
               ),
             ),
           ),
@@ -574,12 +609,7 @@ class _WeightLineChart extends StatelessWidget {
     } else {
       // Interpolate simulated initial trend up to current weight
       final start = currentWeight - 1.2;
-      points.addAll([
-        start,
-        start + 0.4,
-        start + 0.8,
-        currentWeight,
-      ]);
+      points.addAll([start, start + 0.4, start + 0.8, currentWeight]);
     }
 
     // Determine min & max Y
@@ -678,8 +708,16 @@ class _LineChartPainter extends CustomPainter {
 
     // Draw horizontal grid lines
     canvas.drawLine(Offset(0, 0), Offset(size.width, 0), gridPaint);
-    canvas.drawLine(Offset(0, size.height / 2), Offset(size.width, size.height / 2), gridPaint);
-    canvas.drawLine(Offset(0, size.height), Offset(size.width, size.height), gridPaint);
+    canvas.drawLine(
+      Offset(0, size.height / 2),
+      Offset(size.width, size.height / 2),
+      gridPaint,
+    );
+    canvas.drawLine(
+      Offset(0, size.height),
+      Offset(size.width, size.height),
+      gridPaint,
+    );
 
     final rangeY = (maxY - minY) > 0 ? (maxY - minY) : 1.0;
     final totalSteps = 5; // W1 to W5
@@ -749,4 +787,3 @@ class _LineChartPainter extends CustomPainter {
         oldDelegate.maxY != maxY;
   }
 }
-

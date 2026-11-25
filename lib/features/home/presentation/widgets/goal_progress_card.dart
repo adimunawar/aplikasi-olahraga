@@ -72,7 +72,10 @@ class GoalProgressCard extends StatelessWidget {
                     Theme.of(context).colorScheme.surfaceContainer,
                     Theme.of(context).colorScheme.surface,
                   ]
-                : [Theme.of(context).colorScheme.surfaceContainerLow, Theme.of(context).colorScheme.surface],
+                : [
+                    Theme.of(context).colorScheme.surfaceContainerLow,
+                    Theme.of(context).colorScheme.surface,
+                  ],
           ),
           border: Border.all(
             color: Theme.of(context).colorScheme.outlineVariant,
@@ -80,7 +83,8 @@ class GoalProgressCard extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
+              color: Theme.of(context).colorScheme.primary
+                  .withValues(alpha: 0.12),
               blurRadius: 18,
               offset: const Offset(0, 6),
             ),
@@ -102,9 +106,12 @@ class GoalProgressCard extends StatelessWidget {
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.18),
-                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
-                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.0),
+                        Theme.of(context).colorScheme.primary
+                            .withValues(alpha: 0.18),
+                        Theme.of(context).colorScheme.primary
+                            .withValues(alpha: 0.08),
+                        Theme.of(context).colorScheme.primary
+                            .withValues(alpha: 0.0),
                       ],
                       stops: [0.0, 0.58, 1.0],
                     ),
@@ -139,7 +146,8 @@ class GoalProgressCard extends StatelessWidget {
                         vertical: 5,
                       ),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.9),
+                        color: Theme.of(context).colorScheme.surface
+                            .withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: Theme.of(context).colorScheme.outlineVariant,
@@ -183,7 +191,9 @@ class GoalProgressCard extends StatelessWidget {
                             Text(
                               t.home.goalCard.target,
                               style: AppTypography.bodySmall.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -208,7 +218,9 @@ class GoalProgressCard extends StatelessWidget {
                             Text(
                               t.home.goalCard.current,
                               style: AppTypography.bodySmall.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -268,7 +280,9 @@ class GoalProgressCard extends StatelessWidget {
                         child: LinearProgressIndicator(
                           value: progressPercent,
                           minHeight: 7,
-                          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                          backgroundColor: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest,
                           valueColor: AlwaysStoppedAnimation<Color>(
                             Theme.of(context).colorScheme.primary,
                           ),
@@ -289,7 +303,9 @@ class GoalProgressCard extends StatelessWidget {
                         Text(
                           t.home.goalCard.programDuration(weeks: totalWeeks),
                           style: AppTypography.bodySmall.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurfaceVariant,
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                           ),

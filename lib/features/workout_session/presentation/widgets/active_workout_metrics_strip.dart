@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_typography.dart';
 
 /// Strip Metrik Sesi Aktif: Sets (1/3), Reps (8-12), Rest (60 sec)
@@ -42,11 +43,7 @@ class ActiveWorkoutMetricsStrip extends StatelessWidget {
               value: setsText,
             ),
           ),
-          Container(
-            height: 32,
-            width: 1,
-            color: const Color(0xFFF1F5F9),
-          ),
+          Container(height: 32, width: 1, color: const Color(0xFFF1F5F9)),
 
           // Kolom 2: Reps / Durasi
           Expanded(
@@ -58,11 +55,7 @@ class ActiveWorkoutMetricsStrip extends StatelessWidget {
               value: repsText,
             ),
           ),
-          Container(
-            height: 32,
-            width: 1,
-            color: const Color(0xFFF1F5F9),
-          ),
+          Container(height: 32, width: 1, color: const Color(0xFFF1F5F9)),
 
           // Kolom 3: Rest
           Expanded(
@@ -113,4 +106,3 @@ class ActiveWorkoutMetricsStrip extends StatelessWidget {
     );
   }
 }
-

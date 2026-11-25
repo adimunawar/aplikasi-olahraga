@@ -66,11 +66,7 @@ class AppEmptyState extends StatelessWidget {
             color: badgeBgColor,
             shape: BoxShape.circle,
           ),
-          child: Icon(
-            icon,
-            size: iconSize,
-            color: badgeIconColor,
-          ),
+          child: Icon(icon, size: iconSize, color: badgeIconColor),
         ),
         SizedBox(height: compact ? 10 : 12),
         Text(
@@ -92,16 +88,14 @@ class AppEmptyState extends StatelessWidget {
             ),
           ),
         ],
-        if (action != null) ...[
-          SizedBox(height: compact ? 12 : 16),
-          action!,
-        ],
+        if (action != null) ...[SizedBox(height: compact ? 12 : 16), action!],
       ],
     );
 
     if (!useCard) {
       return Padding(
-        padding: padding ?? const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        padding:
+            padding ?? const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
         child: Center(child: content),
       );
     }
@@ -112,11 +106,9 @@ class AppEmptyState extends StatelessWidget {
         width: double.infinity,
         child: AppCard(
           borderRadius: borderRadius,
-          padding: padding ??
-              EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: compact ? 18 : 26,
-              ),
+          padding:
+              padding ??
+              EdgeInsets.symmetric(horizontal: 20, vertical: compact ? 18 : 26),
           child: content,
         ),
       ),

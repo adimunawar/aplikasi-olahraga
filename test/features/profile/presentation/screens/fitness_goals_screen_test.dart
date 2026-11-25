@@ -11,14 +11,14 @@ import 'package:workout_app/features/profile/presentation/screens/fitness_goals_
 class _RecordingController extends StateNotifier<ProfileState>
     implements ProfileController {
   _RecordingController()
-      : super(
-          const ProfileState(
-            isLoading: false,
-            goal: 'Build Muscle (Bulking)',
-            targetWeight: 68.0,
-            experienceLevel: 'Beginner',
-          ),
-        );
+    : super(
+        const ProfileState(
+          isLoading: false,
+          goal: 'Build Muscle (Bulking)',
+          targetWeight: 68.0,
+          experienceLevel: 'Beginner',
+        ),
+      );
 
   String? savedGoal;
   double? savedTargetWeight;
@@ -60,7 +60,9 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [profileControllerProvider.overrideWith((ref) => controller)],
+        overrides: [
+          profileControllerProvider.overrideWith((ref) => controller),
+        ],
         child: MaterialApp.router(
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,

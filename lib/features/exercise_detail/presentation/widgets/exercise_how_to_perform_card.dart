@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../exercises/domain/models/exercise.dart';
@@ -20,7 +21,9 @@ class ExerciseHowToPerformCard extends StatelessWidget {
         ? theme.colorScheme.outlineVariant.withValues(alpha: 0.4)
         : const Color(0xFFF1F3F5);
     final titleColor = theme.colorScheme.onSurface;
-    final stepTextColor = isDark ? theme.colorScheme.onSurface : const Color(0xFF334155);
+    final stepTextColor = isDark
+        ? theme.colorScheme.onSurface
+        : const Color(0xFF334155);
 
     final badgeBg = isDark
         ? theme.colorScheme.primaryContainer
@@ -34,11 +37,13 @@ class ExerciseHowToPerformCard extends StatelessWidget {
 
     final steps = exercise.steps.id.isNotEmpty
         ? exercise.steps.id
-        : (exercise.steps.en.isNotEmpty ? exercise.steps.en : [
-            'Start in a high plank position with hands under your shoulders and a straight body line.',
-            'Lower your chest toward the floor, keeping your elbows at about 45° from your body.',
-            'Push back up to the starting position in a controlled movement.',
-          ]);
+        : (exercise.steps.en.isNotEmpty
+              ? exercise.steps.en
+              : [
+                  'Start in a high plank position with hands under your shoulders and a straight body line.',
+                  'Lower your chest toward the floor, keeping your elbows at about 45° from your body.',
+                  'Push back up to the starting position in a controlled movement.',
+                ]);
 
     return Container(
       width: double.infinity,
@@ -99,10 +104,7 @@ class ExerciseHowToPerformCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: badgeBg,
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: badgeBorder,
-                        width: 1,
-                      ),
+                      border: Border.all(color: badgeBorder, width: 1),
                     ),
                     child: Center(
                       child: Text(
@@ -138,4 +140,3 @@ class ExerciseHowToPerformCard extends StatelessWidget {
     );
   }
 }
-

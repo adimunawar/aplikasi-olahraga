@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_typography.dart';
 import '../../../../i18n/strings.g.dart';
 
@@ -44,7 +45,8 @@ class SupportGoalNutritionCard extends StatelessWidget {
             ),
             boxShadow: [
               BoxShadow(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.06),
+                color: Theme.of(context).colorScheme.primary
+                    .withValues(alpha: 0.06),
                 blurRadius: 10,
                 offset: const Offset(0, 3),
               ),
@@ -112,10 +114,14 @@ class SupportGoalNutritionCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: Theme.of(context).colorScheme.surface,
-                  border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 2),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                    width: 2,
+                  ),
                   boxShadow: [
                     BoxShadow(
-                      color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.06),
+                      color: Theme.of(context).colorScheme.shadow
+                          .withValues(alpha: 0.06),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),

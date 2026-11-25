@@ -6,9 +6,11 @@ abstract class UserProfileRepository {
   Future<UserProfileEntity> getUserProfile();
   Future<void> saveUserProfile(UserProfileEntity profile);
   Future<void> updateDisplayName(String name);
-  Future<void> updateBodyData({required double weightKg, required double heightCm});
+  Future<void> updateBodyData({
+    required double weightKg,
+    required double heightCm,
+  });
 
   Future<UserSettingsEntity> getUserSettings();
   Future<void> saveUserSettings(UserSettingsEntity settings);
 }
-

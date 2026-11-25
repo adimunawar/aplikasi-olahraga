@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_smart_image.dart';
 import '../../../../i18n/strings.g.dart';

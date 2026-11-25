@@ -28,8 +28,7 @@ final profileControllerProvider =
 class ProfileController extends StateNotifier<ProfileState> {
   final UserProfileRepository _repository;
 
-  ProfileController({required this._repository})
-    : super(const ProfileState()) {
+  ProfileController({required this._repository}) : super(const ProfileState()) {
     loadProfile();
   }
 
@@ -208,10 +207,7 @@ class ProfileController extends StateNotifier<ProfileState> {
     }
   }
 
-  List<String> _getAvailableDays(
-    int frequency, {
-    required DateTime startDate,
-  }) {
+  List<String> _getAvailableDays(int frequency, {required DateTime startDate}) {
     return ProgramWeekSchedule.availableWeekdaysForFrequency(
       startDate: startDate,
       frequency: frequency,

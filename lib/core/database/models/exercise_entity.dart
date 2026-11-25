@@ -13,7 +13,8 @@ class ExerciseEntity {
   final String difficulty;
   final String trackingType; // 'reps' atau 'duration'
   final String movementPattern; // 'horizontal_push', 'squat', etc.
-  final String equipmentsJson; // JSON array, misal '["none"]' atau '["doorframe"]'
+  final String
+  equipmentsJson; // JSON array, misal '["none"]' atau '["doorframe"]'
   final String primaryMusclesJson;
   final String stabilizerMusclesJson;
   final String stepsIdJson;
@@ -122,8 +123,12 @@ class ExerciseEntity {
       isCustom: (map['is_custom'] as int? ?? 0) == 1,
       isFavorite: (map['is_favorite'] as int? ?? 0) == 1,
       createdByUserId: map['created_by_user_id'] as String?,
-      createdAt: DateTime.tryParse(map['created_at'] as String? ?? '') ?? DateTime.now(),
-      updatedAt: DateTime.tryParse(map['updated_at'] as String? ?? '') ?? DateTime.now(),
+      createdAt:
+          DateTime.tryParse(map['created_at'] as String? ?? '') ??
+          DateTime.now(),
+      updatedAt:
+          DateTime.tryParse(map['updated_at'] as String? ?? '') ??
+          DateTime.now(),
     );
   }
 
@@ -133,7 +138,8 @@ class ExerciseEntity {
 
     // Deteksi stage pemanasan secara otomatis jika kategori warmup
     String detectedStage = 'main';
-    if (exercise.category == ExerciseCategory.warmup || exercise.id.toLowerCase().contains('warmup')) {
+    if (exercise.category == ExerciseCategory.warmup ||
+        exercise.id.toLowerCase().contains('warmup')) {
       detectedStage = 'warmup';
     }
 
@@ -147,8 +153,12 @@ class ExerciseEntity {
       trackingType: exercise.trackingType.name,
       movementPattern: exercise.movementPattern,
       equipmentsJson: jsonEncode(exercise.equipments),
-      primaryMusclesJson: jsonEncode(exercise.primaryMuscles.map((m) => m.toJson()).toList()),
-      stabilizerMusclesJson: jsonEncode(exercise.stabilizerMuscles.map((m) => m.toJson()).toList()),
+      primaryMusclesJson: jsonEncode(
+        exercise.primaryMuscles.map((m) => m.toJson()).toList(),
+      ),
+      stabilizerMusclesJson: jsonEncode(
+        exercise.stabilizerMuscles.map((m) => m.toJson()).toList(),
+      ),
       stepsIdJson: jsonEncode(exercise.steps.id),
       stepsEnJson: jsonEncode(exercise.steps.en),
       commonMistakesIdJson: jsonEncode(exercise.commonMistakes.id),
@@ -181,7 +191,9 @@ class ExerciseEntity {
     try {
       final decoded = jsonDecode(primaryMusclesJson);
       if (decoded is List) {
-        parsedPrimary = decoded.map((e) => LocalizedString.fromJson(e)).toList();
+        parsedPrimary = decoded
+            .map((e) => LocalizedString.fromJson(e))
+            .toList();
       }
     } catch (_) {}
 
@@ -189,27 +201,32 @@ class ExerciseEntity {
     try {
       final decoded = jsonDecode(stabilizerMusclesJson);
       if (decoded is List) {
-        parsedStabilizer = decoded.map((e) => LocalizedString.fromJson(e)).toList();
+        parsedStabilizer = decoded
+            .map((e) => LocalizedString.fromJson(e))
+            .toList();
       }
     } catch (_) {}
 
     List<String> parsedStepsId = [];
     try {
       final decoded = jsonDecode(stepsIdJson);
-      if (decoded is List) parsedStepsId = decoded.map((e) => e.toString()).toList();
+      if (decoded is List)
+        parsedStepsId = decoded.map((e) => e.toString()).toList();
     } catch (_) {}
 
     List<String> parsedStepsEn = [];
     try {
       final decoded = jsonDecode(stepsEnJson);
-      if (decoded is List) parsedStepsEn = decoded.map((e) => e.toString()).toList();
+      if (decoded is List)
+        parsedStepsEn = decoded.map((e) => e.toString()).toList();
     } catch (_) {}
 
     List<String> parsedMistakesId = [];
     if (commonMistakesIdJson != null) {
       try {
         final decoded = jsonDecode(commonMistakesIdJson!);
-        if (decoded is List) parsedMistakesId = decoded.map((e) => e.toString()).toList();
+        if (decoded is List)
+          parsedMistakesId = decoded.map((e) => e.toString()).toList();
       } catch (_) {}
     }
 
@@ -217,7 +234,8 @@ class ExerciseEntity {
     if (commonMistakesEnJson != null) {
       try {
         final decoded = jsonDecode(commonMistakesEnJson!);
-        if (decoded is List) parsedMistakesEn = decoded.map((e) => e.toString()).toList();
+        if (decoded is List)
+          parsedMistakesEn = decoded.map((e) => e.toString()).toList();
       } catch (_) {}
     }
 
@@ -233,7 +251,10 @@ class ExerciseEntity {
       stabilizerMuscles: parsedStabilizer,
       steps: LocalizedList(id: parsedStepsId, en: parsedStepsEn),
       commonMistakes: LocalizedList(id: parsedMistakesId, en: parsedMistakesEn),
-      breathing: LocalizedString(id: breathingTipsId ?? '', en: breathingTipsEn ?? ''),
+      breathing: LocalizedString(
+        id: breathingTipsId ?? '',
+        en: breathingTipsEn ?? '',
+      ),
       variations: const ExerciseVariationGroup(),
       media: ExerciseMedia(
         startPose: startPoseAsset ?? '',
@@ -246,4 +267,3 @@ class ExerciseEntity {
     );
   }
 }
-

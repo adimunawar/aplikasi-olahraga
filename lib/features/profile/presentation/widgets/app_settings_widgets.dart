@@ -61,8 +61,8 @@ Future<void> showAppSettingsPickerSheet({
                     : null,
                 tileColor: isSelected
                     ? (isDark
-                        ? colorScheme.primaryContainer
-                        : AppColors.limeCardSurface)
+                          ? colorScheme.primaryContainer
+                          : AppColors.limeCardSurface)
                     : Colors.transparent,
                 onTap: () {
                   onSelected(option);

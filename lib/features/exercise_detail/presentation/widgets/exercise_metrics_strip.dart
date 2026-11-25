@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../exercises/domain/models/exercise.dart';
@@ -20,7 +21,9 @@ class ExerciseMetricsStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final repText = exercise.trackingType == TrackingType.duration ? '30-45 dtk' : reps;
+    final repText = exercise.trackingType == TrackingType.duration
+        ? '30-45 dtk'
+        : reps;
     final levelText = exercise.difficulty.localizedName('id');
 
     return Container(
@@ -113,4 +116,3 @@ class ExerciseMetricsStrip extends StatelessWidget {
     );
   }
 }
-

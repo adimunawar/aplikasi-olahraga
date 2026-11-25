@@ -6,7 +6,8 @@ import 'package:workout_app/core/theme/app_typography.dart';
 /// - Menggunakan NavigationToolbar native tanpa ketergantungan AppBar MaterialLocalizations
 /// - Sepenuhnya mendukung Dark Mode & Light Mode via Theme.of(context)
 /// - Menampilkan tombol kembali, judul gerakan dinamis di tengah, dan aksi bookmark/opsi
-class ExerciseDetailHeader extends StatelessWidget implements PreferredSizeWidget {
+class ExerciseDetailHeader extends StatelessWidget
+    implements PreferredSizeWidget {
   final String title;
   final bool isBookmarked;
   final VoidCallback onBack;
@@ -36,7 +37,11 @@ class ExerciseDetailHeader extends StatelessWidget implements PreferredSizeWidge
         height: kToolbarHeight,
         child: NavigationToolbar(
           leading: IconButton(
-            icon: Icon(Icons.arrow_back_rounded, color: onSurfaceColor, size: 24),
+            icon: Icon(
+              Icons.arrow_back_rounded,
+              color: onSurfaceColor,
+              size: 24,
+            ),
             onPressed: onBack,
           ),
           middle: Text(
@@ -58,7 +63,9 @@ class ExerciseDetailHeader extends StatelessWidget implements PreferredSizeWidge
                   isBookmarked
                       ? Icons.bookmark_rounded
                       : Icons.bookmark_outline_rounded,
-                  color: isBookmarked ? theme.colorScheme.primary : onSurfaceColor,
+                  color: isBookmarked
+                      ? theme.colorScheme.primary
+                      : onSurfaceColor,
                   size: 24,
                 ),
                 onPressed: onBookmarkToggle,

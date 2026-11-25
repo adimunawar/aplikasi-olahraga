@@ -11,14 +11,14 @@ import 'package:workout_app/features/profile/presentation/screens/body_informati
 class _RecordingController extends StateNotifier<ProfileState>
     implements ProfileController {
   _RecordingController()
-      : super(
-          const ProfileState(
-            isLoading: false,
-            currentWeight: 60.0,
-            currentHeight: 170.0,
-            currentBmi: 20.8,
-          ),
-        );
+    : super(
+        const ProfileState(
+          isLoading: false,
+          currentWeight: 60.0,
+          currentHeight: 170.0,
+          currentBmi: 20.8,
+        ),
+      );
 
   double? savedWeightKg;
   double? savedHeightCm;
@@ -57,7 +57,9 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [profileControllerProvider.overrideWith((ref) => controller)],
+        overrides: [
+          profileControllerProvider.overrideWith((ref) => controller),
+        ],
         child: MaterialApp.router(
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,

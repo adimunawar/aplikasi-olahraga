@@ -45,10 +45,7 @@ void main() {
     });
 
     test('treats the last program day as still active', () {
-      final info = resolve(
-        start: DateTime(2026, 11, 9),
-        totalWeeks: 1,
-      );
+      final info = resolve(start: DateTime(2026, 11, 9), totalWeeks: 1);
 
       expect(info.endDate, today);
       expect(info.state, ProgramLifecycle.active);

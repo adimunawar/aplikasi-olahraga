@@ -7,4 +7,3 @@ abstract class ProgramsRepository {
   Future<bool> hasActiveProgram();
   Future<void> setActiveProgram(String programId);
 }
-

@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
+
 import '../theme/app_colors.dart';
 import '../theme/app_typography.dart';
 
@@ -73,8 +74,13 @@ class _AppStepperInputState extends State<AppStepperInput> {
     if (!_focusNode.hasFocus) {
       // Ketika keyboard tertutup/unfocus, pastikan nilai valid dan ter-clamp
       final parsed = double.tryParse(_controller.text.replaceAll(',', '.'));
-      if (parsed == null || parsed < widget.minValue || parsed > widget.maxValue) {
-        final clamped = (parsed ?? widget.value).clamp(widget.minValue, widget.maxValue);
+      if (parsed == null ||
+          parsed < widget.minValue ||
+          parsed > widget.maxValue) {
+        final clamped = (parsed ?? widget.value).clamp(
+          widget.minValue,
+          widget.maxValue,
+        );
         widget.onChanged(clamped);
         _controller.text = _formatValue(clamped);
       }
@@ -91,14 +97,20 @@ class _AppStepperInputState extends State<AppStepperInput> {
 
   void _decrement() {
     HapticFeedback.lightImpact();
-    final next = (widget.value - widget.step).clamp(widget.minValue, widget.maxValue);
+    final next = (widget.value - widget.step).clamp(
+      widget.minValue,
+      widget.maxValue,
+    );
     widget.onChanged(next);
     _controller.text = _formatValue(next);
   }
 
   void _increment() {
     HapticFeedback.lightImpact();
-    final next = (widget.value + widget.step).clamp(widget.minValue, widget.maxValue);
+    final next = (widget.value + widget.step).clamp(
+      widget.minValue,
+      widget.maxValue,
+    );
     widget.onChanged(next);
     _controller.text = _formatValue(next);
   }
@@ -157,7 +169,9 @@ class _AppStepperInputState extends State<AppStepperInput> {
                       ),
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(
-                          widget.isDecimal ? RegExp(r'^\d*\.?\d*') : RegExp(r'^\d*'),
+                          widget.isDecimal
+                              ? RegExp(r'^\d*\.?\d*')
+                              : RegExp(r'^\d*'),
                         ),
                       ],
                       textAlign: TextAlign.center,
@@ -218,7 +232,9 @@ class _AppStepperInputState extends State<AppStepperInput> {
             child: Icon(
               icon,
               size: 24,
-              color: isEnabled ? AppColors.darkCharcoal : const Color(0xFFCBD5E1),
+              color: isEnabled
+                  ? AppColors.darkCharcoal
+                  : const Color(0xFFCBD5E1),
             ),
           ),
         ),

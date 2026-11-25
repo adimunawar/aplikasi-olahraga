@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:workout_app/core/database/models/user_profile_entity.dart';
 import 'package:workout_app/features/program/domain/services/dynamic_program_generator.dart';
+
 import 'mock_exercise_factory.dart';
 
 void main() {
@@ -72,16 +73,19 @@ void main() {
       expect(result.program.weeklyFrequency, equals(4));
     });
 
-    test('Generates exactly 5 sessions for 5-day frequency (Fix Audit Finding #2)', () {
-      final profile = createTestProfile(weeklyFrequency: 5);
-      final result = generator.generate(
-        userProfile: profile,
-        catalogExercises: catalog,
-      );
+    test(
+      'Generates exactly 5 sessions for 5-day frequency (Fix Audit Finding #2)',
+      () {
+        final profile = createTestProfile(weeklyFrequency: 5);
+        final result = generator.generate(
+          userProfile: profile,
+          catalogExercises: catalog,
+        );
 
-      expect(result.sessions.length, equals(5));
-      expect(result.program.weeklyFrequency, equals(5));
-    });
+        expect(result.sessions.length, equals(5));
+        expect(result.program.weeklyFrequency, equals(5));
+      },
+    );
 
     test('Generates exactly 6 sessions for 6-day frequency', () {
       final profile = createTestProfile(weeklyFrequency: 6);
@@ -127,49 +131,52 @@ void main() {
     });
   });
 
-  group('DynamicProgramGenerator - Experience Level & Progression Baseline', () {
-    test('Beginner level defaults to knee_push_up baseline', () {
-      final profile = createTestProfile(experienceLevel: 'beginner');
-      final result = generator.generate(
-        userProfile: profile,
-        catalogExercises: catalog,
-      );
+  group(
+    'DynamicProgramGenerator - Experience Level & Progression Baseline',
+    () {
+      test('Beginner level defaults to knee_push_up baseline', () {
+        final profile = createTestProfile(experienceLevel: 'beginner');
+        final result = generator.generate(
+          userProfile: profile,
+          catalogExercises: catalog,
+        );
 
-      final firstSession = result.sessions.first;
-      final hasKneePushUp = firstSession.exercises.any(
-        (e) => e.exercise.id == 'knee_push_up',
-      );
-      expect(hasKneePushUp, isTrue);
-    });
+        final firstSession = result.sessions.first;
+        final hasKneePushUp = firstSession.exercises.any(
+          (e) => e.exercise.id == 'knee_push_up',
+        );
+        expect(hasKneePushUp, isTrue);
+      });
 
-    test('Intermediate level defaults to push_up baseline', () {
-      final profile = createTestProfile(experienceLevel: 'intermediate');
-      final result = generator.generate(
-        userProfile: profile,
-        catalogExercises: catalog,
-      );
+      test('Intermediate level defaults to push_up baseline', () {
+        final profile = createTestProfile(experienceLevel: 'intermediate');
+        final result = generator.generate(
+          userProfile: profile,
+          catalogExercises: catalog,
+        );
 
-      final firstSession = result.sessions.first;
-      final hasPushUp = firstSession.exercises.any(
-        (e) => e.exercise.id == 'push_up',
-      );
-      expect(hasPushUp, isTrue);
-    });
+        final firstSession = result.sessions.first;
+        final hasPushUp = firstSession.exercises.any(
+          (e) => e.exercise.id == 'push_up',
+        );
+        expect(hasPushUp, isTrue);
+      });
 
-    test('Advanced level defaults to diamond_push_up baseline', () {
-      final profile = createTestProfile(experienceLevel: 'advanced');
-      final result = generator.generate(
-        userProfile: profile,
-        catalogExercises: catalog,
-      );
+      test('Advanced level defaults to diamond_push_up baseline', () {
+        final profile = createTestProfile(experienceLevel: 'advanced');
+        final result = generator.generate(
+          userProfile: profile,
+          catalogExercises: catalog,
+        );
 
-      final firstSession = result.sessions.first;
-      final hasDiamond = firstSession.exercises.any(
-        (e) => e.exercise.id == 'diamond_push_up',
-      );
-      expect(hasDiamond, isTrue);
-    });
-  });
+        final firstSession = result.sessions.first;
+        final hasDiamond = firstSession.exercises.any(
+          (e) => e.exercise.id == 'diamond_push_up',
+        );
+        expect(hasDiamond, isTrue);
+      });
+    },
+  );
 
   group('DynamicProgramGenerator - Prescription Validity', () {
     test('All generated exercises have valid sets, reps, and rest', () {
@@ -225,7 +232,6 @@ void main() {
     });
   });
 
-
   group('DynamicProgramGenerator - Catalog Validation', () {
     test('Rejects an empty exercise catalog', () {
       final profile = createTestProfile();
@@ -260,6 +266,4 @@ void main() {
       );
     });
   });
-
 }
-

@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_typography.dart';
 
 class WeeklyDayProgress {
@@ -156,21 +157,17 @@ class ThisWeeksProgressCard extends StatelessWidget {
           ),
           child: Center(
             child: day.isCompleted
-                ? const Icon(
-                    Icons.check_rounded,
-                    color: Colors.white,
-                    size: 17,
-                  )
+                ? const Icon(Icons.check_rounded, color: Colors.white, size: 17)
                 : (day.isToday
-                    ? Container(
-                        width: 8,
-                        height: 8,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Color(0xFF84CC16),
-                        ),
-                      )
-                    : null),
+                      ? Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color(0xFF84CC16),
+                          ),
+                        )
+                      : null),
           ),
         ),
 
@@ -182,11 +179,12 @@ class ThisWeeksProgressCard extends StatelessWidget {
           style: AppTypography.bodySmall.copyWith(
             fontSize: 11,
             fontWeight: day.isToday ? FontWeight.w800 : FontWeight.w500,
-            color: day.isToday ? const Color(0xFF141718) : const Color(0xFF6B7280),
+            color: day.isToday
+                ? const Color(0xFF141718)
+                : const Color(0xFF6B7280),
           ),
         ),
       ],
     );
   }
 }
-
