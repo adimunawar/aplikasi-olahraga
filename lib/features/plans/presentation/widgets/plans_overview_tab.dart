@@ -44,8 +44,9 @@ class PlansOverviewTab extends StatelessWidget {
           final key = e.toLowerCase();
           if (key.contains('bodyweight')) return 'Bodyweight';
           if (key.contains('dumbbell')) return 'Dumbbell';
-          if (key.contains('resistance') || key.contains('band'))
+          if (key.contains('resistance') || key.contains('band')) {
             return 'Resistance Band';
+          }
           if (key.contains('kettlebell')) return 'Kettlebell';
           if (key.contains('pull')) return 'Pull-up Bar';
           if (key.contains('barbell')) return 'Barbell';

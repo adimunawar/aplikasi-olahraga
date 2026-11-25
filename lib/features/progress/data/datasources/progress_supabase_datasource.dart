@@ -142,8 +142,9 @@ class ProgressSupabaseDatasource {
             final cals = (map['calories_burned'] as num?)?.toInt() ?? 0;
             final startedAtStr = map['started_at']?.toString() ?? '';
             final date = DateTime.tryParse(startedAtStr);
-            if (title.isEmpty || durSeconds == null || date == null)
+            if (title.isEmpty || durSeconds == null || date == null) {
               return null;
+            }
             final minutes = (durSeconds / 60).round();
 
             return WorkoutHistoryItem(

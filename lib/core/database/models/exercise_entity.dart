@@ -210,23 +210,26 @@ class ExerciseEntity {
     List<String> parsedStepsId = [];
     try {
       final decoded = jsonDecode(stepsIdJson);
-      if (decoded is List)
+      if (decoded is List) {
         parsedStepsId = decoded.map((e) => e.toString()).toList();
+      }
     } catch (_) {}
 
     List<String> parsedStepsEn = [];
     try {
       final decoded = jsonDecode(stepsEnJson);
-      if (decoded is List)
+      if (decoded is List) {
         parsedStepsEn = decoded.map((e) => e.toString()).toList();
+      }
     } catch (_) {}
 
     List<String> parsedMistakesId = [];
     if (commonMistakesIdJson != null) {
       try {
         final decoded = jsonDecode(commonMistakesIdJson!);
-        if (decoded is List)
+        if (decoded is List) {
           parsedMistakesId = decoded.map((e) => e.toString()).toList();
+        }
       } catch (_) {}
     }
 
@@ -234,8 +237,9 @@ class ExerciseEntity {
     if (commonMistakesEnJson != null) {
       try {
         final decoded = jsonDecode(commonMistakesEnJson!);
-        if (decoded is List)
+        if (decoded is List) {
           parsedMistakesEn = decoded.map((e) => e.toString()).toList();
+        }
       } catch (_) {}
     }
 
