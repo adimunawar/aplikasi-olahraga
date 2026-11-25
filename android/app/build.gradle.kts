@@ -4,7 +4,7 @@ plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
-    // Firebase: membaca android/app/google-services.json dan upload mapping Crashlytics.
+    // Firebase: reads the flavor-specific google-services.json and uploads Crashlytics mappings.
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
 }
@@ -37,13 +37,27 @@ android {
     }
 
     defaultConfig {
+        // Keep this stable for the production application identity.
         applicationId = "com.homefitness.workout_app"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        // Uses the version code from pubspec.yaml. When using split APKs, 1000 * ABI_VERSION
-        // is added automatically by Flutter.
+        // Uses the version code from pubspec.yaml.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders["appName"] = "Home Bulking Coach"
+    }
+
+    flavorDimensions += "environment"
+    productFlavors {
+        create("production") {
+            dimension = "environment"
+        }
+        create("staging") {
+            dimension = "environment"
+            applicationIdSuffix = ".staging"
+            versionNameSuffix = "-staging"
+            manifestPlaceholders["appName"] = "Home Bulking Coach Staging"
+        }
     }
 
     signingConfigs {
