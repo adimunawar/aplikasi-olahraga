@@ -111,6 +111,30 @@ jobs:
           echo "Recent Commits:" >> "$NOTES_FILE"
           git log -5 --pretty=format:"• %s (%h)" "${{ github.sha }}" >> "$NOTES_FILE"
 
+      - name: Generate release notes
+        shell: bash
+        run: |
+          set -euo pipefail
+          NOTES_FILE="build/app/outputs/flutter-apk/release-notes.txt"
+
+          COMMIT_MSG=$(git log -1 --pretty=format:"%s" "${{ github.sha }}")
+
+          echo "Staging Release - $(date -u +'%Y-%m-%d %H:%M UTC')" > "$NOTES_FILE"
+          echo "Trigger: $COMMIT_MSG" >> "$NOTES_FILE"
+          echo "" >> "$NOTES_FILE"
+
+          if [ -f CHANGELOG.md ]; then
+            CHANGELOG_CONTENT=$(awk '/^## /{if (found) exit; found=1; next} found{print}' CHANGELOG.md | sed '/^[[:space:]]*$/d')
+            if [ -n "$CHANGELOG_CONTENT" ]; then
+              echo "Highlights from CHANGELOG:" >> "$NOTES_FILE"
+              awk '/^## /{if (found) exit; found=1; next} found{print}' CHANGELOG.md >> "$NOTES_FILE"
+              echo "" >> "$NOTES_FILE"
+            fi
+          fi
+
+          echo "Recent Commits:" >> "$NOTES_FILE"
+          git log -5 --pretty=format:"• %s (%h)" "${{ github.sha }}" >> "$NOTES_FILE"
+
       - name: Upload Staging APK
         uses: actions/upload-artifact@v7
         with:
