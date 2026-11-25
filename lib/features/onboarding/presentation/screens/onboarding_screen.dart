@@ -101,12 +101,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     try {
       // The first workout is scheduled on the day the user creates the plan.
       final programStartDate = DateTime.now();
-      final availableDays =
-          ProgramWeekSchedule.availableWeekdaysForFrequency(
+      final availableDays = ProgramWeekSchedule.availableWeekdaysForFrequency(
         startDate: programStartDate,
         frequency: _daysPerWeek,
       );
-
       // 2. Simpan Profil Pengguna Lengkap ke SQLite Database (Audit Finding P0)
       final db = AppDatabase.instance;
       final currentProfile = await db.getUserProfile();
@@ -189,6 +187,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   ),
 
                   // Step 2: About (Gender & Age)
+                  // Step 2: About (Gender & Age)
                   StepAbout(
                     gender: _gender,
                     age: _age,
@@ -197,17 +196,19 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   ),
 
                   // Step 3: Body Metrics & Target (Height, Current & Target Weight)
+                  // Step 3: Body Metrics & Target (Height, Current & Target Weight)
                   StepBodyTarget(
                     heightCm: _heightCm,
+
                     currentWeightKg: _currentWeightKg,
                     targetWeightKg: _targetWeightKg,
                     onHeightChanged: (val) => setState(() => _heightCm = val),
+
                     onCurrentWeightChanged: (val) =>
                         setState(() => _currentWeightKg = val),
                     onTargetWeightChanged: (val) =>
                         setState(() => _targetWeightKg = val),
                   ),
-
 
                   // Step 4: Experience Level
                   StepExperience(
@@ -293,9 +294,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               value: (_currentStep / 7.0).clamp(0.0, 1.0),
               minHeight: 4,
               backgroundColor: colorScheme.surfaceContainerHighest,
-              valueColor: AlwaysStoppedAnimation<Color>(
-                colorScheme.primary,
-              ),
+              valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
             ),
           ),
         ),
@@ -311,14 +310,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final colorScheme = theme.colorScheme;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
         color: colorScheme.surface,
         border: _currentStep == 0
             ? null
-            : Border(
-                top: BorderSide(color: colorScheme.outline, width: 1),
-              ),
+            : Border(top: BorderSide(color: colorScheme.outline, width: 1)),
         boxShadow: _currentStep == 0 || isDark
             ? null
             : [
@@ -341,6 +337,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     size: AppButtonSize.large,
                     isFullWidth: false,
                     width: 210,
+
                     onPressed: _nextStep,
                   ),
                 ],
@@ -354,5 +351,4 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       ),
     );
   }
-
 }

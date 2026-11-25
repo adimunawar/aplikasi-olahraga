@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -52,6 +53,7 @@ class _HomeScaffoldState extends State<HomeScaffold> {
         onNavigateToNutrition: () => _onTabTapped(2),
         onNavigateToProgress: () => _onTabTapped(2),
       ),
+      const WorkoutsScreen(),
       const WorkoutsScreen(),
       const ProgressScreen(),
       const ProfileScreen(),

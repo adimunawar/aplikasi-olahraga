@@ -1,7 +1,10 @@
 import 'package:material_ui/material_ui.dart';
 
+import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/app_stepper_input.dart';
 import '../../../../core/widgets/app_stepper_input.dart';
 import '../../../../i18n/strings.g.dart';
 
@@ -112,9 +115,11 @@ class StepAbout extends StatelessWidget {
     return InkWell(
       onTap: () => onGenderChanged(id),
       borderRadius: BorderRadius.circular(18),
+
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 20),
+
         decoration: BoxDecoration(
           color: isSelected
               ? colorScheme.primaryContainer
@@ -130,7 +135,9 @@ class StepAbout extends StatelessWidget {
               ? null
               : [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: isSelected ? 0.04 : 0.02),
+                    color: Colors.black.withValues(
+                      alpha: isSelected ? 0.04 : 0.02,
+                    ),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
@@ -138,6 +145,7 @@ class StepAbout extends StatelessWidget {
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+
           children: [
             Icon(
               icon,
@@ -146,6 +154,7 @@ class StepAbout extends StatelessWidget {
                   ? (isDark ? colorScheme.primary : AppColors.greenBrand)
                   : colorScheme.onSurface,
             ),
+            const SizedBox(height: 8),
             const SizedBox(height: 8),
             Text(
               label,

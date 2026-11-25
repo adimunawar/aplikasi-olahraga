@@ -141,6 +141,7 @@ class AppSectionHeader extends StatelessWidget {
           ),
         ),
         ?rightWidget,
+        ?rightWidget,
       ],
     );
   }

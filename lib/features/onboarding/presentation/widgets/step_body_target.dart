@@ -1,10 +1,11 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_stepper_input.dart';
 import '../../../../i18n/strings.g.dart';
 
-/// Step 3 of 7: Your body & target (Height, Current Weight, Target Weight) (Mockup 1:1)
+/// Step 3 of 7: Your body & target (Height, Current Weight, Target Weight)
 class StepBodyTarget extends StatelessWidget {
   final double heightCm;
   final double currentWeightKg;
@@ -39,8 +40,8 @@ class StepBodyTarget extends StatelessWidget {
     final insightTitle = isGain
         ? t.insight.gainTitle(diff: diff.toStringAsFixed(1))
         : (isLoss
-            ? t.insight.lossTitle(diff: diff.toStringAsFixed(1))
-            : t.insight.maintainTitle);
+              ? t.insight.lossTitle(diff: diff.toStringAsFixed(1))
+              : t.insight.maintainTitle);
 
     final insightHint = isGain
         ? t.insight.gainHint(
@@ -48,11 +49,11 @@ class StepBodyTarget extends StatelessWidget {
             maxWeeks: (absDiff / 0.25).round(),
           )
         : (isLoss
-            ? t.insight.lossHint(
-                minWeeks: (absDiff / 1.0).round(),
-                maxWeeks: (absDiff / 0.5).round(),
-              )
-            : t.insight.maintainHint);
+              ? t.insight.lossHint(
+                  minWeeks: (absDiff / 1.0).round(),
+                  maxWeeks: (absDiff / 0.5).round(),
+                )
+              : t.insight.maintainHint);
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
