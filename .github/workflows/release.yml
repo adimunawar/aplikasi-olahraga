@@ -1,10 +1,10 @@
-name: Prepare Mobile Release
+name: Create Release Tag
 
 on:
   workflow_dispatch:
     inputs:
       bump:
-        description: Semantic version increment
+        description: Version increment
         required: true
         type: choice
         options:
@@ -17,25 +17,40 @@ permissions:
   contents: write
 
 concurrency:
-  group: prepare-release-${{ github.ref }}
+  group: release-tag-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  prepare:
-    name: Update release version
+  release:
+    name: Calculate version and create GitHub Release
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/heads/release/')
+    if: github.ref == 'refs/heads/main'
     timeout-minutes: 10
 
     steps:
-      - name: Checkout selected release branch
-        uses: actions/checkout@v4
+      - name: Checkout main
+        uses: actions/checkout@v7
         with:
-          ref: ${{ github.ref }}
+          ref: main
           fetch-depth: 0
-          token: ${{ github.token }}
+          fetch-tags: true
 
-      - name: Calculate and update version
+      - name: Validate release source
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "$GITHUB_SHA" != "$(git rev-parse origin/main)" ]]; then
+            echo "::error::The release workflow must run against the latest main commit."
+            exit 1
+          fi
+
+          if [[ ! -f pubspec.yaml ]]; then
+            echo "::error::pubspec.yaml was not found."
+            exit 1
+          fi
+
+      - name: Calculate next semantic version
         id: version
         shell: bash
         env:
@@ -43,81 +58,70 @@ jobs:
         run: |
           set -euo pipefail
 
-          VERSION_LINE="$(grep -E '^version:[[:space:]]*[0-9]+\.[0-9]+\.[0-9]+\+[0-9]+$' pubspec.yaml || true)"
-          if [[ -z "$VERSION_LINE" ]]; then
-            echo "::error::pubspec.yaml must contain version: x.y.z+build"
+          CURRENT_VERSION="$(sed -nE 's/^version:[[:space:]]*([0-9]+\.[0-9]+\.[0-9]+)\+[0-9]+[[:space:]]*$/\1/p' pubspec.yaml | head -n1)"
+          if [[ -z "$CURRENT_VERSION" ]]; then
+            echo "::error::Could not parse version from pubspec.yaml."
             exit 1
           fi
 
-          CURRENT_VERSION="$(sed -E 's/^version:[[:space:]]*([0-9]+\.[0-9]+\.[0-9]+)\+([0-9]+)$/\1/' <<< "$VERSION_LINE")"
-          CURRENT_BUILD="$(sed -E 's/^version:[[:space:]]*[0-9]+\.[0-9]+\.[0-9]+\+([0-9]+)$/\1/' <<< "$VERSION_LINE")"
-
-          git fetch origin main --tags
           LATEST_TAG="$(git tag --list 'v[0-9]*' --sort=-version:refname | head -n1)"
-          BASE_VERSION="$CURRENT_VERSION"
           if [[ -n "$LATEST_TAG" ]]; then
-            LATEST_VERSION="${LATEST_TAG#v}"
-            if [[ ! "$LATEST_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              echo "::error::Latest release tag '$LATEST_TAG' is not stable SemVer."
-              exit 1
-            fi
-            BASE_VERSION="$(printf '%s\n%s\n' "$CURRENT_VERSION" "$LATEST_VERSION" | sort -V | tail -n1)"
+            BASE_VERSION="${LATEST_TAG#v}"
+          else
+            BASE_VERSION="$CURRENT_VERSION"
+          fi
+
+          if [[ ! "$BASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Latest release tag '$LATEST_TAG' is not a stable SemVer tag."
+            exit 1
           fi
 
           IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE_VERSION"
+
           case "$BUMP" in
             patch) PATCH=$((PATCH + 1)) ;;
             minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
             major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
             *)
-              echo "::error::Unsupported bump: $BUMP"
+              echo "::error::Unsupported version increment: $BUMP"
               exit 1
               ;;
           esac
 
           NEXT_VERSION="$MAJOR.$MINOR.$PATCH"
-          NEXT_BUILD=$((CURRENT_BUILD + 1))
-          NEXT_VERSION_LINE="version: $NEXT_VERSION+$NEXT_BUILD"
+          NEXT_TAG="v$NEXT_VERSION"
 
-          if git tag --list "v$NEXT_VERSION" | grep -q .; then
-            echo "::error::Tag v$NEXT_VERSION already exists."
+          if git rev-parse -q --verify "refs/tags/$NEXT_TAG" >/dev/null; then
+            echo "::error::Tag $NEXT_TAG already exists."
             exit 1
           fi
 
-          sed -i -E "s/^version:[[:space:]]*[0-9]+\.[0-9]+\.[0-9]+\+[0-9]+$/$NEXT_VERSION_LINE/" pubspec.yaml
-
           echo "version=$NEXT_VERSION" >> "$GITHUB_OUTPUT"
-          echo "build=$NEXT_BUILD" >> "$GITHUB_OUTPUT"
-          echo "tag=v$NEXT_VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$NEXT_TAG" >> "$GITHUB_OUTPUT"
+          echo "base=$BASE_VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Commit version update to release branch
+      - name: Create annotated tag and GitHub Release
         env:
-          VERSION: ${{ steps.version.outputs.version }}
-          BUILD: ${{ steps.version.outputs.build }}
-          BRANCH: ${{ github.ref_name }}
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+          RELEASE_BUMP: ${{ inputs.bump }}
         shell: bash
         run: |
           set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add pubspec.yaml
-          git commit -m "chore(release): prepare v$VERSION+$BUILD"
-          git push origin "HEAD:$BRANCH"
 
-      - name: Write summary
-        env:
-          VERSION: ${{ steps.version.outputs.version }}
-          BUILD: ${{ steps.version.outputs.build }}
-          TAG: ${{ steps.version.outputs.tag }}
-          BRANCH: ${{ github.ref_name }}
-        run: |
+          gh release create "$RELEASE_TAG" \
+            --target "$GITHUB_SHA" \
+            --title "$RELEASE_TAG" \
+            --generate-notes
+
           {
-            echo "## Release version prepared"
+            echo "## Release created"
             echo
-            echo "- Version: $VERSION"
-            echo "- Build number: $BUILD"
-            echo "- Tag to be created after merge: $TAG"
-            echo "- Updated branch: $BRANCH"
+            echo "- Tag: $RELEASE_TAG"
+            echo "- Version: $RELEASE_VERSION"
+            echo "- Increment: $RELEASE_BUMP"
+            echo "- Source commit: $GITHUB_SHA"
             echo
-            echo "Next step: open/update the pull request from this release branch to main."
+            echo "The tag points to the protected main commit. No commit was pushed to main."
           } >> "$GITHUB_STEP_SUMMARY"
