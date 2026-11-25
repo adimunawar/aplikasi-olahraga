@@ -69,22 +69,23 @@ jobs:
       - name: Install dependencies
         run: flutter pub get --enforce-lockfile
 
-      - name: Prepare Firebase configuration
+      - name: Prepare staging Firebase configuration
         shell: bash
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         run: |
           set -euo pipefail
           : "${GOOGLE_SERVICES_JSON:?Missing GitHub secret GOOGLE_SERVICES_JSON}"
-          printf '%s' "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
-          test -s android/app/google-services.json
+          mkdir -p android/app/src/staging
+          printf '%s' "$GOOGLE_SERVICES_JSON" > android/app/src/staging/google-services.json
+          test -s android/app/src/staging/google-services.json
 
       - name: Build Staging APK
         env:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-        run: flutter build apk --release --no-pub
+        run: flutter build apk --release --flavor staging --no-pub
 
       - name: Generate release notes
         shell: bash
@@ -115,7 +116,7 @@ jobs:
         with:
           name: home-bulking-coach-staging-${{ github.sha }}
           path: |
-            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/flutter-apk/app-staging-release.apk
             build/app/outputs/flutter-apk/release-notes.txt
           if-no-files-found: error
           retention-days: 14
@@ -160,7 +161,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          APK_PATH="build/app/outputs/flutter-apk/app-release.apk"
+          APK_PATH="build/app/outputs/flutter-apk/app-staging-release.apk"
           test -f "$APK_PATH"
 
           NOTES_PATH="build/app/outputs/flutter-apk/release-notes.txt"
