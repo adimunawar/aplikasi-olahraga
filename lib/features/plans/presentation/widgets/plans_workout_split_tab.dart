@@ -4,7 +4,7 @@ import '../../../../core/database/models/user_profile_entity.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../program/domain/services/program_week_schedule.dart';
-import '../screens/plans_screen.dart';
+import '../../domain/models/session_with_detail.dart';
 
 class DayScheduleItem {
   final String dayAbbr;

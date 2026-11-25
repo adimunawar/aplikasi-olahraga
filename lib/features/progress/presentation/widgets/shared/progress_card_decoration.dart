@@ -1,19 +1,13 @@
 import 'package:material_ui/material_ui.dart';
 
-import 'package:workout_app/core/theme/app_colors.dart';
+import 'package:workout_app/core/widgets/core_widgets.dart';
 
-/// Dekorasi kartu standar yang dipakai seluruh widget Progress.
+/// Dekorasi kartu standar yang dipakai seluruh widget Progress,
+/// mendelegasikan ke [AppCard.decoration] sebagai single source of truth.
 BoxDecoration progressCardDecoration(BuildContext context) {
-  final isDark = Theme.of(context).brightness == Brightness.dark;
-  final colorScheme = Theme.of(context).colorScheme;
-
-  return BoxDecoration(
-    color: colorScheme.surface,
-    borderRadius: BorderRadius.circular(15),
-    border: Border.all(
-      color: isDark ? colorScheme.outline : AppColors.neutral200,
-      width: 0.8,
-    ),
-    boxShadow: isDark ? null : AppColors.cardShadow,
+  return AppCard.decoration(
+    context,
+    borderRadius: 15,
+    borderWidth: 0.8,
   );
 }

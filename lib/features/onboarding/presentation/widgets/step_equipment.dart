@@ -3,7 +3,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../i18n/strings.g.dart';
 
-/// Step 6 of 7: What equipment do you have? (Mockup 1:1)
+/// Step 6 of 7: What equipment do you have? (Light & Dark Mode)
 class StepEquipment extends StatelessWidget {
   final List<String> selectedEquipments;
   final ValueChanged<String> onToggleEquipment;
@@ -26,6 +26,10 @@ class StepEquipment extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Translations.of(context).onboarding.equipment;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
+    final accentColor = isDark ? colorScheme.primary : AppColors.greenBrand;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
@@ -37,20 +41,18 @@ class StepEquipment extends StatelessWidget {
             style: AppTypography.displayMedium.copyWith(
               fontWeight: FontWeight.w900,
               fontSize: 24,
-              color: AppColors.darkCharcoal,
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 6),
           Text(
             t.subtitle,
             style: AppTypography.bodySmall.copyWith(
-              color: AppColors.neutral500,
+              color: colorScheme.onSurfaceVariant,
               fontSize: 13,
             ),
           ),
           const SizedBox(height: 24),
-
-          // 2-Column Grid
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -73,39 +75,41 @@ class StepEquipment extends StatelessWidget {
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? const Color(0xFFF4F9ED)
-                        : AppColors.surface,
+                        ? colorScheme.primaryContainer
+                        : colorScheme.surface,
                     borderRadius: BorderRadius.circular(18),
                     border: Border.all(
-                      color: isSelected
-                          ? const Color(0xFF84CC16)
-                          : AppColors.neutral200,
+                      color: isSelected ? accentColor : colorScheme.outline,
                       width: isSelected ? 1.8 : 1.2,
                     ),
-                    boxShadow: isSelected
-                        ? [
-                            BoxShadow(
-                              color: AppColors.limeAccent.withValues(alpha: 0.2),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
-                            ),
-                          ]
-                        : AppColors.cardShadow,
+                    boxShadow: isDark
+                        ? null
+                        : (isSelected
+                            ? [
+                                BoxShadow(
+                                  color: AppColors.limeAccent.withValues(
+                                    alpha: 0.2,
+                                  ),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ]
+                            : AppColors.cardShadow),
                   ),
                   child: Stack(
                     children: [
-                      // Icon & Label di Tengah
                       Center(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              _icons[opt.id] ??
-                                  Icons.fitness_center_rounded,
+                              _icons[opt.id] ?? Icons.fitness_center_rounded,
                               size: 32,
                               color: isSelected
-                                  ? AppColors.greenDark
-                                  : AppColors.neutral600,
+                                  ? (isDark
+                                      ? colorScheme.primary
+                                      : AppColors.greenDark)
+                                  : colorScheme.onSurfaceVariant,
                             ),
                             const SizedBox(height: 10),
                             Text(
@@ -115,16 +119,16 @@ class StepEquipment extends StatelessWidget {
                                 fontWeight: FontWeight.w700,
                                 fontSize: 13,
                                 color: isSelected
-                                    ? AppColors.greenDark
-                                    : AppColors.darkCharcoal,
+                                    ? (isDark
+                                        ? colorScheme.onPrimaryContainer
+                                        : AppColors.greenDark)
+                                    : colorScheme.onSurface,
                                 height: 1.2,
                               ),
                             ),
                           ],
                         ),
                       ),
-
-                      // Indikator Centang di Kanan Atas
                       if (isSelected)
                         Positioned(
                           top: 0,
@@ -132,14 +136,14 @@ class StepEquipment extends StatelessWidget {
                           child: Container(
                             width: 20,
                             height: 20,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFF84CC16),
+                            decoration: BoxDecoration(
+                              color: colorScheme.primary,
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.check_rounded,
                               size: 14,
-                              color: AppColors.darkCharcoal,
+                              color: colorScheme.onPrimary,
                             ),
                           ),
                         ),
@@ -154,4 +158,3 @@ class StepEquipment extends StatelessWidget {
     );
   }
 }
-

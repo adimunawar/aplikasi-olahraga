@@ -5,7 +5,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_stepper_input.dart';
 import '../../../../i18n/strings.g.dart';
 
-/// Step 2 of 7: Tell us about you (Gender, Age) (Mockup 1:1)
+/// Step 2 of 7: Tell us about you (Gender, Age) (Light & Dark Mode)
 class StepAbout extends StatelessWidget {
   final String gender;
   final int age;
@@ -23,6 +23,7 @@ class StepAbout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Translations.of(context).onboarding.about;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -36,26 +37,24 @@ class StepAbout extends StatelessWidget {
               fontWeight: FontWeight.w900,
               fontSize: 26,
               letterSpacing: -0.5,
-              color: AppColors.darkCharcoal,
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 6),
           Text(
             t.subtitle,
             style: AppTypography.bodySmall.copyWith(
-              color: const Color(0xFF64748B),
+              color: colorScheme.onSurfaceVariant,
               fontSize: 14,
               height: 1.4,
             ),
           ),
           const SizedBox(height: 24),
-
-          // 1. Gender Selector
           Text(
             t.gender,
             style: AppTypography.headlineSmall.copyWith(
               fontWeight: FontWeight.w800,
-              color: AppColors.darkCharcoal,
+              color: colorScheme.onSurface,
               fontSize: 16,
               letterSpacing: -0.2,
             ),
@@ -65,6 +64,7 @@ class StepAbout extends StatelessWidget {
             children: [
               Expanded(
                 child: _buildGenderCard(
+                  context: context,
                   id: 'male',
                   label: t.male,
                   icon: Icons.male_rounded,
@@ -73,6 +73,7 @@ class StepAbout extends StatelessWidget {
               const SizedBox(width: 14),
               Expanded(
                 child: _buildGenderCard(
+                  context: context,
                   id: 'female',
                   label: t.female,
                   icon: Icons.female_rounded,
@@ -81,8 +82,6 @@ class StepAbout extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 24),
-
-          // 2. Age Stepper with Manual Typing
           AppStepperInput(
             label: t.age,
             unit: t.ageUnit,
@@ -100,44 +99,57 @@ class StepAbout extends StatelessWidget {
   }
 
   Widget _buildGenderCard({
+    required BuildContext context,
     required String id,
     required String label,
     required IconData icon,
   }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
     final isSelected = gender == id;
 
     return InkWell(
       onTap: () => onGenderChanged(id),
       borderRadius: BorderRadius.circular(18),
+
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 20),
+
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFF2FCD6) : Colors.white,
+          color: isSelected
+              ? colorScheme.primaryContainer
+              : colorScheme.surface,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color: isSelected
-                ? const Color(0xFFC7EFA0)
-                : const Color(0xFFE2E8F0),
+                ? (isDark ? colorScheme.primary : AppColors.greenBrand)
+                : colorScheme.outline,
             width: isSelected ? 1.8 : 1.2,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isSelected ? 0.04 : 0.02),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          boxShadow: isDark
+              ? null
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(
+                      alpha: isSelected ? 0.04 : 0.02,
+                    ),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+
           children: [
             Icon(
               icon,
               size: 34,
               color: isSelected
-                  ? const Color(0xFF65A30D)
-                  : const Color(0xFF1E293B),
+                  ? (isDark ? colorScheme.primary : AppColors.greenBrand)
+                  : colorScheme.onSurface,
             ),
             const SizedBox(height: 8),
             Text(
@@ -145,7 +157,7 @@ class StepAbout extends StatelessWidget {
               style: AppTypography.titleSmall.copyWith(
                 fontWeight: FontWeight.w800,
                 fontSize: 15,
-                color: AppColors.darkCharcoal,
+                color: colorScheme.onSurface,
               ),
             ),
           ],

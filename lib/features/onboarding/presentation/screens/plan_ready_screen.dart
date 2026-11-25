@@ -74,8 +74,12 @@ class _PlanReadyScreenState extends ConsumerState<PlanReadyScreen> {
       return levelId.toUpperCase();
     }
 
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -87,15 +91,15 @@ class _PlanReadyScreenState extends ConsumerState<PlanReadyScreen> {
               Container(
                 width: 52,
                 height: 52,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFDCFCE7),
+                decoration: BoxDecoration(
+                  color: colorScheme.primaryContainer,
                   shape: BoxShape.circle,
                 ),
-                child: const Center(
+                child: Center(
                   child: Icon(
                     Icons.check_rounded,
                     size: 30,
-                    color: Color(0xFF16A34A),
+                    color: isDark ? colorScheme.primary : AppColors.greenBrand,
                   ),
                 ),
               ),
@@ -106,7 +110,7 @@ class _PlanReadyScreenState extends ConsumerState<PlanReadyScreen> {
                 style: AppTypography.displayMedium.copyWith(
                   fontWeight: FontWeight.w900,
                   fontSize: 24,
-                  color: AppColors.darkCharcoal,
+                  color: colorScheme.onSurface,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -114,7 +118,7 @@ class _PlanReadyScreenState extends ConsumerState<PlanReadyScreen> {
               Text(
                 t.subtitle,
                 style: AppTypography.bodySmall.copyWith(
-                  color: AppColors.neutral500,
+                  color: colorScheme.onSurfaceVariant,
                   fontSize: 13,
                   height: 1.35,
                 ),
@@ -126,10 +130,10 @@ class _PlanReadyScreenState extends ConsumerState<PlanReadyScreen> {
               Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: colorScheme.surface,
                   borderRadius: BorderRadius.circular(22),
-                  border: Border.all(color: AppColors.neutral200, width: 1.2),
-                  boxShadow: AppColors.cardShadow,
+                  border: Border.all(color: colorScheme.outline, width: 1.2),
+                  boxShadow: isDark ? null : AppColors.cardShadow,
                 ),
                 child: Column(
                   children: [
@@ -141,7 +145,7 @@ class _PlanReadyScreenState extends ConsumerState<PlanReadyScreen> {
                           height: 68,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
-                            color: const Color(0xFFF4F9ED),
+                            color: colorScheme.primaryContainer,
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(16),
@@ -163,14 +167,14 @@ class _PlanReadyScreenState extends ConsumerState<PlanReadyScreen> {
                                 style: AppTypography.headlineSmall.copyWith(
                                   fontWeight: FontWeight.w900,
                                   fontSize: 18,
-                                  color: AppColors.darkCharcoal,
+                                  color: colorScheme.onSurface,
                                 ),
                               ),
                               const SizedBox(height: 2),
                               Text(
                                 programSubtitle,
                                 style: AppTypography.bodySmall.copyWith(
-                                  color: AppColors.neutral500,
+                                  color: colorScheme.onSurfaceVariant,
                                   fontSize: 12,
                                 ),
                               ),
@@ -186,7 +190,7 @@ class _PlanReadyScreenState extends ConsumerState<PlanReadyScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const Divider(height: 1, color: AppColors.neutral200),
+                    Divider(height: 1, color: colorScheme.outlineVariant),
                     const SizedBox(height: 14),
 
                     // Meta Row: Days / Week | Min / Session | Level
@@ -194,18 +198,29 @@ class _PlanReadyScreenState extends ConsumerState<PlanReadyScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         _buildMetaItem(
+                          context: context,
                           icon: Icons.calendar_today_rounded,
                           topText: '$freq',
                           bottomText: t.daysPerWeek,
                         ),
-                        Container(width: 1, height: 28, color: AppColors.neutral200),
+                        Container(
+                          width: 1,
+                          height: 28,
+                          color: colorScheme.outlineVariant,
+                        ),
                         _buildMetaItem(
+                          context: context,
                           icon: Icons.access_time_rounded,
                           topText: '$dur',
                           bottomText: t.minutesPerSession,
                         ),
-                        Container(width: 1, height: 28, color: AppColors.neutral200),
+                        Container(
+                          width: 1,
+                          height: 28,
+                          color: colorScheme.outlineVariant,
+                        ),
                         _buildMetaItem(
+                          context: context,
                           icon: Icons.fitness_center_rounded,
                           topText: levelLabel(),
                           bottomText: t.level,
@@ -221,9 +236,9 @@ class _PlanReadyScreenState extends ConsumerState<PlanReadyScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
+                  color: colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  border: Border.all(color: colorScheme.outline),
                 ),
                 child: Column(
                   children: [
@@ -254,24 +269,33 @@ class _PlanReadyScreenState extends ConsumerState<PlanReadyScreen> {
   }
 
   Widget _buildMetaItem({
+    required BuildContext context,
     required IconData icon,
     required String topText,
     required String bottomText,
   }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 14, color: AppColors.greenDark),
+            Icon(
+              icon,
+              size: 14,
+              color: isDark ? colorScheme.primary : AppColors.greenDark,
+            ),
             const SizedBox(width: 4),
             Text(
               topText,
               style: AppTypography.titleSmall.copyWith(
                 fontWeight: FontWeight.w900,
                 fontSize: 13,
-                color: AppColors.darkCharcoal,
+                color: colorScheme.onSurface,
               ),
             ),
           ],
@@ -280,7 +304,7 @@ class _PlanReadyScreenState extends ConsumerState<PlanReadyScreen> {
         Text(
           bottomText,
           style: AppTypography.labelSmall.copyWith(
-            color: AppColors.neutral500,
+            color: colorScheme.onSurfaceVariant,
             fontSize: 10.5,
           ),
         ),
@@ -296,19 +320,23 @@ class _FeatureItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
+
     return Row(
       children: [
-        const Icon(
+        Icon(
           Icons.check_circle_rounded,
           size: 16,
-          color: Color(0xFF16A34A),
+          color: isDark ? colorScheme.primary : AppColors.greenBrand,
         ),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
             text,
             style: AppTypography.bodySmall.copyWith(
-              color: AppColors.darkCharcoal,
+              color: colorScheme.onSurface,
               fontWeight: FontWeight.w600,
               fontSize: 12,
             ),

@@ -3,14 +3,15 @@ import 'package:material_ui/material_ui.dart';
 import '../theme/app_colors.dart';
 
 enum AppCardVariant {
-  surface, // Standar kartu putih
+  surface, // Standar kartu surface (adaptif Light & Dark Mode)
   tintedLime, // Kartu hijau muda (Rest card / active highlight)
   flat, // Tanpa shadow
 }
 
 /// AppCard: Container Kartu Standar Desain Sistem (DRY Principle).
 ///
-/// Menggantikan penulisan BoxDecoration(color, borderRadius, border, boxShadow) yang berulang-ulang.
+/// Menggantikan penulisan BoxDecoration(color, borderRadius, border, boxShadow)
+/// yang berulang-ulang dan mendukung Light Mode serta Dark Mode.
 class AppCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
@@ -47,38 +48,53 @@ class AppCard extends StatelessWidget {
     );
   }
 
-  Color get _backgroundColor {
+  /// Menghasilkan [BoxDecoration] kartu standar yang adaptif terhadap tema.
+  /// Berguna untuk widget yang membutuhkan dekorasi kartu langsung (mis. `.copyWith`).
+  static BoxDecoration decoration(
+    BuildContext context, {
+    AppCardVariant variant = AppCardVariant.surface,
+    double borderRadius = 18.0,
+    double borderWidth = 1.2,
+  }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
+
+    final Color backgroundColor;
+    final Color borderColor;
+
     switch (variant) {
       case AppCardVariant.surface:
       case AppCardVariant.flat:
-        return AppColors.surface;
+        backgroundColor = colorScheme.surface;
+        borderColor = isDark ? colorScheme.outline : AppColors.cardBorder;
       case AppCardVariant.tintedLime:
-        return AppColors.limeCardSurface;
+        backgroundColor = isDark
+            ? colorScheme.primaryContainer
+            : AppColors.limeCardSurface;
+        borderColor = isDark
+            ? colorScheme.primary.withValues(alpha: 0.4)
+            : AppColors.limeCardBorder;
     }
-  }
 
-  Color get _borderColor {
-    switch (variant) {
-      case AppCardVariant.surface:
-      case AppCardVariant.flat:
-        return AppColors.cardBorder;
-      case AppCardVariant.tintedLime:
-        return AppColors.limeCardBorder;
-    }
-  }
+    final List<BoxShadow>? boxShadow =
+        (variant == AppCardVariant.flat || isDark) ? null : AppColors.cardShadow;
 
-  List<BoxShadow>? get _boxShadow {
-    if (variant == AppCardVariant.flat) return null;
-    return AppColors.cardShadow;
+    return BoxDecoration(
+      color: backgroundColor,
+      borderRadius: BorderRadius.circular(borderRadius),
+      border: Border.all(color: borderColor, width: borderWidth),
+      boxShadow: boxShadow,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final cardDecoration = BoxDecoration(
-      color: _backgroundColor,
-      borderRadius: BorderRadius.circular(borderRadius),
-      border: Border.all(color: _borderColor, width: borderWidth),
-      boxShadow: _boxShadow,
+    final cardDecoration = decoration(
+      context,
+      variant: variant,
+      borderRadius: borderRadius,
+      borderWidth: borderWidth,
     );
 
     if (onTap != null) {

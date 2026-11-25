@@ -10,7 +10,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../i18n/strings.g.dart';
-import '../../../plans/presentation/screens/plans_screen.dart';
+import '../../../plans/domain/models/session_with_detail.dart';
 import '../../../plans/presentation/widgets/plans_overview_tab.dart';
 import '../../../plans/presentation/widgets/plans_workout_split_tab.dart';
 import '../../../program/domain/models/program_day.dart';
@@ -67,10 +67,14 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (ctx) {
+        final theme = Theme.of(ctx);
+        final isDark = theme.brightness == Brightness.dark;
+        final colorScheme = theme.colorScheme;
+
         return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          decoration: BoxDecoration(
+            color: colorScheme.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
           ),
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
           constraints: BoxConstraints(
@@ -85,7 +89,7 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE5E7EB),
+                    color: colorScheme.outlineVariant,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -105,14 +109,14 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
                           style: AppTypography.headlineSmall.copyWith(
                             fontWeight: FontWeight.w900,
                             fontSize: 18,
-                            color: AppColors.darkCharcoal,
+                            color: colorScheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 3),
                         Text(
                           s.session.focusLabel,
                           style: AppTypography.bodySmall.copyWith(
-                            color: const Color(0xFF6B7280),
+                            color: colorScheme.onSurfaceVariant,
                             fontSize: 12,
                           ),
                         ),
@@ -125,13 +129,15 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF4F9ED),
+                      color: colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
                       t.sessionDuration(n: s.session.targetDurationMinutes),
                       style: AppTypography.labelSmall.copyWith(
-                        color: const Color(0xFF16A34A),
+                        color: isDark
+                            ? colorScheme.primary
+                            : AppColors.greenBrand,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -139,12 +145,12 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
                 ],
               ),
               const SizedBox(height: 16),
-              const Divider(color: Color(0xFFF3F4F6), height: 1),
+              Divider(color: colorScheme.outlineVariant, height: 1),
               const SizedBox(height: 12),
               Text(
                 t.exercisesInSession(count: s.detail.exercises.length),
                 style: AppTypography.labelSmall.copyWith(
-                  color: const Color(0xFF9CA3AF),
+                  color: colorScheme.onSurfaceVariant,
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.5,
@@ -162,9 +168,9 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
                     return Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF9FAFB),
+                        color: colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: const Color(0xFFE5E7EB)),
+                        border: Border.all(color: colorScheme.outline),
                       ),
                       child: Row(
                         children: [
@@ -172,16 +178,16 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
                             width: 32,
                             height: 32,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFD4F836),
+                              color: colorScheme.primary,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             alignment: Alignment.center,
                             child: Text(
                               '${index + 1}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontWeight: FontWeight.w900,
                                 fontSize: 13,
-                                color: Color(0xFF141718),
+                                color: colorScheme.onPrimary,
                               ),
                             ),
                           ),
@@ -197,7 +203,7 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
                                   style: AppTypography.labelMedium.copyWith(
                                     fontWeight: FontWeight.w800,
                                     fontSize: 13.5,
-                                    color: AppColors.darkCharcoal,
+                                    color: colorScheme.onSurface,
                                   ),
                                 ),
                                 const SizedBox(height: 2),
@@ -208,7 +214,7 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
                                     rests: item.prescription.restSeconds,
                                   ),
                                   style: AppTypography.bodySmall.copyWith(
-                                    color: const Color(0xFF6B7280),
+                                    color: colorScheme.onSurfaceVariant,
                                     fontSize: 11.5,
                                   ),
                                 ),
@@ -242,6 +248,8 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
         sessions: draft.sessions,
       );
 
+      // 2. Tandai onboarding selesai di state aplikasi.
+      // Status persisten diturunkan dari program aktif di SQLite.
       // 2. Tandai onboarding selesai di state aplikasi.
       // Status persisten diturunkan dari program aktif di SQLite.
       ref.read(hasCompletedOnboardingProvider.notifier).state = true;
@@ -344,11 +352,14 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
   Widget build(BuildContext context) {
     final t = Translations.of(context).onboarding.preview;
     final draft = ref.watch(draftProgramProvider);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
 
     // Drafts are intentionally in-memory only. Recover if app state was lost.
     if (draft == null) {
       return Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.scaffoldBackgroundColor,
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
@@ -358,13 +369,13 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
                 Container(
                   width: 76,
                   height: 76,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF4F9ED),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primaryContainer,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.description_outlined,
-                    color: Color(0xFF65A30D),
+                    color: isDark ? colorScheme.primary : AppColors.greenBrand,
                     size: 38,
                   ),
                 ),
@@ -374,7 +385,7 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
                   textAlign: TextAlign.center,
                   style: AppTypography.headlineMedium.copyWith(
                     fontWeight: FontWeight.w900,
-                    color: AppColors.darkCharcoal,
+                    color: colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -382,7 +393,7 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
                   'Your draft is no longer available. Create your plan again to review it before activation.',
                   textAlign: TextAlign.center,
                   style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.neutral500,
+                    color: colorScheme.onSurfaceVariant,
                     height: 1.45,
                   ),
                 ),
@@ -393,8 +404,8 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
                   child: ElevatedButton(
                     onPressed: () => context.go(AppRoutes.onboarding),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.limeAccent,
-                      foregroundColor: AppColors.darkCharcoal,
+                      backgroundColor: colorScheme.primary,
+                      foregroundColor: colorScheme.onPrimary,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
@@ -416,13 +427,13 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
     }).toList();
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF141718)),
+          icon: Icon(Icons.arrow_back_rounded, color: colorScheme.onSurface),
           onPressed: () {
             if (context.canPop()) {
               context.pop();
@@ -436,25 +447,28 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
           style: AppTypography.headlineMedium.copyWith(
             fontWeight: FontWeight.w900,
             fontSize: 18,
-            color: const Color(0xFF141718),
+            color: colorScheme.onSurface,
           ),
         ),
         centerTitle: false,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
           child: Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               border: Border(
-                bottom: BorderSide(color: Color(0xFFF3F4F6), width: 1.2),
+                bottom: BorderSide(
+                  color: colorScheme.outlineVariant,
+                  width: 1.2,
+                ),
               ),
             ),
             child: TabBar(
               controller: _tabController,
-              indicatorColor: const Color(0xFF84CC16),
+              indicatorColor: colorScheme.primary,
               indicatorWeight: 3.0,
               indicatorSize: TabBarIndicatorSize.tab,
-              labelColor: const Color(0xFF141718),
-              unselectedLabelColor: const Color(0xFF9CA3AF),
+              labelColor: colorScheme.onSurface,
+              unselectedLabelColor: colorScheme.onSurfaceVariant,
               labelStyle: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w800,
@@ -475,14 +489,17 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
       bottomNavigationBar: Container(
         padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
         decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 10,
-              offset: const Offset(0, -4),
-            ),
-          ],
+          color: colorScheme.surface,
+          border: Border(top: BorderSide(color: colorScheme.outline, width: 1)),
+          boxShadow: isDark
+              ? null
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.06),
+                    blurRadius: 10,
+                    offset: const Offset(0, -4),
+                  ),
+                ],
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -505,7 +522,7 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
                 child: Text(
                   t.activateDashboard,
                   style: AppTypography.bodySmall.copyWith(
-                    color: const Color(0xFF6B7280),
+                    color: colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w700,
                     fontSize: 12,
                   ),

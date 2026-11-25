@@ -3,7 +3,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../i18n/strings.g.dart';
 
-/// Step 5 of 7: How often can you work out? (Frequency & Duration) (Mockup 1:1)
+/// Step 5 of 7: How often can you work out? (Light & Dark Mode)
 class StepSchedule extends StatelessWidget {
   final int daysPerWeek;
   final int durationMin;
@@ -21,6 +21,10 @@ class StepSchedule extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Translations.of(context).onboarding.schedule;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
+    final accentColor = isDark ? colorScheme.primary : AppColors.greenBrand;
 
     const frequencies = [2, 3, 4, 5, 6];
     const durations = [30, 45, 60];
@@ -35,20 +39,18 @@ class StepSchedule extends StatelessWidget {
             style: AppTypography.displayMedium.copyWith(
               fontWeight: FontWeight.w900,
               fontSize: 24,
-              color: AppColors.darkCharcoal,
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 6),
           Text(
             t.subtitle,
             style: AppTypography.bodySmall.copyWith(
-              color: AppColors.neutral500,
+              color: colorScheme.onSurfaceVariant,
               fontSize: 13,
             ),
           ),
           const SizedBox(height: 20),
-
-          // List Frekuensi (2..6 hari / minggu)
           ...frequencies.map((freq) {
             final isSelected = daysPerWeek == freq;
             return Padding(
@@ -63,23 +65,27 @@ class StepSchedule extends StatelessWidget {
                     vertical: 14,
                   ),
                   decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFFF4F9ED) : AppColors.surface,
+                    color: isSelected
+                        ? colorScheme.primaryContainer
+                        : colorScheme.surface,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: isSelected
-                          ? const Color(0xFF84CC16)
-                          : AppColors.neutral200,
+                      color: isSelected ? accentColor : colorScheme.outline,
                       width: isSelected ? 1.8 : 1.2,
                     ),
-                    boxShadow: isSelected
-                        ? [
-                            BoxShadow(
-                              color: AppColors.limeAccent.withValues(alpha: 0.2),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
-                            ),
-                          ]
-                        : AppColors.cardShadow,
+                    boxShadow: isDark
+                        ? null
+                        : (isSelected
+                            ? [
+                                BoxShadow(
+                                  color: AppColors.limeAccent.withValues(
+                                    alpha: 0.2,
+                                  ),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ]
+                            : AppColors.cardShadow),
                   ),
                   child: Row(
                     children: [
@@ -87,8 +93,8 @@ class StepSchedule extends StatelessWidget {
                         Icons.calendar_today_rounded,
                         size: 18,
                         color: isSelected
-                            ? AppColors.greenDark
-                            : AppColors.neutral500,
+                            ? (isDark ? colorScheme.primary : AppColors.greenDark)
+                            : colorScheme.onSurfaceVariant,
                       ),
                       const SizedBox(width: 14),
                       Text(
@@ -97,8 +103,10 @@ class StepSchedule extends StatelessWidget {
                           fontWeight: FontWeight.w800,
                           fontSize: 14.5,
                           color: isSelected
-                              ? AppColors.greenDark
-                              : AppColors.darkCharcoal,
+                              ? (isDark
+                                  ? colorScheme.onPrimaryContainer
+                                  : AppColors.greenDark)
+                              : colorScheme.onSurface,
                         ),
                       ),
                       const Spacer(),
@@ -106,14 +114,14 @@ class StepSchedule extends StatelessWidget {
                         Container(
                           width: 22,
                           height: 22,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF84CC16),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.check_rounded,
                             size: 15,
-                            color: AppColors.darkCharcoal,
+                            color: colorScheme.onPrimary,
                           ),
                         ),
                     ],
@@ -123,14 +131,12 @@ class StepSchedule extends StatelessWidget {
             );
           }),
           const SizedBox(height: 18),
-
-          // Session Duration Selector
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.access_time_rounded,
                 size: 16,
-                color: AppColors.darkCharcoal,
+                color: colorScheme.onSurface,
               ),
               const SizedBox(width: 6),
               Text(
@@ -138,7 +144,7 @@ class StepSchedule extends StatelessWidget {
                 style: AppTypography.labelLarge.copyWith(
                   fontWeight: FontWeight.w700,
                   fontSize: 14,
-                  color: AppColors.darkCharcoal,
+                  color: colorScheme.onSurface,
                 ),
               ),
             ],
@@ -159,13 +165,11 @@ class StepSchedule extends StatelessWidget {
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? AppColors.limeAccent
-                            : const Color(0xFFF1F5F9),
+                            ? colorScheme.primary
+                            : colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
-                          color: isSelected
-                              ? const Color(0xFF84CC16)
-                              : Colors.transparent,
+                          color: isSelected ? accentColor : Colors.transparent,
                           width: 1.5,
                         ),
                       ),
@@ -174,7 +178,9 @@ class StepSchedule extends StatelessWidget {
                         style: AppTypography.labelLarge.copyWith(
                           fontWeight: FontWeight.w800,
                           fontSize: 13.5,
-                          color: AppColors.darkCharcoal,
+                          color: isSelected
+                              ? colorScheme.onPrimary
+                              : colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ),
@@ -188,4 +194,3 @@ class StepSchedule extends StatelessWidget {
     );
   }
 }
-
