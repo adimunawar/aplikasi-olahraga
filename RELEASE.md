@@ -7,16 +7,16 @@ This repository uses the following promotion flow:
 ## 1. Prepare a release
 
 1. Promote the tested `staging` branch into a new `release/*` branch using the team's normal release-branch process.
-2. Before opening or completing the PR to `main`, open **Actions → Prepare Mobile Release → Run workflow**.
+2. Before opening the PR to `main`, open **Actions → Prepare Mobile Release → Run workflow**.
 3. Select the release branch (the branch name must start with `release/`).
 4. Choose the SemVer increment:
    - `patch`: bug fixes, e.g. 1.0.1 → 1.0.2
    - `minor`: backward-compatible features, e.g. 1.0.1 → 1.1.0
    - `major`: breaking changes, e.g. 1.0.1 → 2.0.0
 5. The workflow updates `pubspec.yaml` on that release branch and increments the Flutter build number by one.
-6. Verify the generated version, then open/update the PR from the release branch to `main`.
+6. Verify the generated version, then open the PR from the release branch to `main`.
 
-Do not run the preparation workflow more than once for the same release unless another version increment is intended. Each run increments the version and build number again.
+Run the preparation workflow once per release. Each additional run intentionally increments the version and build number again.
 
 ## 2. Publish production release
 
