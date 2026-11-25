@@ -210,6 +210,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         setState(() => _targetWeightKg = val),
                   ),
 
+
                   // Step 4: Experience Level
                   StepExperience(
                     selectedLevel: _level,
@@ -351,4 +352,5 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       ),
     );
   }
+
 }
