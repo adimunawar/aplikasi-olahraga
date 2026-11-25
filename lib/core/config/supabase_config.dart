@@ -27,17 +27,16 @@ class SupabaseConfig {
   /// - Idempotent (mencegah double-initialization pada hot restart / multi-entry).
   /// - Menggunakan PKCE flow untuk autentikasi mobile yang aman.
   /// - Mode offline-resilient: jika key kosong/tidak valid, aplikasi tetap berjalan 100% via SQLite.
-  static Future<void> initialize({
-    String? url,
-    String? anonKey,
-  }) async {
+  static Future<void> initialize({String? url, String? anonKey}) async {
     if (_isInitialized) return;
 
     final targetUrl = url ?? supabaseUrl;
     final targetKey = anonKey ?? supabaseAnonKey;
 
     if (targetKey.isEmpty || targetKey == 'YOUR_SUPABASE_ANON_KEY_HERE') {
-      debugPrint('[Supabase] Info: Anon key belum diisi. Berjalan dalam mode Offline Local Cache (SQLite).');
+      debugPrint(
+        '[Supabase] Info: Anon key belum diisi. Berjalan dalam mode Offline Local Cache (SQLite).',
+      );
       return;
     }
 
@@ -113,7 +112,9 @@ class SupabaseConfig {
 
     final user = currentUser;
     if (user == null || user.isAnonymous || user.id.isEmpty) {
-      throw StateError('Sign in with a non-anonymous account before enabling Cloud Sync.');
+      throw StateError(
+        'Sign in with a non-anonymous account before enabling Cloud Sync.',
+      );
     }
 
     await CloudSyncConsent.enableForUser(user.id);
@@ -122,5 +123,3 @@ class SupabaseConfig {
   /// Disable future cloud reads/writes while keeping local SQLite data intact.
   static Future<void> disableCloudSync() => CloudSyncConsent.disable();
 }
-
-

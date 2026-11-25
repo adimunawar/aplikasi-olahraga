@@ -16,7 +16,8 @@ class DatabaseTables {
   static const String exerciseProgressions = 'exercise_progressions';
   static const String progressionDecisions = 'progression_decisions';
 
-  static const String createUsersTable = '''
+  static const String createUsersTable =
+      '''
     CREATE TABLE IF NOT EXISTS $users (
       id TEXT PRIMARY KEY,
       email TEXT,
@@ -25,7 +26,8 @@ class DatabaseTables {
     );
   ''';
 
-  static const String createExercisesTable = '''
+  static const String createExercisesTable =
+      '''
     CREATE TABLE IF NOT EXISTS $exercises (
       id TEXT PRIMARY KEY,
       name_id TEXT NOT NULL,
@@ -57,7 +59,8 @@ class DatabaseTables {
     );
   ''';
 
-  static const String createExerciseProgressionsTable = '''
+  static const String createExerciseProgressionsTable =
+      '''
     CREATE TABLE IF NOT EXISTS $exerciseProgressions (
       id TEXT PRIMARY KEY,
       from_exercise_id TEXT NOT NULL,
@@ -69,7 +72,8 @@ class DatabaseTables {
     );
   ''';
 
-  static const String createUserProfilesTable = '''
+  static const String createUserProfilesTable =
+      '''
     CREATE TABLE IF NOT EXISTS $userProfiles (
       id TEXT PRIMARY KEY,
       display_name TEXT NOT NULL,
@@ -96,7 +100,8 @@ class DatabaseTables {
     );
   ''';
 
-  static const String createWorkoutSessionsTable = '''
+  static const String createWorkoutSessionsTable =
+      '''
     CREATE TABLE IF NOT EXISTS $workoutSessions (
       id TEXT PRIMARY KEY,
       program_id TEXT NOT NULL,
@@ -113,7 +118,8 @@ class DatabaseTables {
     );
   ''';
 
-  static const String createWorkoutSetsTable = '''
+  static const String createWorkoutSetsTable =
+      '''
     CREATE TABLE IF NOT EXISTS $workoutSets (
       id TEXT PRIMARY KEY,
       session_id TEXT NOT NULL,
@@ -133,7 +139,8 @@ class DatabaseTables {
     );
   ''';
 
-  static const String createBodyMeasurementsTable = '''
+  static const String createBodyMeasurementsTable =
+      '''
     CREATE TABLE IF NOT EXISTS $bodyMeasurements (
       id TEXT PRIMARY KEY,
       measurement_type TEXT NOT NULL DEFAULT 'weight',
@@ -143,7 +150,8 @@ class DatabaseTables {
     );
   ''';
 
-  static const String createUserProgramsTable = '''
+  static const String createUserProgramsTable =
+      '''
     CREATE TABLE IF NOT EXISTS $userPrograms (
       id TEXT PRIMARY KEY,
       program_id TEXT NOT NULL,
@@ -158,7 +166,8 @@ class DatabaseTables {
     );
   ''';
 
-  static const String createTrainingProgramsTable = '''
+  static const String createTrainingProgramsTable =
+      '''
     CREATE TABLE IF NOT EXISTS $trainingPrograms (
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL,
@@ -174,7 +183,8 @@ class DatabaseTables {
     );
   ''';
 
-  static const String createProgramSessionsTable = '''
+  static const String createProgramSessionsTable =
+      '''
     CREATE TABLE IF NOT EXISTS $programSessions (
       id TEXT PRIMARY KEY,
       program_id TEXT NOT NULL,
@@ -187,7 +197,8 @@ class DatabaseTables {
     );
   ''';
 
-  static const String createProgramExercisesTable = '''
+  static const String createProgramExercisesTable =
+      '''
     CREATE TABLE IF NOT EXISTS $programExercises (
       id TEXT PRIMARY KEY,
       program_session_id TEXT NOT NULL,
@@ -204,7 +215,8 @@ class DatabaseTables {
     );
   ''';
 
-  static const String createUserSettingsTable = '''
+  static const String createUserSettingsTable =
+      '''
     CREATE TABLE IF NOT EXISTS $userSettings (
       id TEXT PRIMARY KEY,
       gender TEXT NOT NULL DEFAULT '',
@@ -223,7 +235,8 @@ class DatabaseTables {
       updated_at TEXT NOT NULL
     );
   ''';
-  static const String createProgressionDecisionsTable = '''
+  static const String createProgressionDecisionsTable =
+      '''
     CREATE TABLE IF NOT EXISTS $progressionDecisions (
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL,
@@ -238,4 +251,3 @@ class DatabaseTables {
     );
   ''';
 }
-

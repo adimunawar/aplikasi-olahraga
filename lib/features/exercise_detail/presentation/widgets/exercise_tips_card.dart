@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../exercises/domain/models/exercise.dart';
@@ -26,14 +27,18 @@ class ExerciseTipsCard extends StatelessWidget {
     final tipTextColor = isDark
         ? theme.colorScheme.onSurfaceVariant
         : const Color(0xFF475569);
-    final bulbBgColor = isDark ? theme.colorScheme.primary : AppColors.limeAccent;
-    final bulbIconColor = isDark ? theme.colorScheme.onPrimary : const Color(0xFF141718);
+    final bulbBgColor = isDark
+        ? theme.colorScheme.primary
+        : AppColors.limeAccent;
+    final bulbIconColor = isDark
+        ? theme.colorScheme.onPrimary
+        : const Color(0xFF141718);
 
     final tipText = exercise.breathing.en.isNotEmpty
         ? exercise.breathing.en
         : (exercise.breathing.id.isNotEmpty
-            ? exercise.breathing.id
-            : 'Start with knee push-ups, keep your core tight, and focus on controlled, steady movement.');
+              ? exercise.breathing.id
+              : 'Start with knee push-ups, keep your core tight, and focus on controlled, steady movement.');
 
     return Container(
       width: double.infinity,

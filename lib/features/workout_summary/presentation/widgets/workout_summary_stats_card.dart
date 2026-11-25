@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_typography.dart';
 
 /// Card Statistik Sesi Selesai (Judul Sesi + 4 Metrik: Durasi, Gerakan, Sets, Kalori)
@@ -75,7 +76,10 @@ class WorkoutSummaryStatsCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 5),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFFF3FBE5),
                           borderRadius: BorderRadius.circular(8),
@@ -194,11 +198,6 @@ class WorkoutSummaryStatsCard extends StatelessWidget {
   }
 
   Widget _buildVerticalDivider() {
-    return Container(
-      height: 36,
-      width: 1,
-      color: const Color(0xFFF1F5F9),
-    );
+    return Container(height: 36, width: 1, color: const Color(0xFFF1F5F9));
   }
 }
-

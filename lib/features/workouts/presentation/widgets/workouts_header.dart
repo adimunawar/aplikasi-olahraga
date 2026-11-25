@@ -78,10 +78,7 @@ class WorkoutsAppBarActions extends StatelessWidget {
 class WorkoutsSearchBar extends StatelessWidget {
   final ValueChanged<String> onSearchChanged;
 
-  const WorkoutsSearchBar({
-    super.key,
-    required this.onSearchChanged,
-  });
+  const WorkoutsSearchBar({super.key, required this.onSearchChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -114,10 +111,7 @@ class WorkoutsSearchBar extends StatelessWidget {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(
-              color: colorScheme.primary,
-              width: 1.5,
-            ),
+            borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
           ),
         ),
       ),

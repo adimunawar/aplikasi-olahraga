@@ -112,7 +112,9 @@ class _AnatomyPainter extends CustomPainter {
 
     // 4. Bahu Kiri & Kanan (Deltoids)
     final shoulderPaint = highlightShoulders ? highlightPaint : basePaint;
-    final shoulderBorder = highlightShoulders ? highlightBorderPaint : borderPaint;
+    final shoulderBorder = highlightShoulders
+        ? highlightBorderPaint
+        : borderPaint;
 
     // Bahu Kiri
     final leftShoulder = Path()
@@ -224,4 +226,3 @@ class _AnatomyPainter extends CustomPainter {
         oldDelegate.highlightArms != highlightArms;
   }
 }
-

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import '../../../../core/database/models/dynamic_program_entity.dart';
 import '../../../../core/database/models/user_profile_entity.dart';
 import '../../../exercises/domain/models/exercise.dart';
@@ -7,12 +8,7 @@ import '../widgets/today_workout/today_workout_section.dart';
 import '../widgets/weekly_progress_calendar_card.dart';
 
 /// Jenis Error pada Halaman Home untuk diferensiasi penanganan error
-enum HomeErrorType {
-  none,
-  database,
-  programGeneration,
-  network,
-}
+enum HomeErrorType { none, database, programGeneration, network }
 
 /// State representasi data lengkap untuk Halaman Home Utama
 @immutable

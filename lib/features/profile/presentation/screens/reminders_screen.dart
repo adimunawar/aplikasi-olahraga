@@ -34,7 +34,9 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
   }
 
   Future<void> _updateSettings() async {
-    await ref.read(profileControllerProvider.notifier).updateReminders(
+    await ref
+        .read(profileControllerProvider.notifier)
+        .updateReminders(
           workoutReminder: _workoutReminder,
           reminderTime: _reminderTime,
           restDayReminder: _restDayReminder,
@@ -45,10 +47,7 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
 
   Future<void> _pickTime() async {
     final now = TimeOfDay.now();
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: now,
-    );
+    final picked = await showTimePicker(context: context, initialTime: now);
 
     if (picked != null) {
       final hour = picked.hourOfPeriod == 0 ? 12 : picked.hourOfPeriod;

@@ -1,7 +1,9 @@
 import 'dart:convert';
+
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../../../core/database/app_database.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -33,13 +35,15 @@ class _NutritionScreenState extends State<NutritionScreen> {
     try {
       final jsonString = await rootBundle.loadString('assets/data/foods.json');
       final list = jsonDecode(jsonString) as List<dynamic>;
-      final parsed =
-          list.map((e) => FoodItem.fromJson(e as Map<String, dynamic>)).toList();
+      final parsed = list
+          .map((e) => FoodItem.fromJson(e as Map<String, dynamic>))
+          .toList();
 
       // Hitung target protein harian dari profil pengguna di SQLite
       final profile = await AppDatabase.instance.getUserProfile();
-      final weight =
-          profile.currentWeightKg > 0 ? profile.currentWeightKg : 65.0;
+      final weight = profile.currentWeightKg > 0
+          ? profile.currentWeightKg
+          : 65.0;
       final multiplier = profile.goal == 'muscle_gain' ? 1.8 : 1.6;
       final targetProtein = (weight * multiplier).roundToDouble();
 
@@ -87,7 +91,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
         behavior: SnackBarBehavior.floating,
         content: Text(
           '+${food.proteinG.toStringAsFixed(0)}g protein dicatat (${food.name.id})',
-          style: AppTypography.bodySmall.copyWith(color: AppColors.electricLime),
+          style: AppTypography.bodySmall.copyWith(
+            color: AppColors.electricLime,
+          ),
         ),
       ),
     );
@@ -100,10 +106,14 @@ class _NutritionScreenState extends State<NutritionScreen> {
       builder: (dialogCtx) {
         return AlertDialog(
           backgroundColor: AppColors.surface,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           title: Text(
             'Catat Protein Manual',
-            style: AppTypography.headlineSmall.copyWith(color: AppColors.textPrimary),
+            style: AppTypography.headlineSmall.copyWith(
+              color: AppColors.textPrimary,
+            ),
           ),
           content: TextField(
             controller: controller,
@@ -139,9 +149,14 @@ class _NutritionScreenState extends State<NutritionScreen> {
                   final newLogged = _loggedTodayG + val;
                   setState(() => _loggedTodayG = newLogged);
                   final prefs = await SharedPreferences.getInstance();
-                  final todayKey =
-                      DateTime.now().toIso8601String().substring(0, 10);
-                  await prefs.setDouble('nutrition_protein_$todayKey', newLogged);
+                  final todayKey = DateTime.now().toIso8601String().substring(
+                    0,
+                    10,
+                  );
+                  await prefs.setDouble(
+                    'nutrition_protein_$todayKey',
+                    newLogged,
+                  );
                 }
                 if (dialogCtx.mounted) Navigator.pop(dialogCtx);
               },
@@ -256,7 +271,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
             children: [
               Text(
                 'TARGET SINTESIS OTOT',
-                style: AppTypography.labelCaps.copyWith(color: AppColors.textDim),
+                style: AppTypography.labelCaps.copyWith(
+                  color: AppColors.textDim,
+                ),
               ),
               Text(
                 '${_loggedTodayG.toStringAsFixed(0)} / ${_dailyTargetG.toStringAsFixed(0)} g',
@@ -274,7 +291,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
               value: ratio,
               minHeight: 10,
               backgroundColor: AppColors.surfaceRaised,
-              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.electricLime),
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                AppColors.electricLime,
+              ),
             ),
           ),
           const SizedBox(height: 12),
@@ -282,7 +301,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
             remaining <= 0
                 ? 'Target hari ini tercapai! Pertahankan kecukupan istirahat & air.'
                 : 'Terpenuhi ${_loggedTodayG.toStringAsFixed(0)} g dari ${_dailyTargetG.toStringAsFixed(0)} g (Sisa ${remaining.toStringAsFixed(0)} g lagi).',
-            style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary),
+            style: AppTypography.bodySmall.copyWith(
+              color: AppColors.textSecondary,
+            ),
           ),
         ],
       ),
@@ -303,7 +324,11 @@ class _NutritionScreenState extends State<NutritionScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.auto_awesome, color: AppColors.iceCyan, size: 20),
+              const Icon(
+                Icons.auto_awesome,
+                color: AppColors.iceCyan,
+                size: 20,
+              ),
               const SizedBox(width: 8),
               Text(
                 'SARAN KOMBINASI HEMAT (± SISA PROTEIN)',
@@ -328,7 +353,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      combo.items.map((i) => '${i.portion}x ${i.food.name.id}').join(' + '),
+                      combo.items
+                          .map((i) => '${i.portion}x ${i.food.name.id}')
+                          .join(' + '),
                       style: AppTypography.bodyMedium.copyWith(
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.bold,
@@ -352,7 +379,11 @@ class _NutritionScreenState extends State<NutritionScreen> {
   }
 
   Widget _buildFoodItemRow(FoodItem food) {
-    final costLabel = food.costTier == 1 ? 'Rp (Murah)' : food.costTier == 2 ? 'Rp Rp (Sedang)' : 'Rp Rp Rp (Tinggi)';
+    final costLabel = food.costTier == 1
+        ? 'Rp (Murah)'
+        : food.costTier == 2
+        ? 'Rp Rp (Sedang)'
+        : 'Rp Rp Rp (Tinggi)';
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -378,7 +409,10 @@ class _NutritionScreenState extends State<NutritionScreen> {
                     ),
                     const SizedBox(width: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.surfaceRaised,
                         borderRadius: BorderRadius.circular(4),
@@ -396,7 +430,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
                 const SizedBox(height: 4),
                 Text(
                   '${food.portionLabel.id} • ± ${food.proteinG.toStringAsFixed(0)}g protein',
-                  style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary),
+                  style: AppTypography.bodySmall.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ],
             ),
@@ -407,7 +443,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
               foregroundColor: AppColors.electricLime,
               elevation: 0,
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
             onPressed: () => _logFood(food),
             child: Text(
@@ -423,4 +461,3 @@ class _NutritionScreenState extends State<NutritionScreen> {
     );
   }
 }
-

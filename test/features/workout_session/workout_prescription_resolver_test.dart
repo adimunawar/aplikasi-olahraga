@@ -138,45 +138,42 @@ void main() {
       expect(directRx.maxReps, 0);
     });
 
-    test(
-      'explicit prescription preserves targetDurationSeconds for duration tracking',
-      () {
-        final plank = createMockExercise(
-          id: 'plank',
-          name: 'Plank',
-          trackingType: TrackingType.duration,
-        );
+    test('explicit prescription preserves targetDurationSeconds for duration tracking', () {
+      final plank = createMockExercise(
+        id: 'plank',
+        name: 'Plank',
+        trackingType: TrackingType.duration,
+      );
 
-        final resolver = WorkoutPrescriptionResolver(
-          day: _day([
-            WorkoutItem(
-              exerciseId: 'plank',
-              sets: 2,
-              reps: 30,
-              restSeconds: 45,
-              isMain: true,
-            ),
-          ]),
-          exercises: [plank],
-          explicitPrescriptions: const {
-            'plank': WorkoutExercisePrescription(
-              targetSets: 4,
-              minReps: 0,
-              maxReps: 0,
-              targetDurationSeconds: 60,
-              restSeconds: 30,
-            ),
-          },
-        );
+      final resolver = WorkoutPrescriptionResolver(
+        day: _day([
+          WorkoutItem(
+            exerciseId: 'plank',
+            sets: 2,
+            reps: 30,
+            restSeconds: 45,
+            isMain: true,
+          ),
+        ]),
+        exercises: [plank],
+        explicitPrescriptions: const {
+          'plank': WorkoutExercisePrescription(
+            targetSets: 4,
+            minReps: 0,
+            maxReps: 0,
+            targetDurationSeconds: 60,
+            restSeconds: 30,
+          ),
+        },
+      );
 
-        final rx = resolver.forExercise('plank');
-        expect(rx.targetSets, 4);
-        expect(rx.isDuration, isTrue);
-        expect(rx.targetDurationSeconds, 60);
-        expect(rx.effectiveTarget, 60);
-        expect(rx.restSeconds, 30);
-      },
-    );
+      final rx = resolver.forExercise('plank');
+      expect(rx.targetSets, 4);
+      expect(rx.isDuration, isTrue);
+      expect(rx.targetDurationSeconds, 60);
+      expect(rx.effectiveTarget, 60);
+      expect(rx.restSeconds, 30);
+    });
   });
 
   group('LocalizedStringExtension.localized', () {

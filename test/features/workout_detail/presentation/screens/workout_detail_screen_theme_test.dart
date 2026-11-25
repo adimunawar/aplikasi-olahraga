@@ -13,10 +13,7 @@ void main() {
     LocaleSettings.setLocale(AppLocale.id);
   });
 
-  Exercise createTestExercise({
-    required String id,
-    required String name,
-  }) {
+  Exercise createTestExercise({required String id, required String name}) {
     return Exercise(
       id: id,
       name: LocalizedString(id: name, en: name),
@@ -59,7 +56,11 @@ void main() {
     final loader = WorkoutDetailDataLoader(
       load: ({required programId, required dayNumber}) async => [
         createTestExerciseData(id: 'push_up', name: 'Push Up', stage: 'main'),
-        createTestExerciseData(id: 'arm_circles', name: 'Arm Circles', stage: 'warmup'),
+        createTestExerciseData(
+          id: 'arm_circles',
+          name: 'Arm Circles',
+          stage: 'warmup',
+        ),
       ],
     );
 
@@ -86,7 +87,9 @@ void main() {
   }
 
   group('WorkoutDetailScreen - Theme Fidelity (Light & Dark Mode)', () {
-    testWidgets('renders cleanly in Light Mode without unmanaged colors', (tester) async {
+    testWidgets('renders cleanly in Light Mode without unmanaged colors', (
+      tester,
+    ) async {
       await tester.pumpWidget(createThemedApp(themeMode: ThemeMode.light));
       await tester.pumpAndSettle();
 
@@ -96,7 +99,9 @@ void main() {
       expect(find.byType(WorkoutExerciseListItem), findsNWidgets(2));
     });
 
-    testWidgets('renders cleanly in Dark Mode with dark surface styling', (tester) async {
+    testWidgets('renders cleanly in Dark Mode with dark surface styling', (
+      tester,
+    ) async {
       await tester.pumpWidget(createThemedApp(themeMode: ThemeMode.dark));
       await tester.pumpAndSettle();
 

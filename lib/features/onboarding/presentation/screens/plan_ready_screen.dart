@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/models/user_profile_entity.dart';
 import '../../../../core/router/app_router.dart';
@@ -51,7 +52,8 @@ class _PlanReadyScreenState extends ConsumerState<PlanReadyScreen> {
     final isBulking = p?.goal.contains('muscle') == true;
     final isCutting = p?.goal.contains('fat_loss') == true;
 
-    final programTitle = draft?.program.name ??
+    final programTitle =
+        draft?.program.name ??
         (isBulking
             ? t.program.bulking.title
             : (isCutting ? t.program.cutting.title : t.program.maintain.title));
@@ -59,11 +61,12 @@ class _PlanReadyScreenState extends ConsumerState<PlanReadyScreen> {
     final programSubtitle = isBulking
         ? t.program.bulking.subtitle
         : (isCutting
-            ? t.program.cutting.subtitle
-            : t.program.maintain.subtitle);
+              ? t.program.cutting.subtitle
+              : t.program.maintain.subtitle);
 
     final freq = draft?.program.weeklyFrequency ?? (p?.weeklyFrequency ?? 4);
-    final dur = draft?.program.targetDurationMinutes ?? (p?.preferredDurationMin ?? 45);
+    final dur =
+        draft?.program.targetDurationMinutes ?? (p?.preferredDurationMin ?? 45);
     final levelId = p?.experienceLevel ?? 'beginner';
     final weeks = p?.targetTimeframeWeeks ?? 12;
 
@@ -234,7 +237,10 @@ class _PlanReadyScreenState extends ConsumerState<PlanReadyScreen> {
 
               // Checklist Fitur Program
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 decoration: BoxDecoration(
                   color: colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(18),

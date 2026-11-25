@@ -14,16 +14,14 @@ class WorkoutDetailDataLoader {
   final Future<List<WorkoutDetailExerciseData>> Function({
     required String? programId,
     required int dayNumber,
-  }) load;
+  })
+  load;
 
   const WorkoutDetailDataLoader({required this.load});
 
   static WorkoutDetailDataLoader live() {
     return WorkoutDetailDataLoader(
-      load: ({
-        required String? programId,
-        required int dayNumber,
-      }) async {
+      load: ({required String? programId, required int dayNumber}) async {
         final exerciseRepo = ExerciseRepositoryImpl(ExerciseLocalDatasource());
         await exerciseRepo.getExercises();
 
@@ -71,15 +69,29 @@ class WorkoutDetailDataLoader {
                 final fallbackAsset = ex.media.startPose.isNotEmpty
                     ? ex.media.startPose
                     : 'assets/images/Detail Gerakan.png';
-                final finalThumbnail = resolvedImg.isNotEmpty ? resolvedImg : fallbackAsset;
+                final finalThumbnail = resolvedImg.isNotEmpty
+                    ? resolvedImg
+                    : fallbackAsset;
 
                 if (ex.id.contains('knee') || ex.id.contains('push')) {
-                  debugPrint('[WorkoutDetailDataLoader] 🔍 Detail item "${ex.id}":');
-                  debugPrint('   raw ex.thumbnailUrl     : "${ex.thumbnailUrl}"');
-                  debugPrint('   raw media.thumbnailUrl  : "${ex.media.thumbnailUrl}"');
-                  debugPrint('   resolvedThumbnailUrl    : "${ex.resolvedThumbnailUrl}"');
-                  debugPrint('   resolvedImageUrl        : "${ex.resolvedImageUrl}"');
-                  debugPrint('   startPose               : "${ex.media.startPose}"');
+                  debugPrint(
+                    '[WorkoutDetailDataLoader] 🔍 Detail item "${ex.id}":',
+                  );
+                  debugPrint(
+                    '   raw ex.thumbnailUrl     : "${ex.thumbnailUrl}"',
+                  );
+                  debugPrint(
+                    '   raw media.thumbnailUrl  : "${ex.media.thumbnailUrl}"',
+                  );
+                  debugPrint(
+                    '   resolvedThumbnailUrl    : "${ex.resolvedThumbnailUrl}"',
+                  );
+                  debugPrint(
+                    '   resolvedImageUrl        : "${ex.resolvedImageUrl}"',
+                  );
+                  debugPrint(
+                    '   startPose               : "${ex.media.startPose}"',
+                  );
                   debugPrint('   final thumbnailAsset    : "$finalThumbnail"');
                 }
 
@@ -95,10 +107,11 @@ class WorkoutDetailDataLoader {
                     rest: restStr,
                     exercise: ex,
                     stage: prescription.stage,
-                    prescription: WorkoutExercisePrescription.fromProgramExercise(
-                      prescription,
-                      trackingType: ex.trackingType,
-                    ),
+                    prescription:
+                        WorkoutExercisePrescription.fromProgramExercise(
+                          prescription,
+                          trackingType: ex.trackingType,
+                        ),
                   ),
                 );
               }

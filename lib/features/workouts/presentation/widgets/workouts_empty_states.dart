@@ -39,10 +39,7 @@ class NoScheduledWorkoutsState extends StatelessWidget {
         child: Text(
           t.workouts.weeklySchedule.empty,
           textAlign: TextAlign.center,
-          style: TextStyle(
-            color: colorScheme.onSurfaceVariant,
-            fontSize: 12.5,
-          ),
+          style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12.5),
         ),
       ),
     );
@@ -53,10 +50,7 @@ class NoScheduledWorkoutsState extends StatelessWidget {
 class ExerciseEmptyState extends StatelessWidget {
   final VoidCallback onClearFilters;
 
-  const ExerciseEmptyState({
-    super.key,
-    required this.onClearFilters,
-  });
+  const ExerciseEmptyState({super.key, required this.onClearFilters});
 
   @override
   Widget build(BuildContext context) {
@@ -73,8 +67,9 @@ class ExerciseEmptyState extends StatelessWidget {
       action: TextButton(
         onPressed: onClearFilters,
         style: TextButton.styleFrom(
-          foregroundColor:
-              isDark ? AppColors.limeAccent : const Color(0xFF3F6212),
+          foregroundColor: isDark
+              ? AppColors.limeAccent
+              : const Color(0xFF3F6212),
         ),
         child: Text(
           t.workouts.allWorkouts.clearFilters,
@@ -89,10 +84,7 @@ class ExerciseEmptyState extends StatelessWidget {
 class WorkoutsErrorState extends StatelessWidget {
   final VoidCallback onRetry;
 
-  const WorkoutsErrorState({
-    super.key,
-    required this.onRetry,
-  });
+  const WorkoutsErrorState({super.key, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {

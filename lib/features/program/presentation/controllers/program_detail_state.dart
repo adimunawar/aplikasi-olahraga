@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import '../../domain/models/workout_program.dart';
 
 /// State immutable untuk layar Program Detail (sesuai architecture.md)
@@ -38,4 +39,3 @@ class ProgramDetailState {
     );
   }
 }
-

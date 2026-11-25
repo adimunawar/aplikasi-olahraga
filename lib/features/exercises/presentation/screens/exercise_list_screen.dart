@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -130,8 +131,8 @@ class _ExerciseListScreenState extends State<ExerciseListScreen> {
     final diffColor = ex.difficulty == ExerciseDifficulty.beginner
         ? AppColors.electricLime
         : ex.difficulty == ExerciseDifficulty.advanced
-            ? AppColors.coral
-            : AppColors.warmAmber;
+        ? AppColors.coral
+        : AppColors.warmAmber;
 
     return InkWell(
       onTap: () {
@@ -177,7 +178,10 @@ class _ExerciseListScreenState extends State<ExerciseListScreen> {
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: diffColor.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(6),
@@ -196,17 +200,22 @@ class _ExerciseListScreenState extends State<ExerciseListScreen> {
                   const SizedBox(height: 6),
                   Text(
                     'Target: ${ex.primaryMuscles.map((m) => m.id).join(', ')}',
-                    style: AppTypography.bodySmall.copyWith(color: AppColors.textDim),
+                    style: AppTypography.bodySmall.copyWith(
+                      color: AppColors.textDim,
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(width: 10),
-            const Icon(Icons.chevron_right_rounded, color: AppColors.textDim, size: 22),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: AppColors.textDim,
+              size: 22,
+            ),
           ],
         ),
       ),
     );
   }
 }
-

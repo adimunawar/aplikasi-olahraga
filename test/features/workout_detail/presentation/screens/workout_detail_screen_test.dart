@@ -107,13 +107,16 @@ void main() {
   }
 
   group('WorkoutDetailScreen - Rendering & Localization', () {
-    testWidgets('renders workout details and localized ID elements', (tester) async {
+    testWidgets('renders workout details and localized ID elements', (
+      tester,
+    ) async {
       final sampleExercises = [
         createTestExerciseData(id: 'push_up', name: 'Push Up'),
       ];
 
       final loader = WorkoutDetailDataLoader(
-        load: ({required programId, required dayNumber}) async => sampleExercises,
+        load: ({required programId, required dayNumber}) async =>
+            sampleExercises,
       );
 
       await tester.pumpWidget(
@@ -132,13 +135,16 @@ void main() {
       expect(find.byTooltip('Bookmark latihan'), findsOneWidget);
     });
 
-    testWidgets('renders localized EN elements when locale is EN', (tester) async {
+    testWidgets('renders localized EN elements when locale is EN', (
+      tester,
+    ) async {
       final sampleExercises = [
         createTestExerciseData(id: 'push_up', name: 'Push Up'),
       ];
 
       final loader = WorkoutDetailDataLoader(
-        load: ({required programId, required dayNumber}) async => sampleExercises,
+        load: ({required programId, required dayNumber}) async =>
+            sampleExercises,
       );
 
       await tester.pumpWidget(
@@ -147,7 +153,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Upper Body Push'), findsOneWidget);
-      expect(find.text('1 exercise'), findsOneWidget);
+      expect(find.text('1 exercises'), findsOneWidget);
       expect(find.text('3 sets × 10 reps'), findsOneWidget);
       expect(find.text('Start Workout'), findsOneWidget);
       expect(find.byTooltip('Back'), findsOneWidget);
@@ -155,13 +161,16 @@ void main() {
       expect(find.byTooltip('Bookmark workout'), findsOneWidget);
     });
 
-    testWidgets('shows Resume Workout CTA when activeSessionId is present', (tester) async {
+    testWidgets('shows Resume Workout CTA when activeSessionId is present', (
+      tester,
+    ) async {
       final sampleExercises = [
         createTestExerciseData(id: 'push_up', name: 'Push Up'),
       ];
 
       final loader = WorkoutDetailDataLoader(
-        load: ({required programId, required dayNumber}) async => sampleExercises,
+        load: ({required programId, required dayNumber}) async =>
+            sampleExercises,
       );
 
       await tester.pumpWidget(
@@ -176,29 +185,31 @@ void main() {
       expect(find.text('Lanjutkan Latihan'), findsOneWidget);
     });
 
-    testWidgets('hides start button and shows read-only banner in readOnly mode', (tester) async {
-      final sampleExercises = [
-        createTestExerciseData(id: 'push_up', name: 'Push Up'),
-      ];
+    testWidgets(
+      'hides start button and shows read-only banner in readOnly mode',
+      (tester) async {
+        final sampleExercises = [
+          createTestExerciseData(id: 'push_up', name: 'Push Up'),
+        ];
 
-      final loader = WorkoutDetailDataLoader(
-        load: ({required programId, required dayNumber}) async => sampleExercises,
-      );
+        final loader = WorkoutDetailDataLoader(
+          load: ({required programId, required dayNumber}) async =>
+              sampleExercises,
+        );
 
-      await tester.pumpWidget(
-        createTestApp(
-          locale: AppLocale.id,
-          loader: loader,
-          readOnly: true,
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          createTestApp(locale: AppLocale.id, loader: loader, readOnly: true),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.byType(StartWorkoutBottomBar), findsNothing);
-      expect(find.text('Mode pratinjau'), findsOneWidget);
-    });
+        expect(find.byType(StartWorkoutBottomBar), findsNothing);
+        expect(find.text('Mode pratinjau'), findsOneWidget);
+      },
+    );
 
-    testWidgets('shows empty state when no exercises are returned', (tester) async {
+    testWidgets('shows empty state when no exercises are returned', (
+      tester,
+    ) async {
       final loader = WorkoutDetailDataLoader(
         load: ({required programId, required dayNumber}) async => [],
       );
@@ -213,7 +224,9 @@ void main() {
       expect(find.byType(StartWorkoutBottomBar), findsNothing);
     });
 
-    testWidgets('shows error view with AppButton retry when load fails', (tester) async {
+    testWidgets('shows error view with AppButton retry when load fails', (
+      tester,
+    ) async {
       var loadAttempts = 0;
       final loader = WorkoutDetailDataLoader(
         load: ({required programId, required dayNumber}) async {
@@ -239,14 +252,17 @@ void main() {
       expect(find.text('Push Up'), findsOneWidget);
     });
 
-    testWidgets('tapping start workout navigates to workout session', (tester) async {
+    testWidgets('tapping start workout navigates to workout session', (
+      tester,
+    ) async {
       WorkoutSessionArgs? navigatedArgs;
       final sampleExercises = [
         createTestExerciseData(id: 'push_up', name: 'Push Up'),
       ];
 
       final loader = WorkoutDetailDataLoader(
-        load: ({required programId, required dayNumber}) async => sampleExercises,
+        load: ({required programId, required dayNumber}) async =>
+            sampleExercises,
       );
 
       await tester.pumpWidget(
@@ -266,77 +282,94 @@ void main() {
       expect(navigatedArgs!.exercises.first.id, equals('push_up'));
     });
 
-    testWidgets('uses localized fallback strings when args are empty (ID & EN)', (tester) async {
-      final sampleExercises = [
-        createTestExerciseData(id: 'push_up', name: 'Push Up'),
-      ];
-      final loader = WorkoutDetailDataLoader(
-        load: ({required programId, required dayNumber}) async => sampleExercises,
-      );
+    testWidgets(
+      'uses localized fallback strings when args are empty (ID & EN)',
+      (tester) async {
+        final sampleExercises = [
+          createTestExerciseData(id: 'push_up', name: 'Push Up'),
+        ];
+        final loader = WorkoutDetailDataLoader(
+          load: ({required programId, required dayNumber}) async =>
+              sampleExercises,
+        );
 
-      final router = GoRouter(
-        initialLocation: '/',
-        routes: [
-          GoRoute(
-            path: '/',
-            builder: (_, _) => WorkoutDetailScreen(
-              dataLoader: loader,
+        final router = GoRouter(
+          initialLocation: '/',
+          routes: [
+            GoRoute(
+              path: '/',
+              builder: (_, _) => WorkoutDetailScreen(dataLoader: loader),
+            ),
+          ],
+        );
+
+        LocaleSettings.setLocale(AppLocale.id);
+        await tester.pumpWidget(
+          TranslationProvider(
+            child: MaterialApp.router(
+              theme: AppTheme.lightTheme,
+              darkTheme: AppTheme.darkTheme,
+              routerConfig: router,
             ),
           ),
-        ],
-      );
+        );
+        await tester.pumpAndSettle();
 
-      LocaleSettings.setLocale(AppLocale.id);
-      await tester.pumpWidget(
-        TranslationProvider(
-          child: MaterialApp.router(
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
-            routerConfig: router,
+        expect(find.text(t.workouts.title), findsOneWidget);
+        expect(
+          find.text(t.workouts.workoutDetail.defaultDescription),
+          findsOneWidget,
+        );
+      },
+    );
+
+    testWidgets(
+      'renders localized stage headers for multi-stage workout (warmup, main, cooldown)',
+      (tester) async {
+        final multiStageExercises = [
+          createTestExerciseData(
+            id: 'arm_circles',
+            name: 'Arm Circles',
+            stage: 'warmup',
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+          createTestExerciseData(id: 'push_up', name: 'Push Up', stage: 'main'),
+          createTestExerciseData(
+            id: 'chest_stretch',
+            name: 'Chest Stretch',
+            stage: 'cooldown',
+          ),
+        ];
+        final loader = WorkoutDetailDataLoader(
+          load: ({required programId, required dayNumber}) async =>
+              multiStageExercises,
+        );
 
-      expect(find.text(t.workouts.title), findsOneWidget);
-      expect(find.text(t.workouts.workoutDetail.defaultDescription), findsOneWidget);
-    });
+        // Test in ID
+        await tester.pumpWidget(
+          createTestApp(locale: AppLocale.id, loader: loader),
+        );
+        await tester.pumpAndSettle();
 
-    testWidgets('renders localized stage headers for multi-stage workout (warmup, main, cooldown)', (tester) async {
-      final multiStageExercises = [
-        createTestExerciseData(id: 'arm_circles', name: 'Arm Circles', stage: 'warmup'),
-        createTestExerciseData(id: 'push_up', name: 'Push Up', stage: 'main'),
-        createTestExerciseData(id: 'chest_stretch', name: 'Chest Stretch', stage: 'cooldown'),
-      ];
-      final loader = WorkoutDetailDataLoader(
-        load: ({required programId, required dayNumber}) async => multiStageExercises,
-      );
+        expect(find.text('Pemanasan (1)'), findsOneWidget);
+        expect(find.text('Persiapan'), findsOneWidget);
+        expect(find.text('Latihan Inti (1)'), findsOneWidget);
+        expect(find.text('Latihan Utama'), findsOneWidget);
+        expect(find.text('Pendinginan (1)'), findsOneWidget);
+        expect(find.text('Pemulihan'), findsOneWidget);
 
-      // Test in ID
-      await tester.pumpWidget(
-        createTestApp(locale: AppLocale.id, loader: loader),
-      );
-      await tester.pumpAndSettle();
+        // Test in EN
+        await tester.pumpWidget(
+          createTestApp(locale: AppLocale.en, loader: loader),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('Pemanasan (1)'), findsOneWidget);
-      expect(find.text('Persiapan'), findsOneWidget);
-      expect(find.text('Latihan Inti (1)'), findsOneWidget);
-      expect(find.text('Latihan Utama'), findsOneWidget);
-      expect(find.text('Pendinginan (1)'), findsOneWidget);
-      expect(find.text('Pemulihan'), findsOneWidget);
-
-      // Test in EN
-      await tester.pumpWidget(
-        createTestApp(locale: AppLocale.en, loader: loader),
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text('Warm up (1)'), findsOneWidget);
-      expect(find.text('Warm-up'), findsOneWidget);
-      expect(find.text('Training (1)'), findsOneWidget);
-      expect(find.text('Main Workout'), findsOneWidget);
-      expect(find.text('Cool down (1)'), findsOneWidget);
-      expect(find.text('Recovery'), findsOneWidget);
-    });
+        expect(find.text('Warm up (1)'), findsOneWidget);
+        expect(find.text('Warm-up'), findsOneWidget);
+        expect(find.text('Training (1)'), findsOneWidget);
+        expect(find.text('Main Workout'), findsOneWidget);
+        expect(find.text('Cool down (1)'), findsOneWidget);
+        expect(find.text('Recovery'), findsOneWidget);
+      },
+    );
   });
 }

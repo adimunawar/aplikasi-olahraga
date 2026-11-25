@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../exercises/domain/models/exercise.dart';
@@ -21,19 +22,29 @@ class ExerciseCommonMistakesCard extends StatelessWidget {
         ? theme.colorScheme.outlineVariant.withValues(alpha: 0.4)
         : const Color(0xFFF1F3F5);
     final titleColor = theme.colorScheme.onSurface;
-    final mistakeTextColor = isDark ? theme.colorScheme.onSurface : const Color(0xFF334155);
+    final mistakeTextColor = isDark
+        ? theme.colorScheme.onSurface
+        : const Color(0xFF334155);
 
-    final iconBgColor = isDark ? const Color(0xFF3B1515) : const Color(0xFFFEE2E2);
-    final iconBorderColor = isDark ? const Color(0xFF7F1D1D) : const Color(0xFFFCA5A5);
-    final iconColor = isDark ? const Color(0xFFF87171) : const Color(0xFFEF4444);
+    final iconBgColor = isDark
+        ? const Color(0xFF3B1515)
+        : const Color(0xFFFEE2E2);
+    final iconBorderColor = isDark
+        ? const Color(0xFF7F1D1D)
+        : const Color(0xFFFCA5A5);
+    final iconColor = isDark
+        ? const Color(0xFFF87171)
+        : const Color(0xFFEF4444);
 
     final mistakes = exercise.commonMistakes.id.isNotEmpty
         ? exercise.commonMistakes.id
-        : (exercise.commonMistakes.en.isNotEmpty ? exercise.commonMistakes.en : [
-            'Hips dropping too low or back arching excessively.',
-            'Elbows flaring too wide away from the body.',
-            'Not using full range of motion during repetition.',
-          ]);
+        : (exercise.commonMistakes.en.isNotEmpty
+              ? exercise.commonMistakes.en
+              : [
+                  'Hips dropping too low or back arching excessively.',
+                  'Elbows flaring too wide away from the body.',
+                  'Not using full range of motion during repetition.',
+                ]);
 
     return Container(
       width: double.infinity,
@@ -94,10 +105,7 @@ class ExerciseCommonMistakesCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: iconBgColor,
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: iconBorderColor,
-                        width: 1,
-                      ),
+                      border: Border.all(color: iconBorderColor, width: 1),
                     ),
                     child: Center(
                       child: Icon(
@@ -130,4 +138,3 @@ class ExerciseCommonMistakesCard extends StatelessWidget {
     );
   }
 }
-

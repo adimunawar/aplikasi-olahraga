@@ -35,7 +35,9 @@ class ProfileMenuItemCard extends StatelessWidget {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: isDark ? colorScheme.primaryContainer : AppColors.limeSurface,
+              color: isDark
+                  ? colorScheme.primaryContainer
+                  : AppColors.limeSurface,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(

@@ -6,8 +6,8 @@ on:
       - develop
       - staging
       - main
-  # Keep main's existing push validation. Develop is validated on PR,
-  # while its APK build is intentionally manual.
+  # Develop is validated on PR; staging pushes build and deploy Web.
+  # Main pushes skip Analyze and Test because PR validation already ran.
   push:
     branches:
       - main
@@ -24,13 +24,13 @@ concurrency:
 jobs:
   # --------------------------------------------------
   # 1. ANALYZE
-  # Run during PR validation and non-staging-push workflows.
-  # Staging pushes reuse the successful PR validation.
+  # Run during PR validation and manual workflows.
+  # Staging and main pushes reuse successful PR validation.
   # --------------------------------------------------
   analyze:
     name: Analyze Dart & Flutter
     runs-on: ubuntu-latest
-    if: github.event_name != 'push' || github.ref != 'refs/heads/staging'
+    if: github.event_name != 'push' || (github.ref != 'refs/heads/staging' && github.ref != 'refs/heads/main')
     timeout-minutes: 20
 
     steps:
@@ -48,18 +48,21 @@ jobs:
       - name: Install dependencies
         run: flutter pub get --enforce-lockfile
 
+      - name: Check Dart formatting
+        run: dart format --output=none --set-exit-if-changed lib test
+
       - name: Analyze project
         run: flutter analyze --no-pub --no-fatal-infos
 
   # --------------------------------------------------
   # 2. TEST
-  # Run during PR validation and non-staging-push workflows.
-  # Staging pushes reuse the successful PR validation.
+  # Run during PR validation and manual workflows.
+  # Staging and main pushes reuse successful PR validation.
   # --------------------------------------------------
   test:
     name: Run Flutter tests
     runs-on: ubuntu-latest
-    if: github.event_name != 'push' || github.ref != 'refs/heads/staging'
+    if: github.event_name != 'push' || (github.ref != 'refs/heads/staging' && github.ref != 'refs/heads/main')
     timeout-minutes: 30
 
     steps:
@@ -183,8 +186,8 @@ jobs:
   # --------------------------------------------------
   # 3. WEB BUILD
   # Ensures SQLite Web assets are generated and Flutter Web builds cleanly.
-  # PRs targeting staging build for validation; staging pushes build and deploy.
-  # On staging pushes, Analyze and Test are skipped to avoid duplicate work.
+  # Build Web only on staging pushes, after PR validation has passed.
+  # Analyze and Test are skipped on staging pushes to avoid duplicate work.
   # --------------------------------------------------
   build_web:
     name: Build Flutter Web
@@ -192,13 +195,12 @@ jobs:
     needs:
       - analyze
       - test
+    # Build and deploy Web only after changes are merged into staging.
+    # PR validation is handled by Analyze and Test above.
     if: >-
       always() &&
-      (
-        (github.event_name == 'pull_request' && github.base_ref == 'staging' &&
-          needs.analyze.result == 'success' && needs.test.result == 'success') ||
-        (github.event_name == 'push' && github.ref == 'refs/heads/staging')
-      )
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/staging'
     timeout-minutes: 35
 
     steps:

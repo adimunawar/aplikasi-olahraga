@@ -11,7 +11,8 @@ import 'package:slang/generated.dart';
 import 'strings.g.dart';
 
 // Path: <root>
-class TranslationsEn extends Translations with BaseTranslations<AppLocale, Translations> {
+class TranslationsEn extends Translations
+    with BaseTranslations<AppLocale, Translations> {
   /// You can call this constructor and build your own translation instance of this locale.
   /// Constructing via the enum [AppLocale.build] is preferred.
   TranslationsEn({
@@ -31,7 +32,10 @@ class TranslationsEn extends Translations with BaseTranslations<AppLocale, Trans
              cardinalResolver: cardinalResolver,
              ordinalResolver: ordinalResolver,
            ),
-       super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
+       super(
+         cardinalResolver: cardinalResolver,
+         ordinalResolver: ordinalResolver,
+       ) {
     _meta.setFlatMapFunction(_flatMapFunction);
   }
 
@@ -47,8 +51,9 @@ class TranslationsEn extends Translations with BaseTranslations<AppLocale, Trans
   late final TranslationsEn _root = this; // ignore: unused_field
 
   @override
-  TranslationsEn $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) =>
-      TranslationsEn(meta: meta ?? this.$meta);
+  TranslationsEn $copyWith({
+    TranslationMetadata<AppLocale, Translations>? meta,
+  }) => TranslationsEn(meta: meta ?? this.$meta);
 
   // Translations
   @override
@@ -56,18 +61,22 @@ class TranslationsEn extends Translations with BaseTranslations<AppLocale, Trans
   @override
   late final _Translations$home$en home = _Translations$home$en._(_root);
   @override
-  late final _Translations$onboarding$en onboarding = _Translations$onboarding$en._(_root);
+  late final _Translations$onboarding$en onboarding =
+      _Translations$onboarding$en._(_root);
   @override
-  late final _Translations$workoutSession$en workoutSession = _Translations$workoutSession$en._(
+  late final _Translations$workoutSession$en workoutSession =
+      _Translations$workoutSession$en._(_root);
+  @override
+  late final _Translations$workouts$en workouts = _Translations$workouts$en._(
     _root,
   );
-  @override
-  late final _Translations$workouts$en workouts = _Translations$workouts$en._(_root);
 }
 
 // Path: core
 class _Translations$core$en extends Translations$core$id {
-  _Translations$core$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$core$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
@@ -75,68 +84,88 @@ class _Translations$core$en extends Translations$core$id {
   @override
   String get appName => 'Home Bulking Coach';
   @override
-  late final _Translations$core$actions$en actions = _Translations$core$actions$en._(_root);
+  late final _Translations$core$actions$en actions =
+      _Translations$core$actions$en._(_root);
   @override
-  late final _Translations$core$state$en state = _Translations$core$state$en._(_root);
+  late final _Translations$core$state$en state = _Translations$core$state$en._(
+    _root,
+  );
   @override
-  late final _Translations$core$badge$en badge = _Translations$core$badge$en._(_root);
+  late final _Translations$core$badge$en badge = _Translations$core$badge$en._(
+    _root,
+  );
   @override
-  late final _Translations$core$language$en language = _Translations$core$language$en._(_root);
+  late final _Translations$core$language$en language =
+      _Translations$core$language$en._(_root);
   @override
-  late final _Translations$core$units$en units = _Translations$core$units$en._(_root);
+  late final _Translations$core$units$en units = _Translations$core$units$en._(
+    _root,
+  );
   @override
-  late final _Translations$core$streak$en streak = _Translations$core$streak$en._(_root);
+  late final _Translations$core$streak$en streak =
+      _Translations$core$streak$en._(_root);
   @override
-  late final _Translations$core$progress$en progress = _Translations$core$progress$en._(_root);
+  late final _Translations$core$progress$en progress =
+      _Translations$core$progress$en._(_root);
 }
 
 // Path: home
 class _Translations$home$en extends Translations$home$id {
-  _Translations$home$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$home$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
   // Translations
   @override
-  late final _Translations$home$greeting$en greeting = _Translations$home$greeting$en._(_root);
+  late final _Translations$home$greeting$en greeting =
+      _Translations$home$greeting$en._(_root);
   @override
-  late final _Translations$home$goalCard$en goalCard = _Translations$home$goalCard$en._(_root);
+  late final _Translations$home$goalCard$en goalCard =
+      _Translations$home$goalCard$en._(_root);
   @override
-  late final _Translations$home$todayWorkout$en todayWorkout = _Translations$home$todayWorkout$en._(
-    _root,
-  );
+  late final _Translations$home$todayWorkout$en todayWorkout =
+      _Translations$home$todayWorkout$en._(_root);
   @override
-  late final _Translations$home$restDay$en restDay = _Translations$home$restDay$en._(_root);
+  late final _Translations$home$restDay$en restDay =
+      _Translations$home$restDay$en._(_root);
   @override
-  late final _Translations$home$noProgram$en noProgram = _Translations$home$noProgram$en._(_root);
+  late final _Translations$home$noProgram$en noProgram =
+      _Translations$home$noProgram$en._(_root);
   @override
   late final _Translations$home$weeklyProgress$en weeklyProgress =
       _Translations$home$weeklyProgress$en._(_root);
   @override
-  late final _Translations$home$supportGoal$en supportGoal = _Translations$home$supportGoal$en._(
+  late final _Translations$home$supportGoal$en supportGoal =
+      _Translations$home$supportGoal$en._(_root);
+  @override
+  late final _Translations$home$error$en error = _Translations$home$error$en._(
     _root,
   );
-  @override
-  late final _Translations$home$error$en error = _Translations$home$error$en._(_root);
 }
 
 // Path: onboarding
 class _Translations$onboarding$en extends Translations$onboarding$id {
-  _Translations$onboarding$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$onboarding$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
   // Translations
   @override
-  late final _Translations$onboarding$nav$en nav = _Translations$onboarding$nav$en._(_root);
+  late final _Translations$onboarding$nav$en nav =
+      _Translations$onboarding$nav$en._(_root);
   @override
-  late final _Translations$onboarding$welcome$en welcome = _Translations$onboarding$welcome$en._(
-    _root,
-  );
+  late final _Translations$onboarding$welcome$en welcome =
+      _Translations$onboarding$welcome$en._(_root);
   @override
-  late final _Translations$onboarding$goal$en goal = _Translations$onboarding$goal$en._(_root);
+  late final _Translations$onboarding$goal$en goal =
+      _Translations$onboarding$goal$en._(_root);
   @override
-  late final _Translations$onboarding$about$en about = _Translations$onboarding$about$en._(_root);
+  late final _Translations$onboarding$about$en about =
+      _Translations$onboarding$about$en._(_root);
   @override
   late final _Translations$onboarding$bodyTarget$en bodyTarget =
       _Translations$onboarding$bodyTarget$en._(_root);
@@ -144,9 +173,8 @@ class _Translations$onboarding$en extends Translations$onboarding$id {
   late final _Translations$onboarding$experience$en experience =
       _Translations$onboarding$experience$en._(_root);
   @override
-  late final _Translations$onboarding$schedule$en schedule = _Translations$onboarding$schedule$en._(
-    _root,
-  );
+  late final _Translations$onboarding$schedule$en schedule =
+      _Translations$onboarding$schedule$en._(_root);
   @override
   late final _Translations$onboarding$equipment$en equipment =
       _Translations$onboarding$equipment$en._(_root);
@@ -154,20 +182,21 @@ class _Translations$onboarding$en extends Translations$onboarding$id {
   late final _Translations$onboarding$limitations$en limitations =
       _Translations$onboarding$limitations$en._(_root);
   @override
-  late final _Translations$onboarding$creating$en creating = _Translations$onboarding$creating$en._(
-    _root,
-  );
+  late final _Translations$onboarding$creating$en creating =
+      _Translations$onboarding$creating$en._(_root);
   @override
-  late final _Translations$onboarding$ready$en ready = _Translations$onboarding$ready$en._(_root);
+  late final _Translations$onboarding$ready$en ready =
+      _Translations$onboarding$ready$en._(_root);
   @override
-  late final _Translations$onboarding$preview$en preview = _Translations$onboarding$preview$en._(
-    _root,
-  );
+  late final _Translations$onboarding$preview$en preview =
+      _Translations$onboarding$preview$en._(_root);
 }
 
 // Path: workoutSession
 class _Translations$workoutSession$en extends Translations$workoutSession$id {
-  _Translations$workoutSession$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$workoutSession$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
@@ -176,8 +205,11 @@ class _Translations$workoutSession$en extends Translations$workoutSession$id {
   String exerciseProgress({required Object current, required Object total}) =>
       'Exercise ${current} of ${total}';
   @override
-  String setProgress({required Object current, required Object total, required Object target}) =>
-      'Set ${current} of ${total} · ${target}';
+  String setProgress({
+    required Object current,
+    required Object total,
+    required Object target,
+  }) => 'Set ${current} of ${total} · ${target}';
   @override
   String get repsUnit => 'reps';
   @override
@@ -195,11 +227,15 @@ class _Translations$workoutSession$en extends Translations$workoutSession$id {
   @override
   String get retry => 'Try Again';
   @override
-  String get saveSetFailed => 'Failed to save the set. Check your connection and try again.';
+  String get saveSetFailed =>
+      'Failed to save the set. Check your connection and try again.';
   @override
   String get sessionConflictTitle => 'You have an unfinished workout';
   @override
-  String sessionConflictMessage({required Object program, required Object day}) =>
+  String sessionConflictMessage({
+    required Object program,
+    required Object day,
+  }) =>
       'You still have an active session for "${program}" (Day ${day}). Resume that session first, or end it to start this workout.';
   @override
   String get resumePreviousSession => 'Resume Previous Session';
@@ -215,11 +251,7 @@ class _Translations$workoutSession$en extends Translations$workoutSession$id {
   @override
   String get exerciseLabel => 'Exercises';
   @override
-  String exerciseCount({required Object count}) {
-    final countNum = num.tryParse(count.toString());
-    if (countNum == 1) return '1 exercise';
-    return '${count} exercises';
-  }
+  String exerciseCount({required Object count}) => '${count} exercises';
   @override
   String get totalSetsLabel => 'Total Sets';
   @override
@@ -269,7 +301,8 @@ class _Translations$workoutSession$en extends Translations$workoutSession$id {
   @override
   String get rirTitle => 'Remaining Strength (RIR - Reps in Reserve)';
   @override
-  String get rirQuestion => 'How many more reps could you do before reaching failure?';
+  String get rirQuestion =>
+      'How many more reps could you do before reaching failure?';
   @override
   String get rirFailureTitle => '0 — Absolute Failure';
   @override
@@ -277,19 +310,23 @@ class _Translations$workoutSession$en extends Translations$workoutSession$id {
   @override
   String get rirVeryHardTitle => '1 — Very Hard';
   @override
-  String get rirVeryHardDescription => 'You could only complete one more rep before failure.';
+  String get rirVeryHardDescription =>
+      'You could only complete one more rep before failure.';
   @override
   String get rirIdealTitle => '2 — Ideal Zone (Target)';
   @override
-  String get rirIdealDescription => 'Challenging, with about two reps still in reserve.';
+  String get rirIdealDescription =>
+      'Challenging, with about two reps still in reserve.';
   @override
   String get rirModerateTitle => '3 — Moderate';
   @override
-  String get rirModerateDescription => 'You still had about three reps in reserve.';
+  String get rirModerateDescription =>
+      'You still had about three reps in reserve.';
   @override
   String get rirEasyTitle => '4+ — Too Easy';
   @override
-  String get rirEasyDescription => 'Very easy, with four or more reps still in reserve.';
+  String get rirEasyDescription =>
+      'Very easy, with four or more reps still in reserve.';
   @override
   String get rirBadgeMax => 'Maximum';
   @override
@@ -325,7 +362,9 @@ class _Translations$workoutSession$en extends Translations$workoutSession$id {
 
 // Path: workouts
 class _Translations$workouts$en extends Translations$workouts$id {
-  _Translations$workouts$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$workouts$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
@@ -335,7 +374,8 @@ class _Translations$workouts$en extends Translations$workouts$id {
   @override
   String get searchHint => 'Search workouts & exercises...';
   @override
-  late final _Translations$workouts$tabs$en tabs = _Translations$workouts$tabs$en._(_root);
+  late final _Translations$workouts$tabs$en tabs =
+      _Translations$workouts$tabs$en._(_root);
   @override
   late final _Translations$workouts$activeProgram$en activeProgram =
       _Translations$workouts$activeProgram$en._(_root);
@@ -352,12 +392,14 @@ class _Translations$workouts$en extends Translations$workouts$id {
   late final _Translations$workouts$errorState$en errorState =
       _Translations$workouts$errorState$en._(_root);
   @override
-  late final _Translations$workouts$session$en session = _Translations$workouts$session$en._(_root);
+  late final _Translations$workouts$session$en session =
+      _Translations$workouts$session$en._(_root);
   @override
   late final _Translations$workouts$workoutDetail$en workoutDetail =
       _Translations$workouts$workoutDetail$en._(_root);
   @override
-  late final _Translations$workouts$filter$en filter = _Translations$workouts$filter$en._(_root);
+  late final _Translations$workouts$filter$en filter =
+      _Translations$workouts$filter$en._(_root);
   @override
   late final _Translations$workouts$categories$en categories =
       _Translations$workouts$categories$en._(_root);
@@ -365,7 +407,9 @@ class _Translations$workouts$en extends Translations$workouts$id {
 
 // Path: core.actions
 class _Translations$core$actions$en extends Translations$core$actions$id {
-  _Translations$core$actions$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$core$actions$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
@@ -394,7 +438,9 @@ class _Translations$core$actions$en extends Translations$core$actions$id {
 
 // Path: core.state
 class _Translations$core$state$en extends Translations$core$state$id {
-  _Translations$core$state$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$core$state$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
@@ -409,7 +455,9 @@ class _Translations$core$state$en extends Translations$core$state$id {
 
 // Path: core.badge
 class _Translations$core$badge$en extends Translations$core$badge$id {
-  _Translations$core$badge$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$core$badge$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
@@ -420,7 +468,9 @@ class _Translations$core$badge$en extends Translations$core$badge$id {
 
 // Path: core.language
 class _Translations$core$language$en extends Translations$core$language$id {
-  _Translations$core$language$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$core$language$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
@@ -435,7 +485,9 @@ class _Translations$core$language$en extends Translations$core$language$id {
 
 // Path: core.units
 class _Translations$core$units$en extends Translations$core$units$id {
-  _Translations$core$units$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$core$units$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
@@ -452,7 +504,9 @@ class _Translations$core$units$en extends Translations$core$units$id {
 
 // Path: core.streak
 class _Translations$core$streak$en extends Translations$core$streak$id {
-  _Translations$core$streak$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$core$streak$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
@@ -462,14 +516,18 @@ class _Translations$core$streak$en extends Translations$core$streak$id {
   @override
   String dayPlural({required Object count}) => '${count} days';
   @override
-  String activeDaySingular({required Object count}) => '${count} consecutive active day';
+  String activeDaySingular({required Object count}) =>
+      '${count} consecutive active day';
   @override
-  String activeDayPlural({required Object count}) => '${count} consecutive active days';
+  String activeDayPlural({required Object count}) =>
+      '${count} consecutive active days';
 }
 
 // Path: core.progress
 class _Translations$core$progress$en extends Translations$core$progress$id {
-  _Translations$core$progress$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$core$progress$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
@@ -479,13 +537,13 @@ class _Translations$core$progress$en extends Translations$core$progress$id {
   @override
   String rangeWeeks({required Object weeks}) => 'Last ${weeks} Weeks';
   @override
-  late final _Translations$core$progress$tabs$en tabs = _Translations$core$progress$tabs$en._(
-    _root,
-  );
+  late final _Translations$core$progress$tabs$en tabs =
+      _Translations$core$progress$tabs$en._(_root);
   @override
   String get overviewTitle => 'Your Progress';
   @override
-  String get overviewSubtitle => 'A quick summary of your training and body progress.';
+  String get overviewSubtitle =>
+      'A quick summary of your training and body progress.';
   @override
   late final _Translations$core$progress$metrics$en metrics =
       _Translations$core$progress$metrics$en._(_root);
@@ -502,7 +560,8 @@ class _Translations$core$progress$en extends Translations$core$progress$id {
   @override
   String get keepGoing => 'Keep Going!';
   @override
-  String get keepGoingMessage => 'Stay consistent. Every workout brings you closer to your goal.';
+  String get keepGoingMessage =>
+      'Stay consistent. Every workout brings you closer to your goal.';
   @override
   late final _Translations$core$progress$weightTrend$en weightTrend =
       _Translations$core$progress$weightTrend$en._(_root);
@@ -516,9 +575,8 @@ class _Translations$core$progress$en extends Translations$core$progress$id {
   late final _Translations$core$progress$highlights$en highlights =
       _Translations$core$progress$highlights$en._(_root);
   @override
-  late final _Translations$core$progress$body$en body = _Translations$core$progress$body$en._(
-    _root,
-  );
+  late final _Translations$core$progress$body$en body =
+      _Translations$core$progress$body$en._(_root);
   @override
   late final _Translations$core$progress$workout$en workout =
       _Translations$core$progress$workout$en._(_root);
@@ -532,14 +590,15 @@ class _Translations$core$progress$en extends Translations$core$progress$id {
   late final _Translations$core$progress$weightDialog$en weightDialog =
       _Translations$core$progress$weightDialog$en._(_root);
   @override
-  late final _Translations$core$progress$error$en error = _Translations$core$progress$error$en._(
-    _root,
-  );
+  late final _Translations$core$progress$error$en error =
+      _Translations$core$progress$error$en._(_root);
 }
 
 // Path: home.greeting
 class _Translations$home$greeting$en extends Translations$home$greeting$id {
-  _Translations$home$greeting$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$home$greeting$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
@@ -556,7 +615,9 @@ class _Translations$home$greeting$en extends Translations$home$greeting$id {
 
 // Path: home.goalCard
 class _Translations$home$goalCard$en extends Translations$home$goalCard$id {
-  _Translations$home$goalCard$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$home$goalCard$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
@@ -576,11 +637,13 @@ class _Translations$home$goalCard$en extends Translations$home$goalCard$id {
   @override
   String programDuration({required Object weeks}) => '${weeks} Weeks Program';
   @override
-  String weekOf({required Object current, required Object total}) => 'Week ${current} of ${total}';
+  String weekOf({required Object current, required Object total}) =>
+      'Week ${current} of ${total}';
 }
 
 // Path: home.todayWorkout
-class _Translations$home$todayWorkout$en extends Translations$home$todayWorkout$id {
+class _Translations$home$todayWorkout$en
+    extends Translations$home$todayWorkout$id {
   _Translations$home$todayWorkout$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -602,7 +665,9 @@ class _Translations$home$todayWorkout$en extends Translations$home$todayWorkout$
 
 // Path: home.restDay
 class _Translations$home$restDay$en extends Translations$home$restDay$id {
-  _Translations$home$restDay$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$home$restDay$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
@@ -623,7 +688,9 @@ class _Translations$home$restDay$en extends Translations$home$restDay$id {
 
 // Path: home.noProgram
 class _Translations$home$noProgram$en extends Translations$home$noProgram$id {
-  _Translations$home$noProgram$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$home$noProgram$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
@@ -638,7 +705,8 @@ class _Translations$home$noProgram$en extends Translations$home$noProgram$id {
 }
 
 // Path: home.weeklyProgress
-class _Translations$home$weeklyProgress$en extends Translations$home$weeklyProgress$id {
+class _Translations$home$weeklyProgress$en
+    extends Translations$home$weeklyProgress$id {
   _Translations$home$weeklyProgress$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -656,7 +724,8 @@ class _Translations$home$weeklyProgress$en extends Translations$home$weeklyProgr
 }
 
 // Path: home.supportGoal
-class _Translations$home$supportGoal$en extends Translations$home$supportGoal$id {
+class _Translations$home$supportGoal$en
+    extends Translations$home$supportGoal$id {
   _Translations$home$supportGoal$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -676,7 +745,9 @@ class _Translations$home$supportGoal$en extends Translations$home$supportGoal$id
 
 // Path: home.error
 class _Translations$home$error$en extends Translations$home$error$id {
-  _Translations$home$error$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$home$error$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
@@ -694,13 +765,16 @@ class _Translations$home$error$en extends Translations$home$error$id {
 
 // Path: onboarding.nav
 class _Translations$onboarding$nav$en extends Translations$onboarding$nav$id {
-  _Translations$onboarding$nav$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$onboarding$nav$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
   // Translations
   @override
-  String progress({required Object current, required Object total}) => '${current} of ${total}';
+  String progress({required Object current, required Object total}) =>
+      '${current} of ${total}';
   @override
   String get getStarted => 'Get Started ➔';
   @override
@@ -710,7 +784,8 @@ class _Translations$onboarding$nav$en extends Translations$onboarding$nav$id {
 }
 
 // Path: onboarding.welcome
-class _Translations$onboarding$welcome$en extends Translations$onboarding$welcome$id {
+class _Translations$onboarding$welcome$en
+    extends Translations$onboarding$welcome$id {
   _Translations$onboarding$welcome$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -729,7 +804,9 @@ class _Translations$onboarding$welcome$en extends Translations$onboarding$welcom
 
 // Path: onboarding.goal
 class _Translations$onboarding$goal$en extends Translations$onboarding$goal$id {
-  _Translations$onboarding$goal$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$onboarding$goal$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
@@ -747,7 +824,8 @@ class _Translations$onboarding$goal$en extends Translations$onboarding$goal$id {
 }
 
 // Path: onboarding.about
-class _Translations$onboarding$about$en extends Translations$onboarding$about$id {
+class _Translations$onboarding$about$en
+    extends Translations$onboarding$about$id {
   _Translations$onboarding$about$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -776,7 +854,8 @@ class _Translations$onboarding$about$en extends Translations$onboarding$about$id
 }
 
 // Path: onboarding.bodyTarget
-class _Translations$onboarding$bodyTarget$en extends Translations$onboarding$bodyTarget$id {
+class _Translations$onboarding$bodyTarget$en
+    extends Translations$onboarding$bodyTarget$id {
   _Translations$onboarding$bodyTarget$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -800,7 +879,8 @@ class _Translations$onboarding$bodyTarget$en extends Translations$onboarding$bod
 }
 
 // Path: onboarding.experience
-class _Translations$onboarding$experience$en extends Translations$onboarding$experience$id {
+class _Translations$onboarding$experience$en
+    extends Translations$onboarding$experience$id {
   _Translations$onboarding$experience$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -821,7 +901,8 @@ class _Translations$onboarding$experience$en extends Translations$onboarding$exp
 }
 
 // Path: onboarding.schedule
-class _Translations$onboarding$schedule$en extends Translations$onboarding$schedule$id {
+class _Translations$onboarding$schedule$en
+    extends Translations$onboarding$schedule$id {
   _Translations$onboarding$schedule$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -832,7 +913,8 @@ class _Translations$onboarding$schedule$en extends Translations$onboarding$sched
   @override
   String get title => 'How often can you work out?';
   @override
-  String get subtitle => 'Choose a weekly workout schedule that fits your lifestyle.';
+  String get subtitle =>
+      'Choose a weekly workout schedule that fits your lifestyle.';
   @override
   String daysPerWeek({required num n}) =>
       (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(
@@ -847,7 +929,8 @@ class _Translations$onboarding$schedule$en extends Translations$onboarding$sched
 }
 
 // Path: onboarding.equipment
-class _Translations$onboarding$equipment$en extends Translations$onboarding$equipment$id {
+class _Translations$onboarding$equipment$en
+    extends Translations$onboarding$equipment$id {
   _Translations$onboarding$equipment$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -871,7 +954,8 @@ class _Translations$onboarding$equipment$en extends Translations$onboarding$equi
 }
 
 // Path: onboarding.limitations
-class _Translations$onboarding$limitations$en extends Translations$onboarding$limitations$id {
+class _Translations$onboarding$limitations$en
+    extends Translations$onboarding$limitations$id {
   _Translations$onboarding$limitations$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -882,7 +966,8 @@ class _Translations$onboarding$limitations$en extends Translations$onboarding$li
   @override
   String get title => 'Any limitations or considerations?';
   @override
-  String get subtitle => 'Let us know if you have any health conditions or areas to avoid.';
+  String get subtitle =>
+      'Let us know if you have any health conditions or areas to avoid.';
   @override
   List<LimitationOption> get options => [
     _Translations$onboarding$limitations$options$0$en._(_root),
@@ -895,7 +980,8 @@ class _Translations$onboarding$limitations$en extends Translations$onboarding$li
 }
 
 // Path: onboarding.creating
-class _Translations$onboarding$creating$en extends Translations$onboarding$creating$id {
+class _Translations$onboarding$creating$en
+    extends Translations$onboarding$creating$id {
   _Translations$onboarding$creating$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -906,7 +992,8 @@ class _Translations$onboarding$creating$en extends Translations$onboarding$creat
   @override
   String get title => 'Creating your\npersonal plan...';
   @override
-  String get subtitle => 'Analyzing your goal, body data,\npreferences, and availability.';
+  String get subtitle =>
+      'Analyzing your goal, body data,\npreferences, and availability.';
   @override
   List<String> get steps => [
     'Analyzing your profile',
@@ -917,7 +1004,8 @@ class _Translations$onboarding$creating$en extends Translations$onboarding$creat
 }
 
 // Path: onboarding.ready
-class _Translations$onboarding$ready$en extends Translations$onboarding$ready$id {
+class _Translations$onboarding$ready$en
+    extends Translations$onboarding$ready$id {
   _Translations$onboarding$ready$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -928,7 +1016,8 @@ class _Translations$onboarding$ready$en extends Translations$onboarding$ready$id
   @override
   String get title => 'Your plan is ready! 🎉';
   @override
-  String get subtitle => 'A personalized program based on\nyour goal, profile, and preferences.';
+  String get subtitle =>
+      'A personalized program based on\nyour goal, profile, and preferences.';
   @override
   String weeksBadge({required Object weeks}) => '⭐ ${weeks} Weeks';
   @override
@@ -952,7 +1041,8 @@ class _Translations$onboarding$ready$en extends Translations$onboarding$ready$id
 }
 
 // Path: onboarding.preview
-class _Translations$onboarding$preview$en extends Translations$onboarding$preview$id {
+class _Translations$onboarding$preview$en
+    extends Translations$onboarding$preview$id {
   _Translations$onboarding$preview$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -977,10 +1067,14 @@ class _Translations$onboarding$preview$en extends Translations$onboarding$previe
   @override
   String sessionDuration({required Object n}) => '${n} min';
   @override
-  String exercisesInSession({required Object count}) => 'EXERCISES IN THIS SESSION (${count})';
+  String exercisesInSession({required Object count}) =>
+      'EXERCISES IN THIS SESSION (${count})';
   @override
-  String prescription({required Object sets, required Object reps, required Object rests}) =>
-      '${sets} sets • ${reps} reps • ${rests} rest';
+  String prescription({
+    required Object sets,
+    required Object reps,
+    required Object rests,
+  }) => '${sets} sets • ${reps} reps • ${rests} rest';
 }
 
 // Path: workoutSession.completedScreen
@@ -996,7 +1090,8 @@ class _Translations$workoutSession$completedScreen$en
   @override
   String get title => 'Workout Completed! 🎉';
   @override
-  String subtitle({required Object focus}) => 'Great job! You\'ve finished ${focus}.';
+  String subtitle({required Object focus}) =>
+      'Great job! You\'ve finished ${focus}.';
   @override
   String get duration => 'Duration';
   @override
@@ -1025,7 +1120,9 @@ class _Translations$workoutSession$completedScreen$en
 
 // Path: workouts.tabs
 class _Translations$workouts$tabs$en extends Translations$workouts$tabs$id {
-  _Translations$workouts$tabs$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$workouts$tabs$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
@@ -1037,7 +1134,8 @@ class _Translations$workouts$tabs$en extends Translations$workouts$tabs$id {
 }
 
 // Path: workouts.activeProgram
-class _Translations$workouts$activeProgram$en extends Translations$workouts$activeProgram$id {
+class _Translations$workouts$activeProgram$en
+    extends Translations$workouts$activeProgram$id {
   _Translations$workouts$activeProgram$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -1048,16 +1146,19 @@ class _Translations$workouts$activeProgram$en extends Translations$workouts$acti
   @override
   String get title => 'Active Program';
   @override
-  String weeksHomeWorkout({required Object weeks}) => '${weeks} weeks • Home workout';
+  String weeksHomeWorkout({required Object weeks}) =>
+      '${weeks} weeks • Home workout';
   @override
-  String weekOf({required Object current, required Object total}) => 'Week ${current} of ${total}';
+  String weekOf({required Object current, required Object total}) =>
+      'Week ${current} of ${total}';
   @override
   late final _Translations$workouts$activeProgram$status$en status =
       _Translations$workouts$activeProgram$status$en._(_root);
 }
 
 // Path: workouts.weeklySchedule
-class _Translations$workouts$weeklySchedule$en extends Translations$workouts$weeklySchedule$id {
+class _Translations$workouts$weeklySchedule$en
+    extends Translations$workouts$weeklySchedule$id {
   _Translations$workouts$weeklySchedule$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -1086,12 +1187,15 @@ class _Translations$workouts$weeklySchedule$en extends Translations$workouts$wee
   @override
   String get previewTooltip => 'Preview upcoming week';
   @override
-  late final _Translations$workouts$weeklySchedule$statusTooltip$en statusTooltip =
-      _Translations$workouts$weeklySchedule$statusTooltip$en._(_root);
+  late final _Translations$workouts$weeklySchedule$statusTooltip$en
+  statusTooltip = _Translations$workouts$weeklySchedule$statusTooltip$en._(
+    _root,
+  );
 }
 
 // Path: workouts.emptyState
-class _Translations$workouts$emptyState$en extends Translations$workouts$emptyState$id {
+class _Translations$workouts$emptyState$en
+    extends Translations$workouts$emptyState$id {
   _Translations$workouts$emptyState$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -1102,11 +1206,13 @@ class _Translations$workouts$emptyState$en extends Translations$workouts$emptySt
   @override
   String get noProgramTitle => 'No active program yet';
   @override
-  String get noProgramSubtitle => 'Create a program to see your weekly workouts here.';
+  String get noProgramSubtitle =>
+      'Create a program to see your weekly workouts here.';
 }
 
 // Path: workouts.allWorkouts
-class _Translations$workouts$allWorkouts$en extends Translations$workouts$allWorkouts$id {
+class _Translations$workouts$allWorkouts$en
+    extends Translations$workouts$allWorkouts$id {
   _Translations$workouts$allWorkouts$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -1117,13 +1223,15 @@ class _Translations$workouts$allWorkouts$en extends Translations$workouts$allWor
   @override
   String get emptyTitle => 'No exercises found';
   @override
-  String get emptySubtitle => 'Try another search or adjust your muscle filters.';
+  String get emptySubtitle =>
+      'Try another search or adjust your muscle filters.';
   @override
   String get clearFilters => 'Clear search & filters';
 }
 
 // Path: workouts.errorState
-class _Translations$workouts$errorState$en extends Translations$workouts$errorState$id {
+class _Translations$workouts$errorState$en
+    extends Translations$workouts$errorState$id {
   _Translations$workouts$errorState$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -1134,15 +1242,18 @@ class _Translations$workouts$errorState$en extends Translations$workouts$errorSt
   @override
   String get title => 'Failed to load data';
   @override
-  String get subtitle => 'Something went wrong while reading your workout data. Please try again.';
+  String get subtitle =>
+      'Something went wrong while reading your workout data. Please try again.';
   @override
   String get retry => 'Retry';
   @override
-  String get refreshFailed => 'Failed to refresh. Showing the last loaded data.';
+  String get refreshFailed =>
+      'Failed to refresh. Showing the last loaded data.';
 }
 
 // Path: workouts.session
-class _Translations$workouts$session$en extends Translations$workouts$session$id {
+class _Translations$workouts$session$en
+    extends Translations$workouts$session$id {
   _Translations$workouts$session$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -1153,7 +1264,8 @@ class _Translations$workouts$session$en extends Translations$workouts$session$id
   @override
   String day({required Object n}) => 'Day ${n}';
   @override
-  String date({required Object n, required Object date}) => 'Day ${n} • ${date}';
+  String date({required Object n, required Object date}) =>
+      'Day ${n} • ${date}';
   @override
   String min({required Object min}) => '${min} min';
   @override
@@ -1162,7 +1274,8 @@ class _Translations$workouts$session$en extends Translations$workouts$session$id
 }
 
 // Path: workouts.workoutDetail
-class _Translations$workouts$workoutDetail$en extends Translations$workouts$workoutDetail$id {
+class _Translations$workouts$workoutDetail$en
+    extends Translations$workouts$workoutDetail$id {
   _Translations$workouts$workoutDetail$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -1189,97 +1302,24 @@ class _Translations$workouts$workoutDetail$en extends Translations$workouts$work
   String get defaultDescription =>
       'Build strength and stability with a focused mix of bodyweight exercises.';
   @override
-  String exerciseCount({required Object count}) {
-    final countNum = num.tryParse(count.toString());
-    if (countNum == 1) return '1 exercise';
-    return '${count} exercises';
-  }
+  String exerciseCount({required Object count}) => '${count} exercises';
   @override
   String exerciseListTitle({required Object count}) => 'Exercises (${count})';
-
   @override
   late final _Translations$workouts$workoutDetail$stages$en stages =
       _Translations$workouts$workoutDetail$stages$en._(_root);
-
   @override
-  String setReps({required Object sets, required Object reps}) => '${sets} sets × ${reps}';
-
+  String setReps({required Object sets, required Object reps}) =>
+      '${sets} sets × ${reps}';
   @override
   String get repsUnit => 'reps';
 }
 
-// Path: workouts.workoutDetail.stages
-class _Translations$workouts$workoutDetail$stages$en
-    extends Translations$workouts$workoutDetail$stages$id {
-  _Translations$workouts$workoutDetail$stages$en._(TranslationsEn root)
-    : this._root = root,
-      super.internal(root);
-
-  final TranslationsEn _root; // ignore: unused_field
-
-  // Translations
-  @override
-  late final _Translations$workouts$workoutDetail$stages$warmup$en warmup =
-      _Translations$workouts$workoutDetail$stages$warmup$en._(_root);
-  @override
-  late final _Translations$workouts$workoutDetail$stages$main$en main =
-      _Translations$workouts$workoutDetail$stages$main$en._(_root);
-  @override
-  late final _Translations$workouts$workoutDetail$stages$cooldown$en cooldown =
-      _Translations$workouts$workoutDetail$stages$cooldown$en._(_root);
-}
-
-// Path: workouts.workoutDetail.stages.warmup
-class _Translations$workouts$workoutDetail$stages$warmup$en
-    extends Translations$workouts$workoutDetail$stages$warmup$id {
-  _Translations$workouts$workoutDetail$stages$warmup$en._(TranslationsEn root)
-    : this._root = root,
-      super.internal(root);
-
-  final TranslationsEn _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Warm up';
-  @override
-  String get subtitle => 'Warm-up';
-}
-
-// Path: workouts.workoutDetail.stages.main
-class _Translations$workouts$workoutDetail$stages$main$en
-    extends Translations$workouts$workoutDetail$stages$main$id {
-  _Translations$workouts$workoutDetail$stages$main$en._(TranslationsEn root)
-    : this._root = root,
-      super.internal(root);
-
-  final TranslationsEn _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Training';
-  @override
-  String get subtitle => 'Main Workout';
-}
-
-// Path: workouts.workoutDetail.stages.cooldown
-class _Translations$workouts$workoutDetail$stages$cooldown$en
-    extends Translations$workouts$workoutDetail$stages$cooldown$id {
-  _Translations$workouts$workoutDetail$stages$cooldown$en._(TranslationsEn root)
-    : this._root = root,
-      super.internal(root);
-
-  final TranslationsEn _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Cool down';
-  @override
-  String get subtitle => 'Recovery';
-}
-
 // Path: workouts.filter
 class _Translations$workouts$filter$en extends Translations$workouts$filter$id {
-  _Translations$workouts$filter$en._(TranslationsEn root) : this._root = root, super.internal(root);
+  _Translations$workouts$filter$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
 
   final TranslationsEn _root; // ignore: unused_field
 
@@ -1289,7 +1329,8 @@ class _Translations$workouts$filter$en extends Translations$workouts$filter$id {
 }
 
 // Path: workouts.categories
-class _Translations$workouts$categories$en extends Translations$workouts$categories$id {
+class _Translations$workouts$categories$en
+    extends Translations$workouts$categories$id {
   _Translations$workouts$categories$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -1314,7 +1355,8 @@ class _Translations$workouts$categories$en extends Translations$workouts$categor
 }
 
 // Path: core.progress.tabs
-class _Translations$core$progress$tabs$en extends Translations$core$progress$tabs$id {
+class _Translations$core$progress$tabs$en
+    extends Translations$core$progress$tabs$id {
   _Translations$core$progress$tabs$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -1333,7 +1375,8 @@ class _Translations$core$progress$tabs$en extends Translations$core$progress$tab
 }
 
 // Path: core.progress.metrics
-class _Translations$core$progress$metrics$en extends Translations$core$progress$metrics$id {
+class _Translations$core$progress$metrics$en
+    extends Translations$core$progress$metrics$id {
   _Translations$core$progress$metrics$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -1364,7 +1407,8 @@ class _Translations$core$progress$noWorkoutData$en
   @override
   String get title => 'No workout data yet';
   @override
-  String get message => 'Complete your first workout to see your training progress here.';
+  String get message =>
+      'Complete your first workout to see your training progress here.';
 }
 
 // Path: core.progress.noActiveProgram
@@ -1380,11 +1424,13 @@ class _Translations$core$progress$noActiveProgram$en
   @override
   String get title => 'No active program';
   @override
-  String get message => 'Choose a training program to track your weekly progress.';
+  String get message =>
+      'Choose a training program to track your weekly progress.';
 }
 
 // Path: core.progress.weightTrend
-class _Translations$core$progress$weightTrend$en extends Translations$core$progress$weightTrend$id {
+class _Translations$core$progress$weightTrend$en
+    extends Translations$core$progress$weightTrend$id {
   _Translations$core$progress$weightTrend$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -1395,7 +1441,8 @@ class _Translations$core$progress$weightTrend$en extends Translations$core$progr
   @override
   String get title => 'Weight (kg)';
   @override
-  String weekValue({required Object week, required Object value}) => 'W${week} · ${value} kg';
+  String weekValue({required Object week, required Object value}) =>
+      'W${week} · ${value} kg';
   @override
   String weekShort({required Object week}) => 'W${week}';
   @override
@@ -1409,7 +1456,8 @@ class _Translations$core$progress$weightTrend$en extends Translations$core$progr
 }
 
 // Path: core.progress.notTracked
-class _Translations$core$progress$notTracked$en extends Translations$core$progress$notTracked$id {
+class _Translations$core$progress$notTracked$en
+    extends Translations$core$progress$notTracked$id {
   _Translations$core$progress$notTracked$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -1418,13 +1466,15 @@ class _Translations$core$progress$notTracked$en extends Translations$core$progre
 
   // Translations
   @override
-  String title({required Object metric}) => '${metric} tracking is not available yet';
+  String title({required Object metric}) =>
+      '${metric} tracking is not available yet';
   @override
   String get message => 'This metric is not stored in your measurements yet.';
 }
 
 // Path: core.progress.programCard
-class _Translations$core$progress$programCard$en extends Translations$core$progress$programCard$id {
+class _Translations$core$progress$programCard$en
+    extends Translations$core$progress$programCard$id {
   _Translations$core$progress$programCard$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -1433,7 +1483,8 @@ class _Translations$core$progress$programCard$en extends Translations$core$progr
 
   // Translations
   @override
-  String weekOf({required Object week, required Object total}) => 'Week ${week} of ${total}';
+  String weekOf({required Object week, required Object total}) =>
+      'Week ${week} of ${total}';
   @override
   String get active => 'Active';
   @override
@@ -1441,7 +1492,8 @@ class _Translations$core$progress$programCard$en extends Translations$core$progr
 }
 
 // Path: core.progress.highlights
-class _Translations$core$progress$highlights$en extends Translations$core$progress$highlights$id {
+class _Translations$core$progress$highlights$en
+    extends Translations$core$progress$highlights$id {
   _Translations$core$progress$highlights$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -1453,17 +1505,21 @@ class _Translations$core$progress$highlights$en extends Translations$core$progre
   String completed({required Object completed, required Object target}) =>
       'Completed ${completed} of ${target} workouts this week';
   @override
-  String weightIncrease({required Object value}) => 'Weight increased by ${value} kg';
+  String weightIncrease({required Object value}) =>
+      'Weight increased by ${value} kg';
   @override
-  String weightDecrease({required Object value}) => 'Weight decreased by ${value} kg';
+  String weightDecrease({required Object value}) =>
+      'Weight decreased by ${value} kg';
   @override
   String get emptyTitle => 'No highlights yet';
   @override
-  String get emptyMessage => 'Your milestones will appear as you record workouts and measurements.';
+  String get emptyMessage =>
+      'Your milestones will appear as you record workouts and measurements.';
 }
 
 // Path: core.progress.body
-class _Translations$core$progress$body$en extends Translations$core$progress$body$id {
+class _Translations$core$progress$body$en
+    extends Translations$core$progress$body$id {
   _Translations$core$progress$body$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -1490,7 +1546,8 @@ class _Translations$core$progress$body$en extends Translations$core$progress$bod
 }
 
 // Path: core.progress.workout
-class _Translations$core$progress$workout$en extends Translations$core$progress$workout$id {
+class _Translations$core$progress$workout$en
+    extends Translations$core$progress$workout$id {
   _Translations$core$progress$workout$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -1503,8 +1560,8 @@ class _Translations$core$progress$workout$en extends Translations$core$progress$
   @override
   String get subtitle => 'Your training progress and consistency.';
   @override
-  late final _Translations$core$progress$workout$noPerformance$en noPerformance =
-      _Translations$core$progress$workout$noPerformance$en._(_root);
+  late final _Translations$core$progress$workout$noPerformance$en
+  noPerformance = _Translations$core$progress$workout$noPerformance$en._(_root);
   @override
   String get weeklyActivity => 'Weekly Activity';
   @override
@@ -1518,8 +1575,10 @@ class _Translations$core$progress$workout$en extends Translations$core$progress$
   @override
   String get recentWorkouts => 'Recent Workouts';
   @override
-  late final _Translations$core$progress$workout$noRecentWorkouts$en noRecentWorkouts =
-      _Translations$core$progress$workout$noRecentWorkouts$en._(_root);
+  late final _Translations$core$progress$workout$noRecentWorkouts$en
+  noRecentWorkouts = _Translations$core$progress$workout$noRecentWorkouts$en._(
+    _root,
+  );
   @override
   String get minutesPerDay => 'Minutes per day';
   @override
@@ -1532,7 +1591,8 @@ class _Translations$core$progress$workout$en extends Translations$core$progress$
 }
 
 // Path: core.progress.history
-class _Translations$core$progress$history$en extends Translations$core$progress$history$id {
+class _Translations$core$progress$history$en
+    extends Translations$core$progress$history$id {
   _Translations$core$progress$history$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -1555,7 +1615,8 @@ class _Translations$core$progress$history$en extends Translations$core$progress$
 }
 
 // Path: core.progress.duration
-class _Translations$core$progress$duration$en extends Translations$core$progress$duration$id {
+class _Translations$core$progress$duration$en
+    extends Translations$core$progress$duration$id {
   _Translations$core$progress$duration$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -1568,7 +1629,8 @@ class _Translations$core$progress$duration$en extends Translations$core$progress
   @override
   String hours({required Object hours}) => '${hours}h';
   @override
-  String hoursMinutes({required Object hours, required Object minutes}) => '${hours}h ${minutes}m';
+  String hoursMinutes({required Object hours, required Object minutes}) =>
+      '${hours}h ${minutes}m';
 }
 
 // Path: core.progress.weightDialog
@@ -1592,7 +1654,8 @@ class _Translations$core$progress$weightDialog$en
 }
 
 // Path: core.progress.error
-class _Translations$core$progress$error$en extends Translations$core$progress$error$id {
+class _Translations$core$progress$error$en
+    extends Translations$core$progress$error$id {
   _Translations$core$progress$error$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -1629,7 +1692,8 @@ class _Translations$home$weeklyProgress$states$en
 }
 
 // Path: onboarding.goal.options.0
-class _Translations$onboarding$goal$options$0$en extends Translations$onboarding$goal$options$0$id
+class _Translations$onboarding$goal$options$0$en
+    extends Translations$onboarding$goal$options$0$id
     with GoalOption {
   _Translations$onboarding$goal$options$0$en._(TranslationsEn root)
     : this._root = root,
@@ -1643,11 +1707,13 @@ class _Translations$onboarding$goal$options$0$en extends Translations$onboarding
   @override
   String get title => 'Gain Weight & Build Muscle';
   @override
-  String get description => 'Increase body weight while building muscle mass (bulking).';
+  String get description =>
+      'Increase body weight while building muscle mass (bulking).';
 }
 
 // Path: onboarding.goal.options.1
-class _Translations$onboarding$goal$options$1$en extends Translations$onboarding$goal$options$1$id
+class _Translations$onboarding$goal$options$1$en
+    extends Translations$onboarding$goal$options$1$id
     with GoalOption {
   _Translations$onboarding$goal$options$1$en._(TranslationsEn root)
     : this._root = root,
@@ -1661,11 +1727,13 @@ class _Translations$onboarding$goal$options$1$en extends Translations$onboarding
   @override
   String get title => 'Lose Weight & Reduce Fat';
   @override
-  String get description => 'Reduce body fat while maintaining muscle (cutting).';
+  String get description =>
+      'Reduce body fat while maintaining muscle (cutting).';
 }
 
 // Path: onboarding.goal.options.2
-class _Translations$onboarding$goal$options$2$en extends Translations$onboarding$goal$options$2$id
+class _Translations$onboarding$goal$options$2$en
+    extends Translations$onboarding$goal$options$2$id
     with GoalOption {
   _Translations$onboarding$goal$options$2$en._(TranslationsEn root)
     : this._root = root,
@@ -1763,7 +1831,8 @@ class _Translations$onboarding$experience$options$2$en
   @override
   String get title => 'Advanced';
   @override
-  String get description => 'Train consistently, have good form, and want a bigger challenge.';
+  String get description =>
+      'Train consistently, have good form, and want a bigger challenge.';
 }
 
 // Path: onboarding.equipment.options.0
@@ -1971,7 +2040,8 @@ class _Translations$onboarding$limitations$options$5$en
 }
 
 // Path: onboarding.ready.program
-class _Translations$onboarding$ready$program$en extends Translations$onboarding$ready$program$id {
+class _Translations$onboarding$ready$program$en
+    extends Translations$onboarding$ready$program$id {
   _Translations$onboarding$ready$program$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -2027,7 +2097,8 @@ class _Translations$workouts$weeklySchedule$statusTooltip$en
 }
 
 // Path: workouts.session.status
-class _Translations$workouts$session$status$en extends Translations$workouts$session$status$id {
+class _Translations$workouts$session$status$en
+    extends Translations$workouts$session$status$id {
   _Translations$workouts$session$status$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);
@@ -2045,6 +2116,27 @@ class _Translations$workouts$session$status$en extends Translations$workouts$ses
   String get missed => 'Missed';
   @override
   String get scheduled => 'Scheduled';
+}
+
+// Path: workouts.workoutDetail.stages
+class _Translations$workouts$workoutDetail$stages$en
+    extends Translations$workouts$workoutDetail$stages$id {
+  _Translations$workouts$workoutDetail$stages$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  late final _Translations$workouts$workoutDetail$stages$warmup$en warmup =
+      _Translations$workouts$workoutDetail$stages$warmup$en._(_root);
+  @override
+  late final _Translations$workouts$workoutDetail$stages$main$en main =
+      _Translations$workouts$workoutDetail$stages$main$en._(_root);
+  @override
+  late final _Translations$workouts$workoutDetail$stages$cooldown$en cooldown =
+      _Translations$workouts$workoutDetail$stages$cooldown$en._(_root);
 }
 
 // Path: core.progress.workout.noPerformance
@@ -2093,7 +2185,8 @@ class _Translations$core$progress$workout$noVolume$en
   @override
   String get title => 'No training volume yet';
   @override
-  String get message => 'Set and rep totals will appear after you log completed sets.';
+  String get message =>
+      'Set and rep totals will appear after you log completed sets.';
 }
 
 // Path: core.progress.workout.noRecentWorkouts
@@ -2160,6 +2253,54 @@ class _Translations$onboarding$ready$program$maintain$en
   String get subtitle => 'Strength & General Fitness';
 }
 
+// Path: workouts.workoutDetail.stages.warmup
+class _Translations$workouts$workoutDetail$stages$warmup$en
+    extends Translations$workouts$workoutDetail$stages$warmup$id {
+  _Translations$workouts$workoutDetail$stages$warmup$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Warm up';
+  @override
+  String get subtitle => 'Warm-up';
+}
+
+// Path: workouts.workoutDetail.stages.main
+class _Translations$workouts$workoutDetail$stages$main$en
+    extends Translations$workouts$workoutDetail$stages$main$id {
+  _Translations$workouts$workoutDetail$stages$main$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Training';
+  @override
+  String get subtitle => 'Main Workout';
+}
+
+// Path: workouts.workoutDetail.stages.cooldown
+class _Translations$workouts$workoutDetail$stages$cooldown$en
+    extends Translations$workouts$workoutDetail$stages$cooldown$id {
+  _Translations$workouts$workoutDetail$stages$cooldown$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Cool down';
+  @override
+  String get subtitle => 'Recovery';
+}
+
 /// The flat map containing all translations for locale <en>.
 /// Only for edge cases! For simple maps, use the map function of this library.
 ///
@@ -2199,13 +2340,16 @@ extension on TranslationsEn {
         required Object count,
       }) => '${count} consecutive active days',
       'core.progress.title' => 'Progress',
-      'core.progress.rangeWeeks' => ({required Object weeks}) => 'Last ${weeks} Weeks',
+      'core.progress.rangeWeeks' => ({
+        required Object weeks,
+      }) => 'Last ${weeks} Weeks',
       'core.progress.tabs.overview' => 'Overview',
       'core.progress.tabs.body' => 'Body',
       'core.progress.tabs.workout' => 'Workout',
       'core.progress.tabs.history' => 'History',
       'core.progress.overviewTitle' => 'Your Progress',
-      'core.progress.overviewSubtitle' => 'A quick summary of your training and body progress.',
+      'core.progress.overviewSubtitle' =>
+        'A quick summary of your training and body progress.',
       'core.progress.metrics.workouts' => 'Workouts',
       'core.progress.metrics.completion' => 'Completion',
       'core.progress.metrics.trainingTime' => 'Training Time',
@@ -2226,17 +2370,25 @@ extension on TranslationsEn {
         required Object week,
         required Object value,
       }) => 'W${week} · ${value} kg',
-      'core.progress.weightTrend.weekShort' => ({required Object week}) => 'W${week}',
-      'core.progress.weightTrend.empty' => 'No weight measurements in this period yet.',
+      'core.progress.weightTrend.weekShort' => ({
+        required Object week,
+      }) => 'W${week}',
+      'core.progress.weightTrend.empty' =>
+        'No weight measurements in this period yet.',
       'core.progress.weightTrend.vsWeeksAgo' => ({
         required Object weeks,
       }) => 'vs. ${weeks} weeks ago',
-      'core.progress.weightTrend.increase' => ({required Object value}) => '↑ +${value} kg',
-      'core.progress.weightTrend.decrease' => ({required Object value}) => '↓ ${value} kg',
+      'core.progress.weightTrend.increase' => ({
+        required Object value,
+      }) => '↑ +${value} kg',
+      'core.progress.weightTrend.decrease' => ({
+        required Object value,
+      }) => '↓ ${value} kg',
       'core.progress.notTracked.title' => ({
         required Object metric,
       }) => '${metric} tracking is not available yet',
-      'core.progress.notTracked.message' => 'This metric is not stored in your measurements yet.',
+      'core.progress.notTracked.message' =>
+        'This metric is not stored in your measurements yet.',
       'core.progress.programCard.weekOf' => ({
         required Object week,
         required Object total,
@@ -2265,10 +2417,11 @@ extension on TranslationsEn {
       'core.progress.body.recordWeight' => 'Record weight',
       'core.progress.body.currentWeight' => 'Current weight',
       'core.progress.workout.title' => 'Workout Performance',
-      'core.progress.workout.subtitle' => 'Your training progress and consistency.',
-      'core.progress.workout.noPerformance.title' => 'No workout performance yet',
-      'core.progress.workout.noPerformance.message' =>
-        'Your weekly activity and training volume will appear after you complete a workout.',
+      'core.progress.workout.subtitle' =>
+        'Your training progress and consistency.',
+      'core.progress.workout.noPerformance.title' =>
+        'No workout performance yet',
+      'core.progress.workout.noPerformance.message' => 'Your weekly activity and training volume will appear after you complete a workout.',
       'core.progress.workout.weeklyActivity' => 'Weekly Activity',
       'core.progress.workout.noActivity.title' => 'No activity this week',
       'core.progress.workout.noActivity.message' =>
@@ -2282,7 +2435,9 @@ extension on TranslationsEn {
       'core.progress.workout.noRecentWorkouts.message' =>
         'Your completed sessions will show up here.',
       'core.progress.workout.minutesPerDay' => 'Minutes per day',
-      'core.progress.workout.minutesTotal' => ({required Object minutes}) => '${minutes} min total',
+      'core.progress.workout.minutesTotal' => ({
+        required Object minutes,
+      }) => '${minutes} min total',
       'core.progress.workout.trainingMinutesThisWeek' => ({
         required Object minutes,
       }) => '${minutes} training minutes this week',
@@ -2293,8 +2448,12 @@ extension on TranslationsEn {
       'core.progress.history.oldestFirst' => 'Oldest first',
       'core.progress.history.newestFirst' => 'Newest first',
       'core.progress.history.recordWeight' => 'Record weight',
-      'core.progress.duration.minutes' => ({required Object minutes}) => '${minutes} min',
-      'core.progress.duration.hours' => ({required Object hours}) => '${hours}h',
+      'core.progress.duration.minutes' => ({
+        required Object minutes,
+      }) => '${minutes} min',
+      'core.progress.duration.hours' => ({
+        required Object hours,
+      }) => '${hours}h',
       'core.progress.duration.hoursMinutes' => ({
         required Object hours,
         required Object minutes,
@@ -2305,9 +2464,15 @@ extension on TranslationsEn {
       'core.progress.weightDialog.save' => 'Save',
       'core.progress.error.title' => 'Unable to load progress',
       'core.progress.error.retry' => 'Try again',
-      'home.greeting.goodMorning' => ({required Object name}) => 'Good Morning, ${name} 👋',
-      'home.greeting.goodAfternoon' => ({required Object name}) => 'Good Afternoon, ${name} 👋',
-      'home.greeting.goodEvening' => ({required Object name}) => 'Good Evening, ${name} 👋',
+      'home.greeting.goodMorning' => ({
+        required Object name,
+      }) => 'Good Morning, ${name} 👋',
+      'home.greeting.goodAfternoon' => ({
+        required Object name,
+      }) => 'Good Afternoon, ${name} 👋',
+      'home.greeting.goodEvening' => ({
+        required Object name,
+      }) => 'Good Evening, ${name} 👋',
       'home.greeting.subtitle' => 'Stay consistent and reach your goal!',
       'home.goalCard.goalPrefix' => 'Goal:',
       'home.goalCard.gainWeight' => 'Gain Weight & Build Muscle',
@@ -2315,7 +2480,9 @@ extension on TranslationsEn {
       'home.goalCard.maintain' => 'Maintain & Stay Fit',
       'home.goalCard.target' => 'Target',
       'home.goalCard.current' => 'Current',
-      'home.goalCard.programDuration' => ({required Object weeks}) => '${weeks} Weeks Program',
+      'home.goalCard.programDuration' => ({
+        required Object weeks,
+      }) => '${weeks} Weeks Program',
       'home.goalCard.weekOf' => ({
         required Object current,
         required Object total,
@@ -2323,17 +2490,21 @@ extension on TranslationsEn {
       'home.todayWorkout.title' => 'Today\'s Workout',
       'home.todayWorkout.viewPlan' => 'View Plan →',
       'home.todayWorkout.startWorkout' => 'Start Workout',
-      'home.todayWorkout.approxMin' => ({required Object min}) => '≈ ${min} min',
-      'home.todayWorkout.approxKcal' => ({required Object kcal}) => '≈ ${kcal} kcal',
+      'home.todayWorkout.approxMin' => ({
+        required Object min,
+      }) => '≈ ${min} min',
+      'home.todayWorkout.approxKcal' => ({
+        required Object kcal,
+      }) => '≈ ${kcal} kcal',
       'home.restDay.title' => 'Today is a Rest Day',
-      'home.restDay.subtitle' => 'Time to recover, let your muscles repair and grow.',
+      'home.restDay.subtitle' =>
+        'Time to recover, let your muscles repair and grow.',
       'home.restDay.recoveryTips' => 'Recovery Tips',
       'home.restDay.hydrate' => 'Stay hydrated',
       'home.restDay.sleep' => 'Get 7–9 hours of sleep',
       'home.restDay.stretch' => 'Do light stretching or mobility',
       'home.noProgram.title' => 'You don\'t have a training program yet',
-      'home.noProgram.subtitle' =>
-        'Create a personalized training plan based on your goal, profile, and preference.',
+      'home.noProgram.subtitle' => 'Create a personalized training plan based on your goal, profile, and preference.',
       'home.noProgram.createProgram' => 'Create My Program',
       'home.weeklyProgress.title' => 'This Week Progress',
       'home.weeklyProgress.seeDetails' => 'See Details →',
@@ -2343,13 +2514,17 @@ extension on TranslationsEn {
       'home.weeklyProgress.states.upcoming' => 'Upcoming (not yet)',
       'home.weeklyProgress.states.missed' => 'Missed',
       'home.supportGoal.title' => 'Support Your Goal',
-      'home.supportGoal.subtitleGain' => 'Get simple nutrition tips for muscle gain.',
-      'home.supportGoal.subtitleLoss' => 'Get simple nutrition tips for fat loss.',
-      'home.supportGoal.subtitleMaintain' => 'Get simple nutrition tips to stay fit.',
+      'home.supportGoal.subtitleGain' =>
+        'Get simple nutrition tips for muscle gain.',
+      'home.supportGoal.subtitleLoss' =>
+        'Get simple nutrition tips for fat loss.',
+      'home.supportGoal.subtitleMaintain' =>
+        'Get simple nutrition tips to stay fit.',
       'home.error.connectionIssue' => 'Connection issue',
-      'home.error.connectionDesc' =>
-        'Some information couldn\'t be refreshed. Showing your last available data.',
-      'home.error.lastSynced' => ({required Object time}) => 'Last synced: ${time}',
+      'home.error.connectionDesc' => 'Some information couldn\'t be refreshed. Showing your last available data.',
+      'home.error.lastSynced' => ({
+        required Object time,
+      }) => 'Last synced: ${time}',
       'home.error.retry' => 'Retry',
       'onboarding.nav.progress' => ({
         required Object current,
@@ -2360,10 +2535,10 @@ extension on TranslationsEn {
       'onboarding.nav.createMyPlan' => 'Create My Plan',
       'onboarding.welcome.brand' => 'Workout\nCoach',
       'onboarding.welcome.title' => 'Your Personal\nWorkout Coach',
-      'onboarding.welcome.subtitle' =>
-        'Get a workout program based\non your goal, body condition,\nand lifestyle.',
+      'onboarding.welcome.subtitle' => 'Get a workout program based\non your goal, body condition,\nand lifestyle.',
       'onboarding.goal.title' => 'What\'s your main goal?',
-      'onboarding.goal.subtitle' => 'Choose the goal that fits your current focus.',
+      'onboarding.goal.subtitle' =>
+        'Choose the goal that fits your current focus.',
       'onboarding.goal.options.0.id' => 'muscle_gain',
       'onboarding.goal.options.0.title' => 'Gain Weight & Build Muscle',
       'onboarding.goal.options.0.description' =>
@@ -2374,9 +2549,11 @@ extension on TranslationsEn {
         'Reduce body fat while maintaining muscle (cutting).',
       'onboarding.goal.options.2.id' => 'maintenance',
       'onboarding.goal.options.2.title' => 'Maintain & Stay Fit',
-      'onboarding.goal.options.2.description' => 'Keep your current weight and overall fitness.',
+      'onboarding.goal.options.2.description' =>
+        'Keep your current weight and overall fitness.',
       'onboarding.about.title' => 'Tell us about you',
-      'onboarding.about.subtitle' => 'We need some basic info to personalize your program.',
+      'onboarding.about.subtitle' =>
+        'We need some basic info to personalize your program.',
       'onboarding.about.gender' => 'Gender',
       'onboarding.about.male' => 'Male',
       'onboarding.about.female' => 'Female',
@@ -2404,17 +2581,18 @@ extension on TranslationsEn {
         required Object minWeeks,
         required Object maxWeeks,
       }) => 'A healthy loss is around 0.5 - 1.0 kg per week (${minWeeks} - ${maxWeeks} weeks).',
-      'onboarding.bodyTarget.insight.maintainHint' =>
-        'Keep your current body weight and focus on building muscle density and strength.',
+      'onboarding.bodyTarget.insight.maintainHint' => 'Keep your current body weight and focus on building muscle density and strength.',
       'onboarding.experience.title' => 'What\'s your experience level?',
-      'onboarding.experience.subtitle' => 'Choose an option that best describes you.',
+      'onboarding.experience.subtitle' =>
+        'Choose an option that best describes you.',
       'onboarding.experience.options.0.id' => 'beginner',
       'onboarding.experience.options.0.title' => 'Beginner',
       'onboarding.experience.options.0.description' =>
         'New to training or exercising inconsistently.',
       'onboarding.experience.options.1.id' => 'intermediate',
       'onboarding.experience.options.1.title' => 'Intermediate',
-      'onboarding.experience.options.1.description' => 'Have some experience and train regularly.',
+      'onboarding.experience.options.1.description' =>
+        'Have some experience and train regularly.',
       'onboarding.experience.options.2.id' => 'advanced',
       'onboarding.experience.options.2.title' => 'Advanced',
       'onboarding.experience.options.2.description' =>
@@ -2423,11 +2601,12 @@ extension on TranslationsEn {
       'onboarding.schedule.subtitle' =>
         'Choose a weekly workout schedule that fits your lifestyle.',
       'onboarding.schedule.daysPerWeek' =>
-        ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(
-          n,
-          one: '${n} day / week',
-          other: '${n} days / week',
-        ),
+        ({required num n}) =>
+            (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(
+              n,
+              one: '${n} day / week',
+              other: '${n} days / week',
+            ),
       'onboarding.schedule.sessionDuration' => 'Session duration',
       'onboarding.schedule.minutes' => ({required Object n}) => '${n} min',
       'onboarding.equipment.title' => 'What equipment do you have?',
@@ -2469,12 +2648,15 @@ extension on TranslationsEn {
       'onboarding.ready.title' => 'Your plan is ready! 🎉',
       'onboarding.ready.subtitle' =>
         'A personalized program based on\nyour goal, profile, and preferences.',
-      'onboarding.ready.weeksBadge' => ({required Object weeks}) => '⭐ ${weeks} Weeks',
+      'onboarding.ready.weeksBadge' => ({
+        required Object weeks,
+      }) => '⭐ ${weeks} Weeks',
       'onboarding.ready.daysPerWeek' => 'Days / Week',
       'onboarding.ready.minutesPerSession' => 'Minutes / Session',
       'onboarding.ready.level' => 'Level',
       'onboarding.ready.features.0' => 'Build muscle and increase body weight',
-      'onboarding.ready.features.1' => 'Progressive overload (gradual increase)',
+      'onboarding.ready.features.1' =>
+        'Progressive overload (gradual increase)',
       'onboarding.ready.features.2' => 'Designed for home training',
       'onboarding.ready.features.3' => 'Adapted to your schedule and equipment',
       'onboarding.ready.viewMyPlan' => 'View My Plan',
@@ -2483,15 +2665,20 @@ extension on TranslationsEn {
       'onboarding.ready.program.cutting.title' => 'Fat Loss & Conditioning',
       'onboarding.ready.program.cutting.subtitle' => 'Fat Loss & Tone',
       'onboarding.ready.program.maintain.title' => 'Maintain & Stay Fit',
-      'onboarding.ready.program.maintain.subtitle' => 'Strength & General Fitness',
+      'onboarding.ready.program.maintain.subtitle' =>
+        'Strength & General Fitness',
       'onboarding.preview.title' => 'Your Training Plan',
       'onboarding.preview.tabOverview' => 'Overview',
       'onboarding.preview.tabWorkoutSplit' => 'Workout Split',
       'onboarding.preview.loading' => 'Loading your plan preview...',
       'onboarding.preview.activateStart' => 'Activate & Start Workout ➔',
       'onboarding.preview.activateDashboard' => 'Activate & Go to Dashboard',
-      'onboarding.preview.sessionFallbackName' => ({required Object n}) => 'Session ${n}',
-      'onboarding.preview.sessionDuration' => ({required Object n}) => '${n} min',
+      'onboarding.preview.sessionFallbackName' => ({
+        required Object n,
+      }) => 'Session ${n}',
+      'onboarding.preview.sessionDuration' => ({
+        required Object n,
+      }) => '${n} min',
       'onboarding.preview.exercisesInSession' => ({
         required Object count,
       }) => 'EXERCISES IN THIS SESSION (${count})',
@@ -2511,8 +2698,12 @@ extension on TranslationsEn {
       }) => 'Set ${current} of ${total} · ${target}',
       'workoutSession.repsUnit' => 'reps',
       'workoutSession.durationUnit' => 'sec',
-      'workoutSession.repsValue' => ({required Object value}) => '${value} reps',
-      'workoutSession.durationValue' => ({required Object value}) => '${value} sec',
+      'workoutSession.repsValue' => ({
+        required Object value,
+      }) => '${value} reps',
+      'workoutSession.durationValue' => ({
+        required Object value,
+      }) => '${value} sec',
       'workoutSession.completeSet' => 'Complete Set',
       'workoutSession.nextRest' => 'Next: Rest',
       'workoutSession.preparingSession' => 'Preparing your workout...',
@@ -2527,19 +2718,24 @@ extension on TranslationsEn {
       'workoutSession.resumePreviousSession' => 'Resume Previous Session',
       'workoutSession.endPreviousSession' => 'End Previous Session',
       'workoutSession.completionTitle' => 'Workout Completed! 🎉',
-      'workoutSession.completionDescription' =>
-        'You completed all sets and exercises. Get some rest to help your muscles recover.',
+      'workoutSession.completionDescription' => 'You completed all sets and exercises. Get some rest to help your muscles recover.',
       'workoutSession.durationLabel' => 'Duration',
       'workoutSession.exerciseLabel' => 'Exercises',
-      'workoutSession.exerciseCount' => ({required Object count}) => '${count} exercises',
+      'workoutSession.exerciseCount' => ({
+        required Object count,
+      }) => '${count} exercises',
       'workoutSession.totalSetsLabel' => 'Total Sets',
-      'workoutSession.totalSetsCount' => ({required Object count}) => '${count} sets',
+      'workoutSession.totalSetsCount' => ({
+        required Object count,
+      }) => '${count} sets',
       'workoutSession.viewSummary' => 'View Workout Summary ➔',
       'workoutSession.restartRestTimer' => 'Restart Rest Timer',
       'workoutSession.finishSessionNow' => 'Finish Workout Now',
       'workoutSession.exitWithoutSaving' => 'Exit Without Saving',
       'workoutSession.restTitle' => 'Rest',
-      'workoutSession.restNextExercise' => ({required Object exercise}) => 'Next: ${exercise}',
+      'workoutSession.restNextExercise' => ({
+        required Object exercise,
+      }) => 'Next: ${exercise}',
       'workoutSession.restSetProgress' => ({
         required Object current,
         required Object total,
@@ -2548,44 +2744,57 @@ extension on TranslationsEn {
       'workoutSession.restMinusTenSeconds' => '-10s',
       'workoutSession.restPlusTenSeconds' => '+10s',
       'workoutSession.restTipTitle' => 'Tip',
-      'workoutSession.restTipDescription' => 'Keep breathing and stay hydrated.',
+      'workoutSession.restTipDescription' =>
+        'Keep breathing and stay hydrated.',
       'workoutSession.skipRest' => 'Skip Rest',
       'workoutSession.setCompleteTitle' => ({
         required Object current,
         required Object total,
       }) => 'Set ${current} of ${total} Complete! 🎉',
-      'workoutSession.targetDuration' => ({required Object seconds}) => 'Target: ${seconds} sec',
-      'workoutSession.targetReps' => ({required Object reps}) => 'Target: ${reps} reps',
+      'workoutSession.targetDuration' => ({
+        required Object seconds,
+      }) => 'Target: ${seconds} sec',
+      'workoutSession.targetReps' => ({
+        required Object reps,
+      }) => 'Target: ${reps} reps',
       'workoutSession.durationCompleted' => 'Duration Completed',
       'workoutSession.repsCompleted' => 'Reps Completed',
       'workoutSession.durationQuestion' => 'How many seconds did you hold?',
       'workoutSession.repsQuestion' => 'How many reps did you complete?',
       'workoutSession.rirTitle' => 'Remaining Strength (RIR - Reps in Reserve)',
-      'workoutSession.rirQuestion' => 'How many more reps could you do before reaching failure?',
+      'workoutSession.rirQuestion' =>
+        'How many more reps could you do before reaching failure?',
       'workoutSession.rirFailureTitle' => '0 — Absolute Failure',
-      'workoutSession.rirFailureDescription' => 'You had no reps left with proper form.',
+      'workoutSession.rirFailureDescription' =>
+        'You had no reps left with proper form.',
       'workoutSession.rirVeryHardTitle' => '1 — Very Hard',
       'workoutSession.rirVeryHardDescription' =>
         'You could only complete one more rep before failure.',
       'workoutSession.rirIdealTitle' => '2 — Ideal Zone (Target)',
-      'workoutSession.rirIdealDescription' => 'Challenging, with about two reps still in reserve.',
+      'workoutSession.rirIdealDescription' =>
+        'Challenging, with about two reps still in reserve.',
       'workoutSession.rirModerateTitle' => '3 — Moderate',
-      'workoutSession.rirModerateDescription' => 'You still had about three reps in reserve.',
+      'workoutSession.rirModerateDescription' =>
+        'You still had about three reps in reserve.',
       'workoutSession.rirEasyTitle' => '4+ — Too Easy',
-      'workoutSession.rirEasyDescription' => 'Very easy, with four or more reps still in reserve.',
+      'workoutSession.rirEasyDescription' =>
+        'Very easy, with four or more reps still in reserve.',
       'workoutSession.rirBadgeMax' => 'Maximum',
       'workoutSession.rirBadgeHigh' => 'High',
       'workoutSession.rirBadgeOptimal' => 'Optimal ⭐',
       'workoutSession.rirBadgeModerate' => 'Moderate',
       'workoutSession.rirBadgeEasy' => 'Easy',
       'workoutSession.saveAndStartRest' => 'Save & Start Rest',
-      'workoutSession.restSecondsValue' => ({required Object seconds}) => '${seconds} s',
-      'workoutSession.durationMinutesValue' => ({required Object value}) => '${value} min',
+      'workoutSession.restSecondsValue' => ({
+        required Object seconds,
+      }) => '${seconds} s',
+      'workoutSession.durationMinutesValue' => ({
+        required Object value,
+      }) => '${value} min',
       'workoutSession.savingSession' => 'Saving your workout...',
       'workoutSession.emptySessionDescription' => 'The exercise list for this session was not found. Please go back to reload your workout program.',
       'workoutSession.backButtonLabel' => 'Go Back',
-      'workoutSession.finishSessionFailed' =>
-        'We couldn\'t save your workout. Your recorded progress is still here. Please try again.',
+      'workoutSession.finishSessionFailed' => 'We couldn\'t save your workout. Your recorded progress is still here. Please try again.',
       'workoutSession.defaultProgramTitle' => 'Strength Training',
       'workoutSession.completedScreen.title' => 'Workout Completed! 🎉',
       'workoutSession.completedScreen.subtitle' => ({
@@ -2602,7 +2811,8 @@ extension on TranslationsEn {
       'workoutSession.completedScreen.hard' => 'Hard',
       'workoutSession.completedScreen.tooHard' => 'Too Hard',
       'workoutSession.completedScreen.saveAndContinue' => 'Save & Continue',
-      'workoutSession.completedScreen.viewWorkoutSummary' => 'View Workout Summary',
+      'workoutSession.completedScreen.viewWorkoutSummary' =>
+        'View Workout Summary',
       'workouts.title' => 'Workouts',
       'workouts.searchHint' => 'Search workouts & exercises...',
       'workouts.tabs.myProgram' => 'My Program',
@@ -2615,7 +2825,9 @@ extension on TranslationsEn {
         required Object current,
         required Object total,
       }) => 'Week ${current} of ${total}',
-      'workouts.activeProgram.status.notStarted' => ({required Object date}) => 'Starts ${date}',
+      'workouts.activeProgram.status.notStarted' => ({
+        required Object date,
+      }) => 'Starts ${date}',
       'workouts.activeProgram.status.completed' => 'Program completed',
       'workouts.activeProgram.status.expired' => 'Program ended',
       'workouts.weeklySchedule.title' => 'Weekly Schedule',
@@ -2625,25 +2837,32 @@ extension on TranslationsEn {
       }) => '${completed}/${total} workouts',
       'workouts.weeklySchedule.current' => 'Current',
       'workouts.weeklySchedule.weekShort' => ({required Object n}) => 'W${n}',
-      'workouts.weeklySchedule.weekNumber' => ({required Object n}) => 'Week ${n}',
-      'workouts.weeklySchedule.empty' => 'No workout sessions are scheduled for this week.',
+      'workouts.weeklySchedule.weekNumber' => ({
+        required Object n,
+      }) => 'Week ${n}',
+      'workouts.weeklySchedule.empty' =>
+        'No workout sessions are scheduled for this week.',
       'workouts.weeklySchedule.previewTitle' => 'Preview mode',
       'workouts.weeklySchedule.previewNotice' => 'You can review this week\'s plan, but workouts can only be started on their scheduled day.',
       'workouts.weeklySchedule.previewTooltip' => 'Preview upcoming week',
-      'workouts.weeklySchedule.statusTooltip.completed' => 'All workouts completed',
-      'workouts.weeklySchedule.statusTooltip.partial' => 'Some workouts completed',
-      'workouts.weeklySchedule.statusTooltip.missed' => 'Some workouts were missed',
+      'workouts.weeklySchedule.statusTooltip.completed' =>
+        'All workouts completed',
+      'workouts.weeklySchedule.statusTooltip.partial' =>
+        'Some workouts completed',
+      'workouts.weeklySchedule.statusTooltip.missed' =>
+        'Some workouts were missed',
       'workouts.emptyState.noProgramTitle' => 'No active program yet',
       'workouts.emptyState.noProgramSubtitle' =>
         'Create a program to see your weekly workouts here.',
       'workouts.allWorkouts.emptyTitle' => 'No exercises found',
-      'workouts.allWorkouts.emptySubtitle' => 'Try another search or adjust your muscle filters.',
+      'workouts.allWorkouts.emptySubtitle' =>
+        'Try another search or adjust your muscle filters.',
       'workouts.allWorkouts.clearFilters' => 'Clear search & filters',
       'workouts.errorState.title' => 'Failed to load data',
-      'workouts.errorState.subtitle' =>
-        'Something went wrong while reading your workout data. Please try again.',
+      'workouts.errorState.subtitle' => 'Something went wrong while reading your workout data. Please try again.',
       'workouts.errorState.retry' => 'Retry',
-      'workouts.errorState.refreshFailed' => 'Failed to refresh. Showing the last loaded data.',
+      'workouts.errorState.refreshFailed' =>
+        'Failed to refresh. Showing the last loaded data.',
       'workouts.session.day' => ({required Object n}) => 'Day ${n}',
       'workouts.session.date' => ({
         required Object n,
@@ -2656,20 +2875,16 @@ extension on TranslationsEn {
       'workouts.session.status.missed' => 'Missed',
       'workouts.session.status.scheduled' => 'Scheduled',
       'workouts.workoutDetail.readOnlyTitle' => 'Preview mode',
-      'workouts.workoutDetail.readOnlyNotice' =>
-        'You can review this workout plan. The start button unlocks on its scheduled day.',
+      'workouts.workoutDetail.readOnlyNotice' => 'You can review this workout plan. The start button unlocks on its scheduled day.',
       'workouts.workoutDetail.resume' => 'Resume Workout',
       'workouts.workoutDetail.shareTooltip' => 'Copy workout details',
       'workouts.workoutDetail.bookmarkAdd' => 'Bookmark workout',
       'workouts.workoutDetail.bookmarkRemove' => 'Remove bookmark',
       'workouts.workoutDetail.copiedMessage' => 'Workout details copied.',
-      'workouts.workoutDetail.defaultDescription' =>
-        'Build strength and stability with a focused mix of bodyweight exercises.',
-      'workouts.workoutDetail.exerciseCount' => ({required Object count}) {
-        final countNum = num.tryParse(count.toString());
-        if (countNum == 1) return '1 exercise';
-        return '${count} exercises';
-      },
+      'workouts.workoutDetail.defaultDescription' => 'Build strength and stability with a focused mix of bodyweight exercises.',
+      'workouts.workoutDetail.exerciseCount' => ({
+        required Object count,
+      }) => '${count} exercises',
       'workouts.workoutDetail.exerciseListTitle' => ({
         required Object count,
       }) => 'Exercises (${count})',

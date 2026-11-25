@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_card.dart';
@@ -10,10 +11,7 @@ import 'program_anatomy_diagram.dart';
 class ProgramAboutCard extends StatelessWidget {
   final WorkoutProgram program;
 
-  const ProgramAboutCard({
-    super.key,
-    required this.program,
-  });
+  const ProgramAboutCard({super.key, required this.program});
 
   @override
   Widget build(BuildContext context) {
@@ -96,10 +94,7 @@ class _FeaturePill extends StatelessWidget {
   final IconData icon;
   final String label;
 
-  const _FeaturePill({
-    required this.icon,
-    required this.label,
-  });
+  const _FeaturePill({required this.icon, required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -108,19 +103,12 @@ class _FeaturePill extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.neutral100,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: AppColors.neutral200,
-          width: 1,
-        ),
+        border: Border.all(color: AppColors.neutral200, width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            size: 13,
-            color: AppColors.darkCharcoal,
-          ),
+          Icon(icon, size: 13, color: AppColors.darkCharcoal),
           const SizedBox(width: 5),
           Text(
             label,
@@ -135,4 +123,3 @@ class _FeaturePill extends StatelessWidget {
     );
   }
 }
-

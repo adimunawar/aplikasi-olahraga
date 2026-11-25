@@ -36,7 +36,10 @@ class AnatomyTorsoPainter extends CustomPainter {
       width: w * 0.14,
       height: h * 0.22,
     );
-    canvas.drawRRect(RRect.fromRectAndRadius(chestRect, const Radius.circular(4)), primaryPaint);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(chestRect, const Radius.circular(4)),
+      primaryPaint,
+    );
 
     // Draw back torso silhouette
     final backPath = Path()
@@ -66,4 +69,3 @@ class AnatomyTorsoPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
-

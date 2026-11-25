@@ -148,8 +148,9 @@ class WeeklyScheduleSection extends StatelessWidget {
               final dateText = MaterialLocalizations.of(context)
                   .formatMediumDate(scheduled.scheduledDate);
 
-              final weekNumberText =
-                  t.workouts.weeklySchedule.weekNumber(n: selectedWeek);
+              final weekNumberText = t.workouts.weeklySchedule.weekNumber(
+                n: selectedWeek,
+              );
               final weekDayText =
                   '$weekNumberText • ${t.workouts.session.day(n: session.dayNumber)}';
               final durationText = t.workouts.session.min(min: duration);

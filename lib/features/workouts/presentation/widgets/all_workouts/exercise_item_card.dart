@@ -35,11 +35,13 @@ class ExerciseItemCard extends StatelessWidget {
     final thumb = exercise.resolvedImageUrl.isNotEmpty
         ? exercise.resolvedImageUrl
         : (exercise.media.startPose.isNotEmpty
-            ? exercise.media.startPose
-            : exercise.media.endPose);
+              ? exercise.media.startPose
+              : exercise.media.endPose);
 
     final cardBgColor = isDark ? theme.colorScheme.surface : Colors.white;
-    final borderColor = isDark ? theme.colorScheme.outline : const Color(0xFFE5E7EB);
+    final borderColor = isDark
+        ? theme.colorScheme.outline
+        : const Color(0xFFE5E7EB);
     final titleColor = theme.colorScheme.onSurface;
     final subtextColor = theme.colorScheme.onSurfaceVariant;
     final iconBgColor = isDark
@@ -94,19 +96,12 @@ class ExerciseItemCard extends StatelessWidget {
                   const SizedBox(height: 3),
                   Text(
                     '$primaryMuscle • $difficulty',
-                    style: TextStyle(
-                      color: subtextColor,
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: subtextColor, fontSize: 12),
                   ),
                 ],
               ),
             ),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: subtextColor,
-              size: 24,
-            ),
+            Icon(Icons.chevron_right_rounded, color: subtextColor, size: 24),
           ],
         ),
       ),

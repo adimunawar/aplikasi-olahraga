@@ -32,8 +32,9 @@ class _FitnessGoalsScreenState extends ConsumerState<FitnessGoalsScreen> {
   void initState() {
     super.initState();
     final profile = ref.read(profileControllerProvider);
-    _selectedGoal =
-        profile.goal.isNotEmpty ? profile.goal : 'Build Muscle (Bulking)';
+    _selectedGoal = profile.goal.isNotEmpty
+        ? profile.goal
+        : 'Build Muscle (Bulking)';
     _targetWeightController = TextEditingController(
       text: profile.targetWeight.toStringAsFixed(1),
     );
@@ -63,7 +64,9 @@ class _FitnessGoalsScreenState extends ConsumerState<FitnessGoalsScreen> {
   Future<void> _saveChanges() async {
     final tw = double.tryParse(_targetWeightController.text) ?? 65.0;
 
-    await ref.read(profileControllerProvider.notifier).updateFitnessGoals(
+    await ref
+        .read(profileControllerProvider.notifier)
+        .updateFitnessGoals(
           goal: _selectedGoal,
           targetWeight: tw,
           experienceLevel: _selectedLevel,

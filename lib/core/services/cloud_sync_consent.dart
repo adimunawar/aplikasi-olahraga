@@ -22,8 +22,9 @@ class CloudSyncConsent {
     try {
       final preferences = await SharedPreferences.getInstance();
       final storedUserId = preferences.getString(_preferenceKey);
-      _consentedUserId =
-          storedUserId == null || storedUserId.isEmpty ? null : storedUserId;
+      _consentedUserId = storedUserId == null || storedUserId.isEmpty
+          ? null
+          : storedUserId;
     } catch (error) {
       _consentedUserId = null;
       debugPrint(

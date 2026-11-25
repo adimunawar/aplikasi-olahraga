@@ -20,8 +20,11 @@ class WeightChartSeries {
   }) {
     if (weeks <= 0) return const [];
 
-    final start = DateTime(now.year, now.month, now.day)
-        .subtract(Duration(days: weeks * 7 - 1));
+    final start = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(Duration(days: weeks * 7 - 1));
     final byWeek = <int, WeightRecord>{};
 
     for (final record in history) {
@@ -42,13 +45,16 @@ class WeightChartSeries {
       }
     }
 
-    final result = byWeek.entries
-        .map((entry) => WeightChartPoint(
-              weekNumber: entry.key,
-              weightKg: entry.value.weightKg,
-            ))
-        .toList()
-      ..sort((a, b) => a.weekNumber.compareTo(b.weekNumber));
+    final result =
+        byWeek.entries
+            .map(
+              (entry) => WeightChartPoint(
+                weekNumber: entry.key,
+                weightKg: entry.value.weightKg,
+              ),
+            )
+            .toList()
+          ..sort((a, b) => a.weekNumber.compareTo(b.weekNumber));
     return result;
   }
 }

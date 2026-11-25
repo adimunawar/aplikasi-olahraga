@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_card.dart';
@@ -9,10 +10,7 @@ import '../../domain/models/workout_program.dart';
 class ProgramScheduleCard extends StatelessWidget {
   final WorkoutProgram program;
 
-  const ProgramScheduleCard({
-    super.key,
-    required this.program,
-  });
+  const ProgramScheduleCard({super.key, required this.program});
 
   @override
   Widget build(BuildContext context) {
@@ -97,23 +95,16 @@ class _ScheduleDayChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: borderColor,
-          width: 1.2,
-        ),
+        border: Border.all(color: borderColor, width: 1.2),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           // Icon Dumbbell / Bulan Rest
           Icon(
-            isWorkout
-                ? Icons.fitness_center_rounded
-                : Icons.nightlight_round,
+            isWorkout ? Icons.fitness_center_rounded : Icons.nightlight_round,
             size: 16,
-            color: isWorkout
-                ? AppColors.darkCharcoal
-                : const Color(0xFF64748B),
+            color: isWorkout ? AppColors.darkCharcoal : const Color(0xFF64748B),
           ),
           const SizedBox(height: 6),
 
@@ -144,4 +135,3 @@ class _ScheduleDayChip extends StatelessWidget {
     );
   }
 }
-

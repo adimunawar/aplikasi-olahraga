@@ -1404,54 +1404,6 @@ class Translations$workouts$workoutDetail$id {
   String get repsUnit => 'repetisi';
 }
 
-// Path: workouts.workoutDetail.stages
-class Translations$workouts$workoutDetail$stages$id {
-  Translations$workouts$workoutDetail$stages$id.internal(this._root);
-
-  final Translations _root; // ignore: unused_field
-
-  // Translations
-  late final Translations$workouts$workoutDetail$stages$warmup$id warmup =
-      Translations$workouts$workoutDetail$stages$warmup$id.internal(_root);
-  late final Translations$workouts$workoutDetail$stages$main$id main =
-      Translations$workouts$workoutDetail$stages$main$id.internal(_root);
-  late final Translations$workouts$workoutDetail$stages$cooldown$id cooldown =
-      Translations$workouts$workoutDetail$stages$cooldown$id.internal(_root);
-}
-
-// Path: workouts.workoutDetail.stages.warmup
-class Translations$workouts$workoutDetail$stages$warmup$id {
-  Translations$workouts$workoutDetail$stages$warmup$id.internal(this._root);
-
-  final Translations _root; // ignore: unused_field
-
-  // Translations
-  String get title => 'Pemanasan';
-  String get subtitle => 'Persiapan';
-}
-
-// Path: workouts.workoutDetail.stages.main
-class Translations$workouts$workoutDetail$stages$main$id {
-  Translations$workouts$workoutDetail$stages$main$id.internal(this._root);
-
-  final Translations _root; // ignore: unused_field
-
-  // Translations
-  String get title => 'Latihan Inti';
-  String get subtitle => 'Latihan Utama';
-}
-
-// Path: workouts.workoutDetail.stages.cooldown
-class Translations$workouts$workoutDetail$stages$cooldown$id {
-  Translations$workouts$workoutDetail$stages$cooldown$id.internal(this._root);
-
-  final Translations _root; // ignore: unused_field
-
-  // Translations
-  String get title => 'Pendinginan';
-  String get subtitle => 'Pemulihan';
-}
-
 // Path: workouts.filter
 class Translations$workouts$filter$id {
   Translations$workouts$filter$id.internal(this._root);
@@ -2249,6 +2201,21 @@ class Translations$workouts$session$status$id {
   String get scheduled => 'Terjadwal';
 }
 
+// Path: workouts.workoutDetail.stages
+class Translations$workouts$workoutDetail$stages$id {
+  Translations$workouts$workoutDetail$stages$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+  late final Translations$workouts$workoutDetail$stages$warmup$id warmup =
+      Translations$workouts$workoutDetail$stages$warmup$id.internal(_root);
+  late final Translations$workouts$workoutDetail$stages$main$id main =
+      Translations$workouts$workoutDetail$stages$main$id.internal(_root);
+  late final Translations$workouts$workoutDetail$stages$cooldown$id cooldown =
+      Translations$workouts$workoutDetail$stages$cooldown$id.internal(_root);
+}
+
 // Path: core.progress.workout.noPerformance
 class Translations$core$progress$workout$noPerformance$id {
   Translations$core$progress$workout$noPerformance$id.internal(this._root);
@@ -2354,6 +2321,51 @@ class Translations$onboarding$ready$program$maintain$id {
 
   /// id: 'Kekuatan & Kebugaran Umum'
   String get subtitle => 'Kekuatan & Kebugaran Umum';
+}
+
+// Path: workouts.workoutDetail.stages.warmup
+class Translations$workouts$workoutDetail$stages$warmup$id {
+  Translations$workouts$workoutDetail$stages$warmup$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Pemanasan'
+  String get title => 'Pemanasan';
+
+  /// id: 'Persiapan'
+  String get subtitle => 'Persiapan';
+}
+
+// Path: workouts.workoutDetail.stages.main
+class Translations$workouts$workoutDetail$stages$main$id {
+  Translations$workouts$workoutDetail$stages$main$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Latihan Inti'
+  String get title => 'Latihan Inti';
+
+  /// id: 'Latihan Utama'
+  String get subtitle => 'Latihan Utama';
+}
+
+// Path: workouts.workoutDetail.stages.cooldown
+class Translations$workouts$workoutDetail$stages$cooldown$id {
+  Translations$workouts$workoutDetail$stages$cooldown$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Pendinginan'
+  String get title => 'Pendinginan';
+
+  /// id: 'Pemulihan'
+  String get subtitle => 'Pemulihan';
 }
 
 /// The flat map containing all translations for locale <id>.
@@ -2894,7 +2906,9 @@ extension on Translations {
       }) => '${completed}/${total} latihan',
       'workouts.weeklySchedule.current' => 'Saat Ini',
       'workouts.weeklySchedule.weekShort' => ({required Object n}) => 'W${n}',
-      'workouts.weeklySchedule.weekNumber' => ({required Object n}) => 'Minggu ${n}',
+      'workouts.weeklySchedule.weekNumber' => ({
+        required Object n,
+      }) => 'Minggu ${n}',
       'workouts.weeklySchedule.empty' =>
         'Tidak ada sesi latihan yang dijadwalkan untuk minggu ini.',
       'workouts.weeklySchedule.previewTitle' => 'Mode pratinjau',

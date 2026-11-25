@@ -44,7 +44,9 @@ class TodayWorkoutCompletedView extends StatelessWidget {
                 ),
                 const SizedBox(height: 14),
                 Text(
-                  isIndonesian ? 'Latihan hari ini selesai!' : 'Workout completed!',
+                  isIndonesian
+                      ? 'Latihan hari ini selesai!'
+                      : 'Workout completed!',
                   textAlign: TextAlign.center,
                   style: AppTypography.titleLarge.copyWith(
                     fontWeight: FontWeight.w900,

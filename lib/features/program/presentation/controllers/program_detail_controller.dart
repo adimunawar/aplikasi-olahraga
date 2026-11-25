@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../core/database/app_database.dart';
 import '../../../exercises/data/datasources/exercise_local_datasource.dart';
 import '../../../exercises/data/repositories/exercise_repository_impl.dart';
@@ -8,13 +9,16 @@ import 'program_detail_state.dart';
 
 /// Provider Family untuk ProgramDetailController berdasarkan programId
 final programDetailControllerProvider = StateNotifierProvider.autoDispose
-    .family<ProgramDetailController, ProgramDetailState, String>((ref, programId) {
-  return ProgramDetailController(
-    programId: programId,
-    database: AppDatabase.instance,
-    mockDatasource: const ProgramsMockDatasource(),
-  );
-});
+    .family<ProgramDetailController, ProgramDetailState, String>((
+      ref,
+      programId,
+    ) {
+      return ProgramDetailController(
+        programId: programId,
+        database: AppDatabase.instance,
+        mockDatasource: const ProgramsMockDatasource(),
+      );
+    });
 
 class ProgramDetailController extends StateNotifier<ProgramDetailState> {
   final String _programId;
@@ -25,21 +29,23 @@ class ProgramDetailController extends StateNotifier<ProgramDetailState> {
     required String programId,
     required this._database,
     required ProgramsMockDatasource mockDatasource,
-  })  : _programId = programId,
-        _mockDatasource = mockDatasource,
-        super(
-          ProgramDetailState(
-            program: mockDatasource.getProgramById(programId) ??
-                mockDatasource.getAllPrograms().first,
-            isLoading: true,
-          ),
-        ) {
+  }) : _programId = programId,
+       _mockDatasource = mockDatasource,
+       super(
+         ProgramDetailState(
+           program:
+               mockDatasource.getProgramById(programId) ??
+               mockDatasource.getAllPrograms().first,
+           isLoading: true,
+         ),
+       ) {
     _init();
   }
 
   Future<void> _init() async {
     try {
-      final program = _mockDatasource.getProgramById(_programId) ??
+      final program =
+          _mockDatasource.getProgramById(_programId) ??
           _mockDatasource.getAllPrograms().first;
       final activeProgramId = await _database.getActiveProgramId();
       final isCurrentActive = activeProgramId == program.id;
@@ -50,10 +56,7 @@ class ProgramDetailController extends StateNotifier<ProgramDetailState> {
         isCurrentActive: isCurrentActive,
       );
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
 
@@ -95,8 +98,8 @@ class ProgramDetailController extends StateNotifier<ProgramDetailState> {
       final startingPushId = updatedProfile.experienceLevel == 'advanced'
           ? 'diamond_push_up'
           : updatedProfile.experienceLevel == 'intermediate'
-              ? 'push_up'
-              : 'knee_push_up';
+          ? 'push_up'
+          : 'knee_push_up';
 
       final generated = const DynamicProgramGenerator().generate(
         userProfile: updatedProfile,
@@ -109,10 +112,7 @@ class ProgramDetailController extends StateNotifier<ProgramDetailState> {
         sessions: generated.sessions,
       );
 
-      state = state.copyWith(
-        isStartingProgram: false,
-        isCurrentActive: true,
-      );
+      state = state.copyWith(isStartingProgram: false, isCurrentActive: true);
       return true;
     } catch (e) {
       state = state.copyWith(
@@ -123,4 +123,3 @@ class ProgramDetailController extends StateNotifier<ProgramDetailState> {
     }
   }
 }
-

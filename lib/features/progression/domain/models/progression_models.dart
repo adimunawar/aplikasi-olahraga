@@ -4,9 +4,9 @@ import 'dart:convert';
 enum ProgressionAction {
   progress, // Naik ke variasi gerakan baru / naik rentang repetisi
   maintain, // Pertahankan target resep saat ini untuk mematangkan kestabilan
-  regress,  // Turun ke variasi lebih ringan jika repetisi gagal berulang kali
-  recover,  // Deload / kurangi volume latihan karena kelelahan atau nyeri sendi
-  reassess, // Sesi uji ulang karena data tidak lengkap / belum cukup bukti
+  regress, // Turun ke variasi lebih ringan jika repetisi gagal berulang kali
+  recover, // Deload / kurangi volume latihan karena kelelahan atau nyeri sendi
+  reassess // Sesi uji ulang karena data tidak lengkap / belum cukup bukti
   ;
 
   String toDbString() => name;
@@ -129,8 +129,10 @@ class ProgressionInput {
   final ExercisePrescription prescription;
   final List<SetPerformanceLog> completedSets;
   final RecoveryFeedback recoveryFeedback;
-  final int consecutiveMaxRepsSessions; // Jumlah sesi berturut-turut mencapai max_reps
-  final int recentUnderperformingSessions; // Jumlah sesi berturut-turut gagal min_reps
+  final int
+  consecutiveMaxRepsSessions; // Jumlah sesi berturut-turut mencapai max_reps
+  final int
+  recentUnderperformingSessions; // Jumlah sesi berturut-turut gagal min_reps
   final String? nextExerciseId; // Variasi berikutnya di tangga progresi
   final String? previousExerciseId; // Variasi sebelumnya di tangga progresi
 
@@ -168,8 +170,8 @@ class ProgressionDecision {
       'decision': action.name,
       'reason': reason,
       'next_prescription': nextPrescription.toMap(),
-      if (suggestedExerciseId != null) 'suggested_exercise_id': suggestedExerciseId,
+      if (suggestedExerciseId != null)
+        'suggested_exercise_id': suggestedExerciseId,
     };
   }
 }
-

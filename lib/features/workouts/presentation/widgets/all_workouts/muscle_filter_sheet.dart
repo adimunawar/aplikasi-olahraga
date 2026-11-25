@@ -35,9 +35,7 @@ void showMuscleFilterSheet({
   final theme = Theme.of(context);
   final isDark = theme.brightness == Brightness.dark;
 
-  final sheetBgColor = isDark
-      ? theme.colorScheme.surface
-      : Colors.white;
+  final sheetBgColor = isDark ? theme.colorScheme.surface : Colors.white;
   final handleColor = isDark
       ? theme.colorScheme.outline
       : const Color(0xFFE5E7EB);

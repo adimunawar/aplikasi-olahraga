@@ -1,14 +1,12 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_typography.dart';
 
 /// Banner Quick Access ke Perpustakaan 18 Gerakan Biomekanika (1:1 Sesuai Referensi Desain)
 class ExerciseLibraryBanner extends StatelessWidget {
   final VoidCallback onOpenLibrary;
 
-  const ExerciseLibraryBanner({
-    super.key,
-    required this.onOpenLibrary,
-  });
+  const ExerciseLibraryBanner({super.key, required this.onOpenLibrary});
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +86,10 @@ class ExerciseLibraryBanner extends StatelessWidget {
               onTap: onOpenLibrary,
               borderRadius: BorderRadius.circular(16),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(

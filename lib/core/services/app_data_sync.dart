@@ -13,4 +13,3 @@ class AppDataSync {
     dataRevision.value++;
   }
 }
-

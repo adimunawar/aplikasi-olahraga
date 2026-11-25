@@ -5,36 +5,37 @@ import 'package:workout_app/core/widgets/core_widgets.dart';
 
 void main() {
   group('AppSegmentedTabs', () {
-    testWidgets('renders all segment labels and invokes onChanged when tapped', (
-      tester,
-    ) async {
-      int? selectedTab;
+    testWidgets(
+      'renders all segment labels and invokes onChanged when tapped',
+      (tester) async {
+        int? selectedTab;
 
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.lightTheme,
-          home: Scaffold(
-            body: AppSegmentedTabs<int>(
-              selectedValue: 0,
-              onChanged: (value) => selectedTab = value,
-              tabs: const [
-                AppSegmentedTabItem(value: 0, label: 'Program Saya'),
-                AppSegmentedTabItem(value: 1, label: 'Semua Latihan'),
-              ],
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: AppTheme.lightTheme,
+            home: Scaffold(
+              body: AppSegmentedTabs<int>(
+                selectedValue: 0,
+                onChanged: (value) => selectedTab = value,
+                tabs: const [
+                  AppSegmentedTabItem(value: 0, label: 'Program Saya'),
+                  AppSegmentedTabItem(value: 1, label: 'Semua Latihan'),
+                ],
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      expect(find.byType(SegmentedButton<int>), findsOneWidget);
-      expect(find.text('Program Saya'), findsOneWidget);
-      expect(find.text('Semua Latihan'), findsOneWidget);
+        expect(find.byType(SegmentedButton<int>), findsOneWidget);
+        expect(find.text('Program Saya'), findsOneWidget);
+        expect(find.text('Semua Latihan'), findsOneWidget);
 
-      await tester.tap(find.text('Semua Latihan'));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('Semua Latihan'));
+        await tester.pumpAndSettle();
 
-      expect(selectedTab, 1);
-    });
+        expect(selectedTab, 1);
+      },
+    );
 
     testWidgets('renders 4 tabs cleanly in Light and Dark Mode', (
       tester,

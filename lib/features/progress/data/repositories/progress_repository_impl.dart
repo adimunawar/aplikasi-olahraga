@@ -43,10 +43,14 @@ class ProgressRepositoryImpl implements ProgressRepository {
       streakDays = streak;
       completedThisWeek = thisWeek;
       weeklyTarget = profile.weeklyFrequency;
-      final sessions = await localDatabase.getRecentWorkoutSessions(limit: 10000);
-      totalMinutes = sessions
-          .where((session) => session.status.name == 'completed')
-          .fold<int>(0, (sum, session) => sum + session.durationSeconds) ~/ 60;
+      final sessions = await localDatabase.getRecentWorkoutSessions(
+        limit: 10000,
+      );
+      totalMinutes =
+          sessions
+              .where((session) => session.status.name == 'completed')
+              .fold<int>(0, (sum, session) => sum + session.durationSeconds) ~/
+          60;
     } catch (_) {}
 
     return ProgressMetrics(
@@ -75,13 +79,16 @@ class ProgressRepositoryImpl implements ProgressRepository {
     try {
       final measurements = await localDatabase.getWeightHistory();
       if (measurements.isNotEmpty) {
-        return measurements.map((m) => WeightRecord(
-          id: m.id,
-          weightKg: m.value,
-          recordedAt: m.recordedAt,
-        )).toList();
+        return measurements
+            .map(
+              (m) => WeightRecord(
+                id: m.id,
+                weightKg: m.value,
+                recordedAt: m.recordedAt,
+              ),
+            )
+            .toList();
       }
-
     } catch (_) {}
 
     return [];
@@ -90,14 +97,19 @@ class ProgressRepositoryImpl implements ProgressRepository {
   @override
   Future<List<WorkoutHistoryItem>> getRecentWorkouts({int limit = 5}) async {
     try {
-      final localSessions = await localDatabase.getRecentWorkoutSessions(limit: limit);
+      final localSessions = await localDatabase.getRecentWorkoutSessions(
+        limit: limit,
+      );
       if (localSessions.isNotEmpty) {
         return localSessions.map((s) {
           final durMin = (s.durationSeconds / 60).round();
-          final dateStr = '${s.startedAt.day}/${s.startedAt.month}/${s.startedAt.year}';
+          final dateStr =
+              '${s.startedAt.day}/${s.startedAt.month}/${s.startedAt.year}';
           return WorkoutHistoryItem(
             id: s.id,
-            title: s.programTitle.isNotEmpty ? s.programTitle : 'Full Body Workout',
+            title: s.programTitle.isNotEmpty
+                ? s.programTitle
+                : 'Full Body Workout',
             dateText: dateStr,
             durationText: '$durMin min',
             caloriesText: '${s.caloriesBurned} kcal',
@@ -108,7 +120,9 @@ class ProgressRepositoryImpl implements ProgressRepository {
 
     if (SupabaseConfig.canSyncToCloud) {
       try {
-        final remoteItems = await remoteDatasource.fetchRecentWorkouts(limit: limit);
+        final remoteItems = await remoteDatasource.fetchRecentWorkouts(
+          limit: limit,
+        );
         if (remoteItems.isNotEmpty) {
           return remoteItems;
         }
@@ -116,7 +130,6 @@ class ProgressRepositoryImpl implements ProgressRepository {
     }
 
     return [];
-
   }
 
   @override
@@ -124,10 +137,9 @@ class ProgressRepositoryImpl implements ProgressRepository {
     try {
       final localActivity = await localDatabase.getWeeklyActivityMinutes();
       final daysOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-      return daysOrder.map((day) => DayActivity(
-        day: day,
-        minutes: localActivity[day] ?? 0,
-      )).toList();
+      return daysOrder
+          .map((day) => DayActivity(day: day, minutes: localActivity[day] ?? 0))
+          .toList();
     } catch (_) {
       return const [];
     }
@@ -144,9 +156,13 @@ class ProgressRepositoryImpl implements ProgressRepository {
   }
 
   @override
-  Future<List<ProgressionMilestone>> getProgressionMilestones({int limit = 5}) async {
+  Future<List<ProgressionMilestone>> getProgressionMilestones({
+    int limit = 5,
+  }) async {
     try {
-      final decisions = await localDatabase.getRecentProgressionMilestones(limit: limit);
+      final decisions = await localDatabase.getRecentProgressionMilestones(
+        limit: limit,
+      );
       return decisions.map((d) {
         String? nextExId;
         final nextMap = d.nextPrescriptionMap;
@@ -177,4 +193,3 @@ class ProgressRepositoryImpl implements ProgressRepository {
     } catch (_) {}
   }
 }
-

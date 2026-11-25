@@ -92,10 +92,14 @@ class HomeGreetingHeader extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
                 shape: BoxShape.circle,
-                border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.2),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                  width: 1.2,
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.04),
+                    color: Theme.of(context).colorScheme.shadow
+                        .withValues(alpha: 0.04),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),

@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../theme/app_colors.dart';
 import '../utils/media_url_resolver.dart';
 
@@ -64,7 +65,9 @@ class AppSmartImage extends StatelessWidget {
     final path = MediaUrlResolver.resolve(imagePathOrUrl)?.trim() ?? '';
     final isNetwork = path.startsWith('http://') || path.startsWith('https://');
 
-    if (raw.contains('knee') || raw.contains('thumbnail') || raw.contains('.webp')) {
+    if (raw.contains('knee') ||
+        raw.contains('thumbnail') ||
+        raw.contains('.webp')) {
       debugPrint('[AppSmartImage] 🖼️ Loading image:');
       debugPrint('   raw : "$raw"');
       debugPrint('   path: "$path" (isNetwork: $isNetwork)');
@@ -98,17 +101,16 @@ class AppSmartImage extends StatelessWidget {
         fit: fit,
         alignment: alignment,
         errorBuilder: (context, error, stackTrace) {
-          debugPrint('[AppSmartImage] ❌ Gagal memuat Image.asset: "$path" (Error: $error)');
+          debugPrint(
+            '[AppSmartImage] ❌ Gagal memuat Image.asset: "$path" (Error: $error)',
+          );
           return errorWidget ?? _buildFallback();
         },
       );
     }
 
     if (borderRadius != null) {
-      return ClipRRect(
-        borderRadius: borderRadius!,
-        child: content,
-      );
+      return ClipRRect(borderRadius: borderRadius!, child: content);
     }
 
     return content;
@@ -147,4 +149,3 @@ class AppSmartImage extends StatelessWidget {
     );
   }
 }
-

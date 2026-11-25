@@ -10,11 +10,7 @@ class WeightRecord {
     required this.recordedAt,
   });
 
-  WeightRecord copyWith({
-    String? id,
-    double? weightKg,
-    DateTime? recordedAt,
-  }) {
+  WeightRecord copyWith({String? id, double? weightKg, DateTime? recordedAt}) {
     return WeightRecord(
       id: id ?? this.id,
       weightKg: weightKg ?? this.weightKg,
@@ -22,4 +18,3 @@ class WeightRecord {
     );
   }
 }
-

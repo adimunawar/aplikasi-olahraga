@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../../core/theme/app_typography.dart';
 import '../../../../../i18n/strings.g.dart';
 
@@ -46,7 +47,10 @@ class TodayWorkoutActiveCard extends StatelessWidget {
                 onTap: onViewPlan,
                 borderRadius: BorderRadius.circular(8),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 2,
+                  ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -78,7 +82,8 @@ class TodayWorkoutActiveCard extends StatelessWidget {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.04),
+                  color: Theme.of(context).colorScheme.shadow
+                      .withValues(alpha: 0.04),
                   blurRadius: 10,
                   offset: const Offset(0, 3),
                 ),
@@ -127,7 +132,9 @@ class TodayWorkoutActiveCard extends StatelessWidget {
                           Text(
                             targetMuscles,
                             style: AppTypography.bodySmall.copyWith(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
                               fontSize: 12.5,
                               fontWeight: FontWeight.w500,
                             ),
@@ -140,13 +147,19 @@ class TodayWorkoutActiveCard extends StatelessWidget {
                               Icon(
                                 Icons.access_time_rounded,
                                 size: 14,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                t.home.todayWorkout.approxMin(min: durationMinutes),
+                                t.home.todayWorkout.approxMin(
+                                  min: durationMinutes,
+                                ),
                                 style: AppTypography.bodySmall.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
                                   fontSize: 11.5,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -159,9 +172,13 @@ class TodayWorkoutActiveCard extends StatelessWidget {
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                t.home.todayWorkout.approxKcal(kcal: estimatedCalories),
+                                t.home.todayWorkout.approxKcal(
+                                  kcal: estimatedCalories,
+                                ),
                                 style: AppTypography.bodySmall.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
                                   fontSize: 11.5,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -188,7 +205,8 @@ class TodayWorkoutActiveCard extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      shadowColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                      shadowColor: Theme.of(context).colorScheme.primary
+                          .withValues(alpha: 0.3),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,

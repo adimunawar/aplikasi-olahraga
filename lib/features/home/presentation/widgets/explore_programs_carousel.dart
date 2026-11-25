@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_typography.dart';
 
 class ExploreProgramItem {
@@ -126,7 +127,11 @@ class ExploreProgramsCarousel extends StatelessWidget {
                 item.imageAsset,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => const Center(
-                  child: Icon(Icons.fitness_center_rounded, color: Colors.white54, size: 30),
+                  child: Icon(
+                    Icons.fitness_center_rounded,
+                    color: Colors.white54,
+                    size: 30,
+                  ),
                 ),
               ),
             ),
@@ -167,4 +172,3 @@ class ExploreProgramsCarousel extends StatelessWidget {
     );
   }
 }
-

@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_badge.dart';
@@ -272,11 +273,7 @@ class TodaysWorkoutCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                Container(
-                  width: 1,
-                  height: 14,
-                  color: const Color(0xFFCBD5E1),
-                ),
+                Container(width: 1, height: 14, color: const Color(0xFFCBD5E1)),
                 const SizedBox(width: 12),
                 const Icon(
                   Icons.nightlight_round,

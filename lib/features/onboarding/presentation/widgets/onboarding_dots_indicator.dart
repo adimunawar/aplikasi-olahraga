@@ -36,4 +36,3 @@ class OnboardingDotsIndicator extends StatelessWidget {
     );
   }
 }
-

@@ -52,7 +52,7 @@ class ProteinRecommendationEngine {
       return [
         FoodCombination(
           items: [FoodCombinationItem(food: lightFood, portion: 1)],
-        )
+        ),
       ];
     }
 
@@ -63,9 +63,11 @@ class ProteinRecommendationEngine {
       for (int p1 = f1.minPortion; p1 <= f1.maxPortion; p1++) {
         final protein = f1.proteinG * p1;
         if ((protein - remainingProteinG).abs() <= 3.0) {
-          candidates.add(FoodCombination(
-            items: [FoodCombinationItem(food: f1, portion: p1)],
-          ));
+          candidates.add(
+            FoodCombination(
+              items: [FoodCombinationItem(food: f1, portion: p1)],
+            ),
+          );
         }
       }
     }
@@ -79,12 +81,14 @@ class ProteinRecommendationEngine {
           for (int p2 = 1; p2 <= 2; p2++) {
             final protein = (f1.proteinG * p1) + (f2.proteinG * p2);
             if ((protein - remainingProteinG).abs() <= 3.0) {
-              candidates.add(FoodCombination(
-                items: [
-                  FoodCombinationItem(food: f1, portion: p1),
-                  FoodCombinationItem(food: f2, portion: p2),
-                ],
-              ));
+              candidates.add(
+                FoodCombination(
+                  items: [
+                    FoodCombinationItem(food: f1, portion: p1),
+                    FoodCombinationItem(food: f2, portion: p2),
+                  ],
+                ),
+              );
             }
           }
         }
@@ -98,8 +102,12 @@ class ProteinRecommendationEngine {
     // 4. Fewest items
     candidates.sort((a, b) {
       // Penalty for repeat foods
-      final aRepeats = a.items.where((i) => loggedFoodIdsToday.contains(i.food.id)).length;
-      final bRepeats = b.items.where((i) => loggedFoodIdsToday.contains(i.food.id)).length;
+      final aRepeats = a.items
+          .where((i) => loggedFoodIdsToday.contains(i.food.id))
+          .length;
+      final bRepeats = b.items
+          .where((i) => loggedFoodIdsToday.contains(i.food.id))
+          .length;
 
       if (aRepeats != bRepeats) {
         return aRepeats.compareTo(bRepeats);
@@ -125,4 +133,3 @@ class ProteinRecommendationEngine {
     return candidates.take(3).toList();
   }
 }
-

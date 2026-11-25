@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_typography.dart';
 import '../../../exercises/domain/models/exercise.dart';
 
@@ -68,7 +69,10 @@ class ExerciseHeroBanner extends StatelessWidget {
                     children: [
                       // Badge "Home Workout"
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFFB8E66B),
                           borderRadius: BorderRadius.circular(20),
@@ -76,7 +80,11 @@ class ExerciseHeroBanner extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.home_rounded, size: 14, color: Color(0xFF13361A)),
+                            const Icon(
+                              Icons.home_rounded,
+                              size: 14,
+                              color: Color(0xFF13361A),
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               'Home Workout',
@@ -104,11 +112,17 @@ class ExerciseHeroBanner extends StatelessWidget {
                       // Muscle subtitle
                       Row(
                         children: [
-                          const Icon(Icons.fitness_center_rounded, size: 14, color: Color(0xFFB8E66B)),
+                          const Icon(
+                            Icons.fitness_center_rounded,
+                            size: 14,
+                            color: Color(0xFFB8E66B),
+                          ),
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              primaryMuscles.isNotEmpty ? primaryMuscles : 'Chest • Triceps • Shoulder',
+                              primaryMuscles.isNotEmpty
+                                  ? primaryMuscles
+                                  : 'Chest • Triceps • Shoulder',
                               style: AppTypography.bodySmall.copyWith(
                                 color: const Color(0xFFE2EED9),
                                 fontWeight: FontWeight.w600,
@@ -160,4 +174,3 @@ class ExerciseHeroBanner extends StatelessWidget {
     );
   }
 }
-

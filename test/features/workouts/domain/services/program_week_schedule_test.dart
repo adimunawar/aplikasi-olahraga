@@ -127,10 +127,11 @@ void main() {
 
       expect(week, hasLength(3));
       expect(week.map((item) => item.session.dayNumber), [1, 2, 3]);
-      expect(
-        week.map((item) => item.scheduledDate),
-        [DateTime(2026, 11, 2), DateTime(2026, 11, 4), DateTime(2026, 11, 6)],
-      );
+      expect(week.map((item) => item.scheduledDate), [
+        DateTime(2026, 11, 2),
+        DateTime(2026, 11, 4),
+        DateTime(2026, 11, 6),
+      ]);
     });
 
     test('uses the same workout templates on the next week but new dates', () {
@@ -143,30 +144,31 @@ void main() {
 
       expect(week, hasLength(3));
       expect(week.map((item) => item.session.dayNumber), [1, 2, 3]);
-      expect(
-        week.map((item) => item.scheduledDate),
-        [DateTime(2026, 11, 9), DateTime(2026, 11, 11), DateTime(2026, 11, 13)],
-      );
+      expect(week.map((item) => item.scheduledDate), [
+        DateTime(2026, 11, 9),
+        DateTime(2026, 11, 11),
+        DateTime(2026, 11, 13),
+      ]);
     });
 
-    test('schedules the first workout on Sunday when the program starts Sunday', () {
-      final sundaySessions = ProgramWeekSchedule.build(
-        programStartDate: DateTime(2026, 11, 1),
-        weekNumber: 1,
-        availableDays: const ['sunday', 'tuesday', 'thursday'],
-        sessions: sessions,
-      );
+    test(
+      'schedules the first workout on Sunday when the program starts Sunday',
+      () {
+        final sundaySessions = ProgramWeekSchedule.build(
+          programStartDate: DateTime(2026, 11, 1),
+          weekNumber: 1,
+          availableDays: const ['sunday', 'tuesday', 'thursday'],
+          sessions: sessions,
+        );
 
-      expect(sundaySessions, hasLength(3));
-      expect(
-        sundaySessions.map((item) => item.scheduledDate),
-        [
+        expect(sundaySessions, hasLength(3));
+        expect(sundaySessions.map((item) => item.scheduledDate), [
           DateTime(2026, 11, 1),
           DateTime(2026, 11, 3),
           DateTime(2026, 11, 5),
-        ],
-      );
-    });
+        ]);
+      },
+    );
 
     test('resolves Sunday as the first workout date for a Sunday start', () {
       final scheduled = ProgramWeekSchedule.sessionForDate(
@@ -205,10 +207,11 @@ void main() {
       );
 
       expect(week, hasLength(3));
-      expect(
-        week.map((item) => item.scheduledDate),
-        [DateTime(2026, 11, 4), DateTime(2026, 11, 6), DateTime(2026, 11, 9)],
-      );
+      expect(week.map((item) => item.scheduledDate), [
+        DateTime(2026, 11, 4),
+        DateTime(2026, 11, 6),
+        DateTime(2026, 11, 9),
+      ]);
     });
 
     test('week boundaries match currentWeek for a mid-week start', () {
@@ -240,25 +243,28 @@ void main() {
       );
     });
 
-    test('returns no scheduled sessions when there are no templates or days', () {
-      expect(
-        ProgramWeekSchedule.build(
-          programStartDate: programStart,
-          weekNumber: 1,
-          availableDays: const ['monday'],
-          sessions: const [],
-        ),
-        isEmpty,
-      );
-      expect(
-        ProgramWeekSchedule.build(
-          programStartDate: programStart,
-          weekNumber: 1,
-          availableDays: const [],
-          sessions: sessions,
-        ),
-        isEmpty,
-      );
-    });
+    test(
+      'returns no scheduled sessions when there are no templates or days',
+      () {
+        expect(
+          ProgramWeekSchedule.build(
+            programStartDate: programStart,
+            weekNumber: 1,
+            availableDays: const ['monday'],
+            sessions: const [],
+          ),
+          isEmpty,
+        );
+        expect(
+          ProgramWeekSchedule.build(
+            programStartDate: programStart,
+            weekNumber: 1,
+            availableDays: const [],
+            sessions: sessions,
+          ),
+          isEmpty,
+        );
+      },
+    );
   });
 }

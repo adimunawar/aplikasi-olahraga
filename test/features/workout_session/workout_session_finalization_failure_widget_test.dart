@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -287,51 +288,48 @@ void main() {
       },
     );
 
-    test(
-      'rejects finalization after session preparation fails',
-      () async {
-        final repository = _FakeWorkoutSessionRepository()
-          ..failPrepareSession = true;
-        final container = ProviderContainer(
-          overrides: [
-            workoutSessionRepositoryProvider.overrideWithValue(repository),
-          ],
-        );
-        final subscription = container.listen(
-          workoutSessionControllerProvider,
-          (previous, next) {},
-        );
-        addTearDown(() {
-          subscription.close();
-          container.dispose();
-        });
+    test('rejects finalization after session preparation fails', () async {
+      final repository = _FakeWorkoutSessionRepository()
+        ..failPrepareSession = true;
+      final container = ProviderContainer(
+        overrides: [
+          workoutSessionRepositoryProvider.overrideWithValue(repository),
+        ],
+      );
+      final subscription = container.listen(
+        workoutSessionControllerProvider,
+        (previous, next) {},
+      );
+      addTearDown(() {
+        subscription.close();
+        container.dispose();
+      });
 
-        final controller = container.read(
-          workoutSessionControllerProvider.notifier,
-        );
-        await controller.prepareSession(
-          programId: 'program_1',
-          dayNumber: 1,
-          programTitle: 'Chest Focus',
-          scheduledDate: DateTime(2026, 11, 18),
-          exerciseIds: const ['push_up'],
-        );
+      final controller = container.read(
+        workoutSessionControllerProvider.notifier,
+      );
+      await controller.prepareSession(
+        programId: 'program_1',
+        dayNumber: 1,
+        programTitle: 'Chest Focus',
+        scheduledDate: DateTime(2026, 11, 18),
+        exerciseIds: const ['push_up'],
+      );
 
-        expect(
-          container.read(workoutSessionControllerProvider).isSessionReady,
-          isFalse,
-        );
-        final result = await controller.finishWorkoutSession(
-          programId: 'program_1',
-          dayNumber: 1,
-          programTitle: 'Chest Focus',
-          totalExercises: 1,
-        );
+      expect(
+        container.read(workoutSessionControllerProvider).isSessionReady,
+        isFalse,
+      );
+      final result = await controller.finishWorkoutSession(
+        programId: 'program_1',
+        dayNumber: 1,
+        programTitle: 'Chest Focus',
+        totalExercises: 1,
+      );
 
-        expect(result, isNull);
-        expect(repository.finishAttemptCount, 0);
-      },
-    );
+      expect(result, isNull);
+      expect(repository.finishAttemptCount, 0);
+    });
 
     test(
       'rejects finalization when no active session ID was prepared',
@@ -440,10 +438,7 @@ void main() {
         final moreIcon = find.byIcon(Icons.more_horiz_rounded);
         expect(moreIcon, findsOneWidget);
         final moreButton = tester.widget<IconButton>(
-          find.ancestor(
-            of: moreIcon,
-            matching: find.byType(IconButton),
-          ),
+          find.ancestor(of: moreIcon, matching: find.byType(IconButton)),
         );
         expect(moreButton.onPressed, isNull);
 
@@ -521,9 +516,7 @@ void main() {
         await tester.pumpAndSettle();
 
         // Tap Finish Session Now in bottom sheet
-        final finishNowTile = find.text(
-          t.workoutSession.finishSessionNow,
-        );
+        final finishNowTile = find.text(t.workoutSession.finishSessionNow);
         expect(finishNowTile, findsOneWidget);
         await tester.tap(finishNowTile);
         await tester.pumpAndSettle();
@@ -534,10 +527,7 @@ void main() {
         expect(repository.finishAttemptCount, 1);
 
         // Verification 2: Error banner and localized failure message are visible
-        expect(
-          find.text(t.workoutSession.finishSessionFailed),
-          findsOneWidget,
-        );
+        expect(find.text(t.workoutSession.finishSessionFailed), findsOneWidget);
         expect(find.byIcon(Icons.error_outline_rounded), findsWidgets);
 
         // Verification 3: Localized Retry button is visible
@@ -553,10 +543,7 @@ void main() {
 
         expect(repository.finishAttemptCount, 2);
         expect(find.text('Completed Screen Loaded'), findsNothing);
-        expect(
-          find.text(t.workoutSession.finishSessionFailed),
-          findsOneWidget,
-        );
+        expect(find.text(t.workoutSession.finishSessionFailed), findsOneWidget);
 
         // Now simulate database / network recovery
         repository.failFinishSession = false;

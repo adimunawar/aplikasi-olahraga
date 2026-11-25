@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import '../../../../core/config/supabase_config.dart';
 import '../../domain/models/workout_program.dart';
 import 'programs_mock_datasource.dart';
@@ -48,7 +49,9 @@ class ProgramsSupabaseDatasource {
         return mock != null ? p.copyWith(weeks: mock.weeks) : p;
       }).toList();
     } catch (e) {
-      debugPrint('[Supabase] Error fetching programs: $e. Menggunakan cache/fallback lokal.');
+      debugPrint(
+        '[Supabase] Error fetching programs: $e. Menggunakan cache/fallback lokal.',
+      );
       return fallbackDatasource.getAllPrograms();
     }
   }
@@ -77,7 +80,9 @@ class ProgramsSupabaseDatasource {
           .maybeSingle();
 
       if (response != null) {
-        final program = WorkoutProgram.fromJson(Map<String, dynamic>.from(response));
+        final program = WorkoutProgram.fromJson(
+          Map<String, dynamic>.from(response),
+        );
         if (program.weeks.isNotEmpty) {
           return program;
         }
@@ -91,4 +96,3 @@ class ProgramsSupabaseDatasource {
     }
   }
 }
-

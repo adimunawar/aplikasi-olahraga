@@ -82,7 +82,8 @@ class UserSettingsEntity {
       hapticFeedback: readBool('haptic_feedback', fallback: true),
       soundEffects: readBool('sound_effects', fallback: true),
       dataSync: readBool('data_sync', fallback: false),
-      updatedAt: DateTime.tryParse(map['updated_at']?.toString() ?? '') ??
+      updatedAt:
+          DateTime.tryParse(map['updated_at']?.toString() ?? '') ??
           DateTime.now(),
     );
   }
@@ -123,4 +124,3 @@ class UserSettingsEntity {
     );
   }
 }
-

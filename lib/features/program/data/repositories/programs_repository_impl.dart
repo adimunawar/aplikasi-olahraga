@@ -49,7 +49,8 @@ class ProgramsRepositoryImpl implements ProgramsRepository {
       return remoteProgram;
     }
 
-    return localDatasource.getProgramById(activeId) ?? localDatasource.getAllPrograms().first;
+    return localDatasource.getProgramById(activeId) ??
+        localDatasource.getAllPrograms().first;
   }
 
   @override

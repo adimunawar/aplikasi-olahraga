@@ -61,9 +61,12 @@ class TrainingProgramEntity {
       name: map['name'] as String,
       status: map['status'] as String? ?? 'active',
       startDate: DateTime.parse(map['start_date'] as String),
-      endDate: map['end_date'] != null ? DateTime.parse(map['end_date'] as String) : null,
+      endDate: map['end_date'] != null
+          ? DateTime.parse(map['end_date'] as String)
+          : null,
       weeklyFrequency: (map['weekly_frequency'] as num?)?.toInt() ?? 3,
-      targetDurationMinutes: (map['target_duration_minutes'] as num?)?.toInt() ?? 30,
+      targetDurationMinutes:
+          (map['target_duration_minutes'] as num?)?.toInt() ?? 30,
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
     );
@@ -108,7 +111,8 @@ class ProgramSessionEntity {
       programId: map['program_id'] as String,
       dayNumber: (map['day_number'] as num?)?.toInt() ?? 1,
       name: map['name'] as String,
-      targetDurationMinutes: (map['target_duration_minutes'] as num?)?.toInt() ?? 30,
+      targetDurationMinutes:
+          (map['target_duration_minutes'] as num?)?.toInt() ?? 30,
       focusLabel: map['focus_label'] as String? ?? 'Full Body',
       createdAt: DateTime.parse(map['created_at'] as String),
     );
@@ -180,12 +184,10 @@ class ProgramSessionDetail {
   final ProgramSessionEntity session;
   final List<ProgramExerciseDetailItem> exercises;
 
-  const ProgramSessionDetail({
-    required this.session,
-    required this.exercises,
-  });
+  const ProgramSessionDetail({required this.session, required this.exercises});
 
-  int get totalSets => exercises.fold(0, (sum, e) => sum + e.prescription.targetSets);
+  int get totalSets =>
+      exercises.fold(0, (sum, e) => sum + e.prescription.targetSets);
 }
 
 class ProgramExerciseDetailItem {
@@ -197,4 +199,3 @@ class ProgramExerciseDetailItem {
     required this.exercise,
   });
 }
-

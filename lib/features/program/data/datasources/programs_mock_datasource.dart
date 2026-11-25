@@ -173,10 +173,7 @@ class ProgramsMockDatasource {
   WorkoutProgram _buildFullBodyBulkingProgram() {
     return const WorkoutProgram(
       id: 'full_body_bulking',
-      title: LocalizedString(
-        id: 'Full Body Bulking',
-        en: 'Full Body Bulking',
-      ),
+      title: LocalizedString(id: 'Full Body Bulking', en: 'Full Body Bulking'),
       description: LocalizedString(
         id: 'Program pembentukan seluruh tubuh berfokus pada volume progresif.',
         en: 'Structured full-body hypertrophy training with progressive overload.',
@@ -219,10 +216,7 @@ class ProgramsMockDatasource {
   WorkoutProgram _buildCoreStabilityProgram() {
     return const WorkoutProgram(
       id: 'core_stability',
-      title: LocalizedString(
-        id: 'Core & Stability',
-        en: 'Core & Stability',
-      ),
+      title: LocalizedString(id: 'Core & Stability', en: 'Core & Stability'),
       description: LocalizedString(
         id: 'Memperkuat dinding perut, pinggang, dan stabilitas tulang belakang.',
         en: 'Build a solid abdominal wall and spinal stability.',
@@ -236,4 +230,3 @@ class ProgramsMockDatasource {
     );
   }
 }
-

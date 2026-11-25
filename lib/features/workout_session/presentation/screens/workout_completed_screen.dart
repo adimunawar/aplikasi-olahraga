@@ -402,12 +402,14 @@ class _WorkoutCompletedScreenState extends State<WorkoutCompletedScreen>
                 width: 52,
                 height: 52,
                 decoration: BoxDecoration(
-                  color:
-                      isSelected ? AppColors.limeAccent : AppColors.neutral50,
+                  color: isSelected
+                      ? AppColors.limeAccent
+                      : AppColors.neutral50,
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color:
-                        isSelected ? AppColors.primary : AppColors.neutral200,
+                    color: isSelected
+                        ? AppColors.primary
+                        : AppColors.neutral200,
                     width: isSelected ? 2 : 1,
                   ),
                   boxShadow: isSelected

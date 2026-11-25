@@ -10,8 +10,9 @@ const kAppLocalePrefsKey = 'app_locale';
 ///
 /// Semua perubahan bahasa harus lewat provider ini agar pilihan pengguna
 /// tersimpan dan [LocaleSettings] slang ikut diperbarui.
-final appLocaleProvider =
-    NotifierProvider<AppLocaleController, AppLocale>(AppLocaleController.new);
+final appLocaleProvider = NotifierProvider<AppLocaleController, AppLocale>(
+  AppLocaleController.new,
+);
 
 class AppLocaleController extends Notifier<AppLocale> {
   AppLocaleController({this.initial});

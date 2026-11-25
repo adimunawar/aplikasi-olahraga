@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_typography.dart';
 
 /// Card Kutipan Motivasi Coach Adi pada Akhir Sesi (Mockup 1:1):
@@ -9,8 +10,7 @@ class CoachMotivationQuoteCard extends StatelessWidget {
 
   const CoachMotivationQuoteCard({
     super.key,
-    this.quoteText =
-        'Latihan yang konsisten seperti ini akan membantu kamu membangun massa otot dan tubuh yang lebih kuat. Pertahankan!',
+    this.quoteText = 'Latihan yang konsisten seperti ini akan membantu kamu membangun massa otot dan tubuh yang lebih kuat. Pertahankan!',
   });
 
   @override
@@ -121,4 +121,3 @@ class CoachMotivationQuoteCard extends StatelessWidget {
     );
   }
 }
-

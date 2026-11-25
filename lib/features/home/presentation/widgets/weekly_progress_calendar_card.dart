@@ -111,10 +111,14 @@ class WeeklyProgressCalendarCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.2),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outlineVariant,
+                width: 1.2,
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.04),
+                  color: Theme.of(context).colorScheme.shadow
+                      .withValues(alpha: 0.04),
                   blurRadius: 10,
                   offset: const Offset(0, 3),
                 ),
@@ -145,7 +149,10 @@ class WeeklyProgressCalendarCard extends StatelessWidget {
           ? BoxDecoration(
               color: Theme.of(context).colorScheme.primaryContainer,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Theme.of(context).colorScheme.primary, width: 1.5),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.primary,
+                width: 1.5,
+              ),
             )
           : null,
       child: Column(
@@ -159,7 +166,9 @@ class WeeklyProgressCalendarCard extends StatelessWidget {
               style: AppTypography.bodySmall.copyWith(
                 fontSize: 11,
                 fontWeight: isToday ? FontWeight.w800 : FontWeight.w600,
-                color: isToday ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurfaceVariant,
+                color: isToday
+                    ? Theme.of(context).colorScheme.onSurface
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -171,7 +180,9 @@ class WeeklyProgressCalendarCard extends StatelessWidget {
               style: AppTypography.bodySmall.copyWith(
                 fontSize: 10,
                 fontWeight: isToday ? FontWeight.w800 : FontWeight.w500,
-                color: isToday ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurfaceVariant,
+                color: isToday
+                    ? Theme.of(context).colorScheme.onSurface
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -210,7 +221,10 @@ class WeeklyProgressCalendarCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.primaryContainer,
             shape: BoxShape.circle,
-            border: Border.all(color: Theme.of(context).colorScheme.primary, width: 1.2),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.primary,
+              width: 1.2,
+            ),
           ),
           child: Center(
             child: Icon(
@@ -228,7 +242,10 @@ class WeeklyProgressCalendarCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surfaceContainerHighest,
             shape: BoxShape.circle,
-            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.2),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outlineVariant,
+              width: 1.2,
+            ),
           ),
           child: Center(
             child: Icon(
@@ -263,7 +280,10 @@ class WeeklyProgressCalendarCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
             shape: BoxShape.circle,
-            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.5),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outlineVariant,
+              width: 1.5,
+            ),
           ),
         );
     }

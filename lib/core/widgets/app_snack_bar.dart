@@ -82,9 +82,7 @@ class AppSnackBar {
         ),
         backgroundColor: backgroundColor,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         duration: duration,
       ),
     );

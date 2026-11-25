@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import '../../../../core/config/supabase_config.dart';
 import '../../../../core/database/models/user_profile_entity.dart';
 import '../../../../core/database/models/user_settings_entity.dart';
@@ -53,14 +54,18 @@ class UserSupabaseDatasource {
         ..['training_limitations'] = profile.trainingLimitations
         ..['equipments'] = profile.equipments;
       await client.from('user_profiles').upsert(payload);
-      debugPrint('[Supabase] Berhasil sync profil pengguna ke Supabase untuk user $uid!');
+      debugPrint(
+        '[Supabase] Berhasil sync profil pengguna ke Supabase untuk user $uid!',
+      );
     } catch (e) {
       debugPrint('[Supabase] Gagal sync user profile: $e');
     }
   }
 
   /// Mengambil setelan pengguna (settings) dari Supabase
-  Future<UserSettingsEntity?> fetchSettingsFromSupabase({String? settingsId}) async {
+  Future<UserSettingsEntity?> fetchSettingsFromSupabase({
+    String? settingsId,
+  }) async {
     final client = SupabaseConfig.client;
     final uid = _authorizedUserId(settingsId);
     if (client == null || uid == null || !SupabaseConfig.canSyncToCloud) {
@@ -117,10 +122,13 @@ class UserSupabaseDatasource {
     }
 
     try {
-      await client.from('user_profiles').update({
-        'display_name': name,
-        'updated_at': DateTime.now().toIso8601String(),
-      }).eq('id', uid);
+      await client
+          .from('user_profiles')
+          .update({
+            'display_name': name,
+            'updated_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', uid);
       debugPrint('[Supabase] Berhasil update nama ke: $name');
     } catch (e) {
       debugPrint('[Supabase] Error update name: $e');
@@ -140,12 +148,17 @@ class UserSupabaseDatasource {
     }
 
     try {
-      await client.from('user_profiles').update({
-        'current_weight_kg': weightKg,
-        'height_cm': heightCm,
-        'updated_at': DateTime.now().toIso8601String(),
-      }).eq('id', uid);
-      debugPrint('[Supabase] Berhasil update data tubuh: $weightKg kg, $heightCm cm');
+      await client
+          .from('user_profiles')
+          .update({
+            'current_weight_kg': weightKg,
+            'height_cm': heightCm,
+            'updated_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', uid);
+      debugPrint(
+        '[Supabase] Berhasil update data tubuh: $weightKg kg, $heightCm cm',
+      );
     } catch (e) {
       debugPrint('[Supabase] Error update body data: $e');
     }
@@ -160,17 +173,19 @@ class UserSupabaseDatasource {
     }
 
     try {
-      await client.from('user_profiles').update({
-        'active_program_id': programId,
-        'updated_at': DateTime.now().toIso8601String(),
-      }).eq('id', uid);
+      await client
+          .from('user_profiles')
+          .update({
+            'active_program_id': programId,
+            'updated_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', uid);
       debugPrint('[Supabase] Berhasil update active_program_id ke: $programId');
     } catch (e) {
       debugPrint('[Supabase] Error update active_program_id: $e');
     }
   }
 }
-
 
 String? _authorizedUserId(String? requestedUserId) {
   if (!SupabaseConfig.canSyncToCloud) return null;
