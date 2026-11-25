@@ -21,10 +21,10 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - name: Checkout main
+      - name: Checkout release commit
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.sha }}
           fetch-depth: 0
           fetch-tags: true
 
