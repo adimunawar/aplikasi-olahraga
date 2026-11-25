@@ -410,6 +410,204 @@ class _Translations$workouts$en extends Translations$workouts$id {
       _Translations$workouts$categories$en._(_root);
 }
 
+// Path: workoutSession
+class _Translations$workoutSession$en extends Translations$workoutSession$id {
+  _Translations$workoutSession$en._(TranslationsEn root) : this._root = root, super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String exerciseProgress({required Object current, required Object total}) =>
+      'Exercise ${current} of ${total}';
+  @override
+  String setProgress({required Object current, required Object total, required Object target}) =>
+      'Set ${current} of ${total} · ${target}';
+  @override
+  String get repsUnit => 'reps';
+  @override
+  String get durationUnit => 'sec';
+  @override
+  String repsValue({required Object value}) => '${value} reps';
+  @override
+  String durationValue({required Object value}) => '${value} sec';
+  @override
+  String get completeSet => 'Complete Set';
+  @override
+  String get nextRest => 'Next: Rest';
+  @override
+  String get preparingSession => 'Preparing your workout...';
+  @override
+  String get retry => 'Try Again';
+  @override
+  String get saveSetFailed => 'Failed to save the set. Check your connection and try again.';
+  @override
+  String get sessionConflictTitle => 'You have an unfinished workout';
+  @override
+  String sessionConflictMessage({required Object program, required Object day}) =>
+      'You still have an active session for "${program}" (Day ${day}). Resume that session first, or end it to start this workout.';
+  @override
+  String get resumePreviousSession => 'Resume Previous Session';
+  @override
+  String get endPreviousSession => 'End Previous Session';
+  @override
+  String get completionTitle => 'Workout Completed! 🎉';
+  @override
+  String get completionDescription =>
+      'You completed all sets and exercises. Get some rest to help your muscles recover.';
+  @override
+  String get durationLabel => 'Duration';
+  @override
+  String get exerciseLabel => 'Exercises';
+  @override
+  String exerciseCount({required Object count}) {
+    final countNum = num.tryParse(count.toString());
+    if (countNum == 1) return '1 exercise';
+    return '${count} exercises';
+  }
+  @override
+  String get totalSetsLabel => 'Total Sets';
+  @override
+  String totalSetsCount({required Object count}) => '${count} sets';
+  @override
+  String get viewSummary => 'View Workout Summary ➔';
+  @override
+  String get restartRestTimer => 'Restart Rest Timer';
+  @override
+  String get finishSessionNow => 'Finish Workout Now';
+  @override
+  String get exitWithoutSaving => 'Exit Without Saving';
+  @override
+  String get restTitle => 'Rest';
+  @override
+  String restNextExercise({required Object exercise}) => 'Next: ${exercise}';
+  @override
+  String restSetProgress({required Object current, required Object total}) =>
+      'Set ${current} of ${total}';
+  @override
+  String get restPaused => 'PAUSED';
+  @override
+  String get restMinusTenSeconds => '-10s';
+  @override
+  String get restPlusTenSeconds => '+10s';
+  @override
+  String get restTipTitle => 'Tip';
+  @override
+  String get restTipDescription => 'Keep breathing and stay hydrated.';
+  @override
+  String get skipRest => 'Skip Rest';
+  @override
+  String setCompleteTitle({required Object current, required Object total}) =>
+      'Set ${current} of ${total} Complete! 🎉';
+  @override
+  String targetDuration({required Object seconds}) => 'Target: ${seconds} sec';
+  @override
+  String targetReps({required Object reps}) => 'Target: ${reps} reps';
+  @override
+  String get durationCompleted => 'Duration Completed';
+  @override
+  String get repsCompleted => 'Reps Completed';
+  @override
+  String get durationQuestion => 'How many seconds did you hold?';
+  @override
+  String get repsQuestion => 'How many reps did you complete?';
+  @override
+  String get rirTitle => 'Remaining Strength (RIR - Reps in Reserve)';
+  @override
+  String get rirQuestion => 'How many more reps could you do before reaching failure?';
+  @override
+  String get rirFailureTitle => '0 — Absolute Failure';
+  @override
+  String get rirFailureDescription => 'You had no reps left with proper form.';
+  @override
+  String get rirVeryHardTitle => '1 — Very Hard';
+  @override
+  String get rirVeryHardDescription => 'You could only complete one more rep before failure.';
+  @override
+  String get rirIdealTitle => '2 — Ideal Zone (Target)';
+  @override
+  String get rirIdealDescription => 'Challenging, with about two reps still in reserve.';
+  @override
+  String get rirModerateTitle => '3 — Moderate';
+  @override
+  String get rirModerateDescription => 'You still had about three reps in reserve.';
+  @override
+  String get rirEasyTitle => '4+ — Too Easy';
+  @override
+  String get rirEasyDescription => 'Very easy, with four or more reps still in reserve.';
+  @override
+  String get rirBadgeMax => 'Maximum';
+  @override
+  String get rirBadgeHigh => 'High';
+  @override
+  String get rirBadgeOptimal => 'Optimal ⭐';
+  @override
+  String get rirBadgeModerate => 'Moderate';
+  @override
+  String get rirBadgeEasy => 'Easy';
+  @override
+  String get saveAndStartRest => 'Save & Start Rest';
+  @override
+  String restSecondsValue({required Object seconds}) => '${seconds} s';
+  @override
+  String durationMinutesValue({required Object value}) => '${value} min';
+  @override
+  String get savingSession => 'Saving your workout...';
+  @override
+  String get emptySessionDescription =>
+      'The exercise list for this session was not found. Please go back to reload your workout program.';
+  @override
+  String get backButtonLabel => 'Go Back';
+  @override
+  String get finishSessionFailed =>
+      'We couldn\'t save your workout. Your recorded progress is still here. Please try again.';
+  @override
+  String get defaultProgramTitle => 'Strength Training';
+  @override
+  late final _Translations$workoutSession$completedScreen$en completedScreen =
+      _Translations$workoutSession$completedScreen$en._(_root);
+}
+
+// Path: workouts
+class _Translations$workouts$en extends Translations$workouts$id {
+  _Translations$workouts$en._(TranslationsEn root) : this._root = root, super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Workouts';
+  @override
+  String get searchHint => 'Search workouts & exercises...';
+  @override
+  late final _Translations$workouts$tabs$en tabs = _Translations$workouts$tabs$en._(_root);
+  @override
+  late final _Translations$workouts$activeProgram$en activeProgram =
+      _Translations$workouts$activeProgram$en._(_root);
+  @override
+  late final _Translations$workouts$weeklySchedule$en weeklySchedule =
+      _Translations$workouts$weeklySchedule$en._(_root);
+  @override
+  late final _Translations$workouts$emptyState$en emptyState =
+      _Translations$workouts$emptyState$en._(_root);
+  @override
+  late final _Translations$workouts$allWorkouts$en allWorkouts =
+      _Translations$workouts$allWorkouts$en._(_root);
+  @override
+  late final _Translations$workouts$errorState$en errorState =
+      _Translations$workouts$errorState$en._(_root);
+  @override
+  late final _Translations$workouts$session$en session = _Translations$workouts$session$en._(_root);
+  @override
+  late final _Translations$workouts$workoutDetail$en workoutDetail =
+      _Translations$workouts$workoutDetail$en._(_root);
+  @override
+  late final _Translations$workouts$filter$en filter = _Translations$workouts$filter$en._(_root);
+  @override
+  late final _Translations$workouts$categories$en categories =
+      _Translations$workouts$categories$en._(_root);
+}
+
 // Path: core.actions
 class _Translations$core$actions$en extends Translations$core$actions$id {
   _Translations$core$actions$en._(TranslationsEn root)
@@ -1738,6 +1936,651 @@ class _Translations$core$progress$weightDialog$en
 // Path: core.progress.error
 class _Translations$core$progress$error$en
     extends Translations$core$progress$error$id {
+  _Translations$core$progress$error$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Unable to load progress';
+  @override
+  String get retry => 'Try again';
+}
+
+// Path: home.weeklyProgress.states
+class _Translations$home$weeklyProgress$states$en
+    extends Translations$home$weeklyProgress$states$id {
+  _Translations$home$weeklyProgress$states$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get completed => 'Completed (workout done)';
+  @override
+  String get today => 'Today (scheduled workout)';
+  @override
+  String get rest => 'Rest day';
+  @override
+  String get upcoming => 'Upcoming (not yet)';
+  @override
+  String get missed => 'Missed';
+}
+
+// Path: workoutSession.completedScreen
+class _Translations$workoutSession$completedScreen$en
+    extends Translations$workoutSession$completedScreen$id {
+  _Translations$workoutSession$completedScreen$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Workout Completed! 🎉';
+  @override
+  String subtitle({required Object focus}) => 'Great job! You\'ve finished ${focus}.';
+  @override
+  String get duration => 'Duration';
+  @override
+  String get exercises => 'Exercises';
+  @override
+  String get estCalories => 'Est. Calories';
+  @override
+  String get minUnit => 'min';
+  @override
+  String get howWasWorkout => 'How was the workout?';
+  @override
+  String get tooEasy => 'Too Easy';
+  @override
+  String get easy => 'Easy';
+  @override
+  String get justRight => 'Just Right';
+  @override
+  String get hard => 'Hard';
+  @override
+  String get tooHard => 'Too Hard';
+  @override
+  String get saveAndContinue => 'Save & Continue';
+  @override
+  String get viewWorkoutSummary => 'View Workout Summary';
+}
+
+// Path: workouts.tabs
+class _Translations$workouts$tabs$en extends Translations$workouts$tabs$id {
+  _Translations$workouts$tabs$en._(TranslationsEn root) : this._root = root, super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get myProgram => 'My Program';
+  @override
+  String get allWorkouts => 'All Workouts';
+}
+
+// Path: workouts.activeProgram
+class _Translations$workouts$activeProgram$en extends Translations$workouts$activeProgram$id {
+  _Translations$workouts$activeProgram$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Active Program';
+  @override
+  String weeksHomeWorkout({required Object weeks}) => '${weeks} weeks • Home workout';
+  @override
+  String weekOf({required Object current, required Object total}) => 'Week ${current} of ${total}';
+  @override
+  late final _Translations$workouts$activeProgram$status$en status =
+      _Translations$workouts$activeProgram$status$en._(_root);
+}
+
+// Path: workouts.weeklySchedule
+class _Translations$workouts$weeklySchedule$en extends Translations$workouts$weeklySchedule$id {
+  _Translations$workouts$weeklySchedule$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Weekly Schedule';
+  @override
+  String workoutCount({required Object completed, required Object total}) =>
+      '${completed}/${total} workouts';
+  @override
+  String get current => 'Current';
+  @override
+  String weekShort({required Object n}) => 'W${n}';
+  @override
+  String weekNumber({required Object n}) => 'Week ${n}';
+  @override
+  String get empty => 'No workout sessions are scheduled for this week.';
+  @override
+  String get previewTitle => 'Preview mode';
+  @override
+  String get previewNotice =>
+      'You can review this week\'s plan, but workouts can only be started on their scheduled day.';
+  @override
+  String get previewTooltip => 'Preview upcoming week';
+  @override
+  late final _Translations$workouts$weeklySchedule$statusTooltip$en statusTooltip =
+      _Translations$workouts$weeklySchedule$statusTooltip$en._(_root);
+}
+
+// Path: workouts.emptyState
+class _Translations$workouts$emptyState$en extends Translations$workouts$emptyState$id {
+  _Translations$workouts$emptyState$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get noProgramTitle => 'No active program yet';
+  @override
+  String get noProgramSubtitle => 'Create a program to see your weekly workouts here.';
+}
+
+// Path: workouts.allWorkouts
+class _Translations$workouts$allWorkouts$en extends Translations$workouts$allWorkouts$id {
+  _Translations$workouts$allWorkouts$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get emptyTitle => 'No exercises found';
+  @override
+  String get emptySubtitle => 'Try another search or adjust your muscle filters.';
+  @override
+  String get clearFilters => 'Clear search & filters';
+}
+
+// Path: workouts.errorState
+class _Translations$workouts$errorState$en extends Translations$workouts$errorState$id {
+  _Translations$workouts$errorState$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Failed to load data';
+  @override
+  String get subtitle => 'Something went wrong while reading your workout data. Please try again.';
+  @override
+  String get retry => 'Retry';
+  @override
+  String get refreshFailed => 'Failed to refresh. Showing the last loaded data.';
+}
+
+// Path: workouts.session
+class _Translations$workouts$session$en extends Translations$workouts$session$id {
+  _Translations$workouts$session$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String day({required Object n}) => 'Day ${n}';
+  @override
+  String date({required Object n, required Object date}) => 'Day ${n} • ${date}';
+  @override
+  String min({required Object min}) => '${min} min';
+  @override
+  late final _Translations$workouts$session$status$en status =
+      _Translations$workouts$session$status$en._(_root);
+}
+
+// Path: workouts.workoutDetail
+class _Translations$workouts$workoutDetail$en extends Translations$workouts$workoutDetail$id {
+  _Translations$workouts$workoutDetail$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get readOnlyTitle => 'Preview mode';
+  @override
+  String get readOnlyNotice =>
+      'You can review this workout plan. The start button unlocks on its scheduled day.';
+  @override
+  String get resume => 'Resume Workout';
+  @override
+  String get shareTooltip => 'Copy workout details';
+  @override
+  String get bookmarkAdd => 'Bookmark workout';
+  @override
+  String get bookmarkRemove => 'Remove bookmark';
+  @override
+  String get copiedMessage => 'Workout details copied.';
+  @override
+  String get defaultDescription =>
+      'Build strength and stability with a focused mix of bodyweight exercises.';
+  @override
+  String exerciseCount({required Object count}) {
+    final countNum = num.tryParse(count.toString());
+    if (countNum == 1) return '1 exercise';
+    return '${count} exercises';
+  }
+  @override
+  String exerciseListTitle({required Object count}) => 'Exercises (${count})';
+
+  @override
+  late final _Translations$workouts$workoutDetail$stages$en stages =
+      _Translations$workouts$workoutDetail$stages$en._(_root);
+
+  @override
+  String setReps({required Object sets, required Object reps}) => '${sets} sets × ${reps}';
+
+  @override
+  String get repsUnit => 'reps';
+}
+
+// Path: workouts.workoutDetail.stages
+class _Translations$workouts$workoutDetail$stages$en
+    extends Translations$workouts$workoutDetail$stages$id {
+  _Translations$workouts$workoutDetail$stages$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  late final _Translations$workouts$workoutDetail$stages$warmup$en warmup =
+      _Translations$workouts$workoutDetail$stages$warmup$en._(_root);
+  @override
+  late final _Translations$workouts$workoutDetail$stages$main$en main =
+      _Translations$workouts$workoutDetail$stages$main$en._(_root);
+  @override
+  late final _Translations$workouts$workoutDetail$stages$cooldown$en cooldown =
+      _Translations$workouts$workoutDetail$stages$cooldown$en._(_root);
+}
+
+// Path: workouts.workoutDetail.stages.warmup
+class _Translations$workouts$workoutDetail$stages$warmup$en
+    extends Translations$workouts$workoutDetail$stages$warmup$id {
+  _Translations$workouts$workoutDetail$stages$warmup$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Warm up';
+  @override
+  String get subtitle => 'Warm-up';
+}
+
+// Path: workouts.workoutDetail.stages.main
+class _Translations$workouts$workoutDetail$stages$main$en
+    extends Translations$workouts$workoutDetail$stages$main$id {
+  _Translations$workouts$workoutDetail$stages$main$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Training';
+  @override
+  String get subtitle => 'Main Workout';
+}
+
+// Path: workouts.workoutDetail.stages.cooldown
+class _Translations$workouts$workoutDetail$stages$cooldown$en
+    extends Translations$workouts$workoutDetail$stages$cooldown$id {
+  _Translations$workouts$workoutDetail$stages$cooldown$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Cool down';
+  @override
+  String get subtitle => 'Recovery';
+}
+
+// Path: workouts.filter
+class _Translations$workouts$filter$en extends Translations$workouts$filter$id {
+  _Translations$workouts$filter$en._(TranslationsEn root) : this._root = root, super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Filter by Muscle Group';
+}
+
+// Path: workouts.categories
+class _Translations$workouts$categories$en extends Translations$workouts$categories$id {
+  _Translations$workouts$categories$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get all => 'All';
+  @override
+  String get chest => 'Chest';
+  @override
+  String get back => 'Back';
+  @override
+  String get legs => 'Legs';
+  @override
+  String get core => 'Core';
+  @override
+  String get arms => 'Arms';
+  @override
+  String get shoulders => 'Shoulders';
+}
+
+// Path: core.progress.tabs
+class _Translations$core$progress$tabs$en extends Translations$core$progress$tabs$id {
+  _Translations$core$progress$tabs$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get overview => 'Overview';
+  @override
+  String get body => 'Body';
+  @override
+  String get workout => 'Workout';
+  @override
+  String get history => 'History';
+}
+
+// Path: core.progress.metrics
+class _Translations$core$progress$metrics$en extends Translations$core$progress$metrics$id {
+  _Translations$core$progress$metrics$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get workouts => 'Workouts';
+  @override
+  String get completion => 'Completion';
+  @override
+  String get trainingTime => 'Training Time';
+  @override
+  String get currentStreak => 'Current Streak';
+}
+
+// Path: core.progress.noWorkoutData
+class _Translations$core$progress$noWorkoutData$en
+    extends Translations$core$progress$noWorkoutData$id {
+  _Translations$core$progress$noWorkoutData$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'No workout data yet';
+  @override
+  String get message => 'Complete your first workout to see your training progress here.';
+}
+
+// Path: core.progress.noActiveProgram
+class _Translations$core$progress$noActiveProgram$en
+    extends Translations$core$progress$noActiveProgram$id {
+  _Translations$core$progress$noActiveProgram$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'No active program';
+  @override
+  String get message => 'Choose a training program to track your weekly progress.';
+}
+
+// Path: core.progress.weightTrend
+class _Translations$core$progress$weightTrend$en extends Translations$core$progress$weightTrend$id {
+  _Translations$core$progress$weightTrend$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Weight (kg)';
+  @override
+  String weekValue({required Object week, required Object value}) => 'W${week} · ${value} kg';
+  @override
+  String weekShort({required Object week}) => 'W${week}';
+  @override
+  String get empty => 'No weight measurements in this period yet.';
+  @override
+  String vsWeeksAgo({required Object weeks}) => 'vs. ${weeks} weeks ago';
+  @override
+  String increase({required Object value}) => '↑ +${value} kg';
+  @override
+  String decrease({required Object value}) => '↓ ${value} kg';
+}
+
+// Path: core.progress.notTracked
+class _Translations$core$progress$notTracked$en extends Translations$core$progress$notTracked$id {
+  _Translations$core$progress$notTracked$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String title({required Object metric}) => '${metric} tracking is not available yet';
+  @override
+  String get message => 'This metric is not stored in your measurements yet.';
+}
+
+// Path: core.progress.programCard
+class _Translations$core$progress$programCard$en extends Translations$core$progress$programCard$id {
+  _Translations$core$progress$programCard$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String weekOf({required Object week, required Object total}) => 'Week ${week} of ${total}';
+  @override
+  String get active => 'Active';
+  @override
+  String get completion => 'Program completion';
+}
+
+// Path: core.progress.highlights
+class _Translations$core$progress$highlights$en extends Translations$core$progress$highlights$id {
+  _Translations$core$progress$highlights$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String completed({required Object completed, required Object target}) =>
+      'Completed ${completed} of ${target} workouts this week';
+  @override
+  String weightIncrease({required Object value}) => 'Weight increased by ${value} kg';
+  @override
+  String weightDecrease({required Object value}) => 'Weight decreased by ${value} kg';
+  @override
+  String get emptyTitle => 'No highlights yet';
+  @override
+  String get emptyMessage => 'Your milestones will appear as you record workouts and measurements.';
+}
+
+// Path: core.progress.body
+class _Translations$core$progress$body$en extends Translations$core$progress$body$id {
+  _Translations$core$progress$body$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Body Progress';
+  @override
+  String get subtitle => 'Track changes in your body over time.';
+  @override
+  String get weight => 'Weight';
+  @override
+  String get muscleMass => 'Muscle Mass';
+  @override
+  String get bodyFat => 'Body Fat';
+  @override
+  String get logMeasurement => 'Log Measurement';
+  @override
+  String get recordWeight => 'Record weight';
+  @override
+  String get currentWeight => 'Current weight';
+}
+
+// Path: core.progress.workout
+class _Translations$core$progress$workout$en extends Translations$core$progress$workout$id {
+  _Translations$core$progress$workout$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Workout Performance';
+  @override
+  String get subtitle => 'Your training progress and consistency.';
+  @override
+  late final _Translations$core$progress$workout$noPerformance$en noPerformance =
+      _Translations$core$progress$workout$noPerformance$en._(_root);
+  @override
+  String get weeklyActivity => 'Weekly Activity';
+  @override
+  late final _Translations$core$progress$workout$noActivity$en noActivity =
+      _Translations$core$progress$workout$noActivity$en._(_root);
+  @override
+  String get trainingVolume => 'Training Volume';
+  @override
+  late final _Translations$core$progress$workout$noVolume$en noVolume =
+      _Translations$core$progress$workout$noVolume$en._(_root);
+  @override
+  String get recentWorkouts => 'Recent Workouts';
+  @override
+  late final _Translations$core$progress$workout$noRecentWorkouts$en noRecentWorkouts =
+      _Translations$core$progress$workout$noRecentWorkouts$en._(_root);
+  @override
+  String get minutesPerDay => 'Minutes per day';
+  @override
+  String minutesTotal({required Object minutes}) => '${minutes} min total';
+  @override
+  String trainingMinutesThisWeek({required Object minutes}) =>
+      '${minutes} training minutes this week';
+  @override
+  String get totalTime => 'Total Time';
+}
+
+// Path: core.progress.history
+class _Translations$core$progress$history$en extends Translations$core$progress$history$id {
+  _Translations$core$progress$history$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get all => 'All';
+  @override
+  String get workout => 'Workout';
+  @override
+  String get measurement => 'Measurement';
+  @override
+  String get oldestFirst => 'Oldest first';
+  @override
+  String get newestFirst => 'Newest first';
+  @override
+  String get recordWeight => 'Record weight';
+}
+
+// Path: core.progress.duration
+class _Translations$core$progress$duration$en extends Translations$core$progress$duration$id {
+  _Translations$core$progress$duration$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String minutes({required Object minutes}) => '${minutes} min';
+  @override
+  String hours({required Object hours}) => '${hours}h';
+  @override
+  String hoursMinutes({required Object hours, required Object minutes}) => '${hours}h ${minutes}m';
+}
+
+// Path: core.progress.weightDialog
+class _Translations$core$progress$weightDialog$en
+    extends Translations$core$progress$weightDialog$id {
+  _Translations$core$progress$weightDialog$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Record weight';
+  @override
+  String get currentWeight => 'Current weight';
+  @override
+  String get cancel => 'Cancel';
+  @override
+  String get save => 'Save';
+}
+
+// Path: core.progress.error
+class _Translations$core$progress$error$en extends Translations$core$progress$error$id {
   _Translations$core$progress$error$en._(TranslationsEn root)
     : this._root = root,
       super.internal(root);

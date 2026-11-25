@@ -76,7 +76,6 @@ class PlansWorkoutSplitTab extends StatelessWidget {
       if (detail != null) {
         sessionsByWeekday[scheduled.scheduledDate.weekday] = detail;
       }
-    }
 
     return weekDays
         .map((weekday) {
