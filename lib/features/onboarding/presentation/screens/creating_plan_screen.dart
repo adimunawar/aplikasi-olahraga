@@ -53,8 +53,9 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
       var profile = ref.read(onboardingProfileProvider);
       profile ??= await db.getUserProfile();
 
-      final exerciseRepo =
-          ExerciseRepositoryImpl(ExerciseLocalDatasource(db: db));
+      final exerciseRepo = ExerciseRepositoryImpl(
+        ExerciseLocalDatasource(db: db),
+      );
       final catalog = await exerciseRepo.getExercises();
       if (catalog.isEmpty) {
         throw StateError('The exercise library is empty. Please try again.');
@@ -68,8 +69,8 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
       final startingPushId = profile.experienceLevel == 'advanced'
           ? 'diamond_push_up'
           : (profile.experienceLevel == 'intermediate'
-              ? 'push_up'
-              : 'knee_push_up');
+                ? 'push_up'
+                : 'knee_push_up');
 
       // Step 3: Run the real program generator.
       if (!mounted || _isCancelled) return;
@@ -107,8 +108,7 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
       ref.read(draftProgramProvider.notifier).state = null;
       if (mounted && !_isCancelled) {
         setState(() {
-          _errorMessage =
-              'We couldn’t create a suitable plan with the current exercise library. Please try again or review your preferences.';
+          _errorMessage = 'We couldn’t create a suitable plan with the current exercise library. Please try again or review your preferences.';
         });
       }
     }
@@ -244,7 +244,9 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
                     child: Icon(
                       Icons.fitness_center_rounded,
                       size: 56,
-                      color: isDark ? colorScheme.primary : AppColors.greenBrand,
+                      color: isDark
+                          ? colorScheme.primary
+                          : AppColors.greenBrand,
                     ),
                   ),
                 ),
@@ -280,7 +282,10 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
 
               // Checklist Animasi Proses Nyata 4 Langkah
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 16,
+                ),
                 decoration: BoxDecoration(
                   color: colorScheme.surface,
                   borderRadius: BorderRadius.circular(20),
@@ -291,8 +296,9 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
                   children: List.generate(t.steps.length, (index) {
                     final isChecked = index < _activeStepIndex;
                     final isCurrent = index == _activeStepIndex;
-                    final accentColor =
-                        isDark ? colorScheme.primary : AppColors.greenBrand;
+                    final accentColor = isDark
+                        ? colorScheme.primary
+                        : AppColors.greenBrand;
 
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -307,8 +313,8 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
                               color: isChecked
                                   ? accentColor
                                   : (isCurrent
-                                      ? colorScheme.primaryContainer
-                                      : colorScheme.surfaceContainerHighest),
+                                        ? colorScheme.primaryContainer
+                                        : colorScheme.surfaceContainerHighest),
                               border: Border.all(
                                 color: isChecked || isCurrent
                                     ? accentColor
@@ -323,17 +329,17 @@ class _CreatingPlanScreenState extends ConsumerState<CreatingPlanScreen> {
                                     color: colorScheme.onPrimary,
                                   )
                                 : (isCurrent
-                                    ? Center(
-                                        child: SizedBox(
-                                          width: 12,
-                                          height: 12,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            color: accentColor,
+                                      ? Center(
+                                          child: SizedBox(
+                                            width: 12,
+                                            height: 12,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              color: accentColor,
+                                            ),
                                           ),
-                                        ),
-                                      )
-                                    : null),
+                                        )
+                                      : null),
                           ),
                           const SizedBox(width: 14),
                           Text(

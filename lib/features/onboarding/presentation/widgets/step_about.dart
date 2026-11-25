@@ -112,9 +112,11 @@ class StepAbout extends StatelessWidget {
     return InkWell(
       onTap: () => onGenderChanged(id),
       borderRadius: BorderRadius.circular(18),
+
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 20),
+
         decoration: BoxDecoration(
           color: isSelected
               ? colorScheme.primaryContainer
@@ -130,7 +132,9 @@ class StepAbout extends StatelessWidget {
               ? null
               : [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: isSelected ? 0.04 : 0.02),
+                    color: Colors.black.withValues(
+                      alpha: isSelected ? 0.04 : 0.02,
+                    ),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
@@ -138,6 +142,7 @@ class StepAbout extends StatelessWidget {
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+
           children: [
             Icon(
               icon,

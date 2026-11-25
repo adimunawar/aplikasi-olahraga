@@ -135,7 +135,9 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
                     child: Text(
                       t.sessionDuration(n: s.session.targetDurationMinutes),
                       style: AppTypography.labelSmall.copyWith(
-                        color: isDark ? colorScheme.primary : AppColors.greenBrand,
+                        color: isDark
+                            ? colorScheme.primary
+                            : AppColors.greenBrand,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -246,6 +248,8 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
         sessions: draft.sessions,
       );
 
+      // 2. Tandai onboarding selesai di state aplikasi.
+      // Status persisten diturunkan dari program aktif di SQLite.
       // 2. Tandai onboarding selesai di state aplikasi.
       // Status persisten diturunkan dari program aktif di SQLite.
       ref.read(hasCompletedOnboardingProvider.notifier).state = true;
@@ -452,7 +456,10 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
           child: Container(
             decoration: BoxDecoration(
               border: Border(
-                bottom: BorderSide(color: colorScheme.outlineVariant, width: 1.2),
+                bottom: BorderSide(
+                  color: colorScheme.outlineVariant,
+                  width: 1.2,
+                ),
               ),
             ),
             child: TabBar(
@@ -483,9 +490,7 @@ class _PlanPreviewScreenState extends ConsumerState<PlanPreviewScreen>
         padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
         decoration: BoxDecoration(
           color: colorScheme.surface,
-          border: Border(
-            top: BorderSide(color: colorScheme.outline, width: 1),
-          ),
+          border: Border(top: BorderSide(color: colorScheme.outline, width: 1)),
           boxShadow: isDark
               ? null
               : [

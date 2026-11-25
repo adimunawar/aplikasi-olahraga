@@ -1,6 +1,5 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
-
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
@@ -13,10 +12,7 @@ import 'home_screen.dart';
 class HomeScaffold extends StatefulWidget {
   final StatefulNavigationShell? navigationShell;
 
-  const HomeScaffold({
-    super.key,
-    this.navigationShell,
-  });
+  const HomeScaffold({super.key, this.navigationShell});
 
   @override
   State<HomeScaffold> createState() => _HomeScaffoldState();
@@ -25,8 +21,7 @@ class HomeScaffold extends StatefulWidget {
 class _HomeScaffoldState extends State<HomeScaffold> {
   int _currentIndex = 0;
 
-  int get _activeTab =>
-      widget.navigationShell?.currentIndex ?? _currentIndex;
+  int get _activeTab => widget.navigationShell?.currentIndex ?? _currentIndex;
 
   void _onTabTapped(int index) {
     if (widget.navigationShell != null) {
@@ -59,11 +54,9 @@ class _HomeScaffoldState extends State<HomeScaffold> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: widget.navigationShell ??
-          IndexedStack(
-            index: _activeTab,
-            children: screens,
-          ),
+      body:
+          widget.navigationShell ??
+          IndexedStack(index: _activeTab, children: screens),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: colorScheme.surface,
@@ -147,8 +140,8 @@ class _HomeScaffoldState extends State<HomeScaffold> {
               style: AppTypography.labelSmall.copyWith(
                 color: isSelected
                     ? (isDark
-                        ? colorScheme.onPrimaryContainer
-                        : colorScheme.onSurface)
+                          ? colorScheme.onPrimaryContainer
+                          : colorScheme.onSurface)
                     : colorScheme.onSurfaceVariant,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
                 fontSize: 11,

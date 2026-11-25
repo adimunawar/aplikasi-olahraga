@@ -105,7 +105,9 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
   }
 
   Future<void> _updateSettings() async {
-    await ref.read(profileControllerProvider.notifier).updateAppSettings(
+    await ref
+        .read(profileControllerProvider.notifier)
+        .updateAppSettings(
           language: _language,
           theme: _theme,
           units: _units,
