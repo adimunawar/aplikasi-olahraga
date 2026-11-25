@@ -53,8 +53,8 @@ jobs:
 
   # --------------------------------------------------
   # 2. TEST
-  # Run during PR validation and non-staging-push workflows.
-  # Staging pushes reuse the successful PR validation.
+  # Run during PR validation and manual workflows.
+  # Staging and main pushes reuse successful PR validation.
   # --------------------------------------------------
   test:
     name: Run Flutter tests
