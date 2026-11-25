@@ -1,10 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
-import 'package:material_ui/material_ui.dart';
-
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../core/widgets/app_stepper_input.dart';
 import '../../../../core/widgets/app_stepper_input.dart';
 import '../../../../i18n/strings.g.dart';
 
@@ -154,7 +151,6 @@ class StepAbout extends StatelessWidget {
                   ? (isDark ? colorScheme.primary : AppColors.greenBrand)
                   : colorScheme.onSurface,
             ),
-            const SizedBox(height: 8),
             const SizedBox(height: 8),
             Text(
               label,
