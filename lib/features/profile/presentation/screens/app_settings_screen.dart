@@ -4,17 +4,11 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/config/supabase_config.dart';
 import '../../../../core/localization/app_locale.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../controllers/profile_controller.dart';
+import '../widgets/app_settings_widgets.dart';
 
-/// Screen 7 Mockup: App Settings
-/// - Language selector (English / Bahasa Indonesia)
-/// - Theme selector (Light / Dark)
-/// - Units selector (Metric kg/cm / Imperial lbs/in)
-/// - Haptic Feedback switch
-/// - Sound Effects switch
-/// - Data Sync switch
+/// Screen 7 Mockup: App Settings (Modular Composition & Full Theme Support)
 class AppSettingsScreen extends ConsumerStatefulWidget {
   const AppSettingsScreen({super.key});
 
@@ -34,28 +28,27 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
   void initState() {
     super.initState();
     final profile = ref.read(profileControllerProvider);
-    // Tampilkan bahasa yang benar-benar aktif (bukan default kolom DB).
     _language = profileLanguageFromAppLocale(ref.read(appLocaleProvider));
     _theme = profile.theme;
     _units = profile.unitPreference;
     _hapticFeedback = profile.hapticFeedback;
     _soundEffects = profile.soundEffects;
-    // The consented Supabase account is the source of truth. A saved UI
-    // preference alone must never enable remote reads or writes.
     _dataSync = SupabaseConfig.canSyncToCloud;
   }
 
   Future<void> _handleDataSyncChanged(bool enabled) async {
     if (!enabled) {
-      // Disable in-memory authorization first; even if preferences storage
-      // fails, this app session must stop all remote reads and writes.
       setState(() => _dataSync = false);
       try {
         await SupabaseConfig.disableCloudSync();
       } catch (error) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Cloud Sync was disabled for this session, but its preference could not be saved: $error')),
+            SnackBar(
+              content: Text(
+                'Cloud Sync was disabled for this session, but its preference could not be saved: $error',
+              ),
+            ),
           );
         }
       }
@@ -112,7 +105,9 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
   }
 
   Future<void> _updateSettings() async {
-    await ref.read(profileControllerProvider.notifier).updateAppSettings(
+    await ref
+        .read(profileControllerProvider.notifier)
+        .updateAppSettings(
           language: _language,
           theme: _theme,
           units: _units,
@@ -122,192 +117,21 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
         );
   }
 
-  void _showLanguagePicker() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text(
-                  'Select Language',
-                  style: AppTypography.headlineSmall.copyWith(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 18,
-                  ),
-                ),
-              ),
-              const Divider(height: 1),
-              ...['English', 'Bahasa Indonesia'].map((lang) {
-                final isSelected = lang == _language;
-                return ListTile(
-                  title: Text(
-                    lang,
-                    style: TextStyle(
-                      fontWeight:
-                          isSelected ? FontWeight.w800 : FontWeight.w500,
-                      color: isSelected
-                          ? AppColors.darkCharcoal
-                          : AppColors.neutral500,
-                    ),
-                  ),
-                  trailing: isSelected
-                      ? const Icon(Icons.check_rounded,
-                          color: AppColors.greenBrand)
-                      : null,
-                  tileColor: isSelected
-                      ? AppColors.limeCardSurface
-                      : Colors.transparent,
-                  onTap: () {
-                    setState(() => _language = lang);
-                    _updateSettings();
-                    ref
-                        .read(appLocaleProvider.notifier)
-                        .setLocale(appLocaleFromProfileLanguage(lang));
-                    Navigator.pop(ctx);
-                  },
-                );
-              }),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void _showThemePicker() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text(
-                  'Select Theme',
-                  style: AppTypography.headlineSmall.copyWith(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 18,
-                  ),
-                ),
-              ),
-              const Divider(height: 1),
-              ...['Light', 'Dark', 'System Default'].map((t) {
-                final isSelected = t == _theme;
-                return ListTile(
-                  title: Text(
-                    t,
-                    style: TextStyle(
-                      fontWeight:
-                          isSelected ? FontWeight.w800 : FontWeight.w500,
-                      color: isSelected
-                          ? AppColors.darkCharcoal
-                          : AppColors.neutral500,
-                    ),
-                  ),
-                  trailing: isSelected
-                      ? const Icon(Icons.check_rounded,
-                          color: AppColors.greenBrand)
-                      : null,
-                  tileColor: isSelected
-                      ? AppColors.limeCardSurface
-                      : Colors.transparent,
-                  onTap: () {
-                    setState(() => _theme = t);
-                    _updateSettings();
-                    Navigator.pop(ctx);
-                  },
-                );
-              }),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void _showUnitsPicker() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text(
-                  'Select Units',
-                  style: AppTypography.headlineSmall.copyWith(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 18,
-                  ),
-                ),
-              ),
-              const Divider(height: 1),
-              ...['Metric (kg, cm)', 'Imperial (lbs, in)'].map((u) {
-                final isSelected = u == _units;
-                return ListTile(
-                  title: Text(
-                    u,
-                    style: TextStyle(
-                      fontWeight:
-                          isSelected ? FontWeight.w800 : FontWeight.w500,
-                      color: isSelected
-                          ? AppColors.darkCharcoal
-                          : AppColors.neutral500,
-                    ),
-                  ),
-                  trailing: isSelected
-                      ? const Icon(Icons.check_rounded,
-                          color: AppColors.greenBrand)
-                      : null,
-                  tileColor: isSelected
-                      ? AppColors.limeCardSurface
-                      : Colors.transparent,
-                  onTap: () {
-                    setState(() => _units = u);
-                    _updateSettings();
-                    Navigator.pop(ctx);
-                  },
-                );
-              }),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_rounded,
-            color: Color(0xFF141718),
+            color: colorScheme.onSurface,
             size: 24,
           ),
           onPressed: () => context.pop(),
@@ -317,7 +141,7 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
           style: AppTypography.headlineSmall.copyWith(
             fontWeight: FontWeight.w800,
             fontSize: 18,
-            color: const Color(0xFF141718),
+            color: colorScheme.onSurface,
           ),
         ),
       ),
@@ -331,41 +155,63 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
               Text(
                 'Customize your app experience.',
                 style: AppTypography.bodySmall.copyWith(
-                  color: AppColors.neutral500,
+                  color: colorScheme.onSurfaceVariant,
                   fontSize: 13,
                 ),
               ),
               const SizedBox(height: 20),
-
-              // 1. Language Row
-              _buildNavigationRow(
+              AppSettingsNavigationCard(
                 icon: Icons.language_rounded,
                 title: 'Language',
                 valueText: _language,
-                onTap: _showLanguagePicker,
+                onTap: () => showAppSettingsPickerSheet(
+                  context: context,
+                  title: 'Select Language',
+                  options: const ['English', 'Bahasa Indonesia'],
+                  selectedValue: _language,
+                  onSelected: (lang) {
+                    setState(() => _language = lang);
+                    _updateSettings();
+                    ref
+                        .read(appLocaleProvider.notifier)
+                        .setLocale(appLocaleFromProfileLanguage(lang));
+                  },
+                ),
               ),
               const SizedBox(height: 12),
-
-              // 2. Theme Row
-              _buildNavigationRow(
+              AppSettingsNavigationCard(
                 icon: Icons.dark_mode_outlined,
                 title: 'Theme',
                 valueText: _theme,
-                onTap: _showThemePicker,
+                onTap: () => showAppSettingsPickerSheet(
+                  context: context,
+                  title: 'Select Theme',
+                  options: const ['Light', 'Dark', 'System Default'],
+                  selectedValue: _theme,
+                  onSelected: (selected) {
+                    setState(() => _theme = selected);
+                    _updateSettings();
+                  },
+                ),
               ),
               const SizedBox(height: 12),
-
-              // 3. Units Row
-              _buildNavigationRow(
+              AppSettingsNavigationCard(
                 icon: Icons.straighten_rounded,
                 title: 'Units',
                 valueText: _units,
-                onTap: _showUnitsPicker,
+                onTap: () => showAppSettingsPickerSheet(
+                  context: context,
+                  title: 'Select Units',
+                  options: const ['Metric (kg, cm)', 'Imperial (lbs, in)'],
+                  selectedValue: _units,
+                  onSelected: (selected) {
+                    setState(() => _units = selected);
+                    _updateSettings();
+                  },
+                ),
               ),
               const SizedBox(height: 12),
-
-              // 4. Haptic Feedback Switch
-              _buildSwitchCard(
+              AppSettingsSwitchCard(
                 icon: Icons.vibration_rounded,
                 title: 'Haptic Feedback',
                 subtitle: 'Vibrate on actions (start, rest, finish)',
@@ -376,9 +222,7 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
                 },
               ),
               const SizedBox(height: 12),
-
-              // 5. Sound Effects Switch
-              _buildSwitchCard(
+              AppSettingsSwitchCard(
                 icon: Icons.music_note_outlined,
                 title: 'Sound Effects',
                 subtitle: 'Workout timer and transitions',
@@ -389,9 +233,7 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
                 },
               ),
               const SizedBox(height: 12),
-
-              // 6. Data Sync Switch
-              _buildSwitchCard(
+              AppSettingsSwitchCard(
                 icon: Icons.cloud_outlined,
                 title: 'Data Sync',
                 subtitle: 'Back up your data to your account',
@@ -404,108 +246,4 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
       ),
     );
   }
-
-  Widget _buildNavigationRow({
-    required IconData icon,
-    required String title,
-    required String valueText,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE9ECEF), width: 1.2),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, size: 20, color: const Color(0xFF141718)),
-            const SizedBox(width: 14),
-            Text(
-              title,
-              style: AppTypography.labelLarge.copyWith(
-                fontWeight: FontWeight.w700,
-                fontSize: 14,
-                color: const Color(0xFF141718),
-              ),
-            ),
-            const Spacer(),
-            Text(
-              valueText,
-              style: AppTypography.bodySmall.copyWith(
-                color: const Color(0xFF141718),
-                fontWeight: FontWeight.w700,
-                fontSize: 13.5,
-              ),
-            ),
-            const SizedBox(width: 6),
-            const Icon(
-              Icons.chevron_right_rounded,
-              color: AppColors.neutral500,
-              size: 20,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSwitchCard({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE9ECEF), width: 1.2),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: const Color(0xFF141718)),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: AppTypography.labelLarge.copyWith(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
-                    color: const Color(0xFF141718),
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.neutral500,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Switch(
-            value: value,
-            activeThumbColor: Colors.white,
-            activeTrackColor: AppColors.primary,
-            inactiveThumbColor: Colors.white,
-            inactiveTrackColor: const Color(0xFFE2E8F0),
-            onChanged: onChanged,
-          ),
-        ],
-      ),
-    );
-  }
 }
-

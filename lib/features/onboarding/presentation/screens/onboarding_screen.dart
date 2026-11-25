@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../../../core/router/app_router.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../i18n/strings.g.dart';
@@ -102,12 +101,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     try {
       // The first workout is scheduled on the day the user creates the plan.
       final programStartDate = DateTime.now();
-      final availableDays =
-          ProgramWeekSchedule.availableWeekdaysForFrequency(
+      final availableDays = ProgramWeekSchedule.availableWeekdaysForFrequency(
         startDate: programStartDate,
         frequency: _daysPerWeek,
       );
-
       // 2. Simpan Profil Pengguna Lengkap ke SQLite Database (Audit Finding P0)
       final db = AppDatabase.instance;
       final currentProfile = await db.getUserProfile();
@@ -163,7 +160,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -190,6 +187,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   ),
 
                   // Step 2: About (Gender & Age)
+                  // Step 2: About (Gender & Age)
                   StepAbout(
                     gender: _gender,
                     age: _age,
@@ -198,11 +196,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   ),
 
                   // Step 3: Body Metrics & Target (Height, Current & Target Weight)
+                  // Step 3: Body Metrics & Target (Height, Current & Target Weight)
                   StepBodyTarget(
                     heightCm: _heightCm,
+
                     currentWeightKg: _currentWeightKg,
                     targetWeightKg: _targetWeightKg,
                     onHeightChanged: (val) => setState(() => _heightCm = val),
+
                     onCurrentWeightChanged: (val) =>
                         setState(() => _currentWeightKg = val),
                     onTargetWeightChanged: (val) =>
@@ -257,6 +258,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     }
 
     final t = Translations.of(context).onboarding.nav;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Column(
       children: [
@@ -266,9 +268,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
-                icon: const Icon(
+                icon: Icon(
                   Icons.arrow_back,
-                  color: AppColors.darkCharcoal,
+                  color: colorScheme.onSurface,
                   size: 24,
                 ),
                 onPressed: _prevStep,
@@ -278,7 +280,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 style: AppTypography.labelMedium.copyWith(
                   fontWeight: FontWeight.w800,
                   fontSize: 13,
-                  color: AppColors.neutral500,
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
@@ -292,10 +294,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             child: LinearProgressIndicator(
               value: (_currentStep / 7.0).clamp(0.0, 1.0),
               minHeight: 4,
-              backgroundColor: const Color(0xFFE2E8F0),
-              valueColor: const AlwaysStoppedAnimation<Color>(
-                Color(0xFF84CC16),
-              ),
+              backgroundColor: colorScheme.surfaceContainerHighest,
+              valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
             ),
           ),
         ),
@@ -306,17 +306,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   Widget _buildStickyBottomBar() {
     final t = Translations.of(context).onboarding.nav;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colorScheme.surface,
         border: _currentStep == 0
             ? null
-            : const Border(
-                top: BorderSide(color: Color(0xFFE2E8F0), width: 1),
-              ),
-        boxShadow: _currentStep == 0
+            : Border(top: BorderSide(color: colorScheme.outline, width: 1)),
+        boxShadow: _currentStep == 0 || isDark
             ? null
             : [
                 BoxShadow(
@@ -338,6 +338,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     size: AppButtonSize.large,
                     isFullWidth: false,
                     width: 210,
+
                     onPressed: _nextStep,
                   ),
                 ],

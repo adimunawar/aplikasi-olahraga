@@ -1,5 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
+import 'package:workout_app/core/widgets/core_widgets.dart';
+
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_typography.dart';
 import '../../../application/progress_history_grouping.dart';
@@ -199,36 +201,12 @@ class HistoryEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: progressCardDecoration(context),
-      child: Column(
-        children: [
-          Icon(
-            Icons.history_rounded,
-            size: 30,
-            color: colorScheme.onSurfaceVariant,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'No ${filter == 'All' ? 'history' : filter.toLowerCase()} yet',
-            style: AppTypography.titleSmall.copyWith(
-              color: colorScheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Your activity will appear here when it is recorded.',
-            textAlign: TextAlign.center,
-            style: AppTypography.bodySmall.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
+    return AppEmptyState(
+      icon: Icons.history_rounded,
+      title: 'No ${filter == 'All' ? 'history' : filter.toLowerCase()} yet',
+      message: 'Your activity will appear here when it is recorded.',
+      neutralBadge: true,
+      borderRadius: 15,
     );
   }
 }
