@@ -47,10 +47,12 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.textContaining('Dapatkan program latihan sesuai', findRichText: true),
+        find.textContaining(
+          'Dapatkan program latihan sesuai',
+          findRichText: true,
+        ),
         findsOneWidget,
       );
-
     });
 
     testWidgets('StepGoal renders all 3 core fitness goals', (tester) async {

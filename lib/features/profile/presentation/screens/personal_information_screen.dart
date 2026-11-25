@@ -78,8 +78,9 @@ class _PersonalInformationScreenState
                         '$age years',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontWeight:
-                              isSelected ? FontWeight.bold : FontWeight.normal,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                           color: isSelected
                               ? colorScheme.onSurface
                               : colorScheme.onSurfaceVariant,
