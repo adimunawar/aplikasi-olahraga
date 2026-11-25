@@ -26,37 +26,39 @@ class RecoveryGuideBottomSheet extends StatelessWidget {
     final isHydration = type == RecoveryGuideType.hydration;
     final title = isHydration
         ? (isIndonesian ? 'Penuhi kebutuhan cairan' : 'Stay Hydrated')
-        : (isIndonesian ? 'Tidur untuk pemulihan' : 'Better Sleep, Better Recovery');
+        : (isIndonesian
+              ? 'Tidur untuk pemulihan'
+              : 'Better Sleep, Better Recovery');
     final subtitle = isHydration
         ? (isIndonesian
-            ? 'Jaga tubuh tetap terhidrasi sepanjang hari.'
-            : 'Keep your body hydrated throughout the day.')
+              ? 'Jaga tubuh tetap terhidrasi sepanjang hari.'
+              : 'Keep your body hydrated throughout the day.')
         : (isIndonesian
-            ? 'Tidur yang cukup mendukung pemulihan tubuh.'
-            : 'Enough sleep supports your body’s recovery.');
+              ? 'Tidur yang cukup mendukung pemulihan tubuh.'
+              : 'Enough sleep supports your body’s recovery.');
     final tips = isHydration
         ? (isIndonesian
-            ? <String>[
-                'Minum air secara teratur sepanjang hari.',
-                'Penuhi kembali cairan setelah berkeringat atau berlatih.',
-                'Sediakan botol minum agar air mudah dijangkau.',
-              ]
-            : <String>[
-                'Drink water regularly throughout the day.',
-                'Replace fluids after sweating or exercising.',
-                'Keep a water bottle within easy reach.',
-              ])
+              ? <String>[
+                  'Minum air secara teratur sepanjang hari.',
+                  'Penuhi kembali cairan setelah berkeringat atau berlatih.',
+                  'Sediakan botol minum agar air mudah dijangkau.',
+                ]
+              : <String>[
+                  'Drink water regularly throughout the day.',
+                  'Replace fluids after sweating or exercising.',
+                  'Keep a water bottle within easy reach.',
+                ])
         : (isIndonesian
-            ? <String>[
-                'Usahakan jadwal tidur dan bangun yang konsisten.',
-                'Buat kamar tidur nyaman, tenang, dan redup.',
-                'Kurangi penggunaan layar menjelang waktu tidur.',
-              ]
-            : <String>[
-                'Keep a consistent sleep and wake schedule.',
-                'Make your bedroom comfortable, quiet, and dark.',
-                'Reduce screen use close to bedtime.',
-              ]);
+              ? <String>[
+                  'Usahakan jadwal tidur dan bangun yang konsisten.',
+                  'Buat kamar tidur nyaman, tenang, dan redup.',
+                  'Kurangi penggunaan layar menjelang waktu tidur.',
+                ]
+              : <String>[
+                  'Keep a consistent sleep and wake schedule.',
+                  'Make your bedroom comfortable, quiet, and dark.',
+                  'Reduce screen use close to bedtime.',
+                ]);
 
     return Container(
       decoration: const BoxDecoration(
@@ -110,7 +112,9 @@ class RecoveryGuideBottomSheet extends StatelessWidget {
               child: Column(
                 children: [
                   Icon(
-                    isHydration ? Icons.water_drop_rounded : Icons.bedtime_rounded,
+                    isHydration
+                        ? Icons.water_drop_rounded
+                        : Icons.bedtime_rounded,
                     color: const Color(0xFF78A900),
                     size: 46,
                   ),

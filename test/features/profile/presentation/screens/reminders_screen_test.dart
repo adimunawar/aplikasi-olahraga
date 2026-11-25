@@ -46,7 +46,9 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [profileControllerProvider.overrideWith((ref) => controller)],
+        overrides: [
+          profileControllerProvider.overrideWith((ref) => controller),
+        ],
         child: MaterialApp.router(
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,

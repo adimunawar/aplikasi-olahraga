@@ -201,12 +201,16 @@ class ExerciseFocusAreaCard extends StatelessWidget {
     required bool isDark,
   }) {
     final pillBg = isPrimary
-        ? (isDark ? theme.colorScheme.primaryContainer : AppColors.limeCardSurface)
-        : (isDark ? theme.colorScheme.surfaceContainerHighest : const Color(0xFFF1F3F5));
+        ? (isDark
+              ? theme.colorScheme.primaryContainer
+              : AppColors.limeCardSurface)
+        : (isDark
+              ? theme.colorScheme.surfaceContainerHighest
+              : const Color(0xFFF1F3F5));
     final pillBorder = isPrimary
         ? (isDark
-            ? theme.colorScheme.primary.withValues(alpha: 0.5)
-            : AppColors.limeAccent.withValues(alpha: 0.6))
+              ? theme.colorScheme.primary.withValues(alpha: 0.5)
+              : AppColors.limeAccent.withValues(alpha: 0.6))
         : (isDark ? theme.colorScheme.outlineVariant : const Color(0xFFE2E8F0));
     final checkBg = isPrimary
         ? (isDark ? theme.colorScheme.primary : AppColors.limeAccent)
@@ -215,7 +219,9 @@ class ExerciseFocusAreaCard extends StatelessWidget {
         ? (isDark ? theme.colorScheme.onPrimary : const Color(0xFF141718))
         : (isDark ? theme.colorScheme.onSurface : const Color(0xFF141718));
     final textColor = isPrimary
-        ? (isDark ? theme.colorScheme.onPrimaryContainer : const Color(0xFF141718))
+        ? (isDark
+              ? theme.colorScheme.onPrimaryContainer
+              : const Color(0xFF141718))
         : (isDark ? theme.colorScheme.onSurface : const Color(0xFF141718));
 
     return Container(
@@ -223,10 +229,7 @@ class ExerciseFocusAreaCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: pillBg,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: pillBorder,
-          width: 1,
-        ),
+        border: Border.all(color: pillBorder, width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -234,15 +237,8 @@ class ExerciseFocusAreaCard extends StatelessWidget {
           Container(
             width: 16,
             height: 16,
-            decoration: BoxDecoration(
-              color: checkBg,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.check_rounded,
-              size: 11,
-              color: checkIconColor,
-            ),
+            decoration: BoxDecoration(color: checkBg, shape: BoxShape.circle),
+            child: Icon(Icons.check_rounded, size: 11, color: checkIconColor),
           ),
           const SizedBox(width: 6),
           Flexible(

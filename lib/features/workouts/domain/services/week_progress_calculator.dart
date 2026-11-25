@@ -25,7 +25,9 @@ class WeekProgressCalculator {
     final completedKeys = <String>{};
     for (final record in history) {
       if (record.status != WorkoutSessionStatus.completed) continue;
-      completedKeys.add(_completionKey(record.programDayId, record.scheduledDate));
+      completedKeys.add(
+        _completionKey(record.programDayId, record.scheduledDate),
+      );
     }
 
     final result = <WeekProgress>[];

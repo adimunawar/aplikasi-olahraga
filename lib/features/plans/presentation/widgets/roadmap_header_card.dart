@@ -237,7 +237,9 @@ class RoadmapHeaderCard extends StatelessWidget {
                             child: LinearProgressIndicator(
                               value: (progressPercent / 100).clamp(0.05, 1.0),
                               minHeight: 6,
-                              backgroundColor: Colors.white.withValues(alpha: 0.15),
+                              backgroundColor: Colors.white.withValues(
+                                alpha: 0.15,
+                              ),
                               valueColor: const AlwaysStoppedAnimation<Color>(
                                 Color(0xFF84CC16),
                               ),

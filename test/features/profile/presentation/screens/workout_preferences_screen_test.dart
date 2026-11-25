@@ -11,14 +11,14 @@ import 'package:workout_app/features/profile/presentation/screens/workout_prefer
 class _RecordingController extends StateNotifier<ProfileState>
     implements ProfileController {
   _RecordingController()
-      : super(
-          const ProfileState(
-            isLoading: false,
-            preferredDaysPerWeek: 4,
-            preferredDurationMin: 45,
-            trainingIntensity: 'Moderate',
-          ),
-        );
+    : super(
+        const ProfileState(
+          isLoading: false,
+          preferredDaysPerWeek: 4,
+          preferredDurationMin: 45,
+          trainingIntensity: 'Moderate',
+        ),
+      );
 
   int? savedDays;
   int? savedDurationMin;
@@ -60,7 +60,9 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [profileControllerProvider.overrideWith((ref) => controller)],
+        overrides: [
+          profileControllerProvider.overrideWith((ref) => controller),
+        ],
         child: MaterialApp.router(
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,

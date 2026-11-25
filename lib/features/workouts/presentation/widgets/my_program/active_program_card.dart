@@ -31,9 +31,7 @@ class ActiveProgramCard extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final cardBgColor = isDark
-        ? theme.colorScheme.surface
-        : Colors.white;
+    final cardBgColor = isDark ? theme.colorScheme.surface : Colors.white;
     final borderColor = isDark
         ? theme.colorScheme.outline
         : const Color(0xFFE5E7EB);
@@ -69,7 +67,9 @@ class ActiveProgramCard extends StatelessWidget {
               border: Border.all(color: borderColor, width: 1.2),
               boxShadow: [
                 BoxShadow(
-                  color: isDark ? const Color(0x22000000) : const Color(0x06000000),
+                  color: isDark
+                      ? const Color(0x22000000)
+                      : const Color(0x06000000),
                   blurRadius: 10,
                   offset: const Offset(0, 3),
                 ),
@@ -144,7 +144,10 @@ class ActiveProgramCard extends StatelessWidget {
                         _programLifecycleLabel(context, t, lifecycle),
                         style: AppTypography.bodySmall.copyWith(
                           fontSize: 12,
-                          color: _programLifecycleColor(isDark, lifecycle.state),
+                          color: _programLifecycleColor(
+                            isDark,
+                            lifecycle.state,
+                          ),
                           fontWeight: FontWeight.w600,
                         ),
                         maxLines: 1,
@@ -188,9 +191,8 @@ class ActiveProgramCard extends StatelessWidget {
   ) {
     switch (lifecycle.state) {
       case ProgramLifecycle.notStarted:
-        final date = MaterialLocalizations.of(
-          context,
-        ).formatMediumDate(lifecycle.startDate);
+        final date = MaterialLocalizations.of(context)
+            .formatMediumDate(lifecycle.startDate);
         return t.workouts.activeProgram.status.notStarted(date: date);
       case ProgramLifecycle.completed:
         return t.workouts.activeProgram.status.completed;

@@ -6,12 +6,7 @@ import 'package:workout_app/features/workouts/presentation/widgets/my_program/we
 import 'package:workout_app/i18n/strings.g.dart';
 
 void main() {
-  WeekProgress week(
-    int number,
-    int completed,
-    int total,
-    WeekStatus status,
-  ) {
+  WeekProgress week(int number, int completed, int total, WeekStatus status) {
     return WeekProgress(
       weekNumber: number,
       completedSessions: completed,
@@ -56,9 +51,7 @@ void main() {
   }
 
   group('WeeklyScheduleSelector Pill Design & Theme Fidelity', () {
-    testWidgets('renders pill status indicators accurately', (
-      tester,
-    ) async {
+    testWidgets('renders pill status indicators accurately', (tester) async {
       await pumpSelector(
         tester,
         selectedWeek: 3,

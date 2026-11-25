@@ -53,7 +53,9 @@ void main() {
   }
 
   group('WorkoutsScreen Theme Fidelity', () {
-    testWidgets('renders properly in Light Mode without errors', (tester) async {
+    testWidgets('renders properly in Light Mode without errors', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         createThemedApp(
           themeMode: ThemeMode.light,

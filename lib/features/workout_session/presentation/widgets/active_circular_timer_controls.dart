@@ -1,5 +1,7 @@
 import 'dart:math' as math;
+
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 
@@ -105,7 +107,9 @@ class ActiveCircularTimerControls extends StatelessWidget {
                             ? AppColors.greenDark
                             : const Color(0xFF64748B),
                         fontSize: 11,
-                        fontWeight: isTimeUp ? FontWeight.w800 : FontWeight.w600,
+                        fontWeight: isTimeUp
+                            ? FontWeight.w800
+                            : FontWeight.w600,
                       ),
                     ),
                   ],
@@ -148,11 +152,7 @@ class ActiveCircularTimerControls extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              size: 26,
-              color: const Color(0xFF141718),
-            ),
+            Icon(icon, size: 26, color: const Color(0xFF141718)),
             const SizedBox(height: 2),
             Text(
               label,
@@ -173,10 +173,7 @@ class _CircularTimerRingPainter extends CustomPainter {
   final double progress;
   final bool isTimeUp;
 
-  _CircularTimerRingPainter({
-    required this.progress,
-    this.isTimeUp = false,
-  });
+  _CircularTimerRingPainter({required this.progress, this.isTimeUp = false});
 
   @override
   void paint(Canvas canvas, Size size) {

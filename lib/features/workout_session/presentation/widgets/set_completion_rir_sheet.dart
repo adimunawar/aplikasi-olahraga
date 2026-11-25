@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../i18n/strings.g.dart';
@@ -120,7 +121,8 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
   @override
   void initState() {
     super.initState();
-    _value = widget.initialValue ??
+    _value =
+        widget.initialValue ??
         (widget.isDuration
             ? (widget.targetDurationSeconds ?? widget.targetReps)
             : widget.targetReps);
@@ -198,7 +200,10 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF3F9EA),
                   borderRadius: BorderRadius.circular(10),
@@ -207,7 +212,8 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
                 child: Text(
                   widget.isDuration
                       ? t.workoutSession.targetDuration(
-                          seconds: widget.targetDurationSeconds ?? widget.targetReps,
+                          seconds:
+                              widget.targetDurationSeconds ?? widget.targetReps,
                         )
                       : t.workoutSession.targetReps(reps: widget.targetReps),
                   style: AppTypography.labelSmall.copyWith(
@@ -273,7 +279,9 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
                     ),
                     const SizedBox(width: 14),
                     Text(
-                      widget.isDuration ? t.workoutSession.durationValue(value: _value) : '$_value',
+                      widget.isDuration
+                          ? t.workoutSession.durationValue(value: _value)
+                          : '$_value',
                       style: AppTypography.headlineMedium.copyWith(
                         fontWeight: FontWeight.w900,
                         fontSize: 22,
@@ -328,12 +336,19 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
                   borderRadius: BorderRadius.circular(14),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 150),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
-                      color: isSelected ? const Color(0xFFF3F9EA) : Colors.white,
+                      color: isSelected
+                          ? const Color(0xFFF3F9EA)
+                          : Colors.white,
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
-                        color: isSelected ? const Color(0xFFB8E66B) : const Color(0xFFE2E8F0),
+                        color: isSelected
+                            ? const Color(0xFFB8E66B)
+                            : const Color(0xFFE2E8F0),
                         width: isSelected ? 1.5 : 1.0,
                       ),
                     ),
@@ -367,7 +382,10 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
                                   ),
                                   const Spacer(),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: opt.color.withValues(alpha: 0.12),
                                       borderRadius: BorderRadius.circular(6),
@@ -422,20 +440,22 @@ class _SetCompletionRirSheetState extends State<SetCompletionRirSheet> {
                 children: [
                   Text(
                     t.workoutSession.saveAndStartRest,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                    ),
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      t.workoutSession.restSecondsValue(seconds: widget.restSeconds),
+                      t.workoutSession.restSecondsValue(
+                        seconds: widget.restSeconds,
+                      ),
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
@@ -489,4 +509,3 @@ class _RirOption {
     required this.badgeText,
   });
 }
-

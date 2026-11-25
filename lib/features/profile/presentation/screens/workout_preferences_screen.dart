@@ -204,8 +204,7 @@ class _WorkoutPreferencesScreenState
                       selectedValue: _selectedIntensity,
                       labelBuilder: (i) => i,
                       equals: (a, b) => a.toLowerCase() == b.toLowerCase(),
-                      onSelected: (i) =>
-                          setState(() => _selectedIntensity = i),
+                      onSelected: (i) => setState(() => _selectedIntensity = i),
                     ),
                     const SizedBox(height: 18),
                     ProfileInfoBanner(message: _intensityDescription),

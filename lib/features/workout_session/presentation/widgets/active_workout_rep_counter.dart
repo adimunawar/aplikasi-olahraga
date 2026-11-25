@@ -71,10 +71,7 @@ class _ActiveWorkoutRepCounterState extends State<ActiveWorkoutRepCounter> {
           decoration: BoxDecoration(
             color: const Color(0xFFF8FCEB),
             shape: BoxShape.circle,
-            border: Border.all(
-              color: AppColors.limeAccent,
-              width: 8,
-            ),
+            border: Border.all(color: AppColors.limeAccent, width: 8),
           ),
           child: Center(
             child: Column(
@@ -136,11 +133,7 @@ class _CounterButton extends StatelessWidget {
         child: SizedBox(
           width: 48,
           height: 48,
-          child: Icon(
-            icon,
-            size: 25,
-            color: AppColors.darkCharcoal,
-          ),
+          child: Icon(icon, size: 25, color: AppColors.darkCharcoal),
         ),
       ),
     );

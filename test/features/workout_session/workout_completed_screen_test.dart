@@ -24,12 +24,12 @@ void main() {
       );
     });
 
-    testWidgets('renders workout completed information correctly', (tester) async {
+    testWidgets('renders workout completed information correctly', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         TranslationProvider(
-          child: MaterialApp(
-            home: WorkoutCompletedScreen(args: defaultArgs),
-          ),
+          child: MaterialApp(home: WorkoutCompletedScreen(args: defaultArgs)),
         ),
       );
       await tester.pumpAndSettle();
@@ -62,12 +62,12 @@ void main() {
       expect(find.text('View Workout Summary'), findsOneWidget);
     });
 
-    testWidgets('allows selecting different workout rating emojis', (tester) async {
+    testWidgets('allows selecting different workout rating emojis', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         TranslationProvider(
-          child: MaterialApp(
-            home: WorkoutCompletedScreen(args: defaultArgs),
-          ),
+          child: MaterialApp(home: WorkoutCompletedScreen(args: defaultArgs)),
         ),
       );
       await tester.pumpAndSettle();
@@ -86,7 +86,9 @@ void main() {
       expect(find.text('Hard'), findsOneWidget);
     });
 
-    testWidgets('navigates to summary when View Workout Summary is tapped', (tester) async {
+    testWidgets('navigates to summary when View Workout Summary is tapped', (
+      tester,
+    ) async {
       WorkoutSummaryArgs? capturedArgs;
 
       final router = GoRouter(
@@ -94,7 +96,8 @@ void main() {
         routes: [
           GoRoute(
             path: '/completed',
-            builder: (context, state) => WorkoutCompletedScreen(args: defaultArgs),
+            builder: (context, state) =>
+                WorkoutCompletedScreen(args: defaultArgs),
           ),
           GoRoute(
             path: AppRoutes.workoutSummary,
@@ -109,9 +112,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        TranslationProvider(
-          child: MaterialApp.router(routerConfig: router),
-        ),
+        TranslationProvider(child: MaterialApp.router(routerConfig: router)),
       );
       await tester.pumpAndSettle();
 
@@ -125,27 +126,27 @@ void main() {
       expect(capturedArgs!.caloriesText, '≈ 160 kcal');
     });
 
-    testWidgets('navigates to home when Save & Continue is tapped', (tester) async {
+    testWidgets('navigates to home when Save & Continue is tapped', (
+      tester,
+    ) async {
       final router = GoRouter(
         initialLocation: '/completed',
         routes: [
           GoRoute(
             path: '/completed',
-            builder: (context, state) => WorkoutCompletedScreen(args: defaultArgs),
+            builder: (context, state) =>
+                WorkoutCompletedScreen(args: defaultArgs),
           ),
           GoRoute(
             path: AppRoutes.home,
-            builder: (context, state) => const Scaffold(
-              body: Center(child: Text('Home Screen')),
-            ),
+            builder: (context, state) =>
+                const Scaffold(body: Center(child: Text('Home Screen'))),
           ),
         ],
       );
 
       await tester.pumpWidget(
-        TranslationProvider(
-          child: MaterialApp.router(routerConfig: router),
-        ),
+        TranslationProvider(child: MaterialApp.router(routerConfig: router)),
       );
       await tester.pumpAndSettle();
 
@@ -155,12 +156,12 @@ void main() {
       expect(find.text('Home Screen'), findsOneWidget);
     });
 
-    testWidgets('animates and disposes controllers cleanly without error', (tester) async {
+    testWidgets('animates and disposes controllers cleanly without error', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         TranslationProvider(
-          child: MaterialApp(
-            home: WorkoutCompletedScreen(args: defaultArgs),
-          ),
+          child: MaterialApp(home: WorkoutCompletedScreen(args: defaultArgs)),
         ),
       );
 

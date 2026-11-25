@@ -7,10 +7,7 @@ class GeneratedProgramResult {
   final TrainingProgramEntity program;
   final List<ProgramSessionDetail> sessions;
 
-  const GeneratedProgramResult({
-    required this.program,
-    required this.sessions,
-  });
+  const GeneratedProgramResult({required this.program, required this.sessions});
 }
 
 /// DynamicProgramGenerator:
@@ -28,18 +25,22 @@ class DynamicProgramGenerator {
     DateTime? startDate,
   }) {
     if (catalogExercises.isEmpty) {
-      throw StateError('Cannot generate a workout plan because the exercise catalog is empty.');
+      throw StateError(
+        'Cannot generate a workout plan because the exercise catalog is empty.',
+      );
     }
 
     final now = startDate ?? DateTime.now();
     final programId = 'prog_${userProfile.id}_${now.millisecondsSinceEpoch}';
 
     // 1. Tentukan latihan dorong awal (Primary Horizontal Push) sesuai hasil Onboarding
-    final primaryPushId = startingPushExerciseId ?? _resolveStartingPush(userProfile);
+    final primaryPushId =
+        startingPushExerciseId ?? _resolveStartingPush(userProfile);
 
     // 2. Tentukan nama program berdasarkan Goal pengguna
     String programName;
-    if (userProfile.goal.contains('fat_loss') || userProfile.goal.contains('cut')) {
+    if (userProfile.goal.contains('fat_loss') ||
+        userProfile.goal.contains('cut')) {
       programName = 'Fat Loss & Conditioning';
     } else if (userProfile.goal.contains('maintain')) {
       programName = 'Maintain & Stay Fit';
@@ -65,235 +66,311 @@ class DynamicProgramGenerator {
 
     if (freq <= 2) {
       // Program 2 Hari / Minggu
-      sessions.add(_buildSession(
-        programId: programId,
-        dayNumber: 1,
-        sessionName: 'Full Body A',
-        focusLabel: 'Push, Squat & Core',
-        targetDurationMin: userProfile.preferredDurationMin,
-        exerciseBlueprints: _get2DaySession1Blueprint(primaryPushId, userProfile),
-        catalogExercises: catalogExercises,
-        now: now,
-      ));
+      sessions.add(
+        _buildSession(
+          programId: programId,
+          dayNumber: 1,
+          sessionName: 'Full Body A',
+          focusLabel: 'Push, Squat & Core',
+          targetDurationMin: userProfile.preferredDurationMin,
+          exerciseBlueprints: _get2DaySession1Blueprint(
+            primaryPushId,
+            userProfile,
+          ),
+          catalogExercises: catalogExercises,
+          now: now,
+        ),
+      );
 
-      sessions.add(_buildSession(
-        programId: programId,
-        dayNumber: 2,
-        sessionName: 'Full Body B',
-        focusLabel: 'Pull, Hinge & Lunge',
-        targetDurationMin: userProfile.preferredDurationMin,
-        exerciseBlueprints: _get2DaySession2Blueprint(userProfile),
-        catalogExercises: catalogExercises,
-        now: now,
-      ));
+      sessions.add(
+        _buildSession(
+          programId: programId,
+          dayNumber: 2,
+          sessionName: 'Full Body B',
+          focusLabel: 'Pull, Hinge & Lunge',
+          targetDurationMin: userProfile.preferredDurationMin,
+          exerciseBlueprints: _get2DaySession2Blueprint(userProfile),
+          catalogExercises: catalogExercises,
+          now: now,
+        ),
+      );
     } else if (freq == 3) {
       // Program 3 Hari / Minggu (Full Body A / B / C)
-      sessions.add(_buildSession(
-        programId: programId,
-        dayNumber: 1,
-        sessionName: 'Full Body A',
-        focusLabel: 'Chest, Quads & Core Stability',
-        targetDurationMin: userProfile.preferredDurationMin,
-        exerciseBlueprints: _get3DaySessionABlueprint(primaryPushId, userProfile),
-        catalogExercises: catalogExercises,
-        now: now,
-      ));
+      sessions.add(
+        _buildSession(
+          programId: programId,
+          dayNumber: 1,
+          sessionName: 'Full Body A',
+          focusLabel: 'Chest, Quads & Core Stability',
+          targetDurationMin: userProfile.preferredDurationMin,
+          exerciseBlueprints: _get3DaySessionABlueprint(
+            primaryPushId,
+            userProfile,
+          ),
+          catalogExercises: catalogExercises,
+          now: now,
+        ),
+      );
 
-      sessions.add(_buildSession(
-        programId: programId,
-        dayNumber: 2,
-        sessionName: 'Full Body B',
-        focusLabel: 'Back, Hamstrings & Dynamics',
-        targetDurationMin: userProfile.preferredDurationMin,
-        exerciseBlueprints: _get3DaySessionBBlueprint(userProfile),
-        catalogExercises: catalogExercises,
-        now: now,
-      ));
+      sessions.add(
+        _buildSession(
+          programId: programId,
+          dayNumber: 2,
+          sessionName: 'Full Body B',
+          focusLabel: 'Back, Hamstrings & Dynamics',
+          targetDurationMin: userProfile.preferredDurationMin,
+          exerciseBlueprints: _get3DaySessionBBlueprint(userProfile),
+          catalogExercises: catalogExercises,
+          now: now,
+        ),
+      );
 
-      sessions.add(_buildSession(
-        programId: programId,
-        dayNumber: 3,
-        sessionName: 'Full Body C',
-        focusLabel: 'Legs Balance & Arms Foundation',
-        targetDurationMin: userProfile.preferredDurationMin,
-        exerciseBlueprints: _get3DaySessionCBlueprint(primaryPushId, userProfile),
-        catalogExercises: catalogExercises,
-        now: now,
-      ));
+      sessions.add(
+        _buildSession(
+          programId: programId,
+          dayNumber: 3,
+          sessionName: 'Full Body C',
+          focusLabel: 'Legs Balance & Arms Foundation',
+          targetDurationMin: userProfile.preferredDurationMin,
+          exerciseBlueprints: _get3DaySessionCBlueprint(
+            primaryPushId,
+            userProfile,
+          ),
+          catalogExercises: catalogExercises,
+          now: now,
+        ),
+      );
     } else if (freq == 4) {
       // Program 4 Hari / Minggu (Upper / Lower / Upper / Full)
-      sessions.add(_buildSession(
-        programId: programId,
-        dayNumber: 1,
-        sessionName: 'Upper Body (Push)',
-        focusLabel: 'Chest, Shoulders & Triceps',
-        targetDurationMin: userProfile.preferredDurationMin,
-        exerciseBlueprints: _get3DaySessionABlueprint(primaryPushId, userProfile),
-        catalogExercises: catalogExercises,
-        now: now,
-      ));
+      sessions.add(
+        _buildSession(
+          programId: programId,
+          dayNumber: 1,
+          sessionName: 'Upper Body (Push)',
+          focusLabel: 'Chest, Shoulders & Triceps',
+          targetDurationMin: userProfile.preferredDurationMin,
+          exerciseBlueprints: _get3DaySessionABlueprint(
+            primaryPushId,
+            userProfile,
+          ),
+          catalogExercises: catalogExercises,
+          now: now,
+        ),
+      );
 
-      sessions.add(_buildSession(
-        programId: programId,
-        dayNumber: 2,
-        sessionName: 'Lower Body',
-        focusLabel: 'Quads, Glutes & Calves',
-        targetDurationMin: userProfile.preferredDurationMin,
-        exerciseBlueprints: _get3DaySessionBBlueprint(userProfile),
-        catalogExercises: catalogExercises,
-        now: now,
-      ));
+      sessions.add(
+        _buildSession(
+          programId: programId,
+          dayNumber: 2,
+          sessionName: 'Lower Body',
+          focusLabel: 'Quads, Glutes & Calves',
+          targetDurationMin: userProfile.preferredDurationMin,
+          exerciseBlueprints: _get3DaySessionBBlueprint(userProfile),
+          catalogExercises: catalogExercises,
+          now: now,
+        ),
+      );
 
-      sessions.add(_buildSession(
-        programId: programId,
-        dayNumber: 3,
-        sessionName: 'Upper Body (Pull)',
-        focusLabel: 'Back, Biceps & Posture',
-        targetDurationMin: userProfile.preferredDurationMin,
-        exerciseBlueprints: _get3DaySessionCBlueprint(primaryPushId, userProfile),
-        catalogExercises: catalogExercises,
-        now: now,
-      ));
+      sessions.add(
+        _buildSession(
+          programId: programId,
+          dayNumber: 3,
+          sessionName: 'Upper Body (Pull)',
+          focusLabel: 'Back, Biceps & Posture',
+          targetDurationMin: userProfile.preferredDurationMin,
+          exerciseBlueprints: _get3DaySessionCBlueprint(
+            primaryPushId,
+            userProfile,
+          ),
+          catalogExercises: catalogExercises,
+          now: now,
+        ),
+      );
 
-      sessions.add(_buildSession(
-        programId: programId,
-        dayNumber: 4,
-        sessionName: 'Full Body Conditioning',
-        focusLabel: 'Full Body & Core Dynamics',
-        targetDurationMin: userProfile.preferredDurationMin,
-        exerciseBlueprints: _get2DaySession1Blueprint(primaryPushId, userProfile),
-        catalogExercises: catalogExercises,
-        now: now,
-      ));
+      sessions.add(
+        _buildSession(
+          programId: programId,
+          dayNumber: 4,
+          sessionName: 'Full Body Conditioning',
+          focusLabel: 'Full Body & Core Dynamics',
+          targetDurationMin: userProfile.preferredDurationMin,
+          exerciseBlueprints: _get2DaySession1Blueprint(
+            primaryPushId,
+            userProfile,
+          ),
+          catalogExercises: catalogExercises,
+          now: now,
+        ),
+      );
     } else if (freq == 5) {
       // Program 5 Hari / Minggu
-      sessions.add(_buildSession(
-        programId: programId,
-        dayNumber: 1,
-        sessionName: 'Upper Body (Push)',
-        focusLabel: 'Chest, Shoulders & Triceps',
-        targetDurationMin: userProfile.preferredDurationMin,
-        exerciseBlueprints: _get3DaySessionABlueprint(primaryPushId, userProfile),
-        catalogExercises: catalogExercises,
-        now: now,
-      ));
+      sessions.add(
+        _buildSession(
+          programId: programId,
+          dayNumber: 1,
+          sessionName: 'Upper Body (Push)',
+          focusLabel: 'Chest, Shoulders & Triceps',
+          targetDurationMin: userProfile.preferredDurationMin,
+          exerciseBlueprints: _get3DaySessionABlueprint(
+            primaryPushId,
+            userProfile,
+          ),
+          catalogExercises: catalogExercises,
+          now: now,
+        ),
+      );
 
-      sessions.add(_buildSession(
-        programId: programId,
-        dayNumber: 2,
-        sessionName: 'Lower Body A',
-        focusLabel: 'Quads, Calves & Core',
-        targetDurationMin: userProfile.preferredDurationMin,
-        exerciseBlueprints: _get3DaySessionBBlueprint(userProfile),
-        catalogExercises: catalogExercises,
-        now: now,
-      ));
+      sessions.add(
+        _buildSession(
+          programId: programId,
+          dayNumber: 2,
+          sessionName: 'Lower Body A',
+          focusLabel: 'Quads, Calves & Core',
+          targetDurationMin: userProfile.preferredDurationMin,
+          exerciseBlueprints: _get3DaySessionBBlueprint(userProfile),
+          catalogExercises: catalogExercises,
+          now: now,
+        ),
+      );
 
-      sessions.add(_buildSession(
-        programId: programId,
-        dayNumber: 3,
-        sessionName: 'Upper Body (Pull)',
-        focusLabel: 'Back, Biceps & Posture',
-        targetDurationMin: userProfile.preferredDurationMin,
-        exerciseBlueprints: _get3DaySessionCBlueprint(primaryPushId, userProfile),
-        catalogExercises: catalogExercises,
-        now: now,
-      ));
+      sessions.add(
+        _buildSession(
+          programId: programId,
+          dayNumber: 3,
+          sessionName: 'Upper Body (Pull)',
+          focusLabel: 'Back, Biceps & Posture',
+          targetDurationMin: userProfile.preferredDurationMin,
+          exerciseBlueprints: _get3DaySessionCBlueprint(
+            primaryPushId,
+            userProfile,
+          ),
+          catalogExercises: catalogExercises,
+          now: now,
+        ),
+      );
 
-      sessions.add(_buildSession(
-        programId: programId,
-        dayNumber: 4,
-        sessionName: 'Lower Body B',
-        focusLabel: 'Glutes, Hamstrings & Stability',
-        targetDurationMin: userProfile.preferredDurationMin,
-        exerciseBlueprints: _get2DaySession2Blueprint(userProfile),
-        catalogExercises: catalogExercises,
-        now: now,
-      ));
+      sessions.add(
+        _buildSession(
+          programId: programId,
+          dayNumber: 4,
+          sessionName: 'Lower Body B',
+          focusLabel: 'Glutes, Hamstrings & Stability',
+          targetDurationMin: userProfile.preferredDurationMin,
+          exerciseBlueprints: _get2DaySession2Blueprint(userProfile),
+          catalogExercises: catalogExercises,
+          now: now,
+        ),
+      );
 
-      sessions.add(_buildSession(
-        programId: programId,
-        dayNumber: 5,
-        sessionName: 'Full Body & Core',
-        focusLabel: 'Core, Endurance & Agility',
-        targetDurationMin: userProfile.preferredDurationMin,
-        exerciseBlueprints: _get2DaySession1Blueprint(primaryPushId, userProfile),
-        catalogExercises: catalogExercises,
-        now: now,
-      ));
+      sessions.add(
+        _buildSession(
+          programId: programId,
+          dayNumber: 5,
+          sessionName: 'Full Body & Core',
+          focusLabel: 'Core, Endurance & Agility',
+          targetDurationMin: userProfile.preferredDurationMin,
+          exerciseBlueprints: _get2DaySession1Blueprint(
+            primaryPushId,
+            userProfile,
+          ),
+          catalogExercises: catalogExercises,
+          now: now,
+        ),
+      );
     } else {
       // Program 6 Hari / Minggu (PPL x 2)
-      sessions.add(_buildSession(
-        programId: programId,
-        dayNumber: 1,
-        sessionName: 'Push A',
-        focusLabel: 'Chest & Triceps Focus',
-        targetDurationMin: userProfile.preferredDurationMin,
-        exerciseBlueprints: _get3DaySessionABlueprint(primaryPushId, userProfile),
-        catalogExercises: catalogExercises,
-        now: now,
-      ));
+      sessions.add(
+        _buildSession(
+          programId: programId,
+          dayNumber: 1,
+          sessionName: 'Push A',
+          focusLabel: 'Chest & Triceps Focus',
+          targetDurationMin: userProfile.preferredDurationMin,
+          exerciseBlueprints: _get3DaySessionABlueprint(
+            primaryPushId,
+            userProfile,
+          ),
+          catalogExercises: catalogExercises,
+          now: now,
+        ),
+      );
 
-      sessions.add(_buildSession(
-        programId: programId,
-        dayNumber: 2,
-        sessionName: 'Pull A',
-        focusLabel: 'Upper Back & Biceps',
-        targetDurationMin: userProfile.preferredDurationMin,
-        exerciseBlueprints: _get3DaySessionCBlueprint(primaryPushId, userProfile),
-        catalogExercises: catalogExercises,
-        now: now,
-      ));
+      sessions.add(
+        _buildSession(
+          programId: programId,
+          dayNumber: 2,
+          sessionName: 'Pull A',
+          focusLabel: 'Upper Back & Biceps',
+          targetDurationMin: userProfile.preferredDurationMin,
+          exerciseBlueprints: _get3DaySessionCBlueprint(
+            primaryPushId,
+            userProfile,
+          ),
+          catalogExercises: catalogExercises,
+          now: now,
+        ),
+      );
 
-      sessions.add(_buildSession(
-        programId: programId,
-        dayNumber: 3,
-        sessionName: 'Legs A',
-        focusLabel: 'Quads & Calves Heavy',
-        targetDurationMin: userProfile.preferredDurationMin,
-        exerciseBlueprints: _get3DaySessionBBlueprint(userProfile),
-        catalogExercises: catalogExercises,
-        now: now,
-      ));
+      sessions.add(
+        _buildSession(
+          programId: programId,
+          dayNumber: 3,
+          sessionName: 'Legs A',
+          focusLabel: 'Quads & Calves Heavy',
+          targetDurationMin: userProfile.preferredDurationMin,
+          exerciseBlueprints: _get3DaySessionBBlueprint(userProfile),
+          catalogExercises: catalogExercises,
+          now: now,
+        ),
+      );
 
-      sessions.add(_buildSession(
-        programId: programId,
-        dayNumber: 4,
-        sessionName: 'Push B',
-        focusLabel: 'Shoulders & Chest Volume',
-        targetDurationMin: userProfile.preferredDurationMin,
-        exerciseBlueprints: _get3DaySessionABlueprint(primaryPushId, userProfile),
-        catalogExercises: catalogExercises,
-        now: now,
-      ));
+      sessions.add(
+        _buildSession(
+          programId: programId,
+          dayNumber: 4,
+          sessionName: 'Push B',
+          focusLabel: 'Shoulders & Chest Volume',
+          targetDurationMin: userProfile.preferredDurationMin,
+          exerciseBlueprints: _get3DaySessionABlueprint(
+            primaryPushId,
+            userProfile,
+          ),
+          catalogExercises: catalogExercises,
+          now: now,
+        ),
+      );
 
-      sessions.add(_buildSession(
-        programId: programId,
-        dayNumber: 5,
-        sessionName: 'Pull B',
-        focusLabel: 'Lats & Core Dynamics',
-        targetDurationMin: userProfile.preferredDurationMin,
-        exerciseBlueprints: _get3DaySessionCBlueprint(primaryPushId, userProfile),
-        catalogExercises: catalogExercises,
-        now: now,
-      ));
+      sessions.add(
+        _buildSession(
+          programId: programId,
+          dayNumber: 5,
+          sessionName: 'Pull B',
+          focusLabel: 'Lats & Core Dynamics',
+          targetDurationMin: userProfile.preferredDurationMin,
+          exerciseBlueprints: _get3DaySessionCBlueprint(
+            primaryPushId,
+            userProfile,
+          ),
+          catalogExercises: catalogExercises,
+          now: now,
+        ),
+      );
 
-      sessions.add(_buildSession(
-        programId: programId,
-        dayNumber: 6,
-        sessionName: 'Legs B',
-        focusLabel: 'Hamstrings, Glutes & Mobility',
-        targetDurationMin: userProfile.preferredDurationMin,
-        exerciseBlueprints: _get2DaySession2Blueprint(userProfile),
-        catalogExercises: catalogExercises,
-        now: now,
-      ));
+      sessions.add(
+        _buildSession(
+          programId: programId,
+          dayNumber: 6,
+          sessionName: 'Legs B',
+          focusLabel: 'Hamstrings, Glutes & Mobility',
+          targetDurationMin: userProfile.preferredDurationMin,
+          exerciseBlueprints: _get2DaySession2Blueprint(userProfile),
+          catalogExercises: catalogExercises,
+          now: now,
+        ),
+      );
     }
 
-    return GeneratedProgramResult(
-      program: program,
-      sessions: sessions,
-    );
+    return GeneratedProgramResult(program: program, sessions: sessions);
   }
 
   // ===========================================================================
@@ -317,86 +394,209 @@ class DynamicProgramGenerator {
     }
   }
 
-  List<_ExerciseBlueprint> _get3DaySessionABlueprint(String pushId, UserProfileEntity user) {
+  List<_ExerciseBlueprint> _get3DaySessionABlueprint(
+    String pushId,
+    UserProfileEntity user,
+  ) {
     final list = [
-      _ExerciseBlueprint(exerciseId: pushId, stage: 'main', targetSets: 3, minReps: 8, maxReps: 12),
-      _ExerciseBlueprint(exerciseId: 'squat', stage: 'main', targetSets: 3, minReps: 10, maxReps: 15),
-      _ExerciseBlueprint(exerciseId: 'plank', stage: 'main', targetSets: 3, minReps: 30, maxReps: 45, targetDurationSeconds: 45),
-    ];
-
-    // Jika durasi >= 30 menit, tambahkan latihan pendukung
-    if (user.preferredDurationMin >= 30) {
-      list.add(_ExerciseBlueprint(
-        exerciseId: 'glute_bridge',
+      _ExerciseBlueprint(
+        exerciseId: pushId,
         stage: 'main',
         targetSets: 3,
-        minReps: 12,
+        minReps: 8,
+        maxReps: 12,
+      ),
+      _ExerciseBlueprint(
+        exerciseId: 'squat',
+        stage: 'main',
+        targetSets: 3,
+        minReps: 10,
         maxReps: 15,
-      ));
-    }
-    return list;
-  }
-
-  List<_ExerciseBlueprint> _get3DaySessionBBlueprint(UserProfileEntity user) {
-    final list = [
-      _ExerciseBlueprint(exerciseId: 'doorframe_row', stage: 'main', targetSets: 3, minReps: 8, maxReps: 12),
-      _ExerciseBlueprint(exerciseId: 'glute_bridge', stage: 'main', targetSets: 3, minReps: 10, maxReps: 15),
-      _ExerciseBlueprint(exerciseId: 'mountain_climber', stage: 'main', targetSets: 3, minReps: 15, maxReps: 20),
-    ];
-
-    if (user.preferredDurationMin >= 30) {
-      list.add(_ExerciseBlueprint(
-        exerciseId: 'calf_raise',
-        stage: 'main',
-        targetSets: 3,
-        minReps: 15,
-        maxReps: 20,
-      ));
-    }
-    return list;
-  }
-
-  List<_ExerciseBlueprint> _get3DaySessionCBlueprint(String pushId, UserProfileEntity user) {
-    // Untuk hari C, berikan variasi kaki unilateral (Split Squat) + push sekunder
-    final list = [
-      _ExerciseBlueprint(exerciseId: 'split_squat', stage: 'main', targetSets: 3, minReps: 8, maxReps: 10),
-      _ExerciseBlueprint(exerciseId: pushId == 'push_up' ? 'incline_push_up' : pushId, stage: 'main', targetSets: 3, minReps: 8, maxReps: 12),
-      _ExerciseBlueprint(exerciseId: 'calf_raise', stage: 'main', targetSets: 3, minReps: 15, maxReps: 20),
-    ];
-
-    if (user.preferredDurationMin >= 30) {
-      list.add(_ExerciseBlueprint(
+      ),
+      _ExerciseBlueprint(
         exerciseId: 'plank',
         stage: 'main',
         targetSets: 3,
         minReps: 30,
         maxReps: 45,
         targetDurationSeconds: 45,
-      ));
+      ),
+    ];
+
+    // Jika durasi >= 30 menit, tambahkan latihan pendukung
+    if (user.preferredDurationMin >= 30) {
+      list.add(
+        _ExerciseBlueprint(
+          exerciseId: 'glute_bridge',
+          stage: 'main',
+          targetSets: 3,
+          minReps: 12,
+          maxReps: 15,
+        ),
+      );
     }
     return list;
   }
 
-  List<_ExerciseBlueprint> _get2DaySession1Blueprint(String pushId, UserProfileEntity user) {
+  List<_ExerciseBlueprint> _get3DaySessionBBlueprint(UserProfileEntity user) {
     final list = [
-      _ExerciseBlueprint(exerciseId: pushId, stage: 'main', targetSets: 3, minReps: 8, maxReps: 12),
-      _ExerciseBlueprint(exerciseId: 'squat', stage: 'main', targetSets: 3, minReps: 10, maxReps: 15),
-      _ExerciseBlueprint(exerciseId: 'plank', stage: 'main', targetSets: 3, minReps: 30, maxReps: 45, targetDurationSeconds: 45),
+      _ExerciseBlueprint(
+        exerciseId: 'doorframe_row',
+        stage: 'main',
+        targetSets: 3,
+        minReps: 8,
+        maxReps: 12,
+      ),
+      _ExerciseBlueprint(
+        exerciseId: 'glute_bridge',
+        stage: 'main',
+        targetSets: 3,
+        minReps: 10,
+        maxReps: 15,
+      ),
+      _ExerciseBlueprint(
+        exerciseId: 'mountain_climber',
+        stage: 'main',
+        targetSets: 3,
+        minReps: 15,
+        maxReps: 20,
+      ),
+    ];
+
+    if (user.preferredDurationMin >= 30) {
+      list.add(
+        _ExerciseBlueprint(
+          exerciseId: 'calf_raise',
+          stage: 'main',
+          targetSets: 3,
+          minReps: 15,
+          maxReps: 20,
+        ),
+      );
+    }
+    return list;
+  }
+
+  List<_ExerciseBlueprint> _get3DaySessionCBlueprint(
+    String pushId,
+    UserProfileEntity user,
+  ) {
+    // Untuk hari C, berikan variasi kaki unilateral (Split Squat) + push sekunder
+    final list = [
+      _ExerciseBlueprint(
+        exerciseId: 'split_squat',
+        stage: 'main',
+        targetSets: 3,
+        minReps: 8,
+        maxReps: 10,
+      ),
+      _ExerciseBlueprint(
+        exerciseId: pushId == 'push_up' ? 'incline_push_up' : pushId,
+        stage: 'main',
+        targetSets: 3,
+        minReps: 8,
+        maxReps: 12,
+      ),
+      _ExerciseBlueprint(
+        exerciseId: 'calf_raise',
+        stage: 'main',
+        targetSets: 3,
+        minReps: 15,
+        maxReps: 20,
+      ),
+    ];
+
+    if (user.preferredDurationMin >= 30) {
+      list.add(
+        _ExerciseBlueprint(
+          exerciseId: 'plank',
+          stage: 'main',
+          targetSets: 3,
+          minReps: 30,
+          maxReps: 45,
+          targetDurationSeconds: 45,
+        ),
+      );
+    }
+    return list;
+  }
+
+  List<_ExerciseBlueprint> _get2DaySession1Blueprint(
+    String pushId,
+    UserProfileEntity user,
+  ) {
+    final list = [
+      _ExerciseBlueprint(
+        exerciseId: pushId,
+        stage: 'main',
+        targetSets: 3,
+        minReps: 8,
+        maxReps: 12,
+      ),
+      _ExerciseBlueprint(
+        exerciseId: 'squat',
+        stage: 'main',
+        targetSets: 3,
+        minReps: 10,
+        maxReps: 15,
+      ),
+      _ExerciseBlueprint(
+        exerciseId: 'plank',
+        stage: 'main',
+        targetSets: 3,
+        minReps: 30,
+        maxReps: 45,
+        targetDurationSeconds: 45,
+      ),
     ];
     if (user.preferredDurationMin >= 30) {
-      list.add(_ExerciseBlueprint(exerciseId: 'calf_raise', stage: 'main', targetSets: 3, minReps: 15, maxReps: 20));
+      list.add(
+        _ExerciseBlueprint(
+          exerciseId: 'calf_raise',
+          stage: 'main',
+          targetSets: 3,
+          minReps: 15,
+          maxReps: 20,
+        ),
+      );
     }
     return list;
   }
 
   List<_ExerciseBlueprint> _get2DaySession2Blueprint(UserProfileEntity user) {
     final list = [
-      _ExerciseBlueprint(exerciseId: 'doorframe_row', stage: 'main', targetSets: 3, minReps: 8, maxReps: 12),
-      _ExerciseBlueprint(exerciseId: 'glute_bridge', stage: 'main', targetSets: 3, minReps: 10, maxReps: 15),
-      _ExerciseBlueprint(exerciseId: 'split_squat', stage: 'main', targetSets: 3, minReps: 8, maxReps: 10),
+      _ExerciseBlueprint(
+        exerciseId: 'doorframe_row',
+        stage: 'main',
+        targetSets: 3,
+        minReps: 8,
+        maxReps: 12,
+      ),
+      _ExerciseBlueprint(
+        exerciseId: 'glute_bridge',
+        stage: 'main',
+        targetSets: 3,
+        minReps: 10,
+        maxReps: 15,
+      ),
+      _ExerciseBlueprint(
+        exerciseId: 'split_squat',
+        stage: 'main',
+        targetSets: 3,
+        minReps: 8,
+        maxReps: 10,
+      ),
     ];
     if (user.preferredDurationMin >= 30) {
-      list.add(_ExerciseBlueprint(exerciseId: 'mountain_climber', stage: 'main', targetSets: 3, minReps: 15, maxReps: 20));
+      list.add(
+        _ExerciseBlueprint(
+          exerciseId: 'mountain_climber',
+          stage: 'main',
+          targetSets: 3,
+          minReps: 15,
+          maxReps: 20,
+        ),
+      );
     }
     return list;
   }
@@ -448,10 +648,9 @@ class DynamicProgramGenerator {
         restSeconds: 60,
       );
 
-      exerciseItems.add(ProgramExerciseDetailItem(
-        prescription: prescription,
-        exercise: ex,
-      ));
+      exerciseItems.add(
+        ProgramExerciseDetailItem(prescription: prescription, exercise: ex),
+      );
       sort++;
     }
 
@@ -479,4 +678,3 @@ class _ExerciseBlueprint {
     this.targetDurationSeconds,
   });
 }
-

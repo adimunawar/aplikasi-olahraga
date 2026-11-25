@@ -6,6 +6,7 @@ import 'package:workout_app/core/theme/app_colors.dart';
 import 'package:workout_app/features/exercises/domain/models/exercise.dart';
 import 'package:workout_app/features/workouts/domain/models/exercise_muscle_filter.dart';
 import 'package:workout_app/i18n/strings.g.dart';
+
 import '../workouts_empty_states.dart';
 import 'exercise_item_card.dart';
 import 'muscle_filter_sheet.dart';

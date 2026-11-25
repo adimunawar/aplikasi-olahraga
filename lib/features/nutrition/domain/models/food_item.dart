@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import '../../../exercises/domain/models/exercise.dart';
 
 @immutable
@@ -38,7 +39,8 @@ class FoodItem {
       proteinG: (json['protein_g'] as num?)?.toDouble() ?? 0.0,
       costTier: json['cost_tier'] as int? ?? 2,
       tags: (json['tags'] as List?)?.map((e) => e.toString()).toList() ?? [],
-      allergens: (json['allergens'] as List?)?.map((e) => e.toString()).toList() ?? [],
+      allergens:
+          (json['allergens'] as List?)?.map((e) => e.toString()).toList() ?? [],
       minPortion: json['min_portion'] as int? ?? 1,
       maxPortion: json['max_portion'] as int? ?? 4,
       isCustom: json['is_custom'] as bool? ?? false,
@@ -46,17 +48,16 @@ class FoodItem {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': {'id': name.id, 'en': name.en},
-        'portion_label': {'id': portionLabel.id, 'en': portionLabel.en},
-        'portion_g': portionG,
-        'protein_g': proteinG,
-        'cost_tier': costTier,
-        'tags': tags,
-        'allergens': allergens,
-        'min_portion': minPortion,
-        'max_portion': maxPortion,
-        'is_custom': isCustom,
-      };
+    'id': id,
+    'name': {'id': name.id, 'en': name.en},
+    'portion_label': {'id': portionLabel.id, 'en': portionLabel.en},
+    'portion_g': portionG,
+    'protein_g': proteinG,
+    'cost_tier': costTier,
+    'tags': tags,
+    'allergens': allergens,
+    'min_portion': minPortion,
+    'max_portion': maxPortion,
+    'is_custom': isCustom,
+  };
 }
-

@@ -28,8 +28,7 @@ const _recoveryMovements = <_RecoveryMovement>[
     description: 'Gentle spine mobility',
     icon: Icons.accessibility_new_rounded,
     durationSeconds: 60,
-    instruction:
-        'Lengkungkan tulang belakang ke atas saat menghembuskan napas, lalu turunkan perut dan angkat dagu saat menarik napas.',
+    instruction: 'Lengkungkan tulang belakang ke atas saat menghembuskan napas, lalu turunkan perut dan angkat dagu saat menarik napas.',
     targetArea: 'Spine & Lower Back',
     tips: [
       'Jaga ritme napas lambat & dalam',
@@ -41,8 +40,7 @@ const _recoveryMovements = <_RecoveryMovement>[
     description: 'Gentle shoulder movement',
     icon: Icons.accessibility_rounded,
     durationSeconds: 60,
-    instruction:
-        'Putar kedua bahu ke belakang dalam lingkaran penuh secara perlahan. Rasakan otot belikat saling merapat.',
+    instruction: 'Putar kedua bahu ke belakang dalam lingkaran penuh secara perlahan. Rasakan otot belikat saling merapat.',
     targetArea: 'Shoulders & Rotator Cuff',
     tips: [
       'Rilekskan rahang dan leher',
@@ -54,8 +52,7 @@ const _recoveryMovements = <_RecoveryMovement>[
     description: 'Gentle hip mobility',
     icon: Icons.directions_walk_rounded,
     durationSeconds: 60,
-    instruction:
-        'Ambil posisi lunge ringan, dorong panggul lembut ke depan hingga terasa regangan nyaman di pangkal paha.',
+    instruction: 'Ambil posisi lunge ringan, dorong panggul lembut ke depan hingga terasa regangan nyaman di pangkal paha.',
     targetArea: 'Hip Flexors & Quads',
     tips: [
       'Jaga dada tetap tegak',
@@ -160,12 +157,12 @@ class RecoveryRoutineScreen extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             ..._recoveryMovements.asMap().entries.map(
-                  (entry) => _MovementPreview(
-                    index: entry.key + 1,
-                    movement: entry.value,
-                    isIndonesian: isIndonesian,
-                  ),
-                ),
+              (entry) => _MovementPreview(
+                index: entry.key + 1,
+                movement: entry.value,
+                isIndonesian: isIndonesian,
+              ),
+            ),
             const SizedBox(height: 18),
             SizedBox(
               height: 52,
@@ -224,12 +221,14 @@ class _RoutineMeta extends StatelessWidget {
           children: [
             Icon(icon, color: const Color(0xFF75A900), size: 19),
             const SizedBox(height: 5),
-            Text(value,
-                style:
-                    const TextStyle(fontWeight: FontWeight.w800, fontSize: 12)),
-            Text(label,
-                style:
-                    const TextStyle(fontSize: 10, color: Color(0xFF687064))),
+            Text(
+              value,
+              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
+            ),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 10, color: Color(0xFF687064)),
+            ),
           ],
         ),
       ),
@@ -267,8 +266,11 @@ class _MovementPreview extends StatelessWidget {
               color: const Color(0xFFF1F8E2),
               borderRadius: BorderRadius.circular(12),
             ),
-            child:
-                Icon(movement.icon, color: const Color(0xFF75A900), size: 24),
+            child: Icon(
+              movement.icon,
+              color: const Color(0xFF75A900),
+              size: 24,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -286,8 +288,10 @@ class _MovementPreview extends StatelessWidget {
                 const SizedBox(height: 3),
                 Text(
                   movement.description,
-                  style:
-                      const TextStyle(fontSize: 11, color: Color(0xFF687064)),
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Color(0xFF687064),
+                  ),
                 ),
               ],
             ),
@@ -413,8 +417,8 @@ class _RecoveryGuidedSessionScreenState
     final progress = _isCompleted
         ? 1.0
         : (_currentIndex +
-                (1 - _remainingSeconds / _currentMovement.durationSeconds)) /
-            _recoveryMovements.length;
+                  (1 - _remainingSeconds / _currentMovement.durationSeconds)) /
+              _recoveryMovements.length;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -458,14 +462,18 @@ class _RecoveryGuidedSessionScreenState
                         Text(
                           '${_remainingSeconds ~/ 60}:${(_remainingSeconds % 60).toString().padLeft(2, '0')}',
                           style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w900),
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                          ),
                         ),
                         Text(
                           isIndonesian
                               ? 'Gerakan ${_currentIndex + 1} dari ${_recoveryMovements.length}'
                               : 'Movement ${_currentIndex + 1} of ${_recoveryMovements.length}',
                           style: const TextStyle(
-                              fontSize: 12, color: Color(0xFF687064)),
+                            fontSize: 12,
+                            color: Color(0xFF687064),
+                          ),
                         ),
                       ],
                     ),
@@ -475,8 +483,9 @@ class _RecoveryGuidedSessionScreenState
                       minHeight: 7,
                       borderRadius: BorderRadius.circular(8),
                       backgroundColor: const Color(0xFFE8ECE4),
-                      valueColor:
-                          const AlwaysStoppedAnimation(Color(0xFFB1E623)),
+                      valueColor: const AlwaysStoppedAnimation(
+                        Color(0xFFB1E623),
+                      ),
                     ),
 
                     const Spacer(),
@@ -487,7 +496,10 @@ class _RecoveryGuidedSessionScreenState
                       transitionBuilder: (child, animation) {
                         return FadeTransition(
                           opacity: animation,
-                          child: ScaleTransition(scale: animation, child: child),
+                          child: ScaleTransition(
+                            scale: animation,
+                            child: child,
+                          ),
                         );
                       },
                       child: AnimatedBuilder(
@@ -531,9 +543,8 @@ class _RecoveryGuidedSessionScreenState
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: const Color(0xFF65A30D).withValues(
-                                        alpha: 0.12,
-                                      ),
+                                      color: const Color(0xFF65A30D)
+                                          .withValues(alpha: 0.12),
                                       blurRadius: 16,
                                       offset: const Offset(0, 6),
                                     ),
@@ -550,7 +561,9 @@ class _RecoveryGuidedSessionScreenState
                                     const SizedBox(height: 6),
                                     Container(
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 3),
+                                        horizontal: 8,
+                                        vertical: 3,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: Colors.white,
                                         borderRadius: BorderRadius.circular(10),
@@ -583,7 +596,8 @@ class _RecoveryGuidedSessionScreenState
                       animation: _breathingController,
                       builder: (context, _) {
                         final isInhaling =
-                            _breathingController.status == AnimationStatus.forward;
+                            _breathingController.status ==
+                            AnimationStatus.forward;
                         return Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -598,15 +612,15 @@ class _RecoveryGuidedSessionScreenState
                             Text(
                               _isPaused
                                   ? (isIndonesian
-                                      ? 'Sesi dijeda'
-                                      : 'Session paused')
+                                        ? 'Sesi dijeda'
+                                        : 'Session paused')
                                   : (isInhaling
-                                      ? (isIndonesian
-                                          ? 'Tarik napas perlahan...'
-                                          : 'Inhale slowly...')
-                                      : (isIndonesian
-                                          ? 'Hembuskan perlahan...'
-                                          : 'Exhale gently...')),
+                                        ? (isIndonesian
+                                              ? 'Tarik napas perlahan...'
+                                              : 'Inhale slowly...')
+                                        : (isIndonesian
+                                              ? 'Hembuskan perlahan...'
+                                              : 'Exhale gently...')),
                               style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
@@ -649,9 +663,11 @@ class _RecoveryGuidedSessionScreenState
                       height: 52,
                       child: ElevatedButton.icon(
                         onPressed: _togglePause,
-                        icon: Icon(_isPaused
-                            ? Icons.play_arrow_rounded
-                            : Icons.pause_rounded),
+                        icon: Icon(
+                          _isPaused
+                              ? Icons.play_arrow_rounded
+                              : Icons.pause_rounded,
+                        ),
                         label: Text(
                           _isPaused
                               ? (isIndonesian ? 'Lanjutkan' : 'Resume')

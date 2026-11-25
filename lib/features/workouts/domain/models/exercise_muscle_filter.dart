@@ -119,10 +119,7 @@ enum ExerciseMuscleFilter {
     if (this == ExerciseMuscleFilter.all) return true;
 
     final muscles = [
-      for (final muscle in exercise.primaryMuscles) ...[
-        muscle.en,
-        muscle.id,
-      ],
+      for (final muscle in exercise.primaryMuscles) ...[muscle.en, muscle.id],
     ];
 
     if (muscles.isNotEmpty) {
@@ -136,10 +133,8 @@ enum ExerciseMuscleFilter {
 
     // Fallback hanya jika data otot tidak tersedia.
     return switch (this) {
-      ExerciseMuscleFilter.legs =>
-        exercise.category == ExerciseCategory.legs,
-      ExerciseMuscleFilter.core =>
-        exercise.category == ExerciseCategory.core,
+      ExerciseMuscleFilter.legs => exercise.category == ExerciseCategory.legs,
+      ExerciseMuscleFilter.core => exercise.category == ExerciseCategory.core,
       _ => false,
     };
   }

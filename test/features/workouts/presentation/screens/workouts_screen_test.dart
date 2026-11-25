@@ -71,9 +71,7 @@ void main() {
   ) async {
     await tester.pumpWidget(
       TranslationProvider(
-        child: MaterialApp(
-          home: WorkoutsScreen(dataLoader: loader),
-        ),
+        child: MaterialApp(home: WorkoutsScreen(dataLoader: loader)),
       ),
     );
     await tester.pumpAndSettle();
@@ -160,10 +158,7 @@ void main() {
     testWidgets('scopes search and filter controls to All Workouts', (
       tester,
     ) async {
-      await pumpScreen(
-        tester,
-        () async => const WorkoutsSnapshot(),
-      );
+      await pumpScreen(tester, () async => const WorkoutsSnapshot());
 
       // My Program has no search/filter header actions.
       expect(find.byIcon(Icons.search_rounded), findsNothing);
@@ -243,10 +238,7 @@ void main() {
         updatedAt: now,
       );
 
-      await pumpScreen(
-        tester,
-        () async => WorkoutsSnapshot(program: program),
-      );
+      await pumpScreen(tester, () async => WorkoutsSnapshot(program: program));
 
       expect(find.text('Program Aktif'), findsOneWidget);
       expect(find.text('Minggu 1 dari 8'), findsOneWidget);
@@ -257,10 +249,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Mode pratinjau'), findsOneWidget);
-      expect(
-        find.textContaining('latihan baru bisa dimulai'),
-        findsOneWidget,
-      );
+      expect(find.textContaining('latihan baru bisa dimulai'), findsOneWidget);
     });
 
     testWidgets('shows expired program status instead of a running week', (
@@ -271,10 +260,7 @@ void main() {
         startDate: now.subtract(const Duration(days: 200)),
       );
 
-      await pumpScreen(
-        tester,
-        () async => WorkoutsSnapshot(program: program),
-      );
+      await pumpScreen(tester, () async => WorkoutsSnapshot(program: program));
 
       expect(find.text('Program berakhir'), findsOneWidget);
       // Program yang sudah berakhir tidak boleh punya minggu berjalan.
@@ -285,10 +271,7 @@ void main() {
       final now = DateTime.now();
       final program = makeProgram(startDate: now, status: 'completed');
 
-      await pumpScreen(
-        tester,
-        () async => WorkoutsSnapshot(program: program),
-      );
+      await pumpScreen(tester, () async => WorkoutsSnapshot(program: program));
 
       expect(find.text('Program selesai'), findsOneWidget);
       expect(find.textContaining('Minggu 1 dari'), findsNothing);
@@ -378,16 +361,18 @@ void main() {
       await tester.pump();
       expect(calls, 1);
 
-      tester.binding.handleAppLifecycleStateChanged(
-        AppLifecycleState.resumed,
-      );
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
       await tester.pump();
       expect(calls, 2);
 
       final now = DateTime.now();
       second.complete(
         WorkoutsSnapshot(
-          program: makeProgram(id: 'newest', name: 'Newest Program', startDate: now),
+          program: makeProgram(
+            id: 'newest',
+            name: 'Newest Program',
+            startDate: now,
+          ),
         ),
       );
       await tester.pump();
@@ -396,7 +381,11 @@ void main() {
       // Request lama selesai belakangan: hasilnya harus diabaikan.
       first.complete(
         WorkoutsSnapshot(
-          program: makeProgram(id: 'stale', name: 'Stale Program', startDate: now),
+          program: makeProgram(
+            id: 'stale',
+            name: 'Stale Program',
+            startDate: now,
+          ),
         ),
       );
       await tester.pump();
@@ -445,19 +434,14 @@ void main() {
       );
 
       await tester.pumpWidget(
-        TranslationProvider(
-          child: MaterialApp.router(routerConfig: router),
-        ),
+        TranslationProvider(child: MaterialApp.router(routerConfig: router)),
       );
       await tester.pumpAndSettle();
 
       // Hari ini: detail dibuka dengan tombol mulai aktif.
       await tester.tap(find.textContaining('Siap dimulai'));
       await tester.pumpAndSettle();
-      expect(
-        find.text('detail:readOnly=false:scheduled=true'),
-        findsOneWidget,
-      );
+      expect(find.text('detail:readOnly=false:scheduled=true'), findsOneWidget);
 
       router.pop();
       await tester.pumpAndSettle();
@@ -465,10 +449,7 @@ void main() {
       // Hari berikutnya: detail tetap bisa dilihat, tapi read-only.
       await tester.tap(find.textContaining('Terjadwal').first);
       await tester.pumpAndSettle();
-      expect(
-        find.text('detail:readOnly=true:scheduled=true'),
-        findsOneWidget,
-      );
+      expect(find.text('detail:readOnly=true:scheduled=true'), findsOneWidget);
     });
   });
 }

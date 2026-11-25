@@ -78,8 +78,9 @@ class _PersonalInformationScreenState
                         '$age years',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontWeight:
-                              isSelected ? FontWeight.bold : FontWeight.normal,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                           color: isSelected
                               ? colorScheme.onSurface
                               : colorScheme.onSurfaceVariant,
@@ -88,8 +89,8 @@ class _PersonalInformationScreenState
                       ),
                       tileColor: isSelected
                           ? (isDark
-                              ? colorScheme.primaryContainer
-                              : AppColors.limeCardSurface)
+                                ? colorScheme.primaryContainer
+                                : AppColors.limeCardSurface)
                           : Colors.transparent,
                       onTap: () {
                         setState(() => _selectedAge = age);

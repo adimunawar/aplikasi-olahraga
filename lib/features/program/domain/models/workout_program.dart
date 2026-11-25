@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import '../../../exercises/domain/models/exercise.dart';
 import 'program_day.dart';
 
@@ -51,11 +52,7 @@ class ProgramWeek {
   final String? title; // contoh: 'Foundation', 'Progressive Hypertrophy'
   final List<ProgramDay> days; // 7 hari (Mon - Sun, latihan & rest)
 
-  const ProgramWeek({
-    required this.weekNumber,
-    this.title,
-    required this.days,
-  });
+  const ProgramWeek({required this.weekNumber, this.title, required this.days});
 
   int get workoutDaysCount => days.where((d) => !d.isRest).length;
   int get restDaysCount => days.where((d) => d.isRest).length;
@@ -64,18 +61,21 @@ class ProgramWeek {
     return ProgramWeek(
       weekNumber: (json['week_number'] as num?)?.toInt() ?? 1,
       title: json['title'] as String? ?? json['focus_theme'] as String?,
-      days: ((json['program_days'] ?? json['days']) as List?)
-              ?.map((e) => ProgramDay.fromJson(Map<String, dynamic>.from(e as Map)))
+      days:
+          ((json['program_days'] ?? json['days']) as List?)
+              ?.map(
+                (e) => ProgramDay.fromJson(Map<String, dynamic>.from(e as Map)),
+              )
               .toList() ??
           [],
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'week_number': weekNumber,
-        if (title != null) 'title': title,
-        'days': days.map((e) => e.toJson()).toList(),
-      };
+    'week_number': weekNumber,
+    if (title != null) 'title': title,
+    'days': days.map((e) => e.toJson()).toList(),
+  };
 }
 
 /// Model Program Latihan Fleksibel (Single Source of Truth Multi-Program)
@@ -157,7 +157,9 @@ class WorkoutProgram {
 
     return WorkoutProgram(
       id: json['id'] as String? ?? 'upper_body_strength',
-      title: parsedTitle.en.isNotEmpty ? parsedTitle : _fallbackTitle(json['id']?.toString()),
+      title: parsedTitle.en.isNotEmpty
+          ? parsedTitle
+          : _fallbackTitle(json['id']?.toString()),
       description: parsedDesc.en.isNotEmpty
           ? parsedDesc
           : const LocalizedString(
@@ -168,18 +170,28 @@ class WorkoutProgram {
       difficulty: _parseDifficulty(json['difficulty'] as String?),
       totalWeeks: (json['total_weeks'] as num?)?.toInt() ?? 8,
       daysPerWeek: (json['days_per_week'] as num?)?.toInt() ?? 4,
-      bannerAsset: json['banner_asset'] as String? ??
+      bannerAsset:
+          json['banner_asset'] as String? ??
           json['banner_url'] as String? ??
           'assets/images/Home Workout Push-Up Guide.png',
-      coachPoseAsset: json['coach_pose_asset'] as String? ?? json['coach_pose_url'] as String?,
-      weeks: ((json['program_weeks'] ?? json['weeks']) as List?)
-              ?.map((e) => ProgramWeek.fromJson(Map<String, dynamic>.from(e as Map)))
+      coachPoseAsset:
+          json['coach_pose_asset'] as String? ??
+          json['coach_pose_url'] as String?,
+      weeks:
+          ((json['program_weeks'] ?? json['weeks']) as List?)
+              ?.map(
+                (e) =>
+                    ProgramWeek.fromJson(Map<String, dynamic>.from(e as Map)),
+              )
               .toList() ??
           [],
     );
   }
 
-  static LocalizedString _parseLocalizedString(Map<String, dynamic> json, String key) {
+  static LocalizedString _parseLocalizedString(
+    Map<String, dynamic> json,
+    String key,
+  ) {
     final direct = json[key];
     if (direct is Map) {
       final id = direct['id']?.toString() ?? '';
@@ -192,7 +204,8 @@ class WorkoutProgram {
 
     final enVal = json['${key}_en']?.toString();
     final idVal = json['${key}_id']?.toString();
-    if ((enVal != null && enVal.isNotEmpty) || (idVal != null && idVal.isNotEmpty)) {
+    if ((enVal != null && enVal.isNotEmpty) ||
+        (idVal != null && idVal.isNotEmpty)) {
       return LocalizedString(
         id: (idVal != null && idVal.isNotEmpty) ? idVal : (enVal ?? ''),
         en: (enVal != null && enVal.isNotEmpty) ? enVal : (idVal ?? ''),
@@ -204,28 +217,33 @@ class WorkoutProgram {
 
   static LocalizedString _fallbackTitle(String? id) {
     if (id == null || id.isEmpty) {
-      return const LocalizedString(id: 'Upper Body Strength', en: 'Upper Body Strength');
+      return const LocalizedString(
+        id: 'Upper Body Strength',
+        en: 'Upper Body Strength',
+      );
     }
     final formatted = id
         .replaceAll('_', ' ')
         .split(' ')
-        .map((w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '')
+        .map(
+          (w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '',
+        )
         .join(' ');
     return LocalizedString(id: formatted, en: formatted);
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'title': {'id': title.id, 'en': title.en},
-        'description': {'id': description.id, 'en': description.en},
-        'category': category.name,
-        'difficulty': difficulty.name,
-        'total_weeks': totalWeeks,
-        'days_per_week': daysPerWeek,
-        'banner_asset': bannerAsset,
-        if (coachPoseAsset != null) 'coach_pose_asset': coachPoseAsset,
-        'weeks': weeks.map((w) => w.toJson()).toList(),
-      };
+    'id': id,
+    'title': {'id': title.id, 'en': title.en},
+    'description': {'id': description.id, 'en': description.en},
+    'category': category.name,
+    'difficulty': difficulty.name,
+    'total_weeks': totalWeeks,
+    'days_per_week': daysPerWeek,
+    'banner_asset': bannerAsset,
+    if (coachPoseAsset != null) 'coach_pose_asset': coachPoseAsset,
+    'weeks': weeks.map((w) => w.toJson()).toList(),
+  };
 
   static ProgramCategory _parseCategory(String? val) {
     switch (val?.toLowerCase().trim()) {
@@ -255,4 +273,3 @@ class WorkoutProgram {
     }
   }
 }
-

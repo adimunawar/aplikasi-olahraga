@@ -61,10 +61,7 @@ void main() {
                       lastSyncedTime: 'Hari ini, 10:30',
                       onRetry: _noop,
                     ),
-                    WeeklyProgressCalendarCard(
-                      days: days,
-                      onSeeDetails: _noop,
-                    ),
+                    WeeklyProgressCalendarCard(days: days, onSeeDetails: _noop),
                     const SupportGoalNutritionCard(
                       userGoal: 'muscle_gain',
                       onTap: _noop,
@@ -103,10 +100,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(activeTheme.brightness, Brightness.light);
-    expect(
-      activeTheme.colorScheme,
-      AppTheme.lightTheme.colorScheme,
-    );
+    expect(activeTheme.colorScheme, AppTheme.lightTheme.colorScheme);
     expect(find.text('82.0 kg'), findsOneWidget);
     expect(find.text('Masalah koneksi'), findsOneWidget);
     expect(find.text('Mulai Latihan'), findsOneWidget);
@@ -125,10 +119,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(activeTheme.brightness, Brightness.dark);
-    expect(
-      activeTheme.colorScheme,
-      AppTheme.darkTheme.colorScheme,
-    );
+    expect(activeTheme.colorScheme, AppTheme.darkTheme.colorScheme);
     expect(find.text('82.0 kg'), findsOneWidget);
     expect(find.text('Masalah koneksi'), findsOneWidget);
     expect(find.text('Mulai Latihan'), findsOneWidget);

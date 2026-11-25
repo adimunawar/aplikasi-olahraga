@@ -84,7 +84,6 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     final theme = Theme.of(context);
 
     if (_isLoading) {
@@ -124,8 +123,9 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
         ? widget.description.trim()
         : t.workouts.workoutDetail.defaultDescription;
 
-    final heroImage =
-        _exercises.isNotEmpty ? _exercises.first.thumbnailAsset : '';
+    final heroImage = _exercises.isNotEmpty
+        ? _exercises.first.thumbnailAsset
+        : '';
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light.copyWith(
@@ -148,8 +148,9 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                     context: context,
                     title: resolvedTitle,
                     durationText: resolvedDuration,
-                    exerciseCountLabel:
-                        t.workouts.workoutDetail.exerciseCount(count: _exercises.length),
+                    exerciseCountLabel: t.workouts.workoutDetail.exerciseCount(
+                      count: _exercises.length,
+                    ),
                     levelText: resolvedLevel,
                     description: resolvedDescription,
                     snackbarMessage: t.workouts.workoutDetail.copiedMessage,
@@ -204,7 +205,6 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
   }
 
   void _startActiveWorkout() {
-
     final calculatedWeek =
         widget.weekNumber ?? ((widget.dayNumber - 1) ~/ 7 + 1);
 

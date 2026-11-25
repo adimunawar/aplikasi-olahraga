@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_typography.dart';
 
 /// Header Info Gerakan (Judul, Tag Otot, & Tombol Petunjuk "How to do it"):
@@ -36,7 +37,10 @@ class ActiveExerciseInfoHeader extends StatelessWidget {
           children: [
             // Tag Kategori Otot Hijau Lime
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3.5),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 3.5,
+              ),
               decoration: BoxDecoration(
                 color: const Color(0xFFEDF8D6),
                 borderRadius: BorderRadius.circular(12),
@@ -80,4 +84,3 @@ class ActiveExerciseInfoHeader extends StatelessWidget {
     );
   }
 }
-

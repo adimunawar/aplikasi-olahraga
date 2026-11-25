@@ -79,10 +79,9 @@ class _BodyInformationScreenState extends ConsumerState<BodyInformationScreen> {
 
     if (w == null || h == null || w <= 0 || h <= 0) return;
 
-    await ref.read(profileControllerProvider.notifier).updateBodyData(
-          weightKg: w,
-          heightCm: h,
-        );
+    await ref
+        .read(profileControllerProvider.notifier)
+        .updateBodyData(weightKg: w, heightCm: h);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

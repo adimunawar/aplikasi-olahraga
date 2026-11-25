@@ -113,10 +113,7 @@ class ProfileDropdownField extends StatelessWidget {
 class ProfileInfoBanner extends StatelessWidget {
   final String message;
 
-  const ProfileInfoBanner({
-    super.key,
-    required this.message,
-  });
+  const ProfileInfoBanner({super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {

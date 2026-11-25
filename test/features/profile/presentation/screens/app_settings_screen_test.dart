@@ -31,9 +31,7 @@ class _RecordingController extends StateNotifier<ProfileState>
 }
 
 void main() {
-  testWidgets('AppSettingsScreen picks theme via bottom sheet', (
-    tester,
-  ) async {
+  testWidgets('AppSettingsScreen picks theme via bottom sheet', (tester) async {
     final controller = _RecordingController();
     final router = GoRouter(
       initialLocation: AppRoutes.appSettings,
@@ -47,7 +45,9 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [profileControllerProvider.overrideWith((ref) => controller)],
+        overrides: [
+          profileControllerProvider.overrideWith((ref) => controller),
+        ],
         child: MaterialApp.router(
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,

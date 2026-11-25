@@ -24,22 +24,23 @@ void main() {
 
   group('ExerciseDetailScreen & ExerciseDetailHeader Tests', () {
     testWidgets(
-        'Renders all cards and header cleanly in Dark Mode without MaterialLocalizations error',
-        (tester) async {
-      await tester.pumpWidget(createSubject(themeMode: ThemeMode.dark));
-      await tester.pumpAndSettle();
+      'Renders all cards and header cleanly in Dark Mode without MaterialLocalizations error',
+      (tester) async {
+        await tester.pumpWidget(createSubject(themeMode: ThemeMode.dark));
+        await tester.pumpAndSettle();
 
-      // Verify no assertion error was thrown and header renders
-      expect(find.byType(ExerciseDetailHeader), findsOneWidget);
-      expect(find.text('Knee Push Up'), findsOneWidget);
+        // Verify no assertion error was thrown and header renders
+        expect(find.byType(ExerciseDetailHeader), findsOneWidget);
+        expect(find.text('Knee Push Up'), findsOneWidget);
 
-      // Verify all 5 modular cards are present
-      expect(find.byType(ExerciseDemoCard), findsOneWidget);
-      expect(find.byType(ExerciseFocusAreaCard), findsOneWidget);
-      expect(find.byType(ExerciseHowToPerformCard), findsOneWidget);
-      expect(find.byType(ExerciseCommonMistakesCard), findsOneWidget);
-      expect(find.byType(ExerciseTipsCard), findsOneWidget);
-    });
+        // Verify all 5 modular cards are present
+        expect(find.byType(ExerciseDemoCard), findsOneWidget);
+        expect(find.byType(ExerciseFocusAreaCard), findsOneWidget);
+        expect(find.byType(ExerciseHowToPerformCard), findsOneWidget);
+        expect(find.byType(ExerciseCommonMistakesCard), findsOneWidget);
+        expect(find.byType(ExerciseTipsCard), findsOneWidget);
+      },
+    );
 
     testWidgets('Renders cleanly in Light Mode', (tester) async {
       await tester.pumpWidget(createSubject(themeMode: ThemeMode.light));

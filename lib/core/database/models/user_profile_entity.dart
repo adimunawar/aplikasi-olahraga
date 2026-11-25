@@ -111,7 +111,8 @@ class UserProfileEntity {
       fallback: const [],
     );
 
-    final freq = (map['weekly_frequency'] as num?)?.toInt() ??
+    final freq =
+        (map['weekly_frequency'] as num?)?.toInt() ??
         (map['preferred_days_per_week'] as num?)?.toInt() ??
         0;
 
@@ -123,19 +124,19 @@ class UserProfileEntity {
       heightCm: (map['height_cm'] as num?)?.toDouble() ?? 0,
       currentWeightKg: (map['current_weight_kg'] as num?)?.toDouble() ?? 0,
       targetWeightKg: (map['target_weight_kg'] as num?)?.toDouble() ?? 0,
-      targetTimeframeWeeks: (map['target_timeframe_weeks'] as num?)?.toInt() ?? 0,
+      targetTimeframeWeeks:
+          (map['target_timeframe_weeks'] as num?)?.toInt() ?? 0,
       goal: map['goal']?.toString() ?? '',
       experienceLevel: map['experience_level']?.toString() ?? '',
-      preferredDurationMin: (map['preferred_duration_min'] as num?)?.toInt() ?? 0,
+      preferredDurationMin:
+          (map['preferred_duration_min'] as num?)?.toInt() ?? 0,
       preferredDaysPerWeek: freq,
       weeklyFrequency: freq,
       availableDays: parsedAvailableDays,
       trainingLimitations: parsedLimitations,
       timezone: map['timezone']?.toString(),
       unitPreference: map['unit_preference']?.toString() ?? 'metric',
-      equipments: parsedEquipments.isNotEmpty
-          ? parsedEquipments
-          : [],
+      equipments: parsedEquipments.isNotEmpty ? parsedEquipments : [],
       createdAt: map['created_at'] != null
           ? DateTime.tryParse(map['created_at'].toString()) ?? DateTime.now()
           : DateTime.now(),
@@ -194,4 +195,3 @@ class UserProfileEntity {
   int get durationPreferenceMinutes => preferredDurationMin;
   List<String> get availableEquipment => equipments;
 }
-

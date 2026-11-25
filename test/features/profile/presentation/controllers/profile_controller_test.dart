@@ -10,31 +10,33 @@ class _FakeUserProfileRepository implements UserProfileRepository {
     UserProfileEntity? profile,
     UserSettingsEntity? settings,
     this.shouldThrowOnLoad = false,
-  })  : _profile = profile ??
-            UserProfileEntity(
-              id: 'user_1',
-              displayName: 'Adi',
-              age: 26,
-              heightCm: 175,
-              currentWeightKg: 70,
-              goal: 'muscle_gain',
-              experienceLevel: 'beginner',
-              preferredDaysPerWeek: 4,
-              preferredDurationMin: 45,
-              unitPreference: 'metric',
-              equipments: const ['dumbbells'],
-              createdAt: DateTime(2026, 11, 1),
-              updatedAt: DateTime(2026, 11, 20),
-            ),
-        _settings = settings ??
-            UserSettingsEntity(
-              gender: 'Male',
-              targetWeightKg: 75,
-              trainingIntensity: 'Moderate',
-              language: 'Bahasa Indonesia',
-              theme: 'Light',
-              updatedAt: DateTime(2026, 11, 20),
-            );
+  }) : _profile =
+           profile ??
+           UserProfileEntity(
+             id: 'user_1',
+             displayName: 'Adi',
+             age: 26,
+             heightCm: 175,
+             currentWeightKg: 70,
+             goal: 'muscle_gain',
+             experienceLevel: 'beginner',
+             preferredDaysPerWeek: 4,
+             preferredDurationMin: 45,
+             unitPreference: 'metric',
+             equipments: const ['dumbbells'],
+             createdAt: DateTime(2026, 11, 1),
+             updatedAt: DateTime(2026, 11, 20),
+           ),
+       _settings =
+           settings ??
+           UserSettingsEntity(
+             gender: 'Male',
+             targetWeightKg: 75,
+             trainingIntensity: 'Moderate',
+             language: 'Bahasa Indonesia',
+             theme: 'Light',
+             updatedAt: DateTime(2026, 11, 20),
+           );
 
   UserProfileEntity _profile;
   UserSettingsEntity _settings;
@@ -61,10 +63,7 @@ class _FakeUserProfileRepository implements UserProfileRepository {
     required double weightKg,
     required double heightCm,
   }) async {
-    _profile = _profile.copyWith(
-      currentWeightKg: weightKg,
-      heightCm: heightCm,
-    );
+    _profile = _profile.copyWith(currentWeightKg: weightKg, heightCm: heightCm);
   }
 
   @override
@@ -130,18 +129,20 @@ void main() {
       expect(prefs.getString('pref_gender'), 'Female');
     });
 
-    test('updateBodyData updates weight, height, and recalculates BMI',
-        () async {
-      final repo = _FakeUserProfileRepository();
-      final controller = ProfileController(repository: repo);
-      await controller.loadProfile();
+    test(
+      'updateBodyData updates weight, height, and recalculates BMI',
+      () async {
+        final repo = _FakeUserProfileRepository();
+        final controller = ProfileController(repository: repo);
+        await controller.loadProfile();
 
-      await controller.updateBodyData(weightKg: 80, heightCm: 180);
+        await controller.updateBodyData(weightKg: 80, heightCm: 180);
 
-      expect(controller.state.currentWeight, 80);
-      expect(controller.state.currentHeight, 180);
-      expect(controller.state.currentBmi, 24.7);
-    });
+        expect(controller.state.currentWeight, 80);
+        expect(controller.state.currentHeight, 180);
+        expect(controller.state.currentBmi, 24.7);
+      },
+    );
 
     test('updateFitnessGoals updates goal, targetWeight, and level', () async {
       final repo = _FakeUserProfileRepository();
@@ -157,10 +158,7 @@ void main() {
       expect(controller.state.goal, 'Fat Loss & Lean Definition');
       expect(controller.state.targetWeight, 68);
       expect(controller.state.experienceLevel, 'Intermediate');
-      expect(
-        controller.state.journeyStatus,
-        'Bulking journey • Intermediate',
-      );
+      expect(controller.state.journeyStatus, 'Bulking journey • Intermediate');
     });
 
     test('updateReminders updates reminder settings and state', () async {

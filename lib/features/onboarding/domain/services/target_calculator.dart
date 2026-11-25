@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+
 import '../models/user_profile.dart';
 import '../../../program/domain/models/program_day.dart';
 
@@ -36,19 +37,22 @@ class TargetCalculator {
 
     // Direct test not available, check parent exercise for variations:
     // e.g. diamond push up / incline push up based on push_up test
-    if (baseItem.exerciseId == 'incline_push_up' && testResults?.containsKey('push_up') == true) {
+    if (baseItem.exerciseId == 'incline_push_up' &&
+        testResults?.containsKey('push_up') == true) {
       final parentScore = testResults!['push_up']!;
       final calculatedReps = math.max(3, (parentScore * factor * 1.2).round());
       return baseItem.copyWith(reps: calculatedReps);
     }
 
-    if (baseItem.exerciseId == 'diamond_push_up' && testResults?.containsKey('push_up') == true) {
+    if (baseItem.exerciseId == 'diamond_push_up' &&
+        testResults?.containsKey('push_up') == true) {
       final parentScore = testResults!['push_up']!;
       final calculatedReps = math.max(3, (parentScore * factor * 0.6).round());
       return baseItem.copyWith(reps: calculatedReps);
     }
 
-    if (baseItem.exerciseId == 'lunges' && testResults?.containsKey('squat') == true) {
+    if (baseItem.exerciseId == 'lunges' &&
+        testResults?.containsKey('squat') == true) {
       final parentScore = testResults!['squat']!;
       final calculatedReps = math.max(3, (parentScore * factor * 0.8).round());
       return baseItem.copyWith(reps: calculatedReps);
@@ -57,12 +61,17 @@ class TargetCalculator {
     // Fallback: apply profile multiplier
     final multiplier = profile.fallbackLevel.fallbackMultiplier;
     if (baseItem.isDurationBased) {
-      final fallbackSec = math.max(15, ((baseItem.durationSec ?? 20) * multiplier).round());
+      final fallbackSec = math.max(
+        15,
+        ((baseItem.durationSec ?? 20) * multiplier).round(),
+      );
       return baseItem.copyWith(durationSec: fallbackSec);
     } else {
-      final fallbackReps = math.max(3, ((baseItem.reps ?? 8) * multiplier).round());
+      final fallbackReps = math.max(
+        3,
+        ((baseItem.reps ?? 8) * multiplier).round(),
+      );
       return baseItem.copyWith(reps: fallbackReps);
     }
   }
 }
-

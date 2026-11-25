@@ -1,5 +1,7 @@
 import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
+
 import '../../../../core/config/supabase_config.dart';
 import '../../../../core/database/models/exercise_entity.dart';
 import 'exercise_local_datasource.dart';
@@ -47,7 +49,9 @@ class ExerciseRemoteDatasource {
           debugPrint('     video_url    : "$vUrl"');
           debugPrint('     media map    : "${m['media']}"');
         } else if (vUrl != null || tUrl != null) {
-          debugPrint('  👉 [Supabase Cloud] ${m['id']} media: video=$vUrl, thumb=$tUrl');
+          debugPrint(
+            '  👉 [Supabase Cloud] ${m['id']} media: video=$vUrl, thumb=$tUrl',
+          );
         }
       }
 
@@ -59,7 +63,9 @@ class ExerciseRemoteDatasource {
                 ?.toString();
         final tUrl =
             (map['thumbnail_url'] ??
-                    (map['media'] is Map ? map['media']['thumbnail_url'] : null))
+                    (map['media'] is Map
+                        ? map['media']['thumbnail_url']
+                        : null))
                 ?.toString();
         return ExerciseEntity(
           id: map['id']?.toString() ?? '',

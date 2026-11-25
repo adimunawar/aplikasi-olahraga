@@ -7,10 +7,7 @@ class AppSegmentedTabItem<T> {
   final T value;
   final String label;
 
-  const AppSegmentedTabItem({
-    required this.value,
-    required this.label,
-  });
+  const AppSegmentedTabItem({required this.value, required this.label});
 }
 
 /// Tab bar terstandarisasi mengikuti spesifikasi Google Material 3

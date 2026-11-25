@@ -59,10 +59,7 @@ void main() {
           'Rectus Abdominis',
           'Transverse Abdominis',
         ],
-        ExerciseMuscleFilter.arms: [
-          'Biceps',
-          'Triceps',
-        ],
+        ExerciseMuscleFilter.arms: ['Biceps', 'Triceps'],
         ExerciseMuscleFilter.shoulders: [
           'Deltoids',
           'Anterior Deltoids',

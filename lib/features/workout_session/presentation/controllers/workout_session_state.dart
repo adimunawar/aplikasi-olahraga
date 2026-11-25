@@ -84,7 +84,8 @@ class WorkoutSessionState {
       defaultRestSeconds: defaultRestSeconds ?? this.defaultRestSeconds,
       restDurationSeconds: restDurationSeconds ?? this.restDurationSeconds,
       isTimerPaused: isTimerPaused ?? this.isTimerPaused,
-      elapsedWorkoutSeconds: elapsedWorkoutSeconds ?? this.elapsedWorkoutSeconds,
+      elapsedWorkoutSeconds:
+          elapsedWorkoutSeconds ?? this.elapsedWorkoutSeconds,
       isSaving: isSaving ?? this.isSaving,
       isPreparing: isPreparing ?? this.isPreparing,
       completedSets: completedSets ?? this.completedSets,

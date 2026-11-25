@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import '../../../../core/config/supabase_config.dart';
 import '../../../../core/database/models/workout_session_entity.dart';
 import '../../../../core/database/models/workout_set_entity.dart';
@@ -35,9 +36,13 @@ class WorkoutSessionSupabaseDatasource {
         'status': session.status.toDbString(),
         'notes': session.notes,
       });
-      debugPrint('[Supabase] Berhasil sinkronisasi sesi latihan ${session.id} untuk user $uid');
+      debugPrint(
+        '[Supabase] Berhasil sinkronisasi sesi latihan ${session.id} untuk user $uid',
+      );
     } catch (e) {
-      debugPrint('[Supabase] Gagal sinkronisasi sesi latihan ke cloud: $e (Aman tersimpan di lokal SQLite)');
+      debugPrint(
+        '[Supabase] Gagal sinkronisasi sesi latihan ke cloud: $e (Aman tersimpan di lokal SQLite)',
+      );
     }
   }
 
@@ -45,7 +50,10 @@ class WorkoutSessionSupabaseDatasource {
   Future<void> syncCompletedSets(List<WorkoutSetEntity> sets) async {
     final client = SupabaseConfig.client;
     final uid = SupabaseConfig.currentAuthUserId;
-    if (client == null || uid == null || !SupabaseConfig.canSyncToCloud || sets.isEmpty) {
+    if (client == null ||
+        uid == null ||
+        !SupabaseConfig.canSyncToCloud ||
+        sets.isEmpty) {
       return;
     }
 
@@ -57,24 +65,35 @@ class WorkoutSessionSupabaseDatasource {
         return row;
       }).toList();
       await client.from('workout_sets').upsert(payload);
-      debugPrint('[Supabase] Berhasil sinkronisasi ${sets.length} sets ke cloud');
+      debugPrint(
+        '[Supabase] Berhasil sinkronisasi ${sets.length} sets ke cloud',
+      );
     } catch (e) {
       debugPrint('[Supabase] Gagal sinkronisasi workout_sets: $e');
     }
   }
 
   /// Mengirim audit log keputusan Coach Adi ke tabel 'progression_decisions' di Supabase
-  Future<void> syncProgressionDecisions(List<ProgressionDecisionEntity> decisions) async {
+  Future<void> syncProgressionDecisions(
+    List<ProgressionDecisionEntity> decisions,
+  ) async {
     final client = SupabaseConfig.client;
     final uid = SupabaseConfig.currentAuthUserId;
-    if (client == null || uid == null || !SupabaseConfig.canSyncToCloud || decisions.isEmpty) {
+    if (client == null ||
+        uid == null ||
+        !SupabaseConfig.canSyncToCloud ||
+        decisions.isEmpty) {
       return;
     }
 
     try {
-      final payload = decisions.map((d) => d.toMap()..['user_id'] = uid).toList();
+      final payload = decisions
+          .map((d) => d.toMap()..['user_id'] = uid)
+          .toList();
       await client.from('progression_decisions').upsert(payload);
-      debugPrint('[Supabase] Berhasil sinkronisasi ${decisions.length} progression decisions ke cloud');
+      debugPrint(
+        '[Supabase] Berhasil sinkronisasi ${decisions.length} progression decisions ke cloud',
+      );
     } catch (e) {
       debugPrint('[Supabase] Gagal sinkronisasi progression_decisions: $e');
     }

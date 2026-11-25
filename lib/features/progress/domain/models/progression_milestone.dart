@@ -17,7 +17,9 @@ class ProgressionMilestone {
   String get exerciseNameFormatted {
     return exerciseId
         .split('_')
-        .map((w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '')
+        .map(
+          (w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '',
+        )
         .join(' ');
   }
 
@@ -25,8 +27,9 @@ class ProgressionMilestone {
     if (nextExerciseId == null) return null;
     return nextExerciseId!
         .split('_')
-        .map((w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '')
+        .map(
+          (w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '',
+        )
         .join(' ');
   }
 }
-

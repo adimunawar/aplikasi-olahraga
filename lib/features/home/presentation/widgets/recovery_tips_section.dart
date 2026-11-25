@@ -74,10 +74,14 @@ class _RecoveryTipTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1.2),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outlineVariant,
+            width: 1.2,
+          ),
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.02),
+              color: Theme.of(context).colorScheme.shadow
+                  .withValues(alpha: 0.02),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),
@@ -95,7 +99,11 @@ class _RecoveryTipTile extends StatelessWidget {
                   SizedBox(
                     width: 28,
                     height: 28,
-                    child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 24),
+                    child: Icon(
+                      icon,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 24,
+                    ),
                   ),
                   const SizedBox(width: 14),
                   Expanded(

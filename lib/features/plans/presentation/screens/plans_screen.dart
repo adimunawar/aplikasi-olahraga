@@ -113,8 +113,8 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
       final targetWeekly = profile.weeklyFrequency > 0
           ? profile.weeklyFrequency
           : 4;
-      final bool needsGeneration = program == null ||
-          (rawSessions.isEmpty && sessionList.isEmpty);
+      final bool needsGeneration =
+          program == null || (rawSessions.isEmpty && sessionList.isEmpty);
 
       if (needsGeneration) {
         try {
@@ -172,7 +172,10 @@ class _PlansScreenState extends ConsumerState<PlansScreen>
         final calendarWeek = daysElapsed >= 0 ? (daysElapsed ~/ 7) + 1 : 1;
         activeWeek = calendarWeek.clamp(1, totalWeeks);
       } else {
-        activeWeek = ((totalCompleted ~/ targetWeekly) + 1).clamp(1, totalWeeks);
+        activeWeek = ((totalCompleted ~/ targetWeekly) + 1).clamp(
+          1,
+          totalWeeks,
+        );
       }
 
       if (mounted) {

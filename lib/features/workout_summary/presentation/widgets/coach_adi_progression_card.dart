@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/theme/app_typography.dart';
 import '../../../progression/domain/models/progression_models.dart';
 
@@ -7,17 +8,16 @@ import '../../../progression/domain/models/progression_models.dart';
 class CoachAdiProgressionCard extends StatelessWidget {
   final List<ProgressionDecision> decisions;
 
-  const CoachAdiProgressionCard({
-    super.key,
-    required this.decisions,
-  });
+  const CoachAdiProgressionCard({super.key, required this.decisions});
 
   String _formatExerciseName(String id) {
     return id
         .split('_')
-        .map((word) => word.isNotEmpty
-            ? '${word[0].toUpperCase()}${word.substring(1)}'
-            : '')
+        .map(
+          (word) => word.isNotEmpty
+              ? '${word[0].toUpperCase()}${word.substring(1)}'
+              : '',
+        )
         .join(' ');
   }
 
@@ -85,7 +85,10 @@ class CoachAdiProgressionCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 6),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: const Color(0xFFE8F9D7),
                             borderRadius: BorderRadius.circular(6),
@@ -125,7 +128,11 @@ class CoachAdiProgressionCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Row(
                 children: [
-                  const Icon(Icons.info_outline_rounded, color: Color(0xFF6C7278), size: 20),
+                  const Icon(
+                    Icons.info_outline_rounded,
+                    color: Color(0xFF6C7278),
+                    size: 20,
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(

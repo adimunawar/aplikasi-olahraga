@@ -24,7 +24,10 @@ class HomeErrorBanner extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.35), width: 1.0),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.35),
+          width: 1.0,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

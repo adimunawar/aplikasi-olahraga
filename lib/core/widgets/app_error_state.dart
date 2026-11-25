@@ -43,11 +43,7 @@ class AppErrorState extends StatelessWidget {
             color: colorScheme.error.withValues(alpha: 0.12),
             shape: BoxShape.circle,
           ),
-          child: Icon(
-            icon,
-            size: useCard ? 24 : 30,
-            color: colorScheme.error,
-          ),
+          child: Icon(icon, size: useCard ? 24 : 30, color: colorScheme.error),
         ),
         SizedBox(height: useCard ? 10 : 16),
         Text(
@@ -64,9 +60,7 @@ class AppErrorState extends StatelessWidget {
           message,
           textAlign: TextAlign.center,
           style: (useCard ? AppTypography.bodySmall : AppTypography.bodyMedium)
-              .copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
+              .copyWith(color: colorScheme.onSurfaceVariant),
         ),
         SizedBox(height: useCard ? 14 : 24),
         if (useCard)
@@ -98,10 +92,7 @@ class AppErrorState extends StatelessWidget {
     }
 
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: content,
-      ),
+      child: Padding(padding: const EdgeInsets.all(28), child: content),
     );
   }
 }

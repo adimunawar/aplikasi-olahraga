@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../widgets/workout_summary_hero_section.dart';
@@ -35,8 +36,7 @@ class WorkoutSummaryScreen extends StatelessWidget {
     this.exercisesCountText = '5 / 5',
     this.setsCountText = '15',
     this.caloriesText = '≈ 185 kcal',
-    this.quoteText =
-        'Latihan yang konsisten seperti ini akan membantu kamu membangun massa otot dan tubuh yang lebih kuat. Pertahankan!',
+    this.quoteText = 'Latihan yang konsisten seperti ini akan membantu kamu membangun massa otot dan tubuh yang lebih kuat. Pertahankan!',
     this.progressionDecisions = const [],
   });
 
@@ -89,15 +89,11 @@ class WorkoutSummaryScreen extends StatelessWidget {
             const SizedBox(height: 18),
 
             // 3. Card Evaluasi Adaptif Coach Adi (Fase 4: Progression Engine)
-            CoachAdiProgressionCard(
-              decisions: progressionDecisions,
-            ),
+            CoachAdiProgressionCard(decisions: progressionDecisions),
             const SizedBox(height: 18),
 
             // 4. Card Motivasi Coach Adi
-            CoachMotivationQuoteCard(
-              quoteText: quoteText,
-            ),
+            CoachMotivationQuoteCard(quoteText: quoteText),
             const SizedBox(height: 24),
 
             // 4. Tombol Aksi: Done & View Progress
@@ -120,4 +116,3 @@ class WorkoutSummaryScreen extends StatelessWidget {
     context.go(AppRoutes.progress);
   }
 }
-

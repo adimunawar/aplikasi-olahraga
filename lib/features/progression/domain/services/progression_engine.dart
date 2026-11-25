@@ -58,14 +58,13 @@ class ProgressionEngine {
     // ----------------------------------------------------
     // SAFETY GUARD 2: Kelelahan Ekstrem / Nyeri Otot Berat (Deload Trigger)
     // ----------------------------------------------------
-    if (input.recoveryFeedback.fatigueLevel >= 4 || input.recoveryFeedback.sorenessLevel >= 5) {
+    if (input.recoveryFeedback.fatigueLevel >= 4 ||
+        input.recoveryFeedback.sorenessLevel >= 5) {
       return ProgressionDecision(
         exerciseId: input.exerciseId,
         action: ProgressionAction.recover,
         reason: 'Tingkat kelelahan atau nyeri ototmu sedang sangat tinggi. Otot tumbuh saat pemulihan, bukan saat dipaksa ketika lelah. Coach Adi menyarankan deload aktif dengan intensitas santai agar tubuh kembali segar.',
-        nextPrescription: input.prescription.copyWith(
-          targetRir: 3,
-        ),
+        nextPrescription: input.prescription.copyWith(targetRir: 3),
       );
     }
 
@@ -79,28 +78,33 @@ class ProgressionEngine {
     // Hitung rata-rata RIR jika diisi
     final setsWithRir = validSets.where((s) => s.rir != null).toList();
     final avgRir = setsWithRir.isNotEmpty
-        ? setsWithRir.fold<int>(0, (sum, s) => sum + s.rir!) / setsWithRir.length
+        ? setsWithRir.fold<int>(0, (sum, s) => sum + s.rir!) /
+              setsWithRir.length
         : 2.0;
 
     // Apakah semua set mencapai target repetisi maksimal?
-    final allHitMaxReps = validSets.length >= prescription.targetSets &&
+    final allHitMaxReps =
+        validSets.length >= prescription.targetSets &&
         validSets.every((s) => s.reps >= prescription.maxReps);
 
     // Apakah performa di bawah rentang minimum?
-    final severelyUnderperformed = validSets.any((s) => s.reps < prescription.minReps) ||
+    final severelyUnderperformed =
+        validSets.any((s) => s.reps < prescription.minReps) ||
         (avgReps < prescription.minReps);
 
     // ----------------------------------------------------
     // ATURAN 3: REGRESI (Kegagalan Berulang atau Terlalu Berat)
     // ----------------------------------------------------
     if (severelyUnderperformed) {
-      final totalUnderperformingSessions = input.recentUnderperformingSessions + 1;
+      final totalUnderperformingSessions =
+          input.recentUnderperformingSessions + 1;
       if (totalUnderperformingSessions >= minFailedSessionsForRegression) {
         if (input.previousExerciseId != null) {
           return ProgressionDecision(
             exerciseId: input.exerciseId,
             action: ProgressionAction.regress,
-            reason: 'Variasi gerakan ini tampak masih terlalu berat untuk menjaga postur tubuh yang prima ($totalUnderperformingSessions sesi di bawah target minimum). Coach Adi menyarankan mundur 1 tingkat ke variasi yang lebih bersahabat untuk mematangkan fondasi kekuatan.',
+            reason:
+                'Variasi gerakan ini tampak masih terlalu berat untuk menjaga postur tubuh yang prima ($totalUnderperformingSessions sesi di bawah target minimum). Coach Adi menyarankan mundur 1 tingkat ke variasi yang lebih bersahabat untuk mematangkan fondasi kekuatan.',
             nextPrescription: prescription.copyWith(
               minReps: 8,
               maxReps: 12,
@@ -110,12 +114,17 @@ class ProgressionEngine {
           );
         } else {
           // Tidak ada gerakan lebih ringan di tangga, turunkan target reps
-          final newMinReps = (prescription.minReps > 5) ? prescription.minReps - 2 : prescription.minReps;
-          final newMaxReps = (prescription.maxReps > 8) ? prescription.maxReps - 2 : prescription.maxReps;
+          final newMinReps = (prescription.minReps > 5)
+              ? prescription.minReps - 2
+              : prescription.minReps;
+          final newMaxReps = (prescription.maxReps > 8)
+              ? prescription.maxReps - 2
+              : prescription.maxReps;
           return ProgressionDecision(
             exerciseId: input.exerciseId,
             action: ProgressionAction.regress,
-            reason: 'Target repetisi terasa sedikit terlalu tinggi. Coach Adi menyesuaikan target menjadi $newMinReps-$newMaxReps repetisi agar kamu bisa berlatih dengan bentuk gerakan yang rapi tanpa memaksakan diri.',
+            reason:
+                'Target repetisi terasa sedikit terlalu tinggi. Coach Adi menyesuaikan target menjadi $newMinReps-$newMaxReps repetisi agar kamu bisa berlatih dengan bentuk gerakan yang rapi tanpa memaksakan diri.',
             nextPrescription: prescription.copyWith(
               minReps: newMinReps,
               maxReps: newMaxReps,
@@ -148,7 +157,8 @@ class ProgressionEngine {
           return ProgressionDecision(
             exerciseId: input.exerciseId,
             action: ProgressionAction.progress,
-            reason: 'Luar biasa! Kamu konsisten menguasai ${prescription.maxReps} repetisi selama $totalConsecutiveMaxSessions sesi dengan cadangan tenaga aman. Saatnya naik kelas ke variasi gerakan baru yang lebih menantang!',
+            reason:
+                'Luar biasa! Kamu konsisten menguasai ${prescription.maxReps} repetisi selama $totalConsecutiveMaxSessions sesi dengan cadangan tenaga aman. Saatnya naik kelas ke variasi gerakan baru yang lebih menantang!',
             nextPrescription: prescription.copyWith(
               minReps: 6,
               maxReps: 10,
@@ -163,7 +173,8 @@ class ProgressionEngine {
           return ProgressionDecision(
             exerciseId: input.exerciseId,
             action: ProgressionAction.progress,
-            reason: 'Performa istimewa! Kamu konsisten menuntaskan ${prescription.maxReps} repetisi dengan prima. Coach Adi menaikkan target repetisi menjadi $newMinReps-$newMaxReps repetisi untuk memacu pertumbuhan massa otot baru.',
+            reason:
+                'Performa istimewa! Kamu konsisten menuntaskan ${prescription.maxReps} repetisi dengan prima. Coach Adi menaikkan target repetisi menjadi $newMinReps-$newMaxReps repetisi untuk memacu pertumbuhan massa otot baru.',
             nextPrescription: prescription.copyWith(
               minReps: newMinReps,
               maxReps: newMaxReps,
@@ -176,7 +187,8 @@ class ProgressionEngine {
         return ProgressionDecision(
           exerciseId: input.exerciseId,
           action: ProgressionAction.maintain,
-          reason: 'Hebat! Kamu berhasil mencapai target maksimal ${prescription.maxReps} repetisi pada seluruh set. Selesaikan 1 sesi lagi pada target ini untuk memastikan otot dan persendianmu benar-benar siap naik kelas!',
+          reason:
+              'Hebat! Kamu berhasil mencapai target maksimal ${prescription.maxReps} repetisi pada seluruh set. Selesaikan 1 sesi lagi pada target ini untuk memastikan otot dan persendianmu benar-benar siap naik kelas!',
           nextPrescription: prescription,
         );
       }
@@ -189,9 +201,9 @@ class ProgressionEngine {
     return ProgressionDecision(
       exerciseId: input.exerciseId,
       action: ProgressionAction.maintain,
-      reason: 'Kerja keras yang solid! Kamu berada di jalur yang tepat dalam rentang ${prescription.minReps}-${prescription.maxReps} repetisi. Pertahankan ritme ini dan usahakan menambah 1 repetisi per set pada sesi latihan mendatang.',
+      reason:
+          'Kerja keras yang solid! Kamu berada di jalur yang tepat dalam rentang ${prescription.minReps}-${prescription.maxReps} repetisi. Pertahankan ritme ini dan usahakan menambah 1 repetisi per set pada sesi latihan mendatang.',
       nextPrescription: prescription,
     );
   }
 }
-

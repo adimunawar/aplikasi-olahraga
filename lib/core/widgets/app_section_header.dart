@@ -105,11 +105,7 @@ class AppSectionHeader extends StatelessWidget {
           child: Row(
             children: [
               if (icon != null) ...[
-                Icon(
-                  icon,
-                  size: iconSize,
-                  color: colorScheme.onSurface,
-                ),
+                Icon(icon, size: iconSize, color: colorScheme.onSurface),
                 const SizedBox(width: 8),
               ],
               Expanded(

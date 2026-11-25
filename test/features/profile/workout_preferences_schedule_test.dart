@@ -160,68 +160,62 @@ void main() {
     });
   });
 
-  group(
-    'ProfileController - Konsistensi 3 Properti Jadwal saat updateWorkoutPreferences',
-    () {
-      test(
-        'Mengubah frekuensi ke 4 hari memperbarui preferredDaysPerWeek, weeklyFrequency, dan availableDays secara konsisten',
-        () async {
-          await controller.updateWorkoutPreferences(
-            trainingDaysPerWeek: 4,
-            workoutDurationMin: 50,
-            trainingIntensity: 'high',
-          );
-
-          final saved = fakeRepository.lastSavedProfile;
-          expect(saved, isNotNull);
-          expect(saved!.preferredDaysPerWeek, equals(4));
-          expect(saved.weeklyFrequency, equals(4));
-          expect(saved.availableDays, hasLength(4));
-          expect(saved.availableDays.first, _weekdayFor(saved.updatedAt));
-          expect(saved.preferredDurationMin, equals(50));
-
-          // Verifikasi state controller juga ter-update
-          expect(controller.state.preferredDaysPerWeek, equals(4));
-          expect(controller.state.preferredDurationMin, equals(50));
-          expect(controller.state.trainingIntensity, equals('high'));
-        },
+  group('ProfileController - Konsistensi 3 Properti Jadwal saat updateWorkoutPreferences', () {
+    test('Mengubah frekuensi ke 4 hari memperbarui preferredDaysPerWeek, weeklyFrequency, dan availableDays secara konsisten', () async {
+      await controller.updateWorkoutPreferences(
+        trainingDaysPerWeek: 4,
+        workoutDurationMin: 50,
+        trainingIntensity: 'high',
       );
 
-      test(
-        'Mengubah frekuensi ke 5 hari memperbarui ketiga properti menjadi 5 hari',
-        () async {
-          await controller.updateWorkoutPreferences(
-            trainingDaysPerWeek: 5,
-            workoutDurationMin: 60,
-            trainingIntensity: 'extreme',
-          );
+      final saved = fakeRepository.lastSavedProfile;
+      expect(saved, isNotNull);
+      expect(saved!.preferredDaysPerWeek, equals(4));
+      expect(saved.weeklyFrequency, equals(4));
+      expect(saved.availableDays, hasLength(4));
+      expect(saved.availableDays.first, _weekdayFor(saved.updatedAt));
+      expect(saved.preferredDurationMin, equals(50));
 
-          final saved = fakeRepository.lastSavedProfile;
-          expect(saved, isNotNull);
-          expect(saved!.preferredDaysPerWeek, equals(5));
-          expect(saved.weeklyFrequency, equals(5));
-          expect(saved.availableDays, hasLength(5));
-          expect(saved.availableDays.first, _weekdayFor(saved.updatedAt));
-        },
-      );
+      // Verifikasi state controller juga ter-update
+      expect(controller.state.preferredDaysPerWeek, equals(4));
+      expect(controller.state.preferredDurationMin, equals(50));
+      expect(controller.state.trainingIntensity, equals('high'));
+    });
 
-      test(
-        'Mengubah frekuensi ke 2 hari memperbarui ketiga properti menjadi 2 hari',
-        () async {
-          await controller.updateWorkoutPreferences(
-            trainingDaysPerWeek: 2,
-            workoutDurationMin: 30,
-            trainingIntensity: 'low',
-          );
+    test(
+      'Mengubah frekuensi ke 5 hari memperbarui ketiga properti menjadi 5 hari',
+      () async {
+        await controller.updateWorkoutPreferences(
+          trainingDaysPerWeek: 5,
+          workoutDurationMin: 60,
+          trainingIntensity: 'extreme',
+        );
 
-          final saved = fakeRepository.lastSavedProfile;
-          expect(saved, isNotNull);
-          expect(saved!.preferredDaysPerWeek, equals(2));
-          expect(saved.weeklyFrequency, equals(2));
-          expect(saved.availableDays, hasLength(2));
-          expect(saved.availableDays.first, _weekdayFor(saved.updatedAt));
-        },
-      );
-    },
-  );
+        final saved = fakeRepository.lastSavedProfile;
+        expect(saved, isNotNull);
+        expect(saved!.preferredDaysPerWeek, equals(5));
+        expect(saved.weeklyFrequency, equals(5));
+        expect(saved.availableDays, hasLength(5));
+        expect(saved.availableDays.first, _weekdayFor(saved.updatedAt));
+      },
+    );
+
+    test(
+      'Mengubah frekuensi ke 2 hari memperbarui ketiga properti menjadi 2 hari',
+      () async {
+        await controller.updateWorkoutPreferences(
+          trainingDaysPerWeek: 2,
+          workoutDurationMin: 30,
+          trainingIntensity: 'low',
+        );
+
+        final saved = fakeRepository.lastSavedProfile;
+        expect(saved, isNotNull);
+        expect(saved!.preferredDaysPerWeek, equals(2));
+        expect(saved.weeklyFrequency, equals(2));
+        expect(saved.availableDays, hasLength(2));
+        expect(saved.availableDays.first, _weekdayFor(saved.updatedAt));
+      },
+    );
+  });
 }

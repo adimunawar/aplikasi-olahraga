@@ -47,7 +47,6 @@ void main() {
         restSeconds: 45,
       );
 
-
       // User held plank for 60 seconds
       // Week 1 factor is 0.60 -> 60 * 0.60 = 36 seconds
       final targetW1 = TargetCalculator.calculateTarget(
@@ -102,39 +101,49 @@ void main() {
       expect(targetDiamond.reps, equals(7));
     });
 
-    test('Falls back to profile fitness level when no test result is present', () {
-      const baseItem = WorkoutItem(
-        exerciseId: 'squats',
-        sets: 3,
-        reps: 10,
-        restSeconds: 60,
-      );
+    test(
+      'Falls back to profile fitness level when no test result is present',
+      () {
+        const baseItem = WorkoutItem(
+          exerciseId: 'squats',
+          sets: 3,
+          reps: 10,
+          restSeconds: 60,
+        );
 
-      // Beginner multiplier = 0.7 -> 10 * 0.7 = 7 reps
-      const beginnerProfile = UserProfile(fallbackLevel: FitnessLevel.beginner);
-      final targetBeginner = TargetCalculator.calculateTarget(
-        baseItem: baseItem,
-        week: 1,
-        profile: beginnerProfile,
-      );
-      expect(targetBeginner.reps, equals(7));
+        // Beginner multiplier = 0.7 -> 10 * 0.7 = 7 reps
+        const beginnerProfile = UserProfile(
+          fallbackLevel: FitnessLevel.beginner,
+        );
+        final targetBeginner = TargetCalculator.calculateTarget(
+          baseItem: baseItem,
+          week: 1,
+          profile: beginnerProfile,
+        );
+        expect(targetBeginner.reps, equals(7));
 
-      // Advanced multiplier = 1.3 -> 10 * 1.3 = 13 reps
-      const advancedProfile = UserProfile(fallbackLevel: FitnessLevel.advanced);
-      final targetAdvanced = TargetCalculator.calculateTarget(
-        baseItem: baseItem,
-        week: 1,
-        profile: advancedProfile,
-      );
-      expect(targetAdvanced.reps, equals(13));
-    });
+        // Advanced multiplier = 1.3 -> 10 * 1.3 = 13 reps
+        const advancedProfile = UserProfile(
+          fallbackLevel: FitnessLevel.advanced,
+        );
+        final targetAdvanced = TargetCalculator.calculateTarget(
+          baseItem: baseItem,
+          week: 1,
+          profile: advancedProfile,
+        );
+        expect(targetAdvanced.reps, equals(13));
+      },
+    );
   });
 
   group('UserProfile Model Unit Tests', () {
-    test('Calculates daily protein target based on weight and protein factor', () {
-      const p = UserProfile(weightKg: 70.0, proteinFactor: 1.6);
-      expect(p.dailyProteinTargetG, equals(112.0));
-    });
+    test(
+      'Calculates daily protein target based on weight and protein factor',
+      () {
+        const p = UserProfile(weightKg: 70.0, proteinFactor: 1.6);
+        expect(p.dailyProteinTargetG, equals(112.0));
+      },
+    );
 
     test('Serializes to JSON and parses back correctly', () {
       const original = UserProfile(

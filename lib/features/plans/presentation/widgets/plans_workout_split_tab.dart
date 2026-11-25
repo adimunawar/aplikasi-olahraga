@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import '../../../../core/database/models/dynamic_program_entity.dart';
 import '../../../../core/database/models/user_profile_entity.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -77,49 +78,51 @@ class PlansWorkoutSplitTab extends StatelessWidget {
       }
     }
 
-    return weekDays.map((weekday) {
-      final weekdayIndex = weekDays.indexOf(weekday) + 1;
-      final scheduledSession = sessionsByWeekday[weekdayIndex];
+    return weekDays
+        .map((weekday) {
+          final weekdayIndex = weekDays.indexOf(weekday) + 1;
+          final scheduledSession = sessionsByWeekday[weekdayIndex];
 
-      if (scheduledSession != null) {
-        final focus = scheduledSession.session.focusLabel.isNotEmpty
-            ? scheduledSession.session.focusLabel
-            : 'Full Body Workout';
+          if (scheduledSession != null) {
+            final focus = scheduledSession.session.focusLabel.isNotEmpty
+                ? scheduledSession.session.focusLabel
+                : 'Full Body Workout';
 
-        IconData icon = Icons.fitness_center_rounded;
-        const iconColor = Color(0xFF141718);
-        const iconBg = Color(0xFFD4F836);
+            IconData icon = Icons.fitness_center_rounded;
+            const iconColor = Color(0xFF141718);
+            const iconBg = Color(0xFFD4F836);
 
-        final lowerFocus = focus.toLowerCase();
-        if (lowerFocus.contains('lower') || lowerFocus.contains('leg')) {
-          icon = Icons.directions_run_rounded;
-        } else if (lowerFocus.contains('full')) {
-          icon = Icons.sports_gymnastics_rounded;
-        }
+            final lowerFocus = focus.toLowerCase();
+            if (lowerFocus.contains('lower') || lowerFocus.contains('leg')) {
+              icon = Icons.directions_run_rounded;
+            } else if (lowerFocus.contains('full')) {
+              icon = Icons.sports_gymnastics_rounded;
+            }
 
-        return DayScheduleItem(
-          dayAbbr: weekday['abbr']!,
-          dayName: weekday['name']!,
-          isRest: false,
-          title: focus,
-          icon: icon,
-          iconColor: iconColor,
-          iconBgColor: iconBg,
-          session: scheduledSession,
-        );
-      }
+            return DayScheduleItem(
+              dayAbbr: weekday['abbr']!,
+              dayName: weekday['name']!,
+              isRest: false,
+              title: focus,
+              icon: icon,
+              iconColor: iconColor,
+              iconBgColor: iconBg,
+              session: scheduledSession,
+            );
+          }
 
-      return DayScheduleItem(
-        dayAbbr: weekday['abbr']!,
-        dayName: weekday['name']!,
-        isRest: true,
-        title: weekday['key'] == 'sunday' ? 'Rest' : 'Rest / Recovery',
-        icon: Icons.coffee_rounded,
-        iconColor: const Color(0xFF6B7280),
-        iconBgColor: const Color(0xFFF3F4F6),
-        session: null,
-      );
-    }).toList(growable: false);
+          return DayScheduleItem(
+            dayAbbr: weekday['abbr']!,
+            dayName: weekday['name']!,
+            isRest: true,
+            title: weekday['key'] == 'sunday' ? 'Rest' : 'Rest / Recovery',
+            icon: Icons.coffee_rounded,
+            iconColor: const Color(0xFF6B7280),
+            iconBgColor: const Color(0xFFF3F4F6),
+            session: null,
+          );
+        })
+        .toList(growable: false);
   }
 
   void _showRestDayDialog(BuildContext context, String dayName) {
@@ -157,7 +160,10 @@ class PlansWorkoutSplitTab extends StatelessWidget {
                       color: const Color(0xFFF3F4F6),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: const Icon(Icons.coffee_rounded, color: Color(0xFF4B5563)),
+                    child: const Icon(
+                      Icons.coffee_rounded,
+                      color: Color(0xFF4B5563),
+                    ),
                   ),
                   const SizedBox(width: 14),
                   Column(
@@ -210,10 +216,15 @@ class PlansWorkoutSplitTab extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.darkCharcoal,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     elevation: 0,
                   ),
-                  child: const Text('Got it!', style: TextStyle(fontWeight: FontWeight.w700)),
+                  child: const Text(
+                    'Got it!',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
                 ),
               ),
             ],
@@ -308,7 +319,10 @@ class PlansWorkoutSplitTab extends StatelessWidget {
                         onTap: onEditSchedule,
                         borderRadius: BorderRadius.circular(12),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           child: Text(
                             'Edit',
                             style: AppTypography.labelMedium.copyWith(
@@ -393,7 +407,9 @@ class PlansWorkoutSplitTab extends StatelessWidget {
                               child: Text(
                                 item.title,
                                 style: AppTypography.labelLarge.copyWith(
-                                  fontWeight: item.isRest ? FontWeight.w600 : FontWeight.w800,
+                                  fontWeight: item.isRest
+                                      ? FontWeight.w600
+                                      : FontWeight.w800,
                                   fontSize: 13.5,
                                   color: item.isRest
                                       ? const Color(0xFF6B7280)
@@ -422,4 +438,3 @@ class PlansWorkoutSplitTab extends StatelessWidget {
     );
   }
 }
-
