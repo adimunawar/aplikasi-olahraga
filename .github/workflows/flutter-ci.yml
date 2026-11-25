@@ -6,8 +6,8 @@ on:
       - develop
       - staging
       - main
-  # Keep main's existing push validation. Develop is validated on PR,
-  # while its APK build is intentionally manual.
+  # Develop is validated on PR; staging pushes build and deploy Web.
+  # Main pushes skip Analyze and Test because PR validation already ran.
   push:
     branches:
       - main
@@ -24,13 +24,13 @@ concurrency:
 jobs:
   # --------------------------------------------------
   # 1. ANALYZE
-  # Run during PR validation and non-staging-push workflows.
-  # Staging pushes reuse the successful PR validation.
+  # Run during PR validation and manual workflows.
+  # Staging and main pushes reuse successful PR validation.
   # --------------------------------------------------
   analyze:
     name: Analyze Dart & Flutter
     runs-on: ubuntu-latest
-    if: github.event_name != 'push' || github.ref != 'refs/heads/staging'
+    if: github.event_name != 'push' || (github.ref != 'refs/heads/staging' && github.ref != 'refs/heads/main')
     timeout-minutes: 20
 
     steps:
@@ -59,7 +59,7 @@ jobs:
   test:
     name: Run Flutter tests
     runs-on: ubuntu-latest
-    if: github.event_name != 'push' || github.ref != 'refs/heads/staging'
+    if: github.event_name != 'push' || (github.ref != 'refs/heads/staging' && github.ref != 'refs/heads/main')
     timeout-minutes: 30
 
     steps:
