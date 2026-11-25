@@ -1,5 +1,5 @@
 import 'package:material_ui/material_ui.dart';
-import '../../../../core/theme/app_colors.dart';
+
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_smart_image.dart';
 import '../../../../i18n/strings.g.dart';
@@ -139,8 +139,12 @@ class StepWelcome extends StatelessWidget {
           Builder(
             builder: (context) {
               final titleParts = t.title.split('\n');
-              final firstLine = titleParts.isNotEmpty ? titleParts.first : t.title;
-              final secondLine = titleParts.length > 1 ? titleParts.sublist(1).join('\n') : '';
+              final firstLine = titleParts.isNotEmpty
+                  ? titleParts.first
+                  : t.title;
+              final secondLine = titleParts.length > 1
+                  ? titleParts.sublist(1).join('\n')
+                  : '';
 
               return Text.rich(
                 TextSpan(
@@ -153,21 +157,16 @@ class StepWelcome extends StatelessWidget {
                   children: [
                     TextSpan(
                       text: '$firstLine\n',
-                      style: TextStyle(
-                        color: colorScheme.onSurface,
-                      ),
+                      style: TextStyle(color: colorScheme.onSurface),
                     ),
                     if (secondLine.isNotEmpty)
                       TextSpan(
                         text: secondLine,
-                        style: TextStyle(
-                          color: accentColor,
-                        ),
+                        style: TextStyle(color: accentColor),
                       ),
                   ],
                 ),
               );
-
             },
           ),
 
@@ -189,5 +188,3 @@ class StepWelcome extends StatelessWidget {
     );
   }
 }
-
-
