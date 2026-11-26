@@ -1,0 +1,33 @@
+{
+  "appSettings": {
+    "title": "Pengaturan Aplikasi",
+    "subtitle": "Sesuaikan pengalaman aplikasi Anda.",
+    "language": "Bahasa",
+    "selectLanguage": "Pilih Bahasa",
+    "languageEnglish": "English",
+    "languageIndonesian": "Bahasa Indonesia",
+    "theme": "Tema",
+    "selectTheme": "Pilih Tema",
+    "themeLight": "Terang",
+    "themeDark": "Gelap",
+    "themeSystem": "Ikuti Sistem",
+    "units": "Satuan",
+    "selectUnits": "Pilih Satuan",
+    "unitsMetric": "Metrik (kg, cm)",
+    "unitsImperial": "Imperial (lbs, in)",
+    "hapticFeedback": "Umpan Balik Haptik",
+    "hapticFeedbackSubtitle": "Getar saat aksi (mulai, istirahat, selesai)",
+    "soundEffects": "Efek Suara",
+    "soundEffectsSubtitle": "Timer latihan dan transisi",
+    "dataSync": "Sinkronisasi Data",
+    "dataSyncSubtitle": "Cadangkan data Anda ke akun",
+    "saveError": "Gagal menyimpan pengaturan. Silakan coba lagi.",
+    "cloudSyncDisableError": "Sinkronisasi Cloud dinonaktifkan untuk sesi ini, tetapi preferensinya gagal disimpan.",
+    "cloudSyncSignInRequired": "Masuk dengan akun terlebih dahulu sebelum mengaktifkan Sinkronisasi Cloud.",
+    "cloudSyncEnableError": "Gagal mengaktifkan Sinkronisasi Cloud. Silakan coba lagi.",
+    "cloudSyncDialogTitle": "Aktifkan Sinkronisasi Cloud?",
+    "cloudSyncDialogBody": "Profil, pengaturan, riwayat latihan, dan data progres Anda akan disinkronkan ke akun Supabase Anda. Data SQLite lokal tetap tersimpan di perangkat ini. Anda dapat menonaktifkan Sinkronisasi Cloud kapan saja.",
+    "cloudSyncDialogCancel": "Nanti saja",
+    "cloudSyncDialogConfirm": "Setuju dan aktifkan"
+  }
+}

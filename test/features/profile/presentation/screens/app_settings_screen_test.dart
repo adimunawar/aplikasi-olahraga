@@ -7,6 +7,7 @@ import 'package:workout_app/core/theme/app_theme.dart';
 import 'package:workout_app/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:workout_app/features/profile/presentation/controllers/profile_state.dart';
 import 'package:workout_app/features/profile/presentation/screens/app_settings_screen.dart';
+import 'package:workout_app/i18n/strings.g.dart';
 
 class _RecordingController extends StateNotifier<ProfileState>
     implements ProfileController {
@@ -32,6 +33,7 @@ class _RecordingController extends StateNotifier<ProfileState>
 
 void main() {
   testWidgets('AppSettingsScreen picks theme via bottom sheet', (tester) async {
+    LocaleSettings.setLocale(AppLocale.en);
     final controller = _RecordingController();
     final router = GoRouter(
       initialLocation: AppRoutes.appSettings,

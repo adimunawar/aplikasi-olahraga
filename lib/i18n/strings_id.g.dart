@@ -58,6 +58,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
   late final Translations$home$id home = Translations$home$id.internal(_root);
   late final Translations$onboarding$id onboarding =
       Translations$onboarding$id.internal(_root);
+  late final Translations$profile$id profile = Translations$profile$id.internal(
+    _root,
+  );
   late final Translations$workoutSession$id workoutSession =
       Translations$workoutSession$id.internal(_root);
   late final Translations$workouts$id workouts =
@@ -147,6 +150,17 @@ class Translations$onboarding$id {
       Translations$onboarding$ready$id.internal(_root);
   late final Translations$onboarding$preview$id preview =
       Translations$onboarding$preview$id.internal(_root);
+}
+
+// Path: profile
+class Translations$profile$id {
+  Translations$profile$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+  late final Translations$profile$appSettings$id appSettings =
+      Translations$profile$appSettings$id.internal(_root);
 }
 
 // Path: workoutSession
@@ -1138,6 +1152,107 @@ class Translations$onboarding$preview$id {
     required Object reps,
     required Object rests,
   }) => '${sets} set • ${reps} repetisi • istirahat ${rests} dtk';
+}
+
+// Path: profile.appSettings
+class Translations$profile$appSettings$id {
+  Translations$profile$appSettings$id.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// id: 'Pengaturan Aplikasi'
+  String get title => 'Pengaturan Aplikasi';
+
+  /// id: 'Sesuaikan pengalaman aplikasi Anda.'
+  String get subtitle => 'Sesuaikan pengalaman aplikasi Anda.';
+
+  /// id: 'Bahasa'
+  String get language => 'Bahasa';
+
+  /// id: 'Pilih Bahasa'
+  String get selectLanguage => 'Pilih Bahasa';
+
+  /// id: 'English'
+  String get languageEnglish => 'English';
+
+  /// id: 'Bahasa Indonesia'
+  String get languageIndonesian => 'Bahasa Indonesia';
+
+  /// id: 'Tema'
+  String get theme => 'Tema';
+
+  /// id: 'Pilih Tema'
+  String get selectTheme => 'Pilih Tema';
+
+  /// id: 'Terang'
+  String get themeLight => 'Terang';
+
+  /// id: 'Gelap'
+  String get themeDark => 'Gelap';
+
+  /// id: 'Ikuti Sistem'
+  String get themeSystem => 'Ikuti Sistem';
+
+  /// id: 'Satuan'
+  String get units => 'Satuan';
+
+  /// id: 'Pilih Satuan'
+  String get selectUnits => 'Pilih Satuan';
+
+  /// id: 'Metrik (kg, cm)'
+  String get unitsMetric => 'Metrik (kg, cm)';
+
+  /// id: 'Imperial (lbs, in)'
+  String get unitsImperial => 'Imperial (lbs, in)';
+
+  /// id: 'Umpan Balik Haptik'
+  String get hapticFeedback => 'Umpan Balik Haptik';
+
+  /// id: 'Getar saat aksi (mulai, istirahat, selesai)'
+  String get hapticFeedbackSubtitle =>
+      'Getar saat aksi (mulai, istirahat, selesai)';
+
+  /// id: 'Efek Suara'
+  String get soundEffects => 'Efek Suara';
+
+  /// id: 'Timer latihan dan transisi'
+  String get soundEffectsSubtitle => 'Timer latihan dan transisi';
+
+  /// id: 'Sinkronisasi Data'
+  String get dataSync => 'Sinkronisasi Data';
+
+  /// id: 'Cadangkan data Anda ke akun'
+  String get dataSyncSubtitle => 'Cadangkan data Anda ke akun';
+
+  /// id: 'Gagal menyimpan pengaturan. Silakan coba lagi.'
+  String get saveError => 'Gagal menyimpan pengaturan. Silakan coba lagi.';
+
+  /// id: 'Sinkronisasi Cloud dinonaktifkan untuk sesi ini, tetapi preferensinya gagal disimpan.'
+  String get cloudSyncDisableError =>
+      'Sinkronisasi Cloud dinonaktifkan untuk sesi ini, tetapi preferensinya gagal disimpan.';
+
+  /// id: 'Masuk dengan akun terlebih dahulu sebelum mengaktifkan Sinkronisasi Cloud.'
+  String get cloudSyncSignInRequired =>
+      'Masuk dengan akun terlebih dahulu sebelum mengaktifkan Sinkronisasi Cloud.';
+
+  /// id: 'Gagal mengaktifkan Sinkronisasi Cloud. Silakan coba lagi.'
+  String get cloudSyncEnableError =>
+      'Gagal mengaktifkan Sinkronisasi Cloud. Silakan coba lagi.';
+
+  /// id: 'Aktifkan Sinkronisasi Cloud?'
+  String get cloudSyncDialogTitle => 'Aktifkan Sinkronisasi Cloud?';
+
+  /// id: 'Profil, pengaturan, riwayat latihan, dan data progres Anda akan disinkronkan ke akun Supabase Anda. Data SQLite lokal tetap tersimpan di perangkat ini. Anda dapat menonaktifkan Sinkronisasi Cloud kapan saja.'
+  String get cloudSyncDialogBody =>
+      'Profil, pengaturan, riwayat latihan, dan data progres Anda akan disinkronkan ke akun Supabase Anda. Data SQLite lokal tetap tersimpan di perangkat ini. Anda dapat menonaktifkan Sinkronisasi Cloud kapan saja.';
+
+  /// id: 'Nanti saja'
+  String get cloudSyncDialogCancel => 'Nanti saja';
+
+  /// id: 'Setuju dan aktifkan'
+  String get cloudSyncDialogConfirm => 'Setuju dan aktifkan';
 }
 
 // Path: workoutSession.completedScreen
@@ -2758,6 +2873,40 @@ extension on Translations {
         required Object reps,
         required Object rests,
       }) => '${sets} set • ${reps} repetisi • istirahat ${rests} dtk',
+      'profile.appSettings.title' => 'Pengaturan Aplikasi',
+      'profile.appSettings.subtitle' => 'Sesuaikan pengalaman aplikasi Anda.',
+      'profile.appSettings.language' => 'Bahasa',
+      'profile.appSettings.selectLanguage' => 'Pilih Bahasa',
+      'profile.appSettings.languageEnglish' => 'English',
+      'profile.appSettings.languageIndonesian' => 'Bahasa Indonesia',
+      'profile.appSettings.theme' => 'Tema',
+      'profile.appSettings.selectTheme' => 'Pilih Tema',
+      'profile.appSettings.themeLight' => 'Terang',
+      'profile.appSettings.themeDark' => 'Gelap',
+      'profile.appSettings.themeSystem' => 'Ikuti Sistem',
+      'profile.appSettings.units' => 'Satuan',
+      'profile.appSettings.selectUnits' => 'Pilih Satuan',
+      'profile.appSettings.unitsMetric' => 'Metrik (kg, cm)',
+      'profile.appSettings.unitsImperial' => 'Imperial (lbs, in)',
+      'profile.appSettings.hapticFeedback' => 'Umpan Balik Haptik',
+      'profile.appSettings.hapticFeedbackSubtitle' =>
+        'Getar saat aksi (mulai, istirahat, selesai)',
+      'profile.appSettings.soundEffects' => 'Efek Suara',
+      'profile.appSettings.soundEffectsSubtitle' =>
+        'Timer latihan dan transisi',
+      'profile.appSettings.dataSync' => 'Sinkronisasi Data',
+      'profile.appSettings.dataSyncSubtitle' => 'Cadangkan data Anda ke akun',
+      'profile.appSettings.saveError' =>
+        'Gagal menyimpan pengaturan. Silakan coba lagi.',
+      'profile.appSettings.cloudSyncDisableError' => 'Sinkronisasi Cloud dinonaktifkan untuk sesi ini, tetapi preferensinya gagal disimpan.',
+      'profile.appSettings.cloudSyncSignInRequired' => 'Masuk dengan akun terlebih dahulu sebelum mengaktifkan Sinkronisasi Cloud.',
+      'profile.appSettings.cloudSyncEnableError' =>
+        'Gagal mengaktifkan Sinkronisasi Cloud. Silakan coba lagi.',
+      'profile.appSettings.cloudSyncDialogTitle' =>
+        'Aktifkan Sinkronisasi Cloud?',
+      'profile.appSettings.cloudSyncDialogBody' => 'Profil, pengaturan, riwayat latihan, dan data progres Anda akan disinkronkan ke akun Supabase Anda. Data SQLite lokal tetap tersimpan di perangkat ini. Anda dapat menonaktifkan Sinkronisasi Cloud kapan saja.',
+      'profile.appSettings.cloudSyncDialogCancel' => 'Nanti saja',
+      'profile.appSettings.cloudSyncDialogConfirm' => 'Setuju dan aktifkan',
       'workoutSession.exerciseProgress' => ({
         required Object current,
         required Object total,
