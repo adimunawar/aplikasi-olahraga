@@ -64,6 +64,10 @@ class TranslationsEn extends Translations
   late final _Translations$onboarding$en onboarding =
       _Translations$onboarding$en._(_root);
   @override
+  late final _Translations$profile$en profile = _Translations$profile$en._(
+    _root,
+  );
+  @override
   late final _Translations$workoutSession$en workoutSession =
       _Translations$workoutSession$en._(_root);
   @override
@@ -192,6 +196,20 @@ class _Translations$onboarding$en extends Translations$onboarding$id {
       _Translations$onboarding$preview$en._(_root);
 }
 
+// Path: profile
+class _Translations$profile$en extends Translations$profile$id {
+  _Translations$profile$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  late final _Translations$profile$appSettings$en appSettings =
+      _Translations$profile$appSettings$en._(_root);
+}
+
 // Path: workoutSession
 class _Translations$workoutSession$en extends Translations$workoutSession$id {
   _Translations$workoutSession$en._(TranslationsEn root)
@@ -251,12 +269,7 @@ class _Translations$workoutSession$en extends Translations$workoutSession$id {
   @override
   String get exerciseLabel => 'Exercises';
   @override
-  String exerciseCount({required Object count}) {
-    final countNum = num.tryParse(count.toString());
-    if (countNum == 1) return '1 exercise';
-    return '${count} exercises';
-  }
-
+  String exerciseCount({required Object count}) => '${count} exercises';
   @override
   String get totalSetsLabel => 'Total Sets';
   @override
@@ -1082,6 +1095,81 @@ class _Translations$onboarding$preview$en
   }) => '${sets} sets • ${reps} reps • ${rests} rest';
 }
 
+// Path: profile.appSettings
+class _Translations$profile$appSettings$en
+    extends Translations$profile$appSettings$id {
+  _Translations$profile$appSettings$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'App Settings';
+  @override
+  String get subtitle => 'Customize your app experience.';
+  @override
+  String get language => 'Language';
+  @override
+  String get selectLanguage => 'Select Language';
+  @override
+  String get languageEnglish => 'English';
+  @override
+  String get languageIndonesian => 'Bahasa Indonesia';
+  @override
+  String get theme => 'Theme';
+  @override
+  String get selectTheme => 'Select Theme';
+  @override
+  String get themeLight => 'Light';
+  @override
+  String get themeDark => 'Dark';
+  @override
+  String get themeSystem => 'System Default';
+  @override
+  String get units => 'Units';
+  @override
+  String get selectUnits => 'Select Units';
+  @override
+  String get unitsMetric => 'Metric (kg, cm)';
+  @override
+  String get unitsImperial => 'Imperial (lbs, in)';
+  @override
+  String get hapticFeedback => 'Haptic Feedback';
+  @override
+  String get hapticFeedbackSubtitle =>
+      'Vibrate on actions (start, rest, finish)';
+  @override
+  String get soundEffects => 'Sound Effects';
+  @override
+  String get soundEffectsSubtitle => 'Workout timer and transitions';
+  @override
+  String get dataSync => 'Data Sync';
+  @override
+  String get dataSyncSubtitle => 'Back up your data to your account';
+  @override
+  String get saveError => 'Could not save settings. Please try again.';
+  @override
+  String get cloudSyncDisableError =>
+      'Cloud Sync was disabled for this session, but its preference could not be saved.';
+  @override
+  String get cloudSyncSignInRequired =>
+      'Sign in with an account before enabling Cloud Sync.';
+  @override
+  String get cloudSyncEnableError =>
+      'Could not enable Cloud Sync. Please try again.';
+  @override
+  String get cloudSyncDialogTitle => 'Enable Cloud Sync?';
+  @override
+  String get cloudSyncDialogBody =>
+      'Your profile, settings, workout history, and progress data will be synced to your Supabase account. Local SQLite data will remain on this device. You can turn Cloud Sync off at any time.';
+  @override
+  String get cloudSyncDialogCancel => 'Not now';
+  @override
+  String get cloudSyncDialogConfirm => 'Agree and enable';
+}
+
 // Path: workoutSession.completedScreen
 class _Translations$workoutSession$completedScreen$en
     extends Translations$workoutSession$completedScreen$id {
@@ -1307,94 +1395,17 @@ class _Translations$workouts$workoutDetail$en
   String get defaultDescription =>
       'Build strength and stability with a focused mix of bodyweight exercises.';
   @override
-  String exerciseCount({required Object count}) {
-    final countNum = num.tryParse(count.toString());
-    if (countNum == 1) return '1 exercise';
-    return '${count} exercises';
-  }
-
+  String exerciseCount({required Object count}) => '${count} exercises';
   @override
   String exerciseListTitle({required Object count}) => 'Exercises (${count})';
-
   @override
   late final _Translations$workouts$workoutDetail$stages$en stages =
       _Translations$workouts$workoutDetail$stages$en._(_root);
-
   @override
   String setReps({required Object sets, required Object reps}) =>
       '${sets} sets × ${reps}';
-
   @override
   String get repsUnit => 'reps';
-}
-
-// Path: workouts.workoutDetail.stages
-class _Translations$workouts$workoutDetail$stages$en
-    extends Translations$workouts$workoutDetail$stages$id {
-  _Translations$workouts$workoutDetail$stages$en._(TranslationsEn root)
-    : this._root = root,
-      super.internal(root);
-
-  final TranslationsEn _root; // ignore: unused_field
-
-  // Translations
-  @override
-  late final _Translations$workouts$workoutDetail$stages$warmup$en warmup =
-      _Translations$workouts$workoutDetail$stages$warmup$en._(_root);
-  @override
-  late final _Translations$workouts$workoutDetail$stages$main$en main =
-      _Translations$workouts$workoutDetail$stages$main$en._(_root);
-  @override
-  late final _Translations$workouts$workoutDetail$stages$cooldown$en cooldown =
-      _Translations$workouts$workoutDetail$stages$cooldown$en._(_root);
-}
-
-// Path: workouts.workoutDetail.stages.warmup
-class _Translations$workouts$workoutDetail$stages$warmup$en
-    extends Translations$workouts$workoutDetail$stages$warmup$id {
-  _Translations$workouts$workoutDetail$stages$warmup$en._(TranslationsEn root)
-    : this._root = root,
-      super.internal(root);
-
-  final TranslationsEn _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Warm up';
-  @override
-  String get subtitle => 'Warm-up';
-}
-
-// Path: workouts.workoutDetail.stages.main
-class _Translations$workouts$workoutDetail$stages$main$en
-    extends Translations$workouts$workoutDetail$stages$main$id {
-  _Translations$workouts$workoutDetail$stages$main$en._(TranslationsEn root)
-    : this._root = root,
-      super.internal(root);
-
-  final TranslationsEn _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Training';
-  @override
-  String get subtitle => 'Main Workout';
-}
-
-// Path: workouts.workoutDetail.stages.cooldown
-class _Translations$workouts$workoutDetail$stages$cooldown$en
-    extends Translations$workouts$workoutDetail$stages$cooldown$id {
-  _Translations$workouts$workoutDetail$stages$cooldown$en._(TranslationsEn root)
-    : this._root = root,
-      super.internal(root);
-
-  final TranslationsEn _root; // ignore: unused_field
-
-  // Translations
-  @override
-  String get title => 'Cool down';
-  @override
-  String get subtitle => 'Recovery';
 }
 
 // Path: workouts.filter
@@ -2200,6 +2211,27 @@ class _Translations$workouts$session$status$en
   String get scheduled => 'Scheduled';
 }
 
+// Path: workouts.workoutDetail.stages
+class _Translations$workouts$workoutDetail$stages$en
+    extends Translations$workouts$workoutDetail$stages$id {
+  _Translations$workouts$workoutDetail$stages$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  late final _Translations$workouts$workoutDetail$stages$warmup$en warmup =
+      _Translations$workouts$workoutDetail$stages$warmup$en._(_root);
+  @override
+  late final _Translations$workouts$workoutDetail$stages$main$en main =
+      _Translations$workouts$workoutDetail$stages$main$en._(_root);
+  @override
+  late final _Translations$workouts$workoutDetail$stages$cooldown$en cooldown =
+      _Translations$workouts$workoutDetail$stages$cooldown$en._(_root);
+}
+
 // Path: core.progress.workout.noPerformance
 class _Translations$core$progress$workout$noPerformance$en
     extends Translations$core$progress$workout$noPerformance$id {
@@ -2312,6 +2344,54 @@ class _Translations$onboarding$ready$program$maintain$en
   String get title => 'Maintain & Stay Fit';
   @override
   String get subtitle => 'Strength & General Fitness';
+}
+
+// Path: workouts.workoutDetail.stages.warmup
+class _Translations$workouts$workoutDetail$stages$warmup$en
+    extends Translations$workouts$workoutDetail$stages$warmup$id {
+  _Translations$workouts$workoutDetail$stages$warmup$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Warm up';
+  @override
+  String get subtitle => 'Warm-up';
+}
+
+// Path: workouts.workoutDetail.stages.main
+class _Translations$workouts$workoutDetail$stages$main$en
+    extends Translations$workouts$workoutDetail$stages$main$id {
+  _Translations$workouts$workoutDetail$stages$main$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Training';
+  @override
+  String get subtitle => 'Main Workout';
+}
+
+// Path: workouts.workoutDetail.stages.cooldown
+class _Translations$workouts$workoutDetail$stages$cooldown$en
+    extends Translations$workouts$workoutDetail$stages$cooldown$id {
+  _Translations$workouts$workoutDetail$stages$cooldown$en._(TranslationsEn root)
+    : this._root = root,
+      super.internal(root);
+
+  final TranslationsEn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => 'Cool down';
+  @override
+  String get subtitle => 'Recovery';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -2700,6 +2780,41 @@ extension on TranslationsEn {
         required Object reps,
         required Object rests,
       }) => '${sets} sets • ${reps} reps • ${rests} rest',
+      'profile.appSettings.title' => 'App Settings',
+      'profile.appSettings.subtitle' => 'Customize your app experience.',
+      'profile.appSettings.language' => 'Language',
+      'profile.appSettings.selectLanguage' => 'Select Language',
+      'profile.appSettings.languageEnglish' => 'English',
+      'profile.appSettings.languageIndonesian' => 'Bahasa Indonesia',
+      'profile.appSettings.theme' => 'Theme',
+      'profile.appSettings.selectTheme' => 'Select Theme',
+      'profile.appSettings.themeLight' => 'Light',
+      'profile.appSettings.themeDark' => 'Dark',
+      'profile.appSettings.themeSystem' => 'System Default',
+      'profile.appSettings.units' => 'Units',
+      'profile.appSettings.selectUnits' => 'Select Units',
+      'profile.appSettings.unitsMetric' => 'Metric (kg, cm)',
+      'profile.appSettings.unitsImperial' => 'Imperial (lbs, in)',
+      'profile.appSettings.hapticFeedback' => 'Haptic Feedback',
+      'profile.appSettings.hapticFeedbackSubtitle' =>
+        'Vibrate on actions (start, rest, finish)',
+      'profile.appSettings.soundEffects' => 'Sound Effects',
+      'profile.appSettings.soundEffectsSubtitle' =>
+        'Workout timer and transitions',
+      'profile.appSettings.dataSync' => 'Data Sync',
+      'profile.appSettings.dataSyncSubtitle' =>
+        'Back up your data to your account',
+      'profile.appSettings.saveError' =>
+        'Could not save settings. Please try again.',
+      'profile.appSettings.cloudSyncDisableError' => 'Cloud Sync was disabled for this session, but its preference could not be saved.',
+      'profile.appSettings.cloudSyncSignInRequired' =>
+        'Sign in with an account before enabling Cloud Sync.',
+      'profile.appSettings.cloudSyncEnableError' =>
+        'Could not enable Cloud Sync. Please try again.',
+      'profile.appSettings.cloudSyncDialogTitle' => 'Enable Cloud Sync?',
+      'profile.appSettings.cloudSyncDialogBody' => 'Your profile, settings, workout history, and progress data will be synced to your Supabase account. Local SQLite data will remain on this device. You can turn Cloud Sync off at any time.',
+      'profile.appSettings.cloudSyncDialogCancel' => 'Not now',
+      'profile.appSettings.cloudSyncDialogConfirm' => 'Agree and enable',
       'workoutSession.exerciseProgress' => ({
         required Object current,
         required Object total,
@@ -2895,11 +3010,9 @@ extension on TranslationsEn {
       'workouts.workoutDetail.bookmarkRemove' => 'Remove bookmark',
       'workouts.workoutDetail.copiedMessage' => 'Workout details copied.',
       'workouts.workoutDetail.defaultDescription' => 'Build strength and stability with a focused mix of bodyweight exercises.',
-      'workouts.workoutDetail.exerciseCount' => ({required Object count}) {
-        final countNum = num.tryParse(count.toString());
-        if (countNum == 1) return '1 exercise';
-        return '${count} exercises';
-      },
+      'workouts.workoutDetail.exerciseCount' => ({
+        required Object count,
+      }) => '${count} exercises',
       'workouts.workoutDetail.exerciseListTitle' => ({
         required Object count,
       }) => 'Exercises (${count})',

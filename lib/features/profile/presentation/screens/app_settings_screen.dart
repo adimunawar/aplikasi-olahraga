@@ -1,126 +1,118 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:workout_app/core/config/supabase_config.dart';
+import 'package:workout_app/core/localization/app_locale.dart';
+import 'package:workout_app/core/theme/app_typography.dart';
+import 'package:workout_app/i18n/strings.g.dart';
 
-import '../../../../core/config/supabase_config.dart';
-import '../../../../core/localization/app_locale.dart';
-import '../../../../core/theme/app_typography.dart';
 import '../controllers/profile_controller.dart';
+import '../controllers/profile_state.dart';
+import '../widgets/app_settings_cloud_sync_dialog.dart';
 import '../widgets/app_settings_widgets.dart';
 
-/// Screen 7 Mockup: App Settings (Modular Composition & Full Theme Support)
-class AppSettingsScreen extends ConsumerStatefulWidget {
+class AppSettingsScreen extends ConsumerWidget {
   const AppSettingsScreen({super.key});
 
-  @override
-  ConsumerState<AppSettingsScreen> createState() => _AppSettingsScreenState();
-}
-
-class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
-  late String _language;
-  late String _theme;
-  late String _units;
-  late bool _hapticFeedback;
-  late bool _soundEffects;
-  late bool _dataSync;
-
-  @override
-  void initState() {
-    super.initState();
-    final profile = ref.read(profileControllerProvider);
-    _language = profileLanguageFromAppLocale(ref.read(appLocaleProvider));
-    _theme = profile.theme;
-    _units = profile.unitPreference;
-    _hapticFeedback = profile.hapticFeedback;
-    _soundEffects = profile.soundEffects;
-    _dataSync = SupabaseConfig.canSyncToCloud;
+  Future<void> _updateSettings(
+    BuildContext context,
+    WidgetRef ref, {
+    required String language,
+    required String theme,
+    required String units,
+    required bool hapticFeedback,
+    required bool soundEffects,
+    required bool dataSync,
+  }) async {
+    try {
+      await ref
+          .read(profileControllerProvider.notifier)
+          .updateAppSettings(
+            language: language,
+            theme: theme,
+            units: units,
+            hapticFeedback: hapticFeedback,
+            soundEffects: soundEffects,
+            dataSync: dataSync,
+          );
+    } catch (_) {
+      if (context.mounted) {
+        _showMessage(context, t.profile.appSettings.saveError);
+      }
+    }
   }
 
-  Future<void> _handleDataSyncChanged(bool enabled) async {
+  Future<void> _handleDataSyncChanged(
+    BuildContext context,
+    WidgetRef ref,
+    ProfileState profile,
+    String language,
+    bool enabled,
+  ) async {
     if (!enabled) {
-      setState(() => _dataSync = false);
       try {
         await SupabaseConfig.disableCloudSync();
-      } catch (error) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Cloud Sync was disabled for this session, but its preference could not be saved: $error',
-              ),
-            ),
-          );
+      } catch (_) {
+        if (context.mounted) {
+          _showMessage(context, t.profile.appSettings.cloudSyncDisableError);
         }
       }
-      await _updateSettings();
+      if (!context.mounted) return;
+      await _updateSettings(
+        context,
+        ref,
+        language: language,
+        theme: profile.theme,
+        units: profile.unitPreference,
+        hapticFeedback: profile.hapticFeedback,
+        soundEffects: profile.soundEffects,
+        dataSync: false,
+      );
       return;
     }
 
     final user = SupabaseConfig.currentUser;
     if (user == null || user.isAnonymous) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Sign in with an account before enabling Cloud Sync.'),
-        ),
-      );
+      _showMessage(context, t.profile.appSettings.cloudSyncSignInRequired);
       return;
     }
 
-    final accepted = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Enable Cloud Sync?'),
-        content: const Text(
-          'Your profile, settings, workout history, and progress data will be '
-          'synced to your Supabase account. Local SQLite data will remain on '
-          'this device. You can turn Cloud Sync off at any time.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Not now'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Agree and enable'),
-          ),
-        ],
-      ),
-    );
-
-    if (accepted != true || !mounted) return;
+    final accepted = await showCloudSyncConsentDialog(context);
+    if (!accepted || !context.mounted) return;
 
     try {
       await SupabaseConfig.enableCloudSync();
-      if (!mounted) return;
-      setState(() => _dataSync = true);
-      await _updateSettings();
-    } catch (error) {
-      if (!mounted) return;
-      setState(() => _dataSync = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not enable Cloud Sync: $error')),
+      if (!context.mounted) return;
+      await _updateSettings(
+        context,
+        ref,
+        language: language,
+        theme: profile.theme,
+        units: profile.unitPreference,
+        hapticFeedback: profile.hapticFeedback,
+        soundEffects: profile.soundEffects,
+        dataSync: true,
       );
+    } catch (_) {
+      if (context.mounted) {
+        _showMessage(context, t.profile.appSettings.cloudSyncEnableError);
+      }
     }
   }
 
-  Future<void> _updateSettings() async {
-    await ref
-        .read(profileControllerProvider.notifier)
-        .updateAppSettings(
-          language: _language,
-          theme: _theme,
-          units: _units,
-          hapticFeedback: _hapticFeedback,
-          soundEffects: _soundEffects,
-          dataSync: _dataSync,
-        );
+  void _showMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final profile = ref.watch(profileControllerProvider);
+    final language = profileLanguageFromAppLocale(ref.watch(appLocaleProvider));
+    final dataSync = SupabaseConfig.canSyncToCloud;
+    final settingsT = t.profile.appSettings;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -137,7 +129,7 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          'App Settings',
+          settingsT.title,
           style: AppTypography.headlineSmall.copyWith(
             fontWeight: FontWeight.w800,
             fontSize: 18,
@@ -153,7 +145,7 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Customize your app experience.',
+                settingsT.subtitle,
                 style: AppTypography.bodySmall.copyWith(
                   color: colorScheme.onSurfaceVariant,
                   fontSize: 13,
@@ -162,83 +154,122 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
               const SizedBox(height: 20),
               AppSettingsNavigationCard(
                 icon: Icons.language_rounded,
-                title: 'Language',
-                valueText: _language,
+                title: settingsT.language,
+                valueText: language,
                 onTap: () => showAppSettingsPickerSheet(
                   context: context,
-                  title: 'Select Language',
+                  title: settingsT.selectLanguage,
                   options: const ['English', 'Bahasa Indonesia'],
-                  selectedValue: _language,
-                  onSelected: (lang) {
-                    setState(() => _language = lang);
-                    _updateSettings();
-                    ref
+                  selectedValue: language,
+                  onSelected: (lang) async {
+                    await ref
                         .read(appLocaleProvider.notifier)
                         .setLocale(appLocaleFromProfileLanguage(lang));
+                    if (!context.mounted) return;
+                    await _updateSettings(
+                      context,
+                      ref,
+                      language: lang,
+                      theme: profile.theme,
+                      units: profile.unitPreference,
+                      hapticFeedback: profile.hapticFeedback,
+                      soundEffects: profile.soundEffects,
+                      dataSync: dataSync,
+                    );
                   },
                 ),
               ),
               const SizedBox(height: 12),
               AppSettingsNavigationCard(
                 icon: Icons.dark_mode_outlined,
-                title: 'Theme',
-                valueText: _theme,
+                title: settingsT.theme,
+                valueText: profile.theme,
                 onTap: () => showAppSettingsPickerSheet(
                   context: context,
-                  title: 'Select Theme',
+                  title: settingsT.selectTheme,
                   options: const ['Light', 'Dark', 'System Default'],
-                  selectedValue: _theme,
-                  onSelected: (selected) {
-                    setState(() => _theme = selected);
-                    _updateSettings();
-                  },
+                  selectedValue: profile.theme,
+                  onSelected: (selected) => _updateSettings(
+                    context,
+                    ref,
+                    language: language,
+                    theme: selected,
+                    units: profile.unitPreference,
+                    hapticFeedback: profile.hapticFeedback,
+                    soundEffects: profile.soundEffects,
+                    dataSync: dataSync,
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
               AppSettingsNavigationCard(
                 icon: Icons.straighten_rounded,
-                title: 'Units',
-                valueText: _units,
+                title: settingsT.units,
+                valueText: profile.unitPreference,
                 onTap: () => showAppSettingsPickerSheet(
                   context: context,
-                  title: 'Select Units',
+                  title: settingsT.selectUnits,
                   options: const ['Metric (kg, cm)', 'Imperial (lbs, in)'],
-                  selectedValue: _units,
-                  onSelected: (selected) {
-                    setState(() => _units = selected);
-                    _updateSettings();
-                  },
+                  selectedValue: profile.unitPreference,
+                  onSelected: (selected) => _updateSettings(
+                    context,
+                    ref,
+                    language: language,
+                    theme: profile.theme,
+                    units: selected,
+                    hapticFeedback: profile.hapticFeedback,
+                    soundEffects: profile.soundEffects,
+                    dataSync: dataSync,
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
               AppSettingsSwitchCard(
                 icon: Icons.vibration_rounded,
-                title: 'Haptic Feedback',
-                subtitle: 'Vibrate on actions (start, rest, finish)',
-                value: _hapticFeedback,
-                onChanged: (val) {
-                  setState(() => _hapticFeedback = val);
-                  _updateSettings();
-                },
+                title: settingsT.hapticFeedback,
+                subtitle: settingsT.hapticFeedbackSubtitle,
+                value: profile.hapticFeedback,
+                onChanged: (val) => _updateSettings(
+                  context,
+                  ref,
+                  language: language,
+                  theme: profile.theme,
+                  units: profile.unitPreference,
+                  hapticFeedback: val,
+                  soundEffects: profile.soundEffects,
+                  dataSync: dataSync,
+                ),
               ),
               const SizedBox(height: 12),
               AppSettingsSwitchCard(
                 icon: Icons.music_note_outlined,
-                title: 'Sound Effects',
-                subtitle: 'Workout timer and transitions',
-                value: _soundEffects,
-                onChanged: (val) {
-                  setState(() => _soundEffects = val);
-                  _updateSettings();
-                },
+                title: settingsT.soundEffects,
+                subtitle: settingsT.soundEffectsSubtitle,
+                value: profile.soundEffects,
+                onChanged: (val) => _updateSettings(
+                  context,
+                  ref,
+                  language: language,
+                  theme: profile.theme,
+                  units: profile.unitPreference,
+                  hapticFeedback: profile.hapticFeedback,
+                  soundEffects: val,
+                  dataSync: dataSync,
+                ),
               ),
               const SizedBox(height: 12),
               AppSettingsSwitchCard(
                 icon: Icons.cloud_outlined,
-                title: 'Data Sync',
-                subtitle: 'Back up your data to your account',
-                value: _dataSync,
-                onChanged: _handleDataSyncChanged,
+                title: settingsT.dataSync,
+                subtitle: settingsT.dataSyncSubtitle,
+                value: dataSync,
+                onChanged: (val) => _handleDataSyncChanged(
+                  context,
+                  ref,
+                  profile,
+                  language,
+                  val,
+                ),
               ),
             ],
           ),
