@@ -1,0 +1,39 @@
+name: MergePilot Review
+
+on:
+  pull_request:
+    branches:
+      - develop
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: mergepilot-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    name: AI pull request review
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # Do not expose provider credentials to forked pull requests.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+
+    steps:
+      - name: Run MergePilot
+        uses: adimunawar/mergepilot@develop
+        with:
+          ai-provider: ${{ vars.MERGEPILOT_AI_PROVIDER || 'gemini' }}
+          ai-api-key: ${{ secrets.MERGEPILOT_API_KEY }}
+          ai-model: ${{ vars.MERGEPILOT_AI_MODEL }}
+          ai-base-url: ${{ vars.MERGEPILOT_AI_BASE_URL }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          target-branches: develop
