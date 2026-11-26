@@ -1,0 +1,33 @@
+{
+  "appSettings": {
+    "title": "App Settings",
+    "subtitle": "Customize your app experience.",
+    "language": "Language",
+    "selectLanguage": "Select Language",
+    "languageEnglish": "English",
+    "languageIndonesian": "Bahasa Indonesia",
+    "theme": "Theme",
+    "selectTheme": "Select Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System Default",
+    "units": "Units",
+    "selectUnits": "Select Units",
+    "unitsMetric": "Metric (kg, cm)",
+    "unitsImperial": "Imperial (lbs, in)",
+    "hapticFeedback": "Haptic Feedback",
+    "hapticFeedbackSubtitle": "Vibrate on actions (start, rest, finish)",
+    "soundEffects": "Sound Effects",
+    "soundEffectsSubtitle": "Workout timer and transitions",
+    "dataSync": "Data Sync",
+    "dataSyncSubtitle": "Back up your data to your account",
+    "saveError": "Could not save settings. Please try again.",
+    "cloudSyncDisableError": "Cloud Sync was disabled for this session, but its preference could not be saved.",
+    "cloudSyncSignInRequired": "Sign in with an account before enabling Cloud Sync.",
+    "cloudSyncEnableError": "Could not enable Cloud Sync. Please try again.",
+    "cloudSyncDialogTitle": "Enable Cloud Sync?",
+    "cloudSyncDialogBody": "Your profile, settings, workout history, and progress data will be synced to your Supabase account. Local SQLite data will remain on this device. You can turn Cloud Sync off at any time.",
+    "cloudSyncDialogCancel": "Not now",
+    "cloudSyncDialogConfirm": "Agree and enable"
+  }
+}

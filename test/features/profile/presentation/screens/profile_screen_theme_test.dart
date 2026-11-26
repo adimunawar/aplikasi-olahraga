@@ -12,6 +12,7 @@ import 'package:workout_app/features/profile/presentation/screens/personal_infor
 import 'package:workout_app/features/profile/presentation/screens/profile_screen.dart';
 import 'package:workout_app/features/profile/presentation/screens/reminders_screen.dart';
 import 'package:workout_app/features/profile/presentation/screens/workout_preferences_screen.dart';
+import 'package:workout_app/i18n/strings.g.dart';
 
 class _FakeProfileController extends StateNotifier<ProfileState>
     implements ProfileController {
@@ -72,6 +73,7 @@ void main() {
       testWidgets('${entry.key} renders in Light Mode and Dark Mode', (
         tester,
       ) async {
+        LocaleSettings.setLocale(AppLocale.en);
         for (final themeMode in [ThemeMode.light, ThemeMode.dark]) {
           await tester.pumpWidget(wrapWithApp(entry.value, themeMode));
           await tester.pumpAndSettle();
