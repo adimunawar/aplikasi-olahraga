@@ -1,0 +1,43 @@
+name: OpenBot PR review notify
+
+on:
+  pull_request:
+    branches:
+      - develop
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send PR event to OpenBot webhook
+        env:
+          WEBHOOK_URL: https://signal.openbot.run/v1/webhooks/671a4d00-3d14-4362-8e66-ef7003ff74c2
+          WEBHOOK_SECRET: ${{ secrets.OPENBOT_WEBHOOK_SECRET }}
+        run: |
+          set -euo pipefail
+          TS=$(date +%s)
+          DELIVERY_ID="gh-pr-${{ github.event.pull_request.number }}-${{ github.run_id }}"
+          BODY=$(jq -nc \
+            --arg type "github.pull_request" \
+            --arg occurredAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --argjson prNumber ${{ github.event.pull_request.number }} \
+            --arg title "${{ github.event.pull_request.title }}" \
+            --arg base "${{ github.event.pull_request.base.ref }}" \
+            --arg head "${{ github.event.pull_request.head.ref }}" \
+            --arg sha "${{ github.event.pull_request.head.sha }}" \
+            --arg repo "${{ github.repository }}" \
+            --arg author "${{ github.event.pull_request.user.login }}" \
+            --arg action "${{ github.event.action }}" \
+            '{type:$type, occurredAt:$occurredAt, data:{prNumber:$prNumber, title:$title, base:$base, head:$head, sha:$sha, repository:$repo, author:$author, action:$action}}')
+          SIG=$(printf '%s.%s.%s' "$TS" "$DELIVERY_ID" "$BODY" | openssl dgst -sha256 -hmac "$WEBHOOK_SECRET" | sed 's/^.* //')
+          curl -sS -X POST "$WEBHOOK_URL" \
+            -H 'Content-Type: application/json' \
+            -H "x-openbot-timestamp: $TS" \
+            -H "x-openbot-delivery-id: $DELIVERY_ID" \
+            -H "x-openbot-signature: sha256=$SIG" \
+            --data "$BODY"
