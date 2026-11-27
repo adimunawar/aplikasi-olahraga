@@ -1,0 +1,36 @@
+name: OpenBot push notify
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+      - staging
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send push event to OpenBot webhook
+        env:
+          WEBHOOK_URL: https://signal.openbot.run/v1/webhooks/671a4d00-3d14-4362-8e66-ef7003ff74c2
+          WEBHOOK_SECRET: ${{ secrets.OPENBOT_WEBHOOK_SECRET }}
+        run: |
+          set -euo pipefail
+          TS=$(date +%s)
+          DELIVERY_ID="gh-${{ github.run_id }}-${{ github.run_attempt }}"
+          BODY=$(jq -nc \
+            --arg type "github.push" \
+            --arg occurredAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --arg ref "${{ github.ref }}" \
+            --arg sha "${{ github.sha }}" \
+            --arg repo "${{ github.repository }}" \
+            --arg pusher "${{ github.actor }}" \
+            '{type:$type, occurredAt:$occurredAt, data:{ref:$ref, sha:$sha, repository:$repo, pusher:$pusher}}')
+          SIG=$(printf '%s.%s.%s' "$TS" "$DELIVERY_ID" "$BODY" | openssl dgst -sha256 -hmac "$WEBHOOK_SECRET" | sed 's/^.* //')
+          curl -sS -X POST "$WEBHOOK_URL" \
+            -H 'Content-Type: application/json' \
+            -H "x-openbot-timestamp: $TS" \
+            -H "x-openbot-delivery-id: $DELIVERY_ID" \
+            -H "x-openbot-signature: sha256=$SIG" \
+            --data "$BODY"
