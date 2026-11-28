@@ -1,30 +1,14 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 
-import '../../../../core/database/app_database.dart';
 import '../../../../core/router/app_router.dart';
-import '../../../../core/theme/app_typography.dart';
-import '../../../../core/widgets/app_button.dart';
-import '../../../../i18n/strings.g.dart';
 import '../../../program/presentation/controllers/draft_program_provider.dart';
-import '../../../program/domain/services/program_week_schedule.dart';
-import '../widgets/onboarding_dots_indicator.dart';
-import '../widgets/step_about.dart';
-import '../widgets/step_equipment.dart';
-import '../widgets/step_experience.dart';
-import '../widgets/step_goal.dart';
-import '../widgets/step_height.dart';
-import '../widgets/step_limitations.dart';
-import '../widgets/step_schedule.dart';
-import '../widgets/step_weight.dart';
-import '../widgets/step_welcome.dart';
+import '../controllers/onboarding_controller.dart';
+import '../controllers/onboarding_state.dart';
+import '../widgets/onboarding_widgets.dart';
 
-/// Onboarding Master Wrapper (Mockup 1:1 Resolusi Tinggi):
-/// Mengelola alur 7 langkah secara terpusat:
-/// - Single Header (Back Arrow + "X of 7" + Linear Progress Bar)
-/// - Single Sticky Bottom Bar ("Continue" / "Create My Plan") tanpa duplikasi di tiap step
-/// - Mengumpulkan semua data profil pengguna secara akurat (Audit Finding P0)
+/// Master onboarding flow managing the 8-step setup and profile persistence.
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -33,124 +17,44 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 }
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
-  static const int _totalSteps = 8;
   final PageController _pageController = PageController();
-  int _currentStep = 0; // 0: Welcome, 1..8: Steps 1..8
-  bool _isCreatingPlan = false;
-
-  // --- STATE DATA ONBOARDING LENGKAP ---
-  String _goal = 'muscle_gain';
-  String _gender = 'male';
-  int _age = 28;
-  double _heightCm = 170.0;
-  double _currentWeightKg = 75.0;
-  double _targetWeightKg = 82.0;
-  String _level = 'beginner';
-  int _daysPerWeek = 4;
-  int _durationMin = 45;
-  final List<String> _equipments = ['bodyweight'];
-  List<String> _limitations = ['none'];
 
   void _nextStep() {
-    if (_currentStep < _totalSteps) {
+    if (ref.read(onboardingControllerProvider.notifier).nextStep()) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 280),
         curve: Curves.easeInOut,
       );
-      setState(() => _currentStep++);
     }
   }
 
   void _prevStep() {
-    if (_currentStep > 0) {
+    if (ref.read(onboardingControllerProvider.notifier).prevStep()) {
       _pageController.previousPage(
         duration: const Duration(milliseconds: 280),
         curve: Curves.easeInOut,
       );
-      setState(() => _currentStep--);
     }
-  }
-
-  void _toggleEquipment(String id) {
-    setState(() {
-      if (_equipments.contains(id)) {
-        if (_equipments.length > 1) _equipments.remove(id);
-      } else {
-        _equipments.add(id);
-      }
-    });
-  }
-
-  void _toggleLimitation(String id) {
-    setState(() {
-      if (id == 'none') {
-        _limitations = ['none'];
-      } else {
-        _limitations.remove('none');
-        if (_limitations.contains(id)) {
-          _limitations.remove(id);
-          if (_limitations.isEmpty) _limitations.add('none');
-        } else {
-          _limitations.add(id);
-        }
-      }
-    });
   }
 
   Future<void> _createMyPlan() async {
-    setState(() => _isCreatingPlan = true);
+    final updatedProfile = await ref
+        .read(onboardingControllerProvider.notifier)
+        .createPlan();
 
-    try {
-      // The first workout is scheduled on the day the user creates the plan.
-      final programStartDate = DateTime.now();
-      final availableDays = ProgramWeekSchedule.availableWeekdaysForFrequency(
-        startDate: programStartDate,
-        frequency: _daysPerWeek,
-      );
-      // 2. Simpan Profil Pengguna Lengkap ke SQLite Database (Audit Finding P0)
-      final db = AppDatabase.instance;
-      final currentProfile = await db.getUserProfile();
-      final updatedProfile = currentProfile.copyWith(
-        gender: _gender,
-        age: _age,
-        heightCm: _heightCm,
-        currentWeightKg: _currentWeightKg,
-        targetWeightKg: _targetWeightKg,
-        targetTimeframeWeeks: 12,
-        goal: _goal,
-        experienceLevel: _level,
-        preferredDaysPerWeek: _daysPerWeek,
-        weeklyFrequency: _daysPerWeek,
-        preferredDurationMin: _durationMin,
-        availableDays: availableDays,
-        equipments: _equipments,
-        trainingLimitations: _limitations,
-        updatedAt: programStartDate,
-      );
-      await db.saveUserProfile(updatedProfile);
-
-      // Simpan ke Riverpod state agar dapat diakses oleh CreatingPlanScreen
+    if (!mounted) return;
+    if (updatedProfile != null) {
       ref.read(onboardingProfileProvider.notifier).state = updatedProfile;
-
-      // 3. Navigasi ke Layar Proses Nyata "Creating your personal plan..."
-      // Catatan: Program BELUM diaktifkan ke DB sebelum disetujui pengguna (Prioritas P0)
-      if (mounted) {
-        context.pushReplacement(AppRoutes.creatingPlan);
-      }
-    } catch (e) {
-      debugPrint('[Onboarding] Error preparing profile: $e');
-      if (mounted) {
-        setState(() => _isCreatingPlan = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'We couldn’t save your preferences. Please try again.',
-            ),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
+      context.pushReplacement(AppRoutes.creatingPlan);
+      return;
     }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('We couldn’t save your preferences. Please try again.'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
@@ -161,200 +65,78 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(onboardingControllerProvider);
+    final controller = ref.read(onboardingControllerProvider.notifier);
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
-            // -------------------------------------------------------------
-            // 1. TOP HEADER (Progress "X of 7" & Back Button Terpusat)
-            // -------------------------------------------------------------
-            _buildTopHeader(),
-
-            // -------------------------------------------------------------
-            // 2. PAGE VIEW CONTENT (Hanya Isi Formulir Tiap Step)
-            // -------------------------------------------------------------
+            OnboardingTopHeader(
+              currentStep: state.currentStep,
+              totalSteps: OnboardingState.totalSteps,
+              onBack: _prevStep,
+            ),
             Expanded(
               child: PageView(
                 controller: _pageController,
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
-                  // Step 0: Welcome
                   const StepWelcome(),
-
-                  // Step 1: Goal
                   StepGoal(
-                    selectedGoal: _goal,
-                    onGoalSelected: (val) => setState(() => _goal = val),
+                    selectedGoal: state.goal,
+                    onGoalSelected: controller.setGoal,
                   ),
-
-                  // Step 2: About (Gender & Age)
-                  // Step 2: About (Gender & Age)
                   StepAbout(
-                    gender: _gender,
-                    age: _age,
-                    onGenderChanged: (val) => setState(() => _gender = val),
-                    onAgeChanged: (val) => setState(() => _age = val),
+                    gender: state.gender,
+                    age: state.age,
+                    onGenderChanged: controller.setGender,
+                    onAgeChanged: controller.setAge,
                   ),
-
-                  // Step 3: Height
                   StepHeight(
-                    heightCm: _heightCm,
-                    onHeightChanged: (val) => setState(() => _heightCm = val),
+                    heightCm: state.heightCm,
+                    gender: state.gender,
+                    onHeightChanged: controller.setHeightCm,
                   ),
-
-                  // Step 4: Weight & Target
                   StepWeight(
-                    currentWeightKg: _currentWeightKg,
-                    targetWeightKg: _targetWeightKg,
-                    onCurrentWeightChanged: (val) =>
-                        setState(() => _currentWeightKg = val),
-                    onTargetWeightChanged: (val) =>
-                        setState(() => _targetWeightKg = val),
+                    currentWeightKg: state.currentWeightKg,
+                    targetWeightKg: state.targetWeightKg,
+                    gender: state.gender,
+                    onCurrentWeightChanged: controller.setCurrentWeightKg,
+                    onTargetWeightChanged: controller.setTargetWeightKg,
                   ),
-
-                  // Step 4: Experience Level
                   StepExperience(
-                    selectedLevel: _level,
-                    onLevelSelected: (val) => setState(() => _level = val),
+                    selectedLevel: state.level,
+                    onLevelSelected: controller.setLevel,
                   ),
-
-                  // Step 5: Schedule (Frequency & Duration)
                   StepSchedule(
-                    daysPerWeek: _daysPerWeek,
-                    durationMin: _durationMin,
-                    onDaysPerWeekChanged: (val) =>
-                        setState(() => _daysPerWeek = val),
-                    onDurationMinChanged: (val) =>
-                        setState(() => _durationMin = val),
+                    daysPerWeek: state.daysPerWeek,
+                    durationMin: state.durationMin,
+                    onDaysPerWeekChanged: controller.setDaysPerWeek,
+                    onDurationMinChanged: controller.setDurationMin,
                   ),
-
-                  // Step 6: Equipment
                   StepEquipment(
-                    selectedEquipments: _equipments,
-                    onToggleEquipment: _toggleEquipment,
+                    selectedEquipments: state.equipments,
+                    onToggleEquipment: controller.toggleEquipment,
                   ),
-
-                  // Step 7: Limitations
                   StepLimitations(
-                    selectedLimitations: _limitations,
-                    onToggleLimitation: _toggleLimitation,
+                    selectedLimitations: state.limitations,
+                    onToggleLimitation: controller.toggleLimitation,
                   ),
                 ],
               ),
             ),
-
-            // -------------------------------------------------------------
-            // 3. STICKY BOTTOM BAR (Satu Pembungkus Bersama - Anti Copas)
-            // -------------------------------------------------------------
-            _buildStickyBottomBar(),
+            OnboardingBottomBar(
+              currentStep: state.currentStep,
+              totalSteps: OnboardingState.totalSteps,
+              isLoading: state.isCreatingPlan,
+              onNext: _nextStep,
+              onComplete: _createMyPlan,
+              onSignIn: () => context.push(AppRoutes.login),
+            ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildTopHeader() {
-    if (_currentStep == 0) {
-      return const SizedBox(height: 12);
-    }
-
-    final t = Translations.of(context).onboarding.nav;
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                icon: Icon(
-                  Icons.arrow_back,
-                  color: colorScheme.onSurface,
-                  size: 24,
-                ),
-                onPressed: _prevStep,
-              ),
-              Text(
-                t.progress(current: _currentStep, total: _totalSteps),
-                style: AppTypography.labelMedium.copyWith(
-                  fontWeight: FontWeight.w800,
-                  fontSize: 13,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-        ),
-        // Progress Bar Horizontal Halus
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 22),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: (_currentStep / _totalSteps).clamp(0.0, 1.0),
-              minHeight: 4,
-              backgroundColor: colorScheme.surfaceContainerHighest,
-              valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-      ],
-    );
-  }
-
-  Widget _buildStickyBottomBar() {
-    final t = Translations.of(context).onboarding.nav;
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final colorScheme = theme.colorScheme;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        border: _currentStep == 0
-            ? null
-            : Border(top: BorderSide(color: colorScheme.outline, width: 1)),
-        boxShadow: _currentStep == 0 || isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 10,
-                  offset: const Offset(0, -4),
-                ),
-              ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: _currentStep == 0
-            ? Row(
-                children: [
-                  const OnboardingDotsIndicator(activeIndex: 0),
-                  const Spacer(),
-                  AppButton.primary(
-                    text: t.getStarted,
-                    size: AppButtonSize.large,
-                    isFullWidth: false,
-                    width: 210,
-
-                    onPressed: _nextStep,
-                  ),
-                ],
-              )
-            : AppButton.primary(
-                text: _currentStep == _totalSteps
-                    ? t.createMyPlan
-                    : t.continueCta,
-                size: AppButtonSize.large,
-                isLoading: _isCreatingPlan,
-                onPressed: _currentStep == _totalSteps
-                    ? _createMyPlan
-                    : _nextStep,
-              ),
       ),
     );
   }

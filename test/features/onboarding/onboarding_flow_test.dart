@@ -2,7 +2,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:workout_app/core/database/models/user_profile_entity.dart';
-import 'package:workout_app/features/onboarding/presentation/screens/plan_preview_screen.dart';
 import 'package:workout_app/features/onboarding/presentation/screens/plan_ready_screen.dart';
 import 'package:workout_app/features/onboarding/presentation/widgets/step_goal.dart';
 import 'package:workout_app/features/onboarding/presentation/widgets/step_about.dart';
@@ -13,11 +12,8 @@ import 'package:workout_app/features/onboarding/presentation/widgets/step_schedu
 import 'package:workout_app/features/onboarding/presentation/widgets/step_equipment.dart';
 import 'package:workout_app/features/onboarding/presentation/widgets/step_limitations.dart';
 import 'package:workout_app/features/onboarding/presentation/widgets/step_welcome.dart';
-import 'package:workout_app/features/program/domain/services/dynamic_program_generator.dart';
 import 'package:workout_app/features/program/presentation/controllers/draft_program_provider.dart';
 import 'package:workout_app/i18n/strings.g.dart';
-
-import 'mock_exercise_factory.dart';
 
 void main() {
   Widget createTestWidget(Widget child, {List<Override> overrides = const []}) {
@@ -147,67 +143,74 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify initial rendering
-      expect(find.text('28'), findsOneWidget);
+      expect(find.textContaining('28'), findsOneWidget);
 
       // Tap + button on age
       final addButtons = find.byIcon(Icons.add_rounded);
+      await tester.ensureVisible(addButtons.first);
       await tester.tap(addButtons.first);
       await tester.pumpAndSettle();
       expect(age, equals(29));
 
-      // Test manual input via enterText on age field
-      final ageTextField = find.byType(TextField).first;
-      await tester.enterText(ageTextField, '32');
+      // Tap - button on age
+      final removeButtons = find.byIcon(Icons.remove_rounded);
+      await tester.ensureVisible(removeButtons.first);
+      await tester.tap(removeButtons.first);
       await tester.pumpAndSettle();
-      expect(age, equals(32));
+      expect(age, equals(28));
     });
 
-    testWidgets(
-      'StepHeight and StepWeight render height, current and target weight',
-      (tester) async {
-        double height = 170.0;
-        double currentWeight = 65.0;
-        double targetWeight = 70.0;
+    testWidgets('StepHeight renders height stage and ruler', (tester) async {
+      double height = 170.0;
 
-        await tester.pumpWidget(
-          createTestWidget(
-            StatefulBuilder(
-              builder: (context, setState) {
-                return StepHeight(
-                  heightCm: height,
-                  onHeightChanged: (h) => setState(() => height = h),
-                );
-              },
-            ),
+      await tester.pumpWidget(
+        createTestWidget(
+          StatefulBuilder(
+            key: const ValueKey('step_height_test'),
+            builder: (context, setState) {
+              return StepHeight(
+                heightCm: height,
+                onHeightChanged: (h) => setState(() => height = h),
+              );
+            },
           ),
-        );
-        await tester.pumpAndSettle();
-        expect(find.text('170 cm'), findsOneWidget);
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('170 cm'), findsOneWidget);
+    });
 
-        await tester.pumpWidget(
-          createTestWidget(
-            StatefulBuilder(
-              builder: (context, setState) {
-                return StepWeight(
-                  currentWeightKg: currentWeight,
-                  targetWeightKg: targetWeight,
-                  onCurrentWeightChanged: (cw) =>
-                      setState(() => currentWeight = cw),
-                  onTargetWeightChanged: (tw) =>
-                      setState(() => targetWeight = tw),
-                );
-              },
-            ),
+    testWidgets('StepWeight renders current and target weight with stepper', (
+      tester,
+    ) async {
+      double currentWeight = 65.0;
+      double targetWeight = 70.0;
+
+      await tester.pumpWidget(
+        createTestWidget(
+          StatefulBuilder(
+            key: const ValueKey('step_weight_test'),
+            builder: (context, setState) {
+              return StepWeight(
+                currentWeightKg: currentWeight,
+                targetWeightKg: targetWeight,
+                onCurrentWeightChanged: (cw) =>
+                    setState(() => currentWeight = cw),
+                onTargetWeightChanged: (tw) =>
+                    setState(() => targetWeight = tw),
+              );
+            },
           ),
-        );
-        await tester.pumpAndSettle();
+        ),
+      );
+      await tester.pumpAndSettle();
 
-        final addButtons = find.byIcon(Icons.add_rounded);
-        await tester.tap(addButtons.first);
-        await tester.pumpAndSettle();
-        expect(currentWeight, equals(65.5));
-      },
-    );
+      final addButtons = find.byIcon(Icons.add_rounded);
+      await tester.ensureVisible(addButtons.first);
+      await tester.tap(addButtons.first);
+      await tester.pumpAndSettle();
+      expect(currentWeight, equals(65.5));
+    });
 
     testWidgets(
       'StepExperience renders all 3 experience levels and allows selection',
@@ -319,106 +322,46 @@ void main() {
     );
   });
 
-  group(
-    'Onboarding Screens - PlanReadyScreen & PlanPreviewScreen (P0 & P1)',
-    () {
-      testWidgets(
-        'PlanReadyScreen displays celebration and View My Plan button',
-        (tester) async {
-          final mockProfile = UserProfileEntity(
-            id: 'test_user',
-            displayName: 'Adi',
-            age: 28,
-            heightCm: 170,
-            currentWeightKg: 75,
-            targetWeightKg: 82,
-            targetTimeframeWeeks: 12,
-            goal: 'muscle_gain',
-            experienceLevel: 'beginner',
-            preferredDaysPerWeek: 4,
-            weeklyFrequency: 4,
-            preferredDurationMin: 45,
-            availableDays: const ['monday', 'tuesday', 'thursday', 'friday'],
-            equipments: const ['bodyweight'],
-            createdAt: DateTime.now(),
-            updatedAt: DateTime.now(),
-          );
+  group('Onboarding Screens - PlanReadyScreen (P0)', () {
+    testWidgets(
+      'PlanReadyScreen displays celebration and View My Plan button',
+      (tester) async {
+        final mockProfile = UserProfileEntity(
+          id: 'test_user',
+          displayName: 'Adi',
+          age: 28,
+          heightCm: 170,
+          currentWeightKg: 75,
+          targetWeightKg: 82,
+          targetTimeframeWeeks: 12,
+          goal: 'muscle_gain',
+          experienceLevel: 'beginner',
+          preferredDaysPerWeek: 4,
+          weeklyFrequency: 4,
+          preferredDurationMin: 45,
+          availableDays: const ['monday', 'tuesday', 'thursday', 'friday'],
+          equipments: const ['bodyweight'],
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
 
-          await tester.pumpWidget(
-            createTestWidget(
-              const PlanReadyScreen(),
-              overrides: [
-                onboardingProfileProvider.overrideWith((ref) => mockProfile),
-              ],
-            ),
-          );
-          await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          createTestWidget(
+            const PlanReadyScreen(),
+            overrides: [
+              onboardingProfileProvider.overrideWith((ref) => mockProfile),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-          expect(find.text('Program kamu siap! 🎉'), findsOneWidget);
-          expect(find.text('Lihat Program Saya'), findsOneWidget);
-          expect(find.text('Program Bulking'), findsOneWidget);
-          expect(find.textContaining('Hari / Minggu'), findsOneWidget);
-          expect(find.textContaining('Menit / Sesi'), findsOneWidget);
-          expect(find.textContaining('12 Minggu'), findsOneWidget);
-        },
-      );
-
-      testWidgets(
-        'PlanPreviewScreen has strictly 2 tabs (Overview & Workout Split, NO Progress tab)',
-        (tester) async {
-          final now = DateTime.now();
-          final catalog = getStandardMockCatalog();
-          final mockProfile = UserProfileEntity(
-            id: 'test_user',
-            displayName: 'Adi',
-            age: 28,
-            heightCm: 170,
-            currentWeightKg: 75,
-            targetWeightKg: 82,
-            targetTimeframeWeeks: 12,
-            goal: 'muscle_gain',
-            experienceLevel: 'beginner',
-            preferredDaysPerWeek: 4,
-            weeklyFrequency: 4,
-            preferredDurationMin: 45,
-            availableDays: const ['monday', 'tuesday', 'thursday', 'friday'],
-            equipments: const ['bodyweight'],
-            createdAt: now,
-            updatedAt: now,
-          );
-
-          final generatedResult = const DynamicProgramGenerator().generate(
-            userProfile: mockProfile,
-            catalogExercises: catalog,
-          );
-
-          await tester.pumpWidget(
-            createTestWidget(
-              const PlanPreviewScreen(),
-              overrides: [
-                draftProgramProvider.overrideWith((ref) => generatedResult),
-                onboardingProfileProvider.overrideWith((ref) => mockProfile),
-              ],
-            ),
-          );
-          await tester.pumpAndSettle();
-
-          // Prioritas P1: Harus ada Tab Overview & Workout Split
-          expect(find.text('Ringkasan'), findsOneWidget);
-          expect(find.text('Pembagian Latihan'), findsOneWidget);
-
-          // Prioritas P1: Tab 'Progress' TIDAK BOLEH ADA di Plan Preview!
-          expect(find.text('Progress'), findsNothing);
-
-          // Prioritas P0: Ada tombol aktivasi
-          expect(find.text('Aktifkan & Mulai Latihan ➔'), findsOneWidget);
-          expect(find.text('Aktifkan & Buka Dashboard'), findsOneWidget);
-
-          // Verifikasi Program Overview data
-          expect(find.text('Program Overview'), findsOneWidget);
-          expect(find.text('Expected Progress'), findsOneWidget);
-        },
-      );
-    },
-  );
+        expect(find.text('Program kamu siap! 🎉'), findsOneWidget);
+        expect(find.text('Mulai Program Saya'), findsOneWidget);
+        expect(find.text('Program Bulking'), findsOneWidget);
+        expect(find.textContaining('Hari / Minggu'), findsOneWidget);
+        expect(find.textContaining('Menit / Sesi'), findsOneWidget);
+        expect(find.textContaining('12 Minggu'), findsOneWidget);
+      },
+    );
+  });
 }

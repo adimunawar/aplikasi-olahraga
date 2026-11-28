@@ -1,10 +1,10 @@
 import 'package:material_ui/material_ui.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../i18n/strings.g.dart';
+import 'step_equipment/step_equipment_widgets.dart';
 
-/// Step 6 of 7: What equipment do you have? (Light & Dark Mode)
+/// Step 7 of 8: What equipment do you have? (Light & Dark Mode)
 class StepEquipment extends StatelessWidget {
   final List<String> selectedEquipments;
   final ValueChanged<String> onToggleEquipment;
@@ -15,7 +15,16 @@ class StepEquipment extends StatelessWidget {
     required this.onToggleEquipment,
   });
 
-  static const Map<String, IconData> _icons = {
+  static const Map<String, String> _assetImages = {
+    'bodyweight': 'assets/images/coach_crossed_arms.png',
+    'dumbbell': 'assets/images/dumbell.webp',
+    'resistance_band': 'assets/images/resistance_band.webp',
+    'kettlebell': 'assets/images/kettlebell.webp',
+    'pull_up_bar': 'assets/images/pull-up-bar.webp',
+    'barbell': 'assets/images/weight-plates.webp',
+  };
+
+  static const Map<String, IconData> _fallbackIcons = {
     'bodyweight': Icons.accessibility_new_rounded,
     'dumbbell': Icons.fitness_center_rounded,
     'resistance_band': Icons.all_inclusive_rounded,
@@ -27,13 +36,11 @@ class StepEquipment extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Translations.of(context).onboarding.equipment;
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final colorScheme = theme.colorScheme;
-    final accentColor = isDark ? colorScheme.primary : AppColors.greenBrand;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -41,119 +48,46 @@ class StepEquipment extends StatelessWidget {
             t.title,
             style: AppTypography.displayMedium.copyWith(
               fontWeight: FontWeight.w900,
-              fontSize: 24,
+              fontStyle: FontStyle.italic,
+              fontSize: 26,
+              height: 1.15,
               color: colorScheme.onSurface,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
             t.subtitle,
             style: AppTypography.bodySmall.copyWith(
               color: colorScheme.onSurfaceVariant,
               fontSize: 13,
+              height: 1.4,
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: t.options.length,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              crossAxisSpacing: 14,
-              mainAxisSpacing: 14,
-              childAspectRatio: 1.15,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.24,
             ),
             itemBuilder: (context, index) {
               final opt = t.options[index];
-              final isSelected = selectedEquipments.contains(opt.id);
-
-              return InkWell(
+              return EquipmentCard(
+                label: opt.label,
+                imagePath: _assetImages[opt.id] ?? 'assets/images/dumbell.webp',
+                fallbackIcon:
+                    _fallbackIcons[opt.id] ?? Icons.fitness_center_rounded,
+                isBodyweight: opt.id == 'bodyweight',
+                isSelected: selectedEquipments.contains(opt.id),
                 onTap: () => onToggleEquipment(opt.id),
-                borderRadius: BorderRadius.circular(18),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? colorScheme.primaryContainer
-                        : colorScheme.surface,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(
-                      color: isSelected ? accentColor : colorScheme.outline,
-                      width: isSelected ? 1.8 : 1.2,
-                    ),
-                    boxShadow: isDark
-                        ? null
-                        : (isSelected
-                              ? [
-                                  BoxShadow(
-                                    color: AppColors.limeAccent.withValues(
-                                      alpha: 0.2,
-                                    ),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ]
-                              : AppColors.cardShadow),
-                  ),
-                  child: Stack(
-                    children: [
-                      Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              _icons[opt.id] ?? Icons.fitness_center_rounded,
-                              size: 32,
-                              color: isSelected
-                                  ? (isDark
-                                        ? colorScheme.primary
-                                        : AppColors.greenDark)
-                                  : colorScheme.onSurfaceVariant,
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              opt.label,
-                              textAlign: TextAlign.center,
-                              style: AppTypography.labelMedium.copyWith(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 13,
-                                color: isSelected
-                                    ? (isDark
-                                          ? colorScheme.onPrimaryContainer
-                                          : AppColors.greenDark)
-                                    : colorScheme.onSurface,
-                                height: 1.2,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (isSelected)
-                        Positioned(
-                          top: 0,
-                          right: 0,
-                          child: Container(
-                            width: 20,
-                            height: 20,
-                            decoration: BoxDecoration(
-                              color: colorScheme.primary,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.check_rounded,
-                              size: 14,
-                              color: colorScheme.onPrimary,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
               );
             },
           ),
+          const SizedBox(height: 16),
         ],
       ),
     );

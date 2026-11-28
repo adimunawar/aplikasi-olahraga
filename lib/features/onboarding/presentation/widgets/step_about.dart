@@ -1,11 +1,11 @@
 import 'package:material_ui/material_ui.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../core/widgets/app_stepper_input.dart';
 import '../../../../i18n/strings.g.dart';
+import 'onboarding_stepper_card.dart';
+import 'step_about/step_about_widgets.dart';
 
-/// Step 2 of 7: Tell us about you (Gender, Age) (Light & Dark Mode)
+/// Step 2 of 8: Tell us about you (Gender, Age) (Light & Dark Mode)
 class StepAbout extends StatelessWidget {
   final String gender;
   final int age;
@@ -27,7 +27,7 @@ class StepAbout extends StatelessWidget {
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -35,133 +35,60 @@ class StepAbout extends StatelessWidget {
             t.title,
             style: AppTypography.displayMedium.copyWith(
               fontWeight: FontWeight.w900,
+              fontStyle: FontStyle.italic,
               fontSize: 26,
+              height: 1.15,
               letterSpacing: -0.5,
               color: colorScheme.onSurface,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
             t.subtitle,
             style: AppTypography.bodySmall.copyWith(
               color: colorScheme.onSurfaceVariant,
-              fontSize: 14,
+              fontSize: 13,
               height: 1.4,
             ),
           ),
-          const SizedBox(height: 24),
-          Text(
-            t.gender,
-            style: AppTypography.headlineSmall.copyWith(
-              fontWeight: FontWeight.w800,
-              color: colorScheme.onSurface,
-              fontSize: 16,
-              letterSpacing: -0.2,
-            ),
-          ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 20),
           Row(
             children: [
               Expanded(
-                child: _buildGenderCard(
-                  context: context,
-                  id: 'male',
+                child: GenderCard(
                   label: t.male,
                   icon: Icons.male_rounded,
+                  imagePath: 'assets/images/man-half-body.webp',
+                  isSelected: gender == 'male',
+                  onTap: () => onGenderChanged('male'),
                 ),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: 12),
               Expanded(
-                child: _buildGenderCard(
-                  context: context,
-                  id: 'female',
+                child: GenderCard(
                   label: t.female,
                   icon: Icons.female_rounded,
+                  imagePath: 'assets/images/women_upper_body.webp',
+                  isSelected: gender == 'female',
+                  onTap: () => onGenderChanged('female'),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 24),
-          AppStepperInput(
+          const SizedBox(height: 20),
+          OnboardingStepperCard(
             label: t.age,
             unit: t.ageUnit,
             value: age.toDouble(),
             step: 1.0,
             minValue: 14.0,
             maxValue: 90.0,
-            isDecimal: false,
+            icon: Icons.calendar_today_outlined,
+            highlightBorder: true,
             onChanged: (val) => onAgeChanged(val.round()),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
         ],
-      ),
-    );
-  }
-
-  Widget _buildGenderCard({
-    required BuildContext context,
-    required String id,
-    required String label,
-    required IconData icon,
-  }) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final colorScheme = theme.colorScheme;
-    final isSelected = gender == id;
-
-    return InkWell(
-      onTap: () => onGenderChanged(id),
-      borderRadius: BorderRadius.circular(18),
-
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 20),
-
-        decoration: BoxDecoration(
-          color: isSelected
-              ? colorScheme.primaryContainer
-              : colorScheme.surface,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: isSelected
-                ? (isDark ? colorScheme.primary : AppColors.greenBrand)
-                : colorScheme.outline,
-            width: isSelected ? 1.8 : 1.2,
-          ),
-          boxShadow: isDark
-              ? null
-              : [
-                  BoxShadow(
-                    color: Colors.black.withValues(
-                      alpha: isSelected ? 0.04 : 0.02,
-                    ),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-
-          children: [
-            Icon(
-              icon,
-              size: 34,
-              color: isSelected
-                  ? (isDark ? colorScheme.primary : AppColors.greenBrand)
-                  : colorScheme.onSurface,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: AppTypography.titleSmall.copyWith(
-                fontWeight: FontWeight.w800,
-                fontSize: 15,
-                color: colorScheme.onSurface,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

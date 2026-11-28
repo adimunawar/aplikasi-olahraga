@@ -7,6 +7,7 @@ void main() {
   Widget buildSubject({
     double currentWeightKg = 65,
     double targetWeightKg = 62,
+    String gender = 'male',
     ValueChanged<double>? onCurrentWeightChanged,
     ValueChanged<double>? onTargetWeightChanged,
     Brightness brightness = Brightness.dark,
@@ -18,6 +19,7 @@ void main() {
           body: StepWeight(
             currentWeightKg: currentWeightKg,
             targetWeightKg: targetWeightKg,
+            gender: gender,
             onCurrentWeightChanged: onCurrentWeightChanged ?? (_) {},
             onTargetWeightChanged: onTargetWeightChanged ?? (_) {},
           ),
@@ -52,6 +54,18 @@ void main() {
     await tester.tap(addButtons.last);
     await tester.pump();
     expect(updatedTargetWeight, 62.5);
+  });
+
+  testWidgets('uses women_full_body asset when gender is female', (
+    tester,
+  ) async {
+    await tester.pumpWidget(buildSubject(gender: 'female'));
+
+    final image = tester.widget<Image>(find.byType(Image));
+    expect(
+      (image.image as AssetImage).assetName,
+      'assets/images/women_full_body.webp',
+    );
   });
 
   testWidgets('renders cleanly in light mode', (tester) async {

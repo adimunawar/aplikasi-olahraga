@@ -3,7 +3,9 @@
     "progress": "$current of $total",
     "getStarted": "Get Started ➔",
     "continueCta": "Continue",
-    "createMyPlan": "Create My Plan"
+    "createMyPlan": "Create My Plan",
+    "alreadyHaveAccount": "Already have an account?",
+    "signIn": "Sign in"
   },
   "welcome": {
     "brand": "Workout\nCoach",
@@ -135,7 +137,7 @@
       "Designed for home training",
       "Adapted to your schedule and equipment"
     ],
-    "viewMyPlan": "View My Plan",
+    "viewMyPlan": "Start My Plan",
     "program": {
       "bulking": {
         "title": "Bulking Program",

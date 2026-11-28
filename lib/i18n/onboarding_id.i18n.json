@@ -3,7 +3,9 @@
     "progress": "$current dari $total",
     "getStarted": "Mulai Sekarang ➔",
     "continueCta": "Lanjut",
-    "createMyPlan": "Buat Program Saya"
+    "createMyPlan": "Buat Program Saya",
+    "alreadyHaveAccount": "Sudah punya akun?",
+    "signIn": "Masuk"
   },
   "welcome": {
     "brand": "Workout\nCoach",
@@ -134,7 +136,7 @@
       "Dirancang untuk latihan di rumah",
       "Disesuaikan dengan jadwal dan alat kamu"
     ],
-    "viewMyPlan": "Lihat Program Saya",
+    "viewMyPlan": "Mulai Program Saya",
     "program": {
       "bulking": {
         "title": "Program Bulking",
