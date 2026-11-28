@@ -11,12 +11,13 @@ import '../../../program/presentation/controllers/draft_program_provider.dart';
 import '../../../program/domain/services/program_week_schedule.dart';
 import '../widgets/onboarding_dots_indicator.dart';
 import '../widgets/step_about.dart';
-import '../widgets/step_body_target.dart';
 import '../widgets/step_equipment.dart';
 import '../widgets/step_experience.dart';
 import '../widgets/step_goal.dart';
+import '../widgets/step_height.dart';
 import '../widgets/step_limitations.dart';
 import '../widgets/step_schedule.dart';
+import '../widgets/step_weight.dart';
 import '../widgets/step_welcome.dart';
 
 /// Onboarding Master Wrapper (Mockup 1:1 Resolusi Tinggi):
@@ -32,8 +33,9 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 }
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
+  static const int _totalSteps = 8;
   final PageController _pageController = PageController();
-  int _currentStep = 0; // 0: Welcome, 1..7: Steps 1..7
+  int _currentStep = 0; // 0: Welcome, 1..8: Steps 1..8
   bool _isCreatingPlan = false;
 
   // --- STATE DATA ONBOARDING LENGKAP ---
@@ -50,7 +52,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   List<String> _limitations = ['none'];
 
   void _nextStep() {
-    if (_currentStep < 7) {
+    if (_currentStep < _totalSteps) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 280),
         curve: Curves.easeInOut,
@@ -195,15 +197,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     onAgeChanged: (val) => setState(() => _age = val),
                   ),
 
-                  // Step 3: Body Metrics & Target (Height, Current & Target Weight)
-                  // Step 3: Body Metrics & Target (Height, Current & Target Weight)
-                  StepBodyTarget(
+                  // Step 3: Height
+                  StepHeight(
                     heightCm: _heightCm,
+                    onHeightChanged: (val) => setState(() => _heightCm = val),
+                  ),
 
+                  // Step 4: Weight & Target
+                  StepWeight(
                     currentWeightKg: _currentWeightKg,
                     targetWeightKg: _targetWeightKg,
-                    onHeightChanged: (val) => setState(() => _heightCm = val),
-
                     onCurrentWeightChanged: (val) =>
                         setState(() => _currentWeightKg = val),
                     onTargetWeightChanged: (val) =>
@@ -275,7 +278,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 onPressed: _prevStep,
               ),
               Text(
-                t.progress(current: _currentStep, total: 7),
+                t.progress(current: _currentStep, total: _totalSteps),
                 style: AppTypography.labelMedium.copyWith(
                   fontWeight: FontWeight.w800,
                   fontSize: 13,
@@ -291,7 +294,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
-              value: (_currentStep / 7.0).clamp(0.0, 1.0),
+              value: (_currentStep / _totalSteps).clamp(0.0, 1.0),
               minHeight: 4,
               backgroundColor: colorScheme.surfaceContainerHighest,
               valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
@@ -343,10 +346,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 ],
               )
             : AppButton.primary(
-                text: _currentStep == 7 ? t.createMyPlan : t.continueCta,
+                text: _currentStep == _totalSteps
+                    ? t.createMyPlan
+                    : t.continueCta,
                 size: AppButtonSize.large,
                 isLoading: _isCreatingPlan,
-                onPressed: _currentStep == 7 ? _createMyPlan : _nextStep,
+                onPressed: _currentStep == _totalSteps
+                    ? _createMyPlan
+                    : _nextStep,
               ),
       ),
     );
