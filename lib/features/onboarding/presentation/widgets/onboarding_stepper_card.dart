@@ -97,30 +97,35 @@ class OnboardingStepperCard extends StatelessWidget {
                 onTap: () =>
                     onChanged((value - step).clamp(minValue, maxValue)),
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Text(
-                    formattedValue,
-                    style: AppTypography.displayMedium.copyWith(
-                      fontSize: 30,
-                      fontWeight: FontWeight.w900,
-                      fontStyle: FontStyle.italic,
-                      color: colorScheme.onSurface,
-                    ),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Text(
+                        formattedValue,
+                        style: AppTypography.displayMedium.copyWith(
+                          fontSize: 30,
+                          fontWeight: FontWeight.w900,
+                          fontStyle: FontStyle.italic,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        unit,
+                        style: AppTypography.bodySmall.copyWith(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 4),
-                  Text(
-                    unit,
-                    style: AppTypography.bodySmall.copyWith(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
+                ),
               ),
               _CircleStepButton(
                 icon: Icons.add_rounded,
@@ -158,8 +163,8 @@ class _CircleStepButton extends StatelessWidget {
         onTap: enabled ? onTap : null,
         customBorder: const CircleBorder(),
         child: SizedBox(
-          width: 40,
-          height: 40,
+          width: 48,
+          height: 48,
           child: Icon(
             icon,
             size: 20,

@@ -205,8 +205,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final isOnboardingFlow = onboardingFlowPaths.contains(
         state.matchedLocation,
       );
+      final isLoginRoute = state.matchedLocation == AppRoutes.login;
 
-      if (!hasCompletedOnboarding && !isOnboardingFlow) {
+      if (!hasCompletedOnboarding && !isOnboardingFlow && !isLoginRoute) {
         return AppRoutes.onboarding;
       }
 

@@ -799,6 +799,10 @@ class _Translations$onboarding$nav$en extends Translations$onboarding$nav$id {
   String get continueCta => 'Continue';
   @override
   String get createMyPlan => 'Create My Plan';
+  @override
+  String get alreadyHaveAccount => 'Already have an account?';
+  @override
+  String get signIn => 'Sign in';
 }
 
 // Path: onboarding.welcome
@@ -1052,7 +1056,7 @@ class _Translations$onboarding$ready$en
     'Adapted to your schedule and equipment',
   ];
   @override
-  String get viewMyPlan => 'View My Plan';
+  String get viewMyPlan => 'Start My Plan';
   @override
   late final _Translations$onboarding$ready$program$en program =
       _Translations$onboarding$ready$program$en._(_root);
@@ -2626,6 +2630,8 @@ extension on TranslationsEn {
       'onboarding.nav.getStarted' => 'Get Started ➔',
       'onboarding.nav.continueCta' => 'Continue',
       'onboarding.nav.createMyPlan' => 'Create My Plan',
+      'onboarding.nav.alreadyHaveAccount' => 'Already have an account?',
+      'onboarding.nav.signIn' => 'Sign in',
       'onboarding.welcome.brand' => 'Workout\nCoach',
       'onboarding.welcome.title' => 'Your Personal\nWorkout Coach',
       'onboarding.welcome.subtitle' => 'Get a workout program based\non your goal, body condition,\nand lifestyle.',
@@ -2752,7 +2758,7 @@ extension on TranslationsEn {
         'Progressive overload (gradual increase)',
       'onboarding.ready.features.2' => 'Designed for home training',
       'onboarding.ready.features.3' => 'Adapted to your schedule and equipment',
-      'onboarding.ready.viewMyPlan' => 'View My Plan',
+      'onboarding.ready.viewMyPlan' => 'Start My Plan',
       'onboarding.ready.program.bulking.title' => 'Bulking Program',
       'onboarding.ready.program.bulking.subtitle' => 'Muscle Gain & Strength',
       'onboarding.ready.program.cutting.title' => 'Fat Loss & Conditioning',

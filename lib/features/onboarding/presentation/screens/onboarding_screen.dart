@@ -133,6 +133,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               isLoading: state.isCreatingPlan,
               onNext: _nextStep,
               onComplete: _createMyPlan,
+              onSignIn: () => context.push(AppRoutes.login),
             ),
           ],
         ),

@@ -27,7 +27,12 @@ class EquipmentCard extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final colorScheme = theme.colorScheme;
-    final accentColor = isDark ? colorScheme.primary : AppColors.greenBrand;
+    final backgroundColor = isSelected
+        ? colorScheme.primary
+        : (isDark ? colorScheme.surfaceContainerHigh : colorScheme.surface);
+    final foregroundColor = isSelected
+        ? colorScheme.onPrimary
+        : colorScheme.onSurface;
 
     return AnimatedScale(
       scale: isSelected ? 1.02 : 1.0,
@@ -42,12 +47,12 @@ class EquipmentCard extends StatelessWidget {
             duration: const Duration(milliseconds: 220),
             curve: Curves.easeOutCubic,
             decoration: BoxDecoration(
-              color: isDark
-                  ? colorScheme.surfaceContainerHigh
-                  : colorScheme.surface,
+              color: backgroundColor,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: isSelected ? accentColor : colorScheme.outlineVariant,
+                color: isSelected
+                    ? colorScheme.primary
+                    : colorScheme.outlineVariant,
                 width: isSelected ? 2.0 : 1.2,
               ),
               boxShadow: isDark
@@ -55,7 +60,7 @@ class EquipmentCard extends StatelessWidget {
                         ? [
                             BoxShadow(
                               color: colorScheme.primary.withValues(
-                                alpha: 0.22,
+                                alpha: 0.25,
                               ),
                               blurRadius: 14,
                               offset: const Offset(0, 4),
@@ -65,8 +70,10 @@ class EquipmentCard extends StatelessWidget {
                   : (isSelected
                         ? [
                             BoxShadow(
-                              color: colorScheme.primary.withValues(alpha: 0.2),
-                              blurRadius: 10,
+                              color: colorScheme.primary.withValues(
+                                alpha: 0.24,
+                              ),
+                              blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),
                           ]
@@ -76,21 +83,22 @@ class EquipmentCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(18),
               child: Stack(
                 children: [
-                  Positioned.fill(
-                    child: CustomPaint(
-                      painter: EquipmentCardGlowPainter(
-                        accentColor: colorScheme.primary,
-                        isSelected: isSelected,
+                  if (!isSelected)
+                    Positioned.fill(
+                      child: CustomPaint(
+                        painter: EquipmentCardGlowPainter(
+                          accentColor: colorScheme.primary,
+                          isSelected: false,
+                        ),
                       ),
                     ),
-                  ),
                   if (isBodyweight)
                     _BodyweightContent(
                       label: label,
                       imagePath: imagePath,
                       fallbackIcon: fallbackIcon,
                       isSelected: isSelected,
-                      accentColor: accentColor,
+                      foregroundColor: foregroundColor,
                     )
                   else
                     _StandardEquipmentContent(
@@ -98,7 +106,7 @@ class EquipmentCard extends StatelessWidget {
                       imagePath: imagePath,
                       fallbackIcon: fallbackIcon,
                       isSelected: isSelected,
-                      accentColor: accentColor,
+                      foregroundColor: foregroundColor,
                     ),
                   if (isSelected)
                     Positioned(
@@ -108,13 +116,13 @@ class EquipmentCard extends StatelessWidget {
                         width: 22,
                         height: 22,
                         decoration: BoxDecoration(
-                          color: colorScheme.primary,
+                          color: colorScheme.onPrimary,
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
                           Icons.check_rounded,
                           size: 14,
-                          color: colorScheme.onPrimary,
+                          color: colorScheme.primary,
                         ),
                       ),
                     ),
@@ -133,14 +141,14 @@ class _BodyweightContent extends StatelessWidget {
   final String imagePath;
   final IconData fallbackIcon;
   final bool isSelected;
-  final Color accentColor;
+  final Color foregroundColor;
 
   const _BodyweightContent({
     required this.label,
     required this.imagePath,
     required this.fallbackIcon,
     required this.isSelected,
-    required this.accentColor,
+    required this.foregroundColor,
   });
 
   @override
@@ -166,7 +174,9 @@ class _BodyweightContent extends StatelessWidget {
               errorBuilder: (context, error, stackTrace) => Icon(
                 fallbackIcon,
                 size: 44,
-                color: isSelected ? accentColor : colorScheme.onSurfaceVariant,
+                color: isSelected
+                    ? foregroundColor
+                    : colorScheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -187,7 +197,7 @@ class _BodyweightContent extends StatelessWidget {
                 fontStyle: FontStyle.italic,
                 fontSize: 13.5,
                 height: 1.2,
-                color: colorScheme.onSurface,
+                color: foregroundColor,
               ),
             ),
           ),
@@ -202,14 +212,14 @@ class _StandardEquipmentContent extends StatelessWidget {
   final String imagePath;
   final IconData fallbackIcon;
   final bool isSelected;
-  final Color accentColor;
+  final Color foregroundColor;
 
   const _StandardEquipmentContent({
     required this.label,
     required this.imagePath,
     required this.fallbackIcon,
     required this.isSelected,
-    required this.accentColor,
+    required this.foregroundColor,
   });
 
   @override
@@ -233,7 +243,7 @@ class _StandardEquipmentContent extends StatelessWidget {
                   fallbackIcon,
                   size: 38,
                   color: isSelected
-                      ? accentColor
+                      ? foregroundColor
                       : colorScheme.onSurfaceVariant,
                 ),
               ),
@@ -250,7 +260,7 @@ class _StandardEquipmentContent extends StatelessWidget {
               fontStyle: FontStyle.italic,
               fontSize: 13,
               height: 1.2,
-              color: colorScheme.onSurface,
+              color: foregroundColor,
             ),
           ),
         ],

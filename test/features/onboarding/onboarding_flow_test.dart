@@ -356,7 +356,7 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.text('Program kamu siap! 🎉'), findsOneWidget);
-        expect(find.text('Lihat Program Saya'), findsOneWidget);
+        expect(find.text('Mulai Program Saya'), findsOneWidget);
         expect(find.text('Program Bulking'), findsOneWidget);
         expect(find.textContaining('Hari / Minggu'), findsOneWidget);
         expect(find.textContaining('Menit / Sesi'), findsOneWidget);

@@ -23,45 +23,7 @@ class StepWelcome extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 1. Logo "● ● Coach" di Kiri Atas sesuai Mockup
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Dua titik/pill hijau limau khas brand
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      color: accentColor,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      color: accentColor,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Coach',
-                style: AppTypography.headlineSmall.copyWith(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 16,
-                  letterSpacing: -0.3,
-                  color: colorScheme.onSurface,
-                ),
-              ),
-            ],
-          ),
+          //tod: logo will be here
           const SizedBox(height: 12),
 
           // 2. Hero Coach Image dengan Soft Lime Organic Card Background
@@ -103,7 +65,7 @@ class StepWelcome extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: const AppSmartImage(
-                        imagePathOrUrl: 'assets/images/coach_hero.png',
+                        imagePathOrUrl: 'assets/images/man-half-body.webp',
                         fit: BoxFit.contain,
                       ),
                     ),

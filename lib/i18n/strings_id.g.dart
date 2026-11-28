@@ -840,6 +840,12 @@ class Translations$onboarding$nav$id {
 
   /// id: 'Buat Program Saya'
   String get createMyPlan => 'Buat Program Saya';
+
+  /// id: 'Sudah punya akun?'
+  String get alreadyHaveAccount => 'Sudah punya akun?';
+
+  /// id: 'Masuk'
+  String get signIn => 'Masuk';
 }
 
 // Path: onboarding.welcome
@@ -1103,8 +1109,8 @@ class Translations$onboarding$ready$id {
     'Disesuaikan dengan jadwal dan alat kamu',
   ];
 
-  /// id: 'Lihat Program Saya'
-  String get viewMyPlan => 'Lihat Program Saya';
+  /// id: 'Mulai Program Saya'
+  String get viewMyPlan => 'Mulai Program Saya';
 
   late final Translations$onboarding$ready$program$id program =
       Translations$onboarding$ready$program$id.internal(_root);
@@ -2716,6 +2722,8 @@ extension on Translations {
       'onboarding.nav.getStarted' => 'Mulai Sekarang ➔',
       'onboarding.nav.continueCta' => 'Lanjut',
       'onboarding.nav.createMyPlan' => 'Buat Program Saya',
+      'onboarding.nav.alreadyHaveAccount' => 'Sudah punya akun?',
+      'onboarding.nav.signIn' => 'Masuk',
       'onboarding.welcome.brand' => 'Workout\nCoach',
       'onboarding.welcome.title' => 'Coach Latihan\nPribadi Kamu',
       'onboarding.welcome.subtitle' => 'Dapatkan program latihan sesuai\ntujuan, kondisi tubuh,\ndan gaya hidup kamu.',
@@ -2845,7 +2853,7 @@ extension on Translations {
       'onboarding.ready.features.2' => 'Dirancang untuk latihan di rumah',
       'onboarding.ready.features.3' =>
         'Disesuaikan dengan jadwal dan alat kamu',
-      'onboarding.ready.viewMyPlan' => 'Lihat Program Saya',
+      'onboarding.ready.viewMyPlan' => 'Mulai Program Saya',
       'onboarding.ready.program.bulking.title' => 'Program Bulking',
       'onboarding.ready.program.bulking.subtitle' => 'Massa Otot & Kekuatan',
       'onboarding.ready.program.cutting.title' => 'Program Turun Lemak',
