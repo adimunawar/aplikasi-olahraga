@@ -1,11 +1,10 @@
 import 'package:material_ui/material_ui.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../core/widgets/app_smart_image.dart';
 import '../../../../i18n/strings.g.dart';
+import 'step_goal/step_goal_widgets.dart';
 
-/// Step 1 of 7: What's your main goal? (Light & Dark Mode)
+/// Step 1 of 8: What's your main goal? (Light & Dark Mode)
 class StepGoal extends StatelessWidget {
   final String selectedGoal;
   final ValueChanged<String> onGoalSelected;
@@ -16,10 +15,10 @@ class StepGoal extends StatelessWidget {
     required this.onGoalSelected,
   });
 
-  static const Map<String, String> _images = {
-    'muscle_gain': 'assets/images/coach_flex.png',
-    'fat_loss': 'assets/images/coach_hero.png',
-    'maintenance': 'assets/images/coach_crossed_arms.png',
+  static const Map<String, String> _assetImages = {
+    'muscle_gain': 'assets/images/goal_bulking.webp',
+    'fat_loss': 'assets/images/goal_weight_loss.webp',
+    'maintenance': 'assets/images/goal_fitness.webp',
   };
 
   @override
@@ -28,7 +27,8 @@ class StepGoal extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -36,132 +36,33 @@ class StepGoal extends StatelessWidget {
             t.title,
             style: AppTypography.displayMedium.copyWith(
               fontWeight: FontWeight.w900,
-              fontSize: 24,
+              fontStyle: FontStyle.italic,
+              fontSize: 26,
+              height: 1.15,
               color: colorScheme.onSurface,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
             t.subtitle,
             style: AppTypography.bodySmall.copyWith(
               color: colorScheme.onSurfaceVariant,
               fontSize: 13,
+              height: 1.4,
             ),
           ),
           const SizedBox(height: 24),
           for (final option in t.options) ...[
-            _buildGoalCard(
-              context: context,
+            GoalCard(
               option: option,
-              imageAsset: _images[option.id] ?? '',
+              imagePath:
+                  _assetImages[option.id] ?? 'assets/images/coach_flex.png',
+              isSelected: selectedGoal == option.id,
+              onTap: () => onGoalSelected(option.id),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 16),
           ],
         ],
-      ),
-    );
-  }
-
-  Widget _buildGoalCard({
-    required BuildContext context,
-    required GoalOption option,
-    required String imageAsset,
-  }) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final colorScheme = theme.colorScheme;
-    final isSelected = selectedGoal == option.id;
-    final accentColor = isDark ? colorScheme.primary : AppColors.greenBrand;
-
-    return InkWell(
-      onTap: () => onGoalSelected(option.id),
-      borderRadius: BorderRadius.circular(18),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? colorScheme.primaryContainer
-              : colorScheme.surface,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: isSelected ? accentColor : colorScheme.outline,
-            width: isSelected ? 1.8 : 1.2,
-          ),
-          boxShadow: isDark
-              ? null
-              : (isSelected
-                    ? [
-                        BoxShadow(
-                          color: AppColors.limeAccent.withValues(alpha: 0.2),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ]
-                    : AppColors.cardShadow),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 58,
-              height: 58,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(14),
-                color: isSelected
-                    ? colorScheme.primaryContainer
-                    : colorScheme.surfaceContainerHighest,
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(14),
-                child: AppSmartImage(
-                  imagePathOrUrl: imageAsset,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    option.title,
-                    style: AppTypography.titleSmall.copyWith(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 14.5,
-                      color: colorScheme.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    option.description,
-                    style: AppTypography.bodySmall.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                      fontSize: 11.5,
-                      height: 1.3,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (isSelected) ...[
-              const SizedBox(width: 8),
-              Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: colorScheme.primary,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.check_rounded,
-                  size: 16,
-                  color: colorScheme.onPrimary,
-                ),
-              ),
-            ],
-          ],
-        ),
       ),
     );
   }

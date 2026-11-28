@@ -11,7 +11,6 @@ import '../../features/nutrition/presentation/screens/nutrition_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/onboarding/presentation/screens/creating_plan_screen.dart';
 import '../../features/onboarding/presentation/screens/plan_ready_screen.dart';
-import '../../features/onboarding/presentation/screens/plan_preview_screen.dart';
 import '../../features/workouts/presentation/screens/workouts_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
@@ -42,7 +41,6 @@ class AppRoutes {
   static const String onboarding = '/onboarding';
   static const String creatingPlan = '/creating-plan';
   static const String planReady = '/plan-ready';
-  static const String onboardingPlan = '/onboarding-plan';
   static const String workoutDetail = '/workout-detail';
   static const String workoutSession = '/workout-session';
   static const String workoutCompleted = '/workout-completed';
@@ -193,7 +191,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     AppRoutes.onboarding,
     AppRoutes.creatingPlan,
     AppRoutes.planReady,
-    AppRoutes.onboardingPlan,
   };
 
   return GoRouter(
@@ -379,11 +376,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.planReady,
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const PlanReadyScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.onboardingPlan,
-        parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => const PlanPreviewScreen(),
       ),
 
       // Sub-halaman Edit Profile

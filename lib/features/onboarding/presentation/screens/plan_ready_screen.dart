@@ -24,6 +24,7 @@ class PlanReadyScreen extends ConsumerStatefulWidget {
 
 class _PlanReadyScreenState extends ConsumerState<PlanReadyScreen> {
   UserProfileEntity? _profile;
+  bool _isActivating = false;
 
   @override
   void initState() {
@@ -39,6 +40,38 @@ class _PlanReadyScreenState extends ConsumerState<PlanReadyScreen> {
     }
     final p = await AppDatabase.instance.getUserProfile();
     if (mounted) setState(() => _profile = p);
+  }
+
+  Future<void> _activateAndGoHome() async {
+    if (_isActivating) return;
+    setState(() => _isActivating = true);
+
+    try {
+      final draft = ref.read(draftProgramProvider);
+      if (draft != null) {
+        await AppDatabase.instance.saveDynamicProgram(
+          program: draft.program,
+          sessions: draft.sessions,
+        );
+      }
+
+      ref.read(hasCompletedOnboardingProvider.notifier).state = true;
+
+      if (mounted) {
+        context.go(AppRoutes.home);
+      }
+    } catch (e) {
+      debugPrint('[PlanReadyScreen] Error activating program: $e');
+      if (mounted) {
+        setState(() => _isActivating = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('We couldn’t activate your plan. Please try again.'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -258,13 +291,12 @@ class _PlanReadyScreenState extends ConsumerState<PlanReadyScreen> {
 
               const Spacer(),
 
-              // Tombol View My Plan (Tetap di dalam flow Onboarding)
+              // Tombol Aktivasi Program & Langsung ke Halaman Utama
               AppButton.primary(
                 text: t.viewMyPlan,
                 size: AppButtonSize.large,
-                onPressed: () {
-                  context.push(AppRoutes.onboardingPlan);
-                },
+                isLoading: _isActivating,
+                onPressed: _activateAndGoHome,
               ),
               const SizedBox(height: 10),
             ],
