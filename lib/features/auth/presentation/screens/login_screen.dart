@@ -80,8 +80,9 @@ class LoginScreen extends StatelessWidget {
               const SizedBox(height: 32),
 
               // Tombol sosial: Google.
+              // TODO: ganti icon dengan asset/logo Google resmi saat asset tersedia.
               _socialButton(
-                icon: Icons.g_mobiledata,
+                icon: Icons.login,
                 label: 'Continue with Google',
                 onPressed: () {},
               ),
@@ -89,6 +90,7 @@ class LoginScreen extends StatelessWidget {
               const SizedBox(height: 12),
 
               // Tombol sosial: Apple.
+              // TODO: wire handler nanti saat auth siap.
               _socialButton(
                 icon: Icons.apple,
                 label: 'Continue with Apple',
@@ -148,11 +150,12 @@ class LoginScreen extends StatelessWidget {
               const SizedBox(height: 32),
 
               // Tombol CTA utama.
+              // TODO: implement handler auth/sync nanti. Disabled sementara agar tidak bisa submit tanpa handler.
               SizedBox(
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: AppColors.onPrimary,
