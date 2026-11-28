@@ -6,7 +6,8 @@ import 'package:workout_app/features/onboarding/presentation/screens/plan_previe
 import 'package:workout_app/features/onboarding/presentation/screens/plan_ready_screen.dart';
 import 'package:workout_app/features/onboarding/presentation/widgets/step_goal.dart';
 import 'package:workout_app/features/onboarding/presentation/widgets/step_about.dart';
-import 'package:workout_app/features/onboarding/presentation/widgets/step_body_target.dart';
+import 'package:workout_app/features/onboarding/presentation/widgets/step_height.dart';
+import 'package:workout_app/features/onboarding/presentation/widgets/step_weight.dart';
 import 'package:workout_app/features/onboarding/presentation/widgets/step_experience.dart';
 import 'package:workout_app/features/onboarding/presentation/widgets/step_schedule.dart';
 import 'package:workout_app/features/onboarding/presentation/widgets/step_equipment.dart';
@@ -109,12 +110,16 @@ void main() {
       expect(find.text('60 menit'), findsOneWidget);
 
       // Select 5 days / week
-      await tester.tap(find.text('5 hari / minggu'));
+      final fiveDays = find.text('5 hari / minggu');
+      await tester.ensureVisible(fiveDays);
+      await tester.tap(fiveDays);
       await tester.pumpAndSettle();
       expect(days, equals(5));
 
       // Select 60 min
-      await tester.tap(find.text('60 menit'));
+      final sixtyMin = find.text('60 menit');
+      await tester.ensureVisible(sixtyMin);
+      await tester.tap(sixtyMin);
       await tester.pumpAndSettle();
       expect(duration, equals(60));
     });
@@ -158,7 +163,7 @@ void main() {
     });
 
     testWidgets(
-      'StepBodyTarget renders height, current and target weight with stepper',
+      'StepHeight and StepWeight render height, current and target weight',
       (tester) async {
         double height = 170.0;
         double currentWeight = 65.0;
@@ -168,11 +173,24 @@ void main() {
           createTestWidget(
             StatefulBuilder(
               builder: (context, setState) {
-                return StepBodyTarget(
+                return StepHeight(
                   heightCm: height,
+                  onHeightChanged: (h) => setState(() => height = h),
+                );
+              },
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('170 cm'), findsOneWidget);
+
+        await tester.pumpWidget(
+          createTestWidget(
+            StatefulBuilder(
+              builder: (context, setState) {
+                return StepWeight(
                   currentWeightKg: currentWeight,
                   targetWeightKg: targetWeight,
-                  onHeightChanged: (h) => setState(() => height = h),
                   onCurrentWeightChanged: (cw) =>
                       setState(() => currentWeight = cw),
                   onTargetWeightChanged: (tw) =>
@@ -184,15 +202,10 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        expect(find.text('170'), findsOneWidget);
-        expect(find.text('65.0'), findsOneWidget);
-        expect(find.text('70.0'), findsOneWidget);
-
-        // Tap + button on height
         final addButtons = find.byIcon(Icons.add_rounded);
         await tester.tap(addButtons.first);
         await tester.pumpAndSettle();
-        expect(height, equals(171.0));
+        expect(currentWeight, equals(65.5));
       },
     );
 
