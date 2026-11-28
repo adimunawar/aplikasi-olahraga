@@ -99,8 +99,9 @@ class StepSchedule extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _ScheduleSummaryBanner(
-            title: t.daysPerWeek(n: daysPerWeek),
-            subtitle: '${t.sessionDuration}: ${t.minutes(n: durationMin)}',
+            title: t.sessionDuration,
+            subtitle:
+                '${t.daysPerWeek(n: daysPerWeek)} • ${t.minutes(n: durationMin)}',
           ),
           const SizedBox(height: 16),
         ],
