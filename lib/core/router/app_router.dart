@@ -13,6 +13,7 @@ import '../../features/onboarding/presentation/screens/creating_plan_screen.dart
 import '../../features/onboarding/presentation/screens/plan_ready_screen.dart';
 import '../../features/onboarding/presentation/screens/plan_preview_screen.dart';
 import '../../features/workouts/presentation/screens/workouts_screen.dart';
+import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/profile/presentation/screens/personal_information_screen.dart';
 import '../../features/profile/presentation/screens/body_information_screen.dart';
@@ -59,6 +60,7 @@ class AppRoutes {
   static const String reminders = '/profile/reminders';
   static const String appSettings = '/profile/app-settings';
   static const String helpAbout = '/profile/help-about';
+  static const String login = '/login';
 }
 
 /// DTO Arguments untuk WorkoutDetailScreen
@@ -419,6 +421,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.helpAbout,
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const HelpAboutScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.login,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const LoginScreen(),
       ),
     ],
   );
