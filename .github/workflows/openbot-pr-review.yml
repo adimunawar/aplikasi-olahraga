@@ -9,30 +9,78 @@ on:
       - synchronize
       - reopened
       - ready_for_review
+  issue_comment:
+    types:
+      - created
 
 jobs:
   notify:
     runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request != null)
     steps:
-      - name: Send PR event to OpenBot webhook
+      - name: Resolve PR metadata
+        id: meta
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            PR="${{ github.event.pull_request.number }}"
+            TITLE="${{ github.event.pull_request.title }}"
+            BASE="${{ github.event.pull_request.base.ref }}"
+            HEAD="${{ github.event.pull_request.head.ref }}"
+            SHA="${{ github.event.pull_request.head.sha }}"
+            AUTHOR="${{ github.event.pull_request.user.login }}"
+            ACTION="${{ github.event.action }}"
+          else
+            PR="${{ github.event.issue.number }}"
+            INFO=$(gh pr view "$PR" --repo "${{ github.repository }}" --json title,baseRefName,headRefName,headRefOid,author)
+            TITLE=$(echo "$INFO" | jq -r .title)
+            BASE=$(echo "$INFO" | jq -r .baseRefName)
+            HEAD=$(echo "$INFO" | jq -r .headRefName)
+            SHA=$(echo "$INFO" | jq -r .headRefOid)
+            AUTHOR=$(echo "$INFO" | jq -r .author.login)
+            ACTION="comment"
+          fi
+          echo "pr=$PR" >> $GITHUB_OUTPUT
+          echo "title=$TITLE" >> $GITHUB_OUTPUT
+          echo "base=$BASE" >> $GITHUB_OUTPUT
+          echo "head=$HEAD" >> $GITHUB_OUTPUT
+          echo "sha=$SHA" >> $GITHUB_OUTPUT
+          echo "author=$AUTHOR" >> $GITHUB_OUTPUT
+          echo "action=$ACTION" >> $GITHUB_OUTPUT
+          if [ "$BASE" != "develop" ]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Send event to OpenBot webhook
+        if: steps.meta.outputs.skip != 'true'
         env:
           WEBHOOK_URL: https://signal.openbot.run/v1/webhooks/671a4d00-3d14-4362-8e66-ef7003ff74c2
           WEBHOOK_SECRET: ${{ secrets.OPENBOT_WEBHOOK_SECRET }}
         run: |
           set -euo pipefail
           TS=$(date +%s)
-          DELIVERY_ID="gh-pr-${{ github.event.pull_request.number }}-${{ github.run_id }}"
+          DELIVERY_ID="gh-${{ github.event_name }}-${{ steps.meta.outputs.pr }}-${{ github.run_id }}"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            TYPE="github.pull_request"
+          else
+            TYPE="github.pull_request_comment"
+          fi
           BODY=$(jq -nc \
-            --arg type "github.pull_request" \
+            --arg type "$TYPE" \
             --arg occurredAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-            --argjson prNumber ${{ github.event.pull_request.number }} \
-            --arg title "${{ github.event.pull_request.title }}" \
-            --arg base "${{ github.event.pull_request.base.ref }}" \
-            --arg head "${{ github.event.pull_request.head.ref }}" \
-            --arg sha "${{ github.event.pull_request.head.sha }}" \
+            --argjson prNumber ${{ steps.meta.outputs.pr }} \
+            --arg title "${{ steps.meta.outputs.title }}" \
+            --arg base "${{ steps.meta.outputs.base }}" \
+            --arg head "${{ steps.meta.outputs.head }}" \
+            --arg sha "${{ steps.meta.outputs.sha }}" \
             --arg repo "${{ github.repository }}" \
-            --arg author "${{ github.event.pull_request.user.login }}" \
-            --arg action "${{ github.event.action }}" \
+            --arg author "${{ steps.meta.outputs.author }}" \
+            --arg action "${{ steps.meta.outputs.action }}" \
             '{type:$type, occurredAt:$occurredAt, data:{prNumber:$prNumber, title:$title, base:$base, head:$head, sha:$sha, repository:$repo, author:$author, action:$action}}')
           SIG=$(printf '%s.%s.%s' "$TS" "$DELIVERY_ID" "$BODY" | openssl dgst -sha256 -hmac "$WEBHOOK_SECRET" | sed 's/^.* //')
           curl -sS -X POST "$WEBHOOK_URL" \
